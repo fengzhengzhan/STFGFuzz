@@ -1,0 +1,15 @@
+.git/
+.idea/
+LLVM/
+pin_mode/pin320/
+pin_mode/examples_cprogram/
+pin_mode/fuzzer_program/
+pin_mode/graph_data/
+pin_mode/info_data/
+pin_mode/log_data/
+pin_mode/other_function/
+pin_mode/__pycache__/
+pin_mode/test_data/
+pin_mode/wasm/
+dataset/
+
