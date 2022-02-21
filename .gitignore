@@ -11,5 +11,6 @@ pin_mode/other_function/
 pin_mode/__pycache__/
 pin_mode/test_data/
 pin_mode/wasm/
+llvm_mode/otherfunc/
 dataset/
 EachFuzzer/

@@ -21,10 +21,19 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 
-int main() {
+using namespace std;
+
+int main(int argc, char *argv[]) {
   char buffer[44] = { /* zero padding */ };
-  fread(buffer, 1, sizeof(buffer) - 1, stdin);
+  memcpy(buffer, argv[1], sizeof(char)*44);
+  // for(int i=0; i <44;i++)
+  // {
+  //   cout << buffer[i] << endl;
+  // }
+    
+
 
   if (memcmp(&buffer[0], "The quick brown fox ", 20) != 0 ||
       strncmp(&buffer[20], "jumps over ", 11) != 0 ||

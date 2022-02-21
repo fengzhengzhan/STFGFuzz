@@ -21,16 +21,16 @@ cmake --version
 # install clang, llvm, compiler-rt.
 wget https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/clang-12.0.1.src.tar.xz
 tar -xf clang-12.0.1.src.tar.xz
-mv clang-12.0.1 clang
+mv clang-12.0.1.src clang
 
 wget https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/llvm-12.0.1.src.tar.xz
 tar -xf llvm-12.0.1.src.tar.xz
-mv llvm-12.0.1 llvm
+mv llvm-12.0.1.src llvm
 mkdir build
 
 wget https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/compiler-rt-12.0.1.src.tar.xz
 tar -xf compiler-rt-12.0.1.src.tar.xz
-mv compiler-rt-12.0.1 compiler-rt
+mv compiler-rt-12.0.1.src compiler-rt
 ```
 
 Create build.sh file. The contents of this file.
@@ -55,8 +55,10 @@ Build compiler-rt.
 
 ```bash
 mv compiler-rt llvm/projects/
-cd llvm/projects
+cd llvm/projects/compiler-rt
 cmake ../compiler-rt -DLLVM_CONFIG_PATH=LLVM/build/bin/llvm-config
+nano CMakeCache.txt
+# COMPILER_RT_INSTALL_PATH:PATH=/usr/local/lib/clang/12.0.1  # Replace path string.
 make
 make install
 ```
