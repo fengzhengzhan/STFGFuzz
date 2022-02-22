@@ -1,9 +1,10 @@
 cd clangsanitizer/
-./build.sh
+make
 cd ..
 clang++ -c demo.cc -o demo.o -fsanitize=address -fsanitize-coverage=trace-pc-guard,trace-cmp
 clang++ demo.o -o demo -fsanitize=address -Wl,--whole-archive -L./clangsanitizer -lcmpcov -Wl,--no-whole-archive
-./demo aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+rm -f demo.o
+./demo Thexquicaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaapaaaqaaaraaasaaataaauaaavaaawaaaxaaayaaaz
 
 
 # cd cmptype
