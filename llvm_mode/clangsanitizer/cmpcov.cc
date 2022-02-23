@@ -11,6 +11,17 @@
 using namespace std;
 
 
+
+static void saveCovOnEnd() {
+    cout << "test atexit saveCovOnEnd";
+}
+
+int value = atexit(saveCovOnEnd);
+// if(value != 0) {
+//     cout << "atexit() function registration failed!";
+//     exit(1);
+// }
+
 static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len) {
     uintptr_t PC = reinterpret_cast<uintptr_t>(GET_CALLER_PC());
     cout << "tracecmp:\n" << PC << " " << arg1 << " " << arg2 << " " << arg_len << endl;
@@ -24,17 +35,17 @@ static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int
         (reinterpret_cast<uint64_t>(s1) << 48) |
         (reinterpret_cast<uint64_t>(s2) << 60);
 
-    printf("%x\n", traceflag);
+    printf("%lx\n", traceflag);
 
-    // cout << "strmemcmp:\n" << *(int *)called_pc << " ";
-    // for (int i = 0; i < sizeof(s1); i ++) {
-    //     printf("%c", s1[i]);
-    // }
-    // cout << " ";
-    // for (int i = 0; i < sizeof(s2); i ++) {
-    //     printf("%c", s2[i]);
-    // }
-    // cout << " " << n << " " << result << endl;
+    printf("strmemcmp:%x ", *(int *)called_pc);
+    for (int i = 0; i < n; i ++) {
+        printf("%c", s1[i]);
+    }
+    printf(" ");
+    for (int i = 0; i < n; i ++) {
+        printf("%c", s2[i]);
+    }
+    printf(" %d %d \n", n, result);
 }
 
 void sanCovTraceCmp1(uint8_t Arg1, uint8_t Arg2) {
@@ -64,6 +75,19 @@ void sanCovTraceConstCmp8(uint64_t Arg1, uint64_t Arg2) {
 }
 
 void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
+    // Called before a switch statement.
+    // Val is the switch operand.
+    // Cases[0] is the number of case constants.
+    // Cases[1] is the size of Val in bits.
+    // Cases[2:] are the case constants.
+    if (Cases[0] == 0) {
+        return ;
+    }
+
+    for (int i = 0; i < Cases[0]; i ++) {
+        cout << "switch" << i << ":" << Cases[2 + i] << " ";
+    }
+
 
 }
 
@@ -85,7 +109,6 @@ void sanWeakHookMemcmp(void *called_pc, const void *s1, const void *s2, size_t n
     // }
 
     handleStrMemCmp(called_pc, static_cast<const char *>(s1), static_cast<const char *>(s2), n, result);
-
 }
 
 void sanWeakHookStrncmp(void *called_pc, const char *s1, const char *s2, size_t n, int result) {
@@ -102,8 +125,8 @@ void sanWeakHookStrcmp(void *called_pc, const char *s1, const char *s2, int resu
     // if (n > maxCmpLen) {
     //     return ;
     // }
-
-    handleStrMemCmp(called_pc, s1, s2, 0, result);
+    // printf("test  ");
+    // handleStrMemCmp(called_pc, s1, s2, 0, result);
 }
 void sanWeakHookStrncasecmp(void *called_pc, const char *s1, const char *s2, size_t n, int result) {
     // Skip comparison of long strings. 
@@ -111,7 +134,7 @@ void sanWeakHookStrncasecmp(void *called_pc, const char *s1, const char *s2, siz
     //     return ;
     // }
 
-    handleStrMemCmp(called_pc, s1, s2, n, result);
+    // handleStrMemCmp(called_pc, s1, s2, n, result);
 }
 void sanWeakHookStrcasecmp(void *called_pc, const char *s1, const char *s2, int result) {
     // Skip comparison of long strings. 
@@ -119,7 +142,7 @@ void sanWeakHookStrcasecmp(void *called_pc, const char *s1, const char *s2, int 
     //     return ;
     // }
 
-    handleStrMemCmp(called_pc, s1, s2, 0, result);
+    // handleStrMemCmp(called_pc, s1, s2, 0, result);
 }
 
 

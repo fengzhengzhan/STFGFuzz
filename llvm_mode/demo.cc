@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     
 
 
-  if (memcmp(&buffer[0], "Thexquickxbrownxfoxx", 20) != 0 ||
+  if (memcmp(&buffer[0], "The quick brown fox ", 20) != 0 ||
       strncmp(&buffer[20], "jumps over ", 11) != 0 ||
       strcmp(&buffer[31], "the lazy dog") != 0) {
     return 1;
