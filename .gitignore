@@ -1,5 +1,6 @@
 .git/
 .idea/
+__pycache__/
 LLVM/
 pin_mode/pin320/
 pin_mode/examples_cprogram/
@@ -14,5 +15,6 @@ pin_mode/wasm/
 llvm_mode/otherfunc/
 llvm_mode/Build
 llvm_mode/Programs/otherfunc
+otherfunc/
 dataset/
 EachFuzzer/
