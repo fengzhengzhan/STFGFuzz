@@ -1,69 +1,97 @@
-/////////////////////////////////////////////////////////////////////////
-//
-// Author: Mateusz Jurczyk (mjurczyk@google.com)
-//
-// Copyright 2019 Google LLC
-// 
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// 
-// https://www.apache.org/licenses/LICENSE-2.0
-// 
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <getopt.h>
+#include <stdlib.h>
+
+#define N 201
+#define BUFFERN 44
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
-  char buffer[44] = { /* zero padding */ };
-  memcpy(buffer, argv[1], sizeof(char)*44);
-  // for(int i=0; i <44;i++)
-  // {
-  //   cout << buffer[i] << endl;
-  // }
+
+    int opt, opt_index;
+    char* filename;
+    static struct option long_options[] = 
+    {
+        {"file", required_argument, NULL, 'f'}
+    };
+    while((opt = getopt_long(argc, argv, "f:", long_options, &opt_index)) != -1)
+    {
+        switch (opt)
+        {
+        case 'f':
+            filename = optarg;
+            break;
+        
+        default:
+            printf("Error Parameters!");
+            break;
+        }
+
+    }
+
+    // Read file.
+    char str[N];
+    FILE *fp = fopen(filename, "r");
+    fgets(str, N, fp);
+    // printf("%s", str);
     
+    // printf("%ld", sizeof(char)*BUFFERN);
+    char buffer[45] = {};
+    memcpy(buffer, str, sizeof(char)*BUFFERN);
+    printf("---------------------   %c", buffer[44]);
+    buffer[44] = '\0';
+    // buffer   
+    // printf("%s\n", buffer);
 
 
-  if (memcmp(&buffer[0], "The quick brown fox ", 20) != 0 ||
-      strncmp(&buffer[20], "jumps over ", 11) != 0 ||
-      strcmp(&buffer[31], "the lazy dog") != 0) {
+    if (memcmp(&buffer[0], "The quick brown fox ", 20) != 0 ||
+        strncmp(&buffer[20], "jumps over ", 11) != 0 ||
+        strcmp(&buffer[31], "the lazy dog.") != 0) {
     return 1;
-  }
+    }
 
-  uint64_t x = 0;
-  fread(&x, sizeof(x), 1, stdin);
-  if (x != 0xCAFEBABECAFEBABE) {
-    return 1;
-  }
+    printf("Though first str/mem Cmp.\n");
 
-  uint32_t y = 0;
-  fread(&y, sizeof(y), 1, stdin);
-  if (y != 0xDEADC0DE) {
-    return 1;
-  }
+    char s1[N], s2[N], s3[N];
+    for (int i = 0; i < 16; i ++) {
+        s1[i] = str[i+BUFFERN];
+    }
+    s1[16]='\0';
+    for (int i = 0; i < 8; i ++) {
+        s2[i] = str[i+BUFFERN+16];
+    }
+    s2[8]='\0';
+    for (int i = 0; i < 4; i ++) {
+        s3[i] = str[i+BUFFERN+16+8];
+    }
+    s3[4]='\0';
+    printf("%s\n", s3);
 
-  uint16_t z = 0;
-  fread(&z, sizeof(z), 1, stdin);
+    uint64_t x = strtoull(s1, NULL, 16);
+    if (x != 0xCAFEBABECAFEBABE) {
+        return 1;
+    }
 
-  switch (z) {
+    uint32_t y = strtoul(s2, NULL, 16);
+    if (y != 0xDEADC0DE) {
+        return 1;
+    }
+
+    uint16_t z = strtouq(s3, NULL, 16);
+    // printf("%d %d\n", z, 0xBEEF);
+    switch (z) {
     case 0xBEEF:
-      break;
+        break;
 
     default:
-      return 1;
-  }
+        return 1;
+    }
 
-  printf("Puzzle solved, congrats!\n");
-  return 0;
+    printf("Puzzle solved, Congratulations!\n");
+    return 0;
 }

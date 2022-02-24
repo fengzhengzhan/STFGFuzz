@@ -14,12 +14,7 @@ include_directories(${LLVM_INCLUDE_DIRS})
 add_llvm_library( LLVMObfuscator MODULE 
     src/HelloWorld.cpp
     src/SplitBasicBlock.cpp
-    src/Flattening.cpp
     src/Utils.cpp
-    src/BogusControlFlow.cpp
-    src/Substitution.cpp
-    src/RandomControlFlow.cpp
-    src/ConstantSubstitution.cpp
     src/GetCFG.cpp
     src/GetOperand.cpp
 )

@@ -24,22 +24,24 @@ llc -filetype=obj ${IR}/${DEMO_PASS}.ll -o ${IR}/${DEMO_PASS}.o  # Object file
 clang++ ${IR}/${DEMO_PASS}.o -o ${BIN}/${DEMO} -fsanitize=address -Wl,--whole-archive -L../ClangSanitizer -lcmpcov -Wl,--no-whole-archive  # Link
 cd ..
 
-./${PROGRAMS}/${BIN}/${DEMO} aaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaapaaaqaaar  # Run
+echo -e "\n------- demo -------"
+# Run
+./${PROGRAMS}/${BIN}/${DEMO} -f "../SeedPool/init_seeds/${DEMO}/final.seed"
 
 
 # Clear files.
 echo -e "\n"
-if [ $1 == "rm" ]
+if [ $1 == "-rm" ]
 then
-	echo "rm"
+	echo "-rm"
 	rm -f ./${PROGRAMS}/${IR}/${DEMO}.ll
 	rm -f ./${PROGRAMS}/${IR}/${DEMO_PASS}.ll
 	rm -f ./${PROGRAMS}/${IR}/${DEMO_PASS}.o
 	rm -f ./${PROGRAMS}/${BIN}/${DEMO}
 fi
-if [ $1 == "rmall" ]
+if [ $1 == "-rmall" ]
 then
-	echo "rmall"
+	echo "-rmall"
 	cd ./ClangSanitizer
 	make clean
 	cd ..

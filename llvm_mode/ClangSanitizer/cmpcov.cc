@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+#include <stdio.h>
 #include <sanitizer/dfsan_interface.h>
 #include <assert.h>
 
@@ -11,9 +12,10 @@
 using namespace std;
 
 
+extern "C"{
 
 static void saveCovOnEnd() {
-    cout << "test atexit saveCovOnEnd";
+    printf("test atexit saveCovOnEnd");
 }
 
 int value = atexit(saveCovOnEnd);
@@ -24,28 +26,29 @@ int value = atexit(saveCovOnEnd);
 
 static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len) {
     uintptr_t PC = reinterpret_cast<uintptr_t>(GET_CALLER_PC());
-    cout << "tracecmp:\n" << PC << " " << arg1 << " " << arg2 << " " << arg_len << endl;
+    printf("tracecmp: %x %lu %lu %d\n", *(int *)PC, arg1, arg2, arg_len);
 } 
 
-static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result) {
+static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char* funcinfo) {
 
-    printf("%x\n", *(int *)called_pc);
+    printf("%s:%x ", funcinfo, *(int *)called_pc);
 
     uint64_t traceflag =  reinterpret_cast<uint64_t>(called_pc) |
         (reinterpret_cast<uint64_t>(s1) << 48) |
         (reinterpret_cast<uint64_t>(s2) << 60);
 
-    printf("%lx\n", traceflag);
+    printf("%lx ", traceflag);
 
-    printf("strmemcmp:%x ", *(int *)called_pc);
-    for (int i = 0; i < n; i ++) {
+    printf("-s1:");
+    for (int i = 0; i < sizeof(s1)*2; i ++) {
         printf("%c", s1[i]);
     }
-    printf(" ");
-    for (int i = 0; i < n; i ++) {
+    printf("- -s2:");
+    for (int i = 0; i < sizeof(s2)*2; i ++) {
         printf("%c", s2[i]);
     }
-    printf(" %d %d \n", n, result);
+    printf("- ");
+    printf("%d %d \n", n, result);
 }
 
 void sanCovTraceCmp1(uint8_t Arg1, uint8_t Arg2) {
@@ -85,9 +88,9 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     }
 
     for (int i = 0; i < Cases[0]; i ++) {
-        cout << "switch" << i << ":" << Cases[2 + i] << " ";
+        printf("switch%d: %lu %lu ", i, Val, Cases[2 + i]);
     }
-
+    printf("\n");
 
 }
 
@@ -108,7 +111,7 @@ void sanWeakHookMemcmp(void *called_pc, const void *s1, const void *s2, size_t n
     //     return ;
     // }
 
-    handleStrMemCmp(called_pc, static_cast<const char *>(s1), static_cast<const char *>(s2), n, result);
+    handleStrMemCmp(called_pc, static_cast<const char *>(s1), static_cast<const char *>(s2), n, result, "sanWeakHookMemcmp");
 }
 
 void sanWeakHookStrncmp(void *called_pc, const char *s1, const char *s2, size_t n, int result) {
@@ -117,7 +120,7 @@ void sanWeakHookStrncmp(void *called_pc, const char *s1, const char *s2, size_t 
     //     return ;
     // }
 
-    handleStrMemCmp(called_pc, s1, s2, n, result);
+    handleStrMemCmp(called_pc, s1, s2, n, result, "sanWeakHookStrncmp");
     
 }
 void sanWeakHookStrcmp(void *called_pc, const char *s1, const char *s2, int result) {
@@ -126,7 +129,7 @@ void sanWeakHookStrcmp(void *called_pc, const char *s1, const char *s2, int resu
     //     return ;
     // }
     // printf("test  ");
-    // handleStrMemCmp(called_pc, s1, s2, 0, result);
+    handleStrMemCmp(called_pc, s1, s2, 0, result, "sanWeakHookStrcmp");
 }
 void sanWeakHookStrncasecmp(void *called_pc, const char *s1, const char *s2, size_t n, int result) {
     // Skip comparison of long strings. 
@@ -134,7 +137,7 @@ void sanWeakHookStrncasecmp(void *called_pc, const char *s1, const char *s2, siz
     //     return ;
     // }
 
-    // handleStrMemCmp(called_pc, s1, s2, n, result);
+    handleStrMemCmp(called_pc, s1, s2, n, result, "sanWeakHookStrncasecmp");
 }
 void sanWeakHookStrcasecmp(void *called_pc, const char *s1, const char *s2, int result) {
     // Skip comparison of long strings. 
@@ -142,12 +145,12 @@ void sanWeakHookStrcasecmp(void *called_pc, const char *s1, const char *s2, int 
     //     return ;
     // }
 
-    // handleStrMemCmp(called_pc, s1, s2, 0, result);
+    handleStrMemCmp(called_pc, s1, s2, 0, result, "sanWeakHookStrcasecmp");
 }
 
 
 
-extern "C"{
+
 void __sanitizer_cov_trace_cmp1(uint8_t Arg1, uint8_t Arg2) { 
     sanCovTraceCmp1(Arg1, Arg2); }
 void __sanitizer_cov_trace_cmp2(uint16_t Arg1, uint16_t Arg2) { 
