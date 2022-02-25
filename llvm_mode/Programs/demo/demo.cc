@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     // printf("%ld", sizeof(char)*BUFFERN);
     char buffer[45] = {};
     memcpy(buffer, str, sizeof(char)*BUFFERN);
-    printf("---------------------   %c", buffer[44]);
+    //printf("-> %c", buffer[44]);
     buffer[44] = '\0';
     // buffer   
     // printf("%s\n", buffer);

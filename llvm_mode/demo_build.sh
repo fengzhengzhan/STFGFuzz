@@ -19,7 +19,7 @@ PROGRAMS="Programs"
 
 cd ./${PROGRAMS}
 clang++ -S -emit-llvm ${DEMO}/${DEMO}.cc -o ${IR}/${DEMO}.ll -fsanitize=address -fsanitize-coverage=trace-pc-guard,trace-cmp  # IR
-opt -load ../Build/LLVMObfuscator.so -split -S ${IR}/${DEMO}.ll -o ${IR}/${DEMO_PASS}.ll
+opt -load ../Build/LLVMObfuscator.so -teb -S ${IR}/${DEMO}.ll -o ${IR}/${DEMO_PASS}.ll
 llc -filetype=obj ${IR}/${DEMO_PASS}.ll -o ${IR}/${DEMO_PASS}.o  # Object file 
 clang++ ${IR}/${DEMO_PASS}.o -o ${BIN}/${DEMO} -fsanitize=address -Wl,--whole-archive -L../ClangSanitizer -lcmpcov -Wl,--no-whole-archive  # Link
 cd ..
