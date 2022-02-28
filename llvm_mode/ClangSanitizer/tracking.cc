@@ -22,7 +22,11 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
   __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
   printf("INIT: %p %p %s\n", start, stop, PcDescr);
   for (uint32_t *x = start; x < stop; x++)
-    *x = ++N;  // Guards should start from 1.
+  {
+      *x = ++N;
+      printf(" %d ", N);
+
+  }  // Guards should start from 1.
 }
 
 // This callback is inserted by the compiler on every edge in the
@@ -41,7 +45,7 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
   // __sanitizer_cov_trace_pc_guard_init and so you can make them consecutive
   // and use them to dereference an array or a bit vector.
   void *PC = __builtin_return_address(0);
-  char PcDescr[1024];
+  char PcDescr[10240];
   // This function is a part of the sanitizer run-time.
   // To use it, link with AddressSanitizer or other sanitizer.
   __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));

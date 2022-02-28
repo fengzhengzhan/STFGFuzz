@@ -56,11 +56,10 @@ Build compiler-rt.
 ```bash
 mv compiler-rt llvm/projects/
 cd llvm/projects/compiler-rt
-cmake ../compiler-rt -DLLVM_CONFIG_PATH=LLVM/build/bin/llvm-config
+cmake ../compiler-rt -DLLVM_CONFIG_PATH=PATH/LLVM/build/bin/llvm-config
 nano CMakeCache.txt
 # COMPILER_RT_INSTALL_PATH:PATH=/usr/local/lib/clang/12.0.1  # Replace path string.
 make
 make install
 ```
-
 
