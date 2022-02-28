@@ -1,5 +1,0 @@
-digraph "CFG for 'sancov.module_ctor_trace_pc_guard' function" {
-	label="CFG for 'sancov.module_ctor_trace_pc_guard' function";
-
-	Node0x55fb28871970 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870",label="{%0:\l  call void @__asan_before_dynamic_init(i64 ptrtoint ([13 x i8]*\l... @___asan_gen_.13 to i64))\l  call void @__sanitizer_cov_trace_pc_guard_init(i32*\l... @__start___sancov_guards, i32* @__stop___sancov_guards)\l  call void @__asan_after_dynamic_init()\l  ret void\l}"];
-}
