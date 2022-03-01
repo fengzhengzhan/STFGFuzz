@@ -38,15 +38,15 @@ static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int
     //     (reinterpret_cast<uint64_t>(s2) << 60);
     // printf("%lx ", traceflag);
 
-    printf("-s1:");
+    printf("<s1:");
     for (int i = 0; i < sizeof(s1)*2; i ++) {
         printf("%c", s1[i]);
     }
-    printf(":1s- -s2:");
+    printf(":1s> <s2:");
     for (int i = 0; i < sizeof(s2)*2; i ++) {
         printf("%c", s2[i]);
     }
-    printf(":2s- ");
+    printf(":2s> ");
     printf("%d %d\n", n, result);
 }
 
