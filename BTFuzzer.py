@@ -25,7 +25,7 @@ def run(cmd: str) -> (int, str, str):
 def mainFuzzer():
     print("----")
     stat_time = time.time()
-    for i in range(100):
+    for i in range(200):
         ret_code, std_out, std_err = run("./Programs/Bin/demo -f SeedPool/init_seeds/demo/init.seed")
         print(ret_code, std_out, std_err)
     print(time.time()-stat_time)

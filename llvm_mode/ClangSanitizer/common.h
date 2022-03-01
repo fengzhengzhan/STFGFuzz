@@ -35,6 +35,9 @@ const uint64_t fMagic32 = 0xC0BFFFFFFFFFFF32;
 // Maximum length memory/string buffer for strcmp(), strncmp() and memcmp() functions.
 const uint8_t maxCmpLen = 32;
 
+// return the stack of the function
+# define GET_CALLER_PC __builtin_return_address(0)  
+
 int GetPid();
 
 #endif  // CMPCOV_COMMON_H_

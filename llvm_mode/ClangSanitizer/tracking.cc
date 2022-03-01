@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdint.h>
 #include <stdio.h>
-#include <sanitizer/coverage_interface.h>
+// #include <sanitizer/coverage_interface.h>
 
 #include "tracking.h"
 
@@ -16,10 +16,12 @@ extern "C"{
     void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
         static uint64_t N;  // Counter for the guards.
         if (start == stop || *start) return;  // Initialize only once.
-        void *PC = __builtin_return_address(0);
-        char PcDescr[10240];
-        __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
-        printf("\nI %p %p %s\n", start, stop, PcDescr);
+        // void *PC = __builtin_return_address(0);
+        
+        // char PcDescr[10240];
+        // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
+        // printf("\nI %p %p %s\n", start, stop, PcDescr);
+        printf("\nI %p %p %x\n", start, stop, *(int *)GET_CALLER_PC);
         for (uint32_t *x = start; x < stop; x++)
         {
             *x = ++N;
@@ -43,12 +45,13 @@ extern "C"{
         // The values of `*guard` are as you set them in
         // __sanitizer_cov_trace_pc_guard_init and so you can make them consecutive
         // and use them to dereference an array or a bit vector.
-        void *PC = __builtin_return_address(0);
-        char PcDescr[10240];
+
         // This function is a part of the sanitizer run-time.
         // To use it, link with AddressSanitizer or other sanitizer.
-        __sanitizer_symbolize_pc(PC, "%p_%F_%L", PcDescr, sizeof(PcDescr));
-        printf("\nG %p %x %s\n", guard, *guard, PcDescr);
+        // char PcDescr[10240];
+        // __sanitizer_symbolize_pc(PC, "%p_%F_%L", PcDescr, sizeof(PcDescr));
+        // printf("\nG %p %x %s\n", guard, *guard, PcDescr);
+        printf("\nG %p %x %x\n", guard, *guard, *(int *)GET_CALLER_PC);
     }
 
 }
