@@ -7,7 +7,7 @@ from fuzzconfig import *
 
 # run cmd to get information from executable files or other tools
 def run(cmd: str) -> (int, str, str):
-    FUZZLOGGING("DEBUG", "{}-> cmd:{}".format(sys._getframe().f_code.co_name, cmd))
+    # FUZZLOGGING("DEBUG", "{}-> cmd:{}".format(sys._getframe().f_code.co_name, cmd))
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     # timeout kill child process
     try:
@@ -25,10 +25,11 @@ def run(cmd: str) -> (int, str, str):
 def mainFuzzer():
     print("----")
     stat_time = time.time()
-    for i in range(200):
-        ret_code, std_out, std_err = run("./llvm_mode/Programs/Bin/demo -f SeedPool/init_seeds/demo/init.seed")
+    for i in range(100):
+        ret_code, std_out, std_err = run("./Programs/Bin/demo -f SeedPool/init_seeds/demo/init.seed")
         print(ret_code, std_out, std_err)
     print(time.time()-stat_time)
+
 
 
 if __name__ == "__main__":

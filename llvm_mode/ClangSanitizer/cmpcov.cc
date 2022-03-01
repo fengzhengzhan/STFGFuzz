@@ -25,9 +25,9 @@ int value = atexit(saveCovOnEnd);
 //     exit(1);
 // }
 
-static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
+static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len) {
     uintptr_t PC = reinterpret_cast<uintptr_t>(GET_CALLER_PC());
-    printf("\n%c %x %lu %lu %d\n", funcinfo, *(int *)PC, arg1, arg2, arg_len);
+    // printf("\n%c %x %lu %lu %d\n", funcinfo, *(int *)PC, arg1, arg2, arg_len);
 } 
 
 static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char funcinfo) {
@@ -52,29 +52,29 @@ static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int
 }
 
 void sanCovTraceCmp1(uint8_t Arg1, uint8_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 1, COV_TRACE_CMP1);
+    handleTraceCmp(Arg1, Arg2, 1);
 }
 void sanCovTraceCmp2(uint16_t Arg1, uint16_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 2, COV_TRACE_CMP2);
+    handleTraceCmp(Arg1, Arg2, 2);
 }
 void sanCovTraceCmp4(uint32_t Arg1, uint32_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 4, COV_TRACE_CMP4);
+    handleTraceCmp(Arg1, Arg2, 4);
 }
 void sanCovTraceCmp8(uint64_t Arg1, uint64_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 8, COV_TRACE_CMP8);
+    handleTraceCmp(Arg1, Arg2, 8);
 }
 
 void sanCovTraceConstCmp1(uint8_t Arg1, uint8_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 1, COV_TRACE_CONST_CMP1);
+    handleTraceCmp(Arg1, Arg2, 1);
 }
 void sanCovTraceConstCmp2(uint16_t Arg1, uint16_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 2, COV_TRACE_CONST_CMP2);
+    handleTraceCmp(Arg1, Arg2, 2);
 }
 void sanCovTraceConstCmp4(uint32_t Arg1, uint32_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 4, COV_TRACE_CONST_CMP4);
+    handleTraceCmp(Arg1, Arg2, 4);
 }
 void sanCovTraceConstCmp8(uint64_t Arg1, uint64_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 8, COV_TRACE_CONST_CMP8);
+    handleTraceCmp(Arg1, Arg2, 8);
 }
 
 void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
