@@ -34,9 +34,9 @@ $sancov.module_ctor_trace_pc_guard = comdat any
 @.str.9 = internal constant { [33 x i8], [63 x i8] } { [33 x i8] c"Puzzle solved, Congratulations!\0A\00", [63 x i8] zeroinitializer }, align 32
 @__sancov_lowest_stack = external thread_local(initialexec) global i64
 @__sancov_gen_ = private global [1 x i32] zeroinitializer, section "__sancov_guards", comdat($"__cxx_global_var_init$21576b91ab9b15712202e1b4a494877f"), align 4, !associated !0
-@__sancov_gen_.10 = private global [13 x i32] zeroinitializer, section "__sancov_guards", comdat($main), align 4, !associated !1
+@__sancov_gen_.10 = private global [15 x i32] zeroinitializer, section "__sancov_guards", comdat($main), align 4, !associated !1
 @__sancov_gen_cov_switch_values = internal global [3 x i64] [i64 1, i64 32, i64 102]
-@__sancov_gen_cov_switch_values.11 = internal global [3 x i64] [i64 1, i64 32, i64 48879]
+@__sancov_gen_cov_switch_values.11 = internal global [5 x i64] [i64 3, i64 32, i64 48879, i64 61374, i64 65259]
 @__sancov_gen_.12 = private global [1 x i32] zeroinitializer, section "__sancov_guards", comdat($"_GLOBAL__sub_I_demo.cc$21576b91ab9b15712202e1b4a494877f"), align 4, !associated !2
 @__start___sancov_guards = external hidden global i32
 @__stop___sancov_guards = external hidden global i32
@@ -78,8 +78,8 @@ $sancov.module_ctor_trace_pc_guard = comdat any
 @___asan_gen_.46 = private unnamed_addr constant { [13 x i8]*, i32, i32 } { [13 x i8]* @___asan_gen_.45, i32 73, i32 12 }
 @___asan_gen_.47 = private unnamed_addr constant [17 x i8] c"<string literal>\00", align 1
 @___asan_gen_.48 = private unnamed_addr constant [13 x i8] c"demo/demo.cc\00", align 1
-@___asan_gen_.49 = private unnamed_addr constant { [13 x i8]*, i32, i32 } { [13 x i8]* @___asan_gen_.48, i32 95, i32 12 }
-@llvm.compiler.used = appending global [15 x i8*] [i8* bitcast ([1 x i32]* @__sancov_gen_ to i8*), i8* bitcast ([13 x i32]* @__sancov_gen_.10 to i8*), i8* bitcast ([1 x i32]* @__sancov_gen_.12 to i8*), i8* getelementptr inbounds ({ %"class.std::ios_base::Init", [63 x i8] }, { %"class.std::ios_base::Init", [63 x i8] }* @_ZStL8__ioinit, i32 0, i32 0, i32 0), i8* bitcast ({ [1 x %struct.option], [32 x i8] }* @_ZZ4mainE12long_options to i8*), i8* getelementptr inbounds ({ [5 x i8], [59 x i8] }, { [5 x i8], [59 x i8] }* @.str, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [3 x i8], [61 x i8] }, { [3 x i8], [61 x i8] }* @.str.1, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [18 x i8], [46 x i8] }, { [18 x i8], [46 x i8] }* @.str.2, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [2 x i8], [62 x i8] }, { [2 x i8], [62 x i8] }* @.str.3, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [21 x i8], [43 x i8] }, { [21 x i8], [43 x i8] }* @.str.4, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [12 x i8], [52 x i8] }, { [12 x i8], [52 x i8] }* @.str.5, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [14 x i8], [50 x i8] }, { [14 x i8], [50 x i8] }* @.str.6, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [27 x i8], [37 x i8] }, { [27 x i8], [37 x i8] }* @.str.7, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [4 x i8], [60 x i8] }, { [4 x i8], [60 x i8] }* @.str.8, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [33 x i8], [63 x i8] }, { [33 x i8], [63 x i8] }* @.str.9, i32 0, i32 0, i32 0)], section "llvm.metadata"
+@___asan_gen_.49 = private unnamed_addr constant { [13 x i8]*, i32, i32 } { [13 x i8]* @___asan_gen_.48, i32 101, i32 12 }
+@llvm.compiler.used = appending global [15 x i8*] [i8* bitcast ([1 x i32]* @__sancov_gen_ to i8*), i8* bitcast ([15 x i32]* @__sancov_gen_.10 to i8*), i8* bitcast ([1 x i32]* @__sancov_gen_.12 to i8*), i8* getelementptr inbounds ({ %"class.std::ios_base::Init", [63 x i8] }, { %"class.std::ios_base::Init", [63 x i8] }* @_ZStL8__ioinit, i32 0, i32 0, i32 0), i8* bitcast ({ [1 x %struct.option], [32 x i8] }* @_ZZ4mainE12long_options to i8*), i8* getelementptr inbounds ({ [5 x i8], [59 x i8] }, { [5 x i8], [59 x i8] }* @.str, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [3 x i8], [61 x i8] }, { [3 x i8], [61 x i8] }* @.str.1, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [18 x i8], [46 x i8] }, { [18 x i8], [46 x i8] }* @.str.2, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [2 x i8], [62 x i8] }, { [2 x i8], [62 x i8] }* @.str.3, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [21 x i8], [43 x i8] }, { [21 x i8], [43 x i8] }* @.str.4, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [12 x i8], [52 x i8] }, { [12 x i8], [52 x i8] }* @.str.5, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [14 x i8], [50 x i8] }, { [14 x i8], [50 x i8] }* @.str.6, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [27 x i8], [37 x i8] }, { [27 x i8], [37 x i8] }* @.str.7, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [4 x i8], [60 x i8] }, { [4 x i8], [60 x i8] }* @.str.8, i32 0, i32 0, i32 0), i8* getelementptr inbounds ({ [33 x i8], [63 x i8] }, { [33 x i8], [63 x i8] }* @.str.9, i32 0, i32 0, i32 0)], section "llvm.metadata"
 @0 = internal global [12 x { i64, i64, i64, i64, i64, i64, i64, i64 }] [{ i64, i64, i64, i64, i64, i64, i64, i64 } { i64 ptrtoint ({ %"class.std::ios_base::Init", [63 x i8] }* @_ZStL8__ioinit to i64), i64 1, i64 64, i64 ptrtoint ([14 x i8]* @___asan_gen_.14 to i64), i64 ptrtoint ([13 x i8]* @___asan_gen_.13 to i64), i64 1, i64 ptrtoint ({ [67 x i8]*, i32, i32 }* @___asan_gen_.16 to i64), i64 -1 }, { i64, i64, i64, i64, i64, i64, i64, i64 } { i64 ptrtoint ({ [1 x %struct.option], [32 x i8] }* @_ZZ4mainE12long_options to i64), i64 32, i64 64, i64 ptrtoint ([13 x i8]* @___asan_gen_.17 to i64), i64 ptrtoint ([13 x i8]* @___asan_gen_.13 to i64), i64 0, i64 ptrtoint ({ [13 x i8]*, i32, i32 }* @___asan_gen_.19 to i64), i64 -1 }, { i64, i64, i64, i64, i64, i64, i64, i64 } { i64 ptrtoint ({ [5 x i8], [59 x i8] }* @.str to i64), i64 5, i64 64, i64 ptrtoint ([17 x i8]* @___asan_gen_.20 to i64), i64 ptrtoint ([13 x i8]* @___asan_gen_.13 to i64), i64 0, i64 ptrtoint ({ [13 x i8]*, i32, i32 }* @___asan_gen_.22 to i64), i64 -1 }, { i64, i64, i64, i64, i64, i64, i64, i64 } { i64 ptrtoint ({ [3 x i8], [61 x i8] }* @.str.1 to i64), i64 3, i64 64, i64 ptrtoint ([17 x i8]* @___asan_gen_.23 to i64), i64 ptrtoint ([13 x i8]* @___asan_gen_.13 to i64), i64 0, i64 ptrtoint ({ [13 x i8]*, i32, i32 }* @___asan_gen_.25 to i64), i64 -1 }, { i64, i64, i64, i64, i64, i64, i64, i64 } { i64 ptrtoint ({ [18 x i8], [46 x i8] }* @.str.2 to i64), i64 18, i64 64, i64 ptrtoint ([17 x i8]* @___asan_gen_.26 to i64), i64 ptrtoint ([13 x i8]* @___asan_gen_.13 to i64), i64 0, i64 ptrtoint ({ [13 x i8]*, i32, i32 }* @___asan_gen_.28 to i64), i64 -1 }, { i64, i64, i64, i64, i64, i64, i64, i64 } { i64 ptrtoint ({ [2 x i8], [62 x i8] }* @.str.3 to i64), i64 2, i64 64, i64 ptrtoint ([17 x i8]* @___asan_gen_.29 to i64), i64 ptrtoint ([13 x i8]* @___asan_gen_.13 to i64), i64 0, i64 ptrtoint ({ [13 x i8]*, i32, i32 }* @___asan_gen_.31 to i64), i64 -1 }, { i64, i64, i64, i64, i64, i64, i64, i64 } { i64 ptrtoint ({ [21 x i8], [43 x i8] }* @.str.4 to i64), i64 21, i64 64, i64 ptrtoint ([17 x i8]* @___asan_gen_.32 to i64), i64 ptrtoint ([13 x i8]* @___asan_gen_.13 to i64), i64 0, i64 ptrtoint ({ [13 x i8]*, i32, i32 }* @___asan_gen_.34 to i64), i64 -1 }, { i64, i64, i64, i64, i64, i64, i64, i64 } { i64 ptrtoint ({ [12 x i8], [52 x i8] }* @.str.5 to i64), i64 12, i64 64, i64 ptrtoint ([17 x i8]* @___asan_gen_.35 to i64), i64 ptrtoint ([13 x i8]* @___asan_gen_.13 to i64), i64 0, i64 ptrtoint ({ [13 x i8]*, i32, i32 }* @___asan_gen_.37 to i64), i64 -1 }, { i64, i64, i64, i64, i64, i64, i64, i64 } { i64 ptrtoint ({ [14 x i8], [50 x i8] }* @.str.6 to i64), i64 14, i64 64, i64 ptrtoint ([17 x i8]* @___asan_gen_.38 to i64), i64 ptrtoint ([13 x i8]* @___asan_gen_.13 to i64), i64 0, i64 ptrtoint ({ [13 x i8]*, i32, i32 }* @___asan_gen_.40 to i64), i64 -1 }, { i64, i64, i64, i64, i64, i64, i64, i64 } { i64 ptrtoint ({ [27 x i8], [37 x i8] }* @.str.7 to i64), i64 27, i64 64, i64 ptrtoint ([17 x i8]* @___asan_gen_.41 to i64), i64 ptrtoint ([13 x i8]* @___asan_gen_.13 to i64), i64 0, i64 ptrtoint ({ [13 x i8]*, i32, i32 }* @___asan_gen_.43 to i64), i64 -1 }, { i64, i64, i64, i64, i64, i64, i64, i64 } { i64 ptrtoint ({ [4 x i8], [60 x i8] }* @.str.8 to i64), i64 4, i64 64, i64 ptrtoint ([17 x i8]* @___asan_gen_.44 to i64), i64 ptrtoint ([13 x i8]* @___asan_gen_.13 to i64), i64 0, i64 ptrtoint ({ [13 x i8]*, i32, i32 }* @___asan_gen_.46 to i64), i64 -1 }, { i64, i64, i64, i64, i64, i64, i64, i64 } { i64 ptrtoint ({ [33 x i8], [63 x i8] }* @.str.9 to i64), i64 33, i64 96, i64 ptrtoint ([17 x i8]* @___asan_gen_.47 to i64), i64 ptrtoint ([13 x i8]* @___asan_gen_.13 to i64), i64 0, i64 ptrtoint ({ [13 x i8]*, i32, i32 }* @___asan_gen_.49 to i64), i64 -1 }]
 @llvm.global_ctors = appending global [3 x { i32, void ()*, i8* }] [{ i32, void ()*, i8* } { i32 65535, void ()* @_GLOBAL__sub_I_demo.cc, i8* null }, { i32, void ()*, i8* } { i32 2, void ()* @sancov.module_ctor_trace_pc_guard, i8* bitcast (void ()* @sancov.module_ctor_trace_pc_guard to i8*) }, { i32, void ()*, i8* } { i32 1, void ()* @asan.module_ctor, i8* null }]
 @llvm.global_dtors = appending global [1 x { i32, void ()*, i8* }] [{ i32, void ()*, i8* } { i32 1, void ()* @asan.module_dtor, i8* null }]
@@ -218,7 +218,7 @@ entry:
   %66 = add i64 %29, 144
   %67 = inttoptr i64 %66 to i64*
   store i64 -868082074056920077, i64* %67, align 1
-  call void @__sanitizer_cov_trace_pc_guard(i32* getelementptr inbounds ([13 x i32], [13 x i32]* @__sancov_gen_.10, i32 0, i32 0)) #8
+  call void @__sanitizer_cov_trace_pc_guard(i32* getelementptr inbounds ([15 x i32], [15 x i32]* @__sancov_gen_.10, i32 0, i32 0)) #8
   store i32 0, i32* %retval, align 4
   store i32 %argc, i32* %argc.addr, align 4
   store i8** %argv, i8*** %argv.addr, align 8
@@ -251,7 +251,7 @@ while.body:                                       ; preds = %while.cond
   ]
 
 sw.bb:                                            ; preds = %while.body
-  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([13 x i32]* @__sancov_gen_.10 to i64), i64 4) to i32*)) #8
+  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([15 x i32]* @__sancov_gen_.10 to i64), i64 4) to i32*)) #8
   %77 = load i8, i8* inttoptr (i64 add (i64 lshr (i64 ptrtoint (i8** @optarg to i64), i64 3), i64 2147450880) to i8*), align 1
   %78 = icmp ne i8 %77, 0
   br i1 %78, label %79, label %80
@@ -266,7 +266,7 @@ sw.bb:                                            ; preds = %while.body
   br label %sw.epilog
 
 sw.default:                                       ; preds = %while.body
-  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([13 x i32]* @__sancov_gen_.10 to i64), i64 8) to i32*)) #8
+  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([15 x i32]* @__sancov_gen_.10 to i64), i64 8) to i32*)) #8
   %call1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ({ [18 x i8], [46 x i8] }, { [18 x i8], [46 x i8] }* @.str.2, i32 0, i32 0, i64 0))
   br label %sw.epilog
 
@@ -337,7 +337,7 @@ while.end:                                        ; preds = %while.cond
   br i1 %cmp8, label %while.end.if.then_crit_edge, label %lor.lhs.false
 
 while.end.if.then_crit_edge:                      ; preds = %113
-  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([13 x i32]* @__sancov_gen_.10 to i64), i64 12) to i32*)) #8
+  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([15 x i32]* @__sancov_gen_.10 to i64), i64 12) to i32*)) #8
   br label %if.then
 
 lor.lhs.false:                                    ; preds = %113
@@ -348,7 +348,7 @@ lor.lhs.false:                                    ; preds = %113
   br i1 %cmp11, label %lor.lhs.false.if.then_crit_edge, label %lor.lhs.false12
 
 lor.lhs.false.if.then_crit_edge:                  ; preds = %lor.lhs.false
-  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([13 x i32]* @__sancov_gen_.10 to i64), i64 16) to i32*)) #8
+  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([15 x i32]* @__sancov_gen_.10 to i64), i64 16) to i32*)) #8
   br label %if.then
 
 lor.lhs.false12:                                  ; preds = %lor.lhs.false
@@ -359,13 +359,13 @@ lor.lhs.false12:                                  ; preds = %lor.lhs.false
   br i1 %cmp15, label %lor.lhs.false12.if.then_crit_edge, label %if.end
 
 lor.lhs.false12.if.then_crit_edge:                ; preds = %lor.lhs.false12
-  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([13 x i32]* @__sancov_gen_.10 to i64), i64 20) to i32*)) #8
+  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([15 x i32]* @__sancov_gen_.10 to i64), i64 20) to i32*)) #8
   br label %if.then
 
 if.then:                                          ; preds = %lor.lhs.false12.if.then_crit_edge, %lor.lhs.false.if.then_crit_edge, %while.end.if.then_crit_edge
   store i32 1, i32* %retval, align 4
   store i32 1, i32* %cleanup.dest.slot, align 4
-  br label %cleanup78
+  br label %cleanup80
 
 if.end:                                           ; preds = %lor.lhs.false12
   %call16 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ({ [27 x i8], [37 x i8] }, { [27 x i8], [37 x i8] }* @.str.7, i32 0, i32 0, i64 0))
@@ -479,7 +479,7 @@ for.body:                                         ; preds = %for.cond
   br label %for.inc
 
 for.inc:                                          ; preds = %170
-  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([13 x i32]* @__sancov_gen_.10 to i64), i64 24) to i32*)) #8
+  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([15 x i32]* @__sancov_gen_.10 to i64), i64 24) to i32*)) #8
   %171 = load i32, i32* %i, align 4
   %inc = add nsw i32 %171, 1
   store i32 %inc, i32* %i, align 4
@@ -576,7 +576,7 @@ for.body26:                                       ; preds = %for.cond23
   br label %for.inc33
 
 for.inc33:                                        ; preds = %213
-  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([13 x i32]* @__sancov_gen_.10 to i64), i64 28) to i32*)) #8
+  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([15 x i32]* @__sancov_gen_.10 to i64), i64 28) to i32*)) #8
   %214 = load i32, i32* %i22, align 4
   %inc34 = add nsw i32 %214, 1
   store i32 %inc34, i32* %i22, align 4
@@ -674,7 +674,7 @@ for.body41:                                       ; preds = %for.cond38
   br label %for.inc49
 
 for.inc49:                                        ; preds = %256
-  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([13 x i32]* @__sancov_gen_.10 to i64), i64 32) to i32*)) #8
+  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([15 x i32]* @__sancov_gen_.10 to i64), i64 32) to i32*)) #8
   %257 = load i32, i32* %i37, align 4
   %inc50 = add nsw i32 %257, 1
   store i32 %inc50, i32* %i37, align 4
@@ -715,10 +715,10 @@ for.end51:                                        ; preds = %for.cond.cleanup40
   br i1 %cmp57, label %if.then58, label %if.end59
 
 if.then58:                                        ; preds = %269
-  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([13 x i32]* @__sancov_gen_.10 to i64), i64 36) to i32*)) #8
+  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([15 x i32]* @__sancov_gen_.10 to i64), i64 36) to i32*)) #8
   store i32 1, i32* %retval, align 4
   store i32 1, i32* %cleanup.dest.slot, align 4
-  br label %cleanup74
+  br label %cleanup76
 
 if.end59:                                         ; preds = %269
   %272 = bitcast i32* %y to i8*
@@ -733,10 +733,10 @@ if.end59:                                         ; preds = %269
   br i1 %cmp62, label %if.then63, label %if.end64
 
 if.then63:                                        ; preds = %if.end59
-  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([13 x i32]* @__sancov_gen_.10 to i64), i64 40) to i32*)) #8
+  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([15 x i32]* @__sancov_gen_.10 to i64), i64 40) to i32*)) #8
   store i32 1, i32* %retval, align 4
   store i32 1, i32* %cleanup.dest.slot, align 4
-  br label %cleanup73
+  br label %cleanup75
 
 if.end64:                                         ; preds = %if.end59
   %274 = bitcast i16* %z to i8*
@@ -748,38 +748,52 @@ if.end64:                                         ; preds = %if.end59
   %275 = load i16, i16* %z, align 2
   %conv68 = zext i16 %275 to i32
   %276 = zext i32 %conv68 to i64
-  call void @__sanitizer_cov_trace_switch(i64 %276, i64* getelementptr inbounds ([3 x i64], [3 x i64]* @__sancov_gen_cov_switch_values.11, i32 0, i32 0))
-  switch i32 %conv68, label %sw.default70 [
+  call void @__sanitizer_cov_trace_switch(i64 %276, i64* getelementptr inbounds ([5 x i64], [5 x i64]* @__sancov_gen_cov_switch_values.11, i32 0, i32 0))
+  switch i32 %conv68, label %sw.default72 [
     i32 48879, label %sw.bb69
+    i32 65259, label %sw.bb70
+    i32 61374, label %sw.bb71
   ]
 
 sw.bb69:                                          ; preds = %if.end64
-  br label %sw.epilog71
+  br label %sw.epilog73
 
-sw.default70:                                     ; preds = %if.end64
-  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([13 x i32]* @__sancov_gen_.10 to i64), i64 44) to i32*)) #8
+sw.bb70:                                          ; preds = %if.end64
+  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([15 x i32]* @__sancov_gen_.10 to i64), i64 44) to i32*)) #8
   store i32 1, i32* %retval, align 4
   store i32 1, i32* %cleanup.dest.slot, align 4
   br label %cleanup
 
-sw.epilog71:                                      ; preds = %sw.bb69
-  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([13 x i32]* @__sancov_gen_.10 to i64), i64 48) to i32*)) #8
-  %call72 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ({ [33 x i8], [63 x i8] }, { [33 x i8], [63 x i8] }* @.str.9, i32 0, i32 0, i64 0))
+sw.bb71:                                          ; preds = %if.end64
+  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([15 x i32]* @__sancov_gen_.10 to i64), i64 48) to i32*)) #8
+  store i32 1, i32* %retval, align 4
+  store i32 1, i32* %cleanup.dest.slot, align 4
+  br label %cleanup
+
+sw.default72:                                     ; preds = %if.end64
+  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([15 x i32]* @__sancov_gen_.10 to i64), i64 52) to i32*)) #8
+  store i32 1, i32* %retval, align 4
+  store i32 1, i32* %cleanup.dest.slot, align 4
+  br label %cleanup
+
+sw.epilog73:                                      ; preds = %sw.bb69
+  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64 ptrtoint ([15 x i32]* @__sancov_gen_.10 to i64), i64 56) to i32*)) #8
+  %call74 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ({ [33 x i8], [63 x i8] }, { [33 x i8], [63 x i8] }* @.str.9, i32 0, i32 0, i64 0))
   store i32 0, i32* %retval, align 4
   store i32 1, i32* %cleanup.dest.slot, align 4
   br label %cleanup
 
-cleanup:                                          ; preds = %sw.epilog71, %sw.default70
+cleanup:                                          ; preds = %sw.epilog73, %sw.default72, %sw.bb71, %sw.bb70
   %277 = bitcast i16* %z to i8*
   call void @llvm.lifetime.end.p0i8(i64 2, i8* %277) #3
-  br label %cleanup73
+  br label %cleanup75
 
-cleanup73:                                        ; preds = %cleanup, %if.then63
+cleanup75:                                        ; preds = %cleanup, %if.then63
   %278 = bitcast i32* %y to i8*
   call void @llvm.lifetime.end.p0i8(i64 4, i8* %278) #3
-  br label %cleanup74
+  br label %cleanup76
 
-cleanup74:                                        ; preds = %cleanup73, %if.then58
+cleanup76:                                        ; preds = %cleanup75, %if.then58
   %279 = bitcast i64* %x to i8*
   call void @llvm.lifetime.end.p0i8(i64 8, i8* %279) #3
   %280 = bitcast [201 x i8]* %22 to i8*
@@ -824,9 +838,9 @@ cleanup74:                                        ; preds = %cleanup73, %if.then
   %306 = inttoptr i64 %305 to i16*
   store i16 -1800, i16* %306, align 1
   call void @llvm.lifetime.end.p0i8(i64 201, i8* %298) #3
-  br label %cleanup78
+  br label %cleanup80
 
-cleanup78:                                        ; preds = %cleanup74, %if.then
+cleanup80:                                        ; preds = %cleanup76, %if.then
   %307 = bitcast [45 x i8]* %16 to i8*
   %308 = add i64 %29, 40
   %309 = inttoptr i64 %308 to i32*
@@ -865,11 +879,11 @@ cleanup78:                                        ; preds = %cleanup74, %if.then
   %328 = icmp ne i64 %5, 0
   br i1 %328, label %329, label %330
 
-329:                                              ; preds = %cleanup78
+329:                                              ; preds = %cleanup80
   call void @__asan_stack_free_5(i64 %5, i64 1216)
   br label %332
 
-330:                                              ; preds = %cleanup78
+330:                                              ; preds = %cleanup80
   %331 = add i64 %29, 0
   call void @__asan_set_shadow_00(i64 %331, i64 152)
   br label %332
@@ -1212,7 +1226,7 @@ attributes #10 = { nounwind readonly willreturn }
 !23 = !{[4 x i8]* getelementptr inbounds ({ [4 x i8], [60 x i8] }, { [4 x i8], [60 x i8] }* @.str.8, i32 0, i32 0), !24, !"<string literal>", i1 false, i1 false}
 !24 = !{!"demo/demo.cc", i32 73, i32 12}
 !25 = !{[33 x i8]* getelementptr inbounds ({ [33 x i8], [63 x i8] }, { [33 x i8], [63 x i8] }* @.str.9, i32 0, i32 0), !26, !"<string literal>", i1 false, i1 false}
-!26 = !{!"demo/demo.cc", i32 95, i32 12}
+!26 = !{!"demo/demo.cc", i32 101, i32 12}
 !27 = !{i32 1, !"wchar_size", i32 4}
 !28 = !{!"clang version 12.0.1 (git@github.com:fengzhengzhan/BTFuzz.git 0b64f5806b4302732328fa068687800669443ef8)"}
 !29 = distinct !{!29, !30}

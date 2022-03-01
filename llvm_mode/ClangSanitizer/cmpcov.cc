@@ -4,7 +4,7 @@
 #include <sanitizer/dfsan_interface.h>
 #include <assert.h>
 
-// #include "common.h"
+#include "common.h"
 // #include "tracking.cc"
 
 # define GET_CALLER_PC() __builtin_return_address(0)  // return the stack of the function
@@ -14,8 +14,9 @@ using namespace std;
 
 extern "C"{
 
+// The end of analysis.
 static void saveCovOnEnd() {
-    printf("test atexit saveCovOnEnd");
+    printf("\nE \n");
 }
 
 int value = atexit(saveCovOnEnd);
@@ -24,57 +25,56 @@ int value = atexit(saveCovOnEnd);
 //     exit(1);
 // }
 
-static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len) {
+static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
     uintptr_t PC = reinterpret_cast<uintptr_t>(GET_CALLER_PC());
-    printf("tracecmp: %x %lu %lu %d\n", *(int *)PC, arg1, arg2, arg_len);
+    printf("\n%c %x %lu %lu %d\n", funcinfo, *(int *)PC, arg1, arg2, arg_len);
 } 
 
-static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char* funcinfo) {
+static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char funcinfo) {
 
-    printf("%s:%x ", funcinfo, *(int *)called_pc);
+    printf("\n%c %x ", funcinfo, *(int *)called_pc);
 
-    uint64_t traceflag =  reinterpret_cast<uint64_t>(called_pc) |
-        (reinterpret_cast<uint64_t>(s1) << 48) |
-        (reinterpret_cast<uint64_t>(s2) << 60);
-
-    printf("%lx ", traceflag);
+    // uint64_t traceflag =  reinterpret_cast<uint64_t>(called_pc) |
+    //     (reinterpret_cast<uint64_t>(s1) << 48) |
+    //     (reinterpret_cast<uint64_t>(s2) << 60);
+    // printf("%lx ", traceflag);
 
     printf("-s1:");
     for (int i = 0; i < sizeof(s1)*2; i ++) {
         printf("%c", s1[i]);
     }
-    printf("- -s2:");
+    printf(":1s- -s2:");
     for (int i = 0; i < sizeof(s2)*2; i ++) {
         printf("%c", s2[i]);
     }
-    printf("- ");
-    printf("%d %d \n", n, result);
+    printf(":2s- ");
+    printf("%d %d\n", n, result);
 }
 
 void sanCovTraceCmp1(uint8_t Arg1, uint8_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 1);
+    handleTraceCmp(Arg1, Arg2, 1, COV_TRACE_CMP1);
 }
 void sanCovTraceCmp2(uint16_t Arg1, uint16_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 2);
+    handleTraceCmp(Arg1, Arg2, 2, COV_TRACE_CMP2);
 }
 void sanCovTraceCmp4(uint32_t Arg1, uint32_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 4);
+    handleTraceCmp(Arg1, Arg2, 4, COV_TRACE_CMP4);
 }
 void sanCovTraceCmp8(uint64_t Arg1, uint64_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 8);
+    handleTraceCmp(Arg1, Arg2, 8, COV_TRACE_CMP8);
 }
 
 void sanCovTraceConstCmp1(uint8_t Arg1, uint8_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 1);
+    handleTraceCmp(Arg1, Arg2, 1, COV_TRACE_CONST_CMP1);
 }
 void sanCovTraceConstCmp2(uint16_t Arg1, uint16_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 2);
+    handleTraceCmp(Arg1, Arg2, 2, COV_TRACE_CONST_CMP2);
 }
 void sanCovTraceConstCmp4(uint32_t Arg1, uint32_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 4);
+    handleTraceCmp(Arg1, Arg2, 4, COV_TRACE_CONST_CMP4);
 }
 void sanCovTraceConstCmp8(uint64_t Arg1, uint64_t Arg2) {
-    handleTraceCmp(Arg1, Arg2, 8);
+    handleTraceCmp(Arg1, Arg2, 8, COV_TRACE_CONST_CMP8);
 }
 
 void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
@@ -87,8 +87,10 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
         return ;
     }
 
+    printf("\n%c %lu %lu", COV_TRACE_SWITCH, Cases[0], Cases[1]);
+
     for (int i = 0; i < Cases[0]; i ++) {
-        printf("switch%d: %lu %lu ", i, Val, Cases[2 + i]);
+        printf(" %lu", Cases[2 + i]);
     }
     printf("\n");
 
@@ -111,7 +113,7 @@ void sanWeakHookMemcmp(void *called_pc, const void *s1, const void *s2, size_t n
     //     return ;
     // }
 
-    handleStrMemCmp(called_pc, static_cast<const char *>(s1), static_cast<const char *>(s2), n, result, "sanWeakHookMemcmp");
+    handleStrMemCmp(called_pc, static_cast<const char *>(s1), static_cast<const char *>(s2), n, result, WEAK_HOOK_MEMCMP);
 }
 
 void sanWeakHookStrncmp(void *called_pc, const char *s1, const char *s2, size_t n, int result) {
@@ -120,7 +122,7 @@ void sanWeakHookStrncmp(void *called_pc, const char *s1, const char *s2, size_t 
     //     return ;
     // }
 
-    handleStrMemCmp(called_pc, s1, s2, n, result, "sanWeakHookStrncmp");
+    handleStrMemCmp(called_pc, s1, s2, n, result, WEAK_HOOK_STRNCMP);
     
 }
 void sanWeakHookStrcmp(void *called_pc, const char *s1, const char *s2, int result) {
@@ -129,7 +131,7 @@ void sanWeakHookStrcmp(void *called_pc, const char *s1, const char *s2, int resu
     //     return ;
     // }
     // printf("test  ");
-    handleStrMemCmp(called_pc, s1, s2, 0, result, "sanWeakHookStrcmp");
+    handleStrMemCmp(called_pc, s1, s2, 0, result, WEAK_HOOK_STRCMP);
 }
 void sanWeakHookStrncasecmp(void *called_pc, const char *s1, const char *s2, size_t n, int result) {
     // Skip comparison of long strings. 
@@ -137,7 +139,7 @@ void sanWeakHookStrncasecmp(void *called_pc, const char *s1, const char *s2, siz
     //     return ;
     // }
 
-    handleStrMemCmp(called_pc, s1, s2, n, result, "sanWeakHookStrncasecmp");
+    handleStrMemCmp(called_pc, s1, s2, n, result, WEAK_HOOK_STRNCASECMP);
 }
 void sanWeakHookStrcasecmp(void *called_pc, const char *s1, const char *s2, int result) {
     // Skip comparison of long strings. 
@@ -145,7 +147,7 @@ void sanWeakHookStrcasecmp(void *called_pc, const char *s1, const char *s2, int 
     //     return ;
     // }
 
-    handleStrMemCmp(called_pc, s1, s2, 0, result, "sanWeakHookStrcasecmp");
+    handleStrMemCmp(called_pc, s1, s2, 0, result, WEAK_HOOK_STRCASECMP);
 }
 
 
