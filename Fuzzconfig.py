@@ -1,5 +1,9 @@
 import logging
+import sys
 
+# Program information.
+BTFUZZ = "BTFuzzer"
+FILEREPLACE = "@@"
 
 # The fisrt character represent the type of compare instruction.
 # In order to save space, using one character as the flag to mark.
@@ -25,9 +29,18 @@ WEAK_HOOK_STRNCASECMP = 'p'
 WEAK_HOOK_STRCASECMP = 'q'
 
 
+# Logging the information during the fuzzing.
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename='InfoData/log_data/BTFuzzer.log', level=logging.WARNING, format=LOG_FORMAT)
 logging.debug("-------------------------")
+
+LOG_FUNCINFO = lambda : str(sys._getframe(1).f_code.co_name) + ":" + str(sys._getframe(1).f_lineno)
+
+def LOG_STR(funcinfo, *args):
+    logstr = "{}-> ".format(funcinfo)
+    for content in args:
+        logstr += "{} || ".format(content)
+    return logstr
 
 DEBUG = 101
 INFO = 102
