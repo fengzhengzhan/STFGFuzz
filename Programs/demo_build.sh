@@ -30,7 +30,7 @@ cd ..
 
 echo -e "\n------- demo -------"
 # Run
-./${PROGRAMS}/${BIN}/${DEMO} -f "SeedPool/init_seeds/${DEMO}/final.seed"
+./${PROGRAMS}/${BIN}/${DEMO} -f "SeedPool/init_seeds/${DEMO}/init.seed"
 
 
 # Clear files.

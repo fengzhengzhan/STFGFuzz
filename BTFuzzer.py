@@ -4,6 +4,7 @@ import getopt
 import os
 import re
 
+import Analyzer
 from Fuzzconfig import *
 import Generator
 import Monitor
@@ -35,7 +36,8 @@ def mainFuzzer():
     for opt, arg in opts:
         if opt == "-h":
             print("{}.py -- [files] [OPTIONS] @@".format(BTFUZZ))
-            print("e.g. {}.py -- ./demo -f @@".format(BTFUZZ))
+            print("e.g. python {}.py -n demo -- ./Programs/Bin/demo -f @@".format(BTFUZZ))
+            # python3.7 BTFuzzer.py -n demo -- ./Programs/Bin/demo -f @@
             sys.exit()
         elif opt == "-n":
             program_name = arg
@@ -54,6 +56,7 @@ def mainFuzzer():
         init_seed = os.listdir(filename_initseeds)[0]
 
     fuzz_command = fuzz_command.replace('@@', filename_initseeds + init_seed)
+    # print(fuzz_command)
     FUZZLOGGING(DEBUG, LOG_STR(LOG_FUNCINFO(), fuzz_command))
 
     # Fuzzing test procedure.
@@ -64,7 +67,7 @@ def mainFuzzer():
     # Fuzzing test cycle
     while True:
         ret_code, std_out, std_err = Executor.run(fuzz_command)
-        print(ret_code, std_out, std_err)
+        Analyzer.traceAyalysis(std_out)
 
 
         # Visualizer.display()

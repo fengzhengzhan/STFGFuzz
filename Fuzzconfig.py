@@ -7,7 +7,8 @@ FILEREPLACE = "@@"
 
 # The fisrt character represent the type of compare instruction.
 # In order to save space, using one character as the flag to mark.
-COV_TRACE_CMP1 = 'a'
+# The meaning of the parameters following the flags is described in the comments.
+COV_TRACE_CMP1 = 'a'  # (call_pc, arg1, arg2, arg_len)
 COV_TRACE_CMP2 = 'b'
 COV_TRACE_CMP4 = 'c'
 COV_TRACE_CMP8 = 'd'
@@ -27,6 +28,12 @@ WEAK_HOOK_STRNCMP = 'n'
 WEAK_HOOK_STRCMP = 'o'
 WEAK_HOOK_STRNCASECMP = 'p'
 WEAK_HOOK_STRCASECMP = 'q'
+
+START_PC_GUARD = "I"  # (start, end, call_pc)
+NUM_PC_GUARD = "S"  # (nums) Numbers of pc guard.
+EACH_PC_GUARD = "G"  # (guard, num, call_pc)
+
+END_OF_PROGRAM = "E"  # end
 
 
 # Logging the information during the fuzzing.
