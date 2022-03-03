@@ -28,13 +28,13 @@ WEAK_HOOK_STRNCMP = 'n'
 WEAK_HOOK_STRCMP = 'o'
 WEAK_HOOK_STRNCASECMP = 'p'
 WEAK_HOOK_STRCASECMP = 'q'
-EACH_FLAG_END = "Z"  # End of each line.
+END_EACH_FLAG = "Z"  # End of each line.
 
-START_PC_GUARD = "I"  # (start, end, call_pc)
-NUM_PC_GUARD = "S"  # (nums) Numbers of pc guard.
-EACH_PC_GUARD = "G"  # (guard, num, call_pc)
+INIT_PC_GUARD = "I"  # (start, end, call_pc)
+NUM_PC_GUARD = "S"  # (nums) Numbers of pc guard, from 1 to number.
+EACH_PC_GUARD = "G"  # (guard_addr, guard_num, call_pc)
 
-END_OF_PROGRAM = "E"  # end
+PROGRAM_END = "E"  # end
 
 # Reverse Correspondence
 FLAG_DICT = {'a': "COV_TRACE_CMP1",
@@ -54,11 +54,11 @@ FLAG_DICT = {'a': "COV_TRACE_CMP1",
              'o': "WEAK_HOOK_STRCMP",
              'p': "WEAK_HOOK_STRNCASECMP",
              'q': "WEAK_HOOK_STRCASECMP",
-             'Z': "EACH_FLAG_END",
-             'I': "START_PC_GUARD",
+             'Z': "END_EACH_FLAG",
+             'I': "INIT_PC_GUARD",
              'S': "NUM_PC_GUARD",
              'G': "EACH_PC_GUARD",
-             'E': "END_OF_PROGRAM",
+             'E': "PROGRAM_END",
              }
 
 
