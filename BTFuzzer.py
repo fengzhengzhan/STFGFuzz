@@ -65,7 +65,8 @@ def mainFuzzer():
 
 
     # Fuzzing test cycle
-    while True:
+    # while True:
+    for i in range(1):
         ret_code, std_out, std_err = Executor.run(fuzz_command)
         Analyzer.traceAyalysis(std_out)
 
