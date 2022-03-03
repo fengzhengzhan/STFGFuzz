@@ -15,7 +15,7 @@ extern "C"{
 
 // The end of analysis.
 static void saveCovOnEnd() {
-    printf("\nE \n");
+    printf("\nE Z\n");
 }
 
 int value = atexit(saveCovOnEnd);
@@ -26,7 +26,7 @@ int value = atexit(saveCovOnEnd);
 
 static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
     // uintptr_t PC = reinterpret_cast<uintptr_t>(GET_CALLER_PC);
-    printf("\n%c %x %lu %lu %d\n", funcinfo, *(int *)GET_CALLER_PC, arg1, arg2, arg_len);
+    printf("\n%c %x %lu %lu %d Z\n", funcinfo, *(int *)GET_CALLER_PC, arg1, arg2, arg_len);
 } 
 
 static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char funcinfo) {
@@ -38,16 +38,16 @@ static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int
     //     (reinterpret_cast<uint64_t>(s2) << 60);
     // printf("%lx ", traceflag);
 
-    printf("<s1:");
+    printf("<s1\"");
     for (int i = 0; i < sizeof(s1)*2; i ++) {
         printf("%c", s1[i]);
     }
-    printf(":1s> <s2:");
+    printf("\"1s> <s2\"");
     for (int i = 0; i < sizeof(s2)*2; i ++) {
         printf("%c", s2[i]);
     }
-    printf(":2s> ");
-    printf("%d %d\n", n, result);
+    printf("\"2s> ");
+    printf("%d %d Z\n", n, result);
 }
 
 void sanCovTraceCmp1(uint8_t Arg1, uint8_t Arg2) {
@@ -91,7 +91,7 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     for (int i = 0; i < Cases[0]; i ++) {
         printf(" %lu", Cases[2 + i]);
     }
-    printf("\n");
+    printf(" Z\n");
 
 }
 

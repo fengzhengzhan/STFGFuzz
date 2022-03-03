@@ -18,22 +18,48 @@ COV_TRACE_CONST_CMP2 = 'f'
 COV_TRACE_CONST_CMP4 = 'g'
 COV_TRACE_CONST_CMP8 = 'h'
 
-COV_TRACE_SWITCH = 'i'
+COV_TRACE_SWITCH = 'i'  # (num_case, size_val, case_n...)
 COV_TRACE_DIV4 = 'j'
 COV_TRACE_DIV8 = 'k'
 COV_TRACE_GEP = 'l'
 
-WEAK_HOOK_MEMCMP = 'm'
+WEAK_HOOK_MEMCMP = 'm'  # (call_pc, <s1"  "1s>, <s2"  "2s>, size_n, result)
 WEAK_HOOK_STRNCMP = 'n'
 WEAK_HOOK_STRCMP = 'o'
 WEAK_HOOK_STRNCASECMP = 'p'
 WEAK_HOOK_STRCASECMP = 'q'
+EACH_FLAG_END = "Z"  # End of each line.
 
 START_PC_GUARD = "I"  # (start, end, call_pc)
 NUM_PC_GUARD = "S"  # (nums) Numbers of pc guard.
 EACH_PC_GUARD = "G"  # (guard, num, call_pc)
 
 END_OF_PROGRAM = "E"  # end
+
+# Reverse Correspondence
+FLAG_DICT = {'a': "COV_TRACE_CMP1",
+             'b': "COV_TRACE_CMP2",
+             'c': "COV_TRACE_CMP4",
+             'd': "COV_TRACE_CMP8",
+             'e': "COV_TRACE_CONST_CMP1",
+             'f': "COV_TRACE_CONST_CMP2",
+             'g': "COV_TRACE_CONST_CMP4",
+             'h': "COV_TRACE_CONST_CMP8",
+             'i': "COV_TRACE_SWITCH",
+             'j': "COV_TRACE_DIV4",
+             'k': "COV_TRACE_DIV8",
+             'l': "COV_TRACE_GEP",
+             'm': "WEAK_HOOK_MEMCMP",
+             'n': "WEAK_HOOK_STRNCMP",
+             'o': "WEAK_HOOK_STRCMP",
+             'p': "WEAK_HOOK_STRNCASECMP",
+             'q': "WEAK_HOOK_STRCASECMP",
+             'Z': "EACH_FLAG_END",
+             'I': "START_PC_GUARD",
+             'S': "NUM_PC_GUARD",
+             'G': "EACH_PC_GUARD",
+             'E': "END_OF_PROGRAM",
+             }
 
 
 # Logging the information during the fuzzing.
