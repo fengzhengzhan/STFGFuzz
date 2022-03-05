@@ -21,13 +21,13 @@ extern "C"{
         // char PcDescr[10240];
         // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
         // printf("\nI %p %p %s\n", start, stop, PcDescr);
-        printf("\nI %p %p %x Z\n", start, stop, *(int *)GET_CALLER_PC);
+        printf("\nI %x %p %p Z\n", *(int *)GET_CALLER_PC, start, stop);
         for (uint32_t *x = start; x < stop; x++)
         {
             *x = ++N;
         }
 
-        printf("\nS %lu Z\n", N);  // Guards should start from 1.
+        printf("\nS %x %lu Z\n", *(int *)GET_CALLER_PC, N);  // Guards should start from 1.
     }
 
     // This callback is inserted by the compiler on every edge in the
@@ -51,7 +51,7 @@ extern "C"{
         // char PcDescr[10240];
         // __sanitizer_symbolize_pc(PC, "%p_%F_%L", PcDescr, sizeof(PcDescr));
         // printf("\nG %p %x %s\n", guard, *guard, PcDescr);
-        printf("\nG %p %x %x Z\n", guard, *guard, *(int *)GET_CALLER_PC);
+        printf("\nG %x %p %x Z\n", *(int *)GET_CALLER_PC, guard, *guard);
     }
 
 }

@@ -18,7 +18,7 @@ COV_TRACE_CONST_CMP2 = 'f'
 COV_TRACE_CONST_CMP4 = 'g'
 COV_TRACE_CONST_CMP8 = 'h'
 
-COV_TRACE_SWITCH = 'i'  # (num_case, size_val, case_n...)
+COV_TRACE_SWITCH = 'i'  # (call_pc, num_case, size_val, case_n...)
 COV_TRACE_DIV4 = 'j'
 COV_TRACE_DIV8 = 'k'
 COV_TRACE_GEP = 'l'
@@ -30,9 +30,9 @@ WEAK_HOOK_STRNCASECMP = 'p'
 WEAK_HOOK_STRCASECMP = 'q'
 END_EACH_FLAG = "Z"  # End of each line.
 
-INIT_PC_GUARD = "I"  # (start, end, call_pc)
-NUM_PC_GUARD = "S"  # (nums) Numbers of pc guard, from 1 to number.
-EACH_PC_GUARD = "G"  # (guard_addr, guard_num, call_pc)
+INIT_PC_GUARD = "I"  # (call_pc, start, end)
+NUM_PC_GUARD = "S"  # (call_pc, nums) Numbers of pc guard, from 1 to number.
+EACH_PC_GUARD = "G"  # (call_pc, guard_addr, guard_num)
 
 PROGRAM_END = "E"  # end
 

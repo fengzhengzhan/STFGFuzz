@@ -15,7 +15,7 @@ extern "C"{
 
 // The end of analysis.
 static void saveCovOnEnd() {
-    printf("\nE Z\n");
+    printf("\nE %x Z\n", *(int *)GET_CALLER_PC);
 }
 
 int value = atexit(saveCovOnEnd);
@@ -37,16 +37,44 @@ static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int
     //     (reinterpret_cast<uint64_t>(s1) << 48) |
     //     (reinterpret_cast<uint64_t>(s2) << 60);
     // printf("%lx ", traceflag);
+    int i = 0;
+    if(n == 0){
+        // printf("<s1\"");
+        // i = 0;
+        // while (1)
+        // {
+        //     if(s1[i] == '\0'){
+        //         break;
+        //     }
+        //     printf("%c", s1[i]);
+        //     i ++;
+        // }
+        // printf("\"1s> <s2\"");
+        // i = 0;
+        // while (1)
+        // {
+        //     if(s2[i] == '\0'){
+        //         break;
+        //     }
+        //     printf("%c", s2[i]);
+        //     i ++;
+        // }
+        // printf("\"2s> ");
 
-    printf("<s1\"");
-    for (int i = 0; i < sizeof(s1)*2; i ++) {
-        printf("%c", s1[i]);
+        printf("<s1\"%s\"1s> <s2\"%s\"2s> ", s1, s2);
     }
-    printf("\"1s> <s2\"");
-    for (int i = 0; i < sizeof(s2)*2; i ++) {
-        printf("%c", s2[i]);
+    else if(n != 0){
+        printf("<s1\"");
+        for (i = 0; i < n; i ++) {
+            printf("%c", s1[i]);
+        }
+        printf("\"1s> <s2\"");
+        for (i = 0; i < n; i ++) {
+            printf("%c", s2[i]);
+        }
+        printf("\"2s> ");
     }
-    printf("\"2s> ");
+    
     printf("%d %d Z\n", n, result);
 }
 
@@ -86,7 +114,7 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
         return ;
     }
 
-    printf("\n%c %lu %lu", COV_TRACE_SWITCH, Cases[0], Cases[1]);
+    printf("\n%c %x %lu %lu", COV_TRACE_SWITCH, *(int *)GET_CALLER_PC, Cases[0], Cases[1]);
 
     for (int i = 0; i < Cases[0]; i ++) {
         printf(" %lu", Cases[2 + i]);

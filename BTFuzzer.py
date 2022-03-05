@@ -62,13 +62,11 @@ def mainFuzzer():
     # Fuzzing test procedure.
 
 
-
-
     # Fuzzing test cycle
     # while True:
     for i in range(1):
         ret_code, std_out, std_err = Executor.run(fuzz_command)
-        Analyzer.traceAyalysis(std_out)
+        num_of_pcguard, trace_analysis = Analyzer.traceAyalysis(std_out)
 
 
         # Visualizer.display()
