@@ -15,14 +15,13 @@ import Visualizer
 
 
 def mainFuzzer():
-    Generator.prepareEnv()
+    '''
+    The fuzzing Loop.
+    '''
 
     # Receive command line parameters.
     fuzz_command = ""
     program_name = ""
-    filename_initseeds = ""
-    filename_mutateseeds = ""
-    filename_crashseeds = ""
     init_seed = ""
 
     try:
@@ -45,29 +44,42 @@ def mainFuzzer():
     fuzz_command = " ".join(args)
 
     if fuzz_command == "" or program_name == "":
+        print("e.g. python {}.py -n demo -- ./Programs/Bin/demo -f @@".format(BTFUZZ))
         raise Exception("Error empty parameters for fuzzing test files.")
 
-    filename_initseeds = "SeedPool" + os.sep + "init_seeds" + os.sep + program_name + os.sep
-    filename_mutateseeds = "SeedPool" + os.sep + "mutate_seeds" + os.sep + program_name + os.sep
-    filename_crashseeds = "SeedPool" + os.sep + "crash_seeds" + os.sep + program_name + os.sep
-    FUZZLOGGING(DEBUG, LOG_STR(LOG_FUNCINFO(), filename_initseeds, filename_mutateseeds, filename_crashseeds))
+    filepath_initseeds = SEEDPOOL + os.sep + INITSEEDS + os.sep + program_name + os.sep
+    filepath_mutateseeds = SEEDPOOL + os.sep + MUTATESEEDS + os.sep + program_name + os.sep
+    filepath_crashseeds = SEEDPOOL + os.sep + CRASHSEEDS + os.sep + program_name + os.sep
+    FUZZLOGGING(DEBUG, LOG_STR(LOG_FUNCINFO(), filepath_initseeds, filepath_mutateseeds, filepath_crashseeds))
 
-    if os.path.isdir(filename_initseeds):
-        init_seed = os.listdir(filename_initseeds)[0]
+    if os.path.isdir(filepath_initseeds):
+        init_seed = os.listdir(filepath_initseeds)[0]
 
-    fuzz_command = fuzz_command.replace('@@', filename_initseeds + init_seed)
     # print(fuzz_command)
     FUZZLOGGING(DEBUG, LOG_STR(LOG_FUNCINFO(), fuzz_command))
 
     # Fuzzing test procedure.
-
+    Generator.prepareEnv(program_name)
+    execute_seedfile = filepath_initseeds + init_seed
 
     # Fuzzing test cycle
     # while True:
     for i in range(1):
-        ret_code, std_out, std_err = Executor.run(fuzz_command)
+        # First run to collect information.
+        seed_content = Analyzer.getSeedContent(execute_seedfile)
+        ret_code, std_out, std_err = Executor.run(fuzz_command.replace('@@', execute_seedfile))
         num_of_pcguard, trace_analysis = Analyzer.traceAyalysis(std_out)
 
+        # Mutate seeds to find where to change. Then perform to a directed mutate.
+        mutate_seeds = Mutator.mutateSeeds(seed_content)
+        filelist_mutateseeds = Mutator.mutateSaveAsFile(mutate_seeds, filepath_mutateseeds, str(i))
+        for each_mutate in filelist_mutateseeds:
+            execute_seedfile = filepath_mutateseeds + each_mutate
+            ret_code, std_out, std_err = Executor.run(fuzz_command.replace('@@', execute_seedfile))
+            num_of_pcguard, trace_analysis = Analyzer.traceAyalysis(std_out)
+            # Visualizer.display()
+        Mutator.mutateDeleteFile(filelist_mutateseeds, filepath_mutateseeds)
+        # print(mutate_seeds)
 
         # Visualizer.display()
 

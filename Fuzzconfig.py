@@ -61,6 +61,15 @@ FLAG_DICT = {'a': "COV_TRACE_CMP1",
              'E': "PROGRAM_END",
              }
 
+# Generator
+SEEDPOOL = "SeedPool"
+INITSEEDS = "init_seeds"
+CRASHSEEDS = "crash_seeds"
+MUTATESEEDS = "mutate_seeds"
+
+# Mutator
+MUTATE_STR = "aaabaaac"
+STEP = 4  # step size of mutant seeds
 
 # Logging the information during the fuzzing.
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"

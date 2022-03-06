@@ -3,8 +3,10 @@ import sys
 from Fuzzconfig import *
 
 
-# run cmd to get information from executable files or other tools
 def run(cmd: str) -> (int, str, str):
+    '''
+    run cmd to get information from executable files or other tools
+    '''
     FUZZLOGGING(DEBUG, LOG_STR(LOG_FUNCINFO(), cmd))
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     # timeout kill child process
