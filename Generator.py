@@ -1,6 +1,9 @@
 import os
 
 from Fuzzconfig import *
+from shutil import copy
+
+import Executor
 
 
 def __createDir(path: str) -> None:
@@ -13,6 +16,7 @@ def prepareEnv(program_name: str) -> None:
     Prepare the environment before running the fuzzing loop.
     '''
     # Seed files are managed using program_name.
+    # Create SeedPool.
     __createDir(SEEDPOOL)
     __createDir(SEEDPOOL + os.sep + INITSEEDS)
     __createDir(SEEDPOOL + os.sep + CRASHSEEDS)
@@ -20,7 +24,35 @@ def prepareEnv(program_name: str) -> None:
     __createDir(SEEDPOOL + os.sep + INITSEEDS + os.sep + program_name)
     __createDir(SEEDPOOL + os.sep + CRASHSEEDS + os.sep + program_name)
     __createDir(SEEDPOOL + os.sep + MUTATESEEDS + os.sep + program_name)
+    # Create InfoData.
+    __createDir(INFODATA)
+    __createDir(INFODATA + os.sep + GRAPHDATA)
+    __createDir(INFODATA + os.sep + GRAPHDATA + os.sep + program_name)
+
 
     # Copy all seed files from init_seeds to mutate_seeds
     # as the starting seeds from mutation.
 
+
+
+
+def createDotFile(bc_file: str, program_name: str):
+    '''
+    From .bc file get .dot files, then get Control Flow Graph and Call Graph.
+    '''
+
+    temp_graphpath = INFODATA + os.sep + GRAPHDATA + os.sep + program_name
+    copy(bc_file, temp_graphpath)
+
+    # Change path to generator graph in the directed file.
+    proj_path = os.getcwd()
+    os.chdir(temp_graphpath)
+    Executor.run(DOTCALLGRAPH + os.path.basename(bc_file))
+    Executor.run(DOTCFG + os.path.basename(bc_file))
+    os.chdir(proj_path)
+
+
+if __name__ == "__main__":
+    print(os.getcwd())
+    createDotFile("Programs/IR/demo.ll", "demo")
+    print(os.getcwd())

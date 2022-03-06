@@ -66,6 +66,15 @@ SEEDPOOL = "SeedPool"
 INITSEEDS = "init_seeds"
 CRASHSEEDS = "crash_seeds"
 MUTATESEEDS = "mutate_seeds"
+INFODATA = "InfoData"
+GRAPHDATA = "graph_data"
+# clang $1.c -emit-llvm -S
+# opt -dot-cfg $1.ll > /dev/null   // get CFG
+# opt -dot-callgraph $1.ll > /dev/null   // get CG
+# dot -Tpng -o $1.png cfg.main.dot
+# dot -Tpng -o $1.callgraph.png callgraph.dot
+DOTCALLGRAPH = "opt -dot-callgraph "
+DOTCFG = "opt -dot-cfg "
 
 # Mutator
 MUTATE_STR = "aaabaaac"
