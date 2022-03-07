@@ -110,6 +110,7 @@ CFG_SUFFIX = ".dot"
 
 # Mutator
 MUT_STR = "aaabaaac"
+MUT_MATCH = 4  # Truncate 4 bytes as a fast variant flag for fast matching.
 MUT_STEP = 4  # step size of mutant seeds
 MUT_TYPE_SUB = 101
 MUT_TYPE_INSERT = 102
@@ -117,6 +118,9 @@ MUT_TYPE_INSERT = 102
 # Parser
 PAR_FIXED = 201
 PAR_CHANGED = 202
+
+# Visualizer
+# Red for frozen bytes.
 
 # Logging the information during the fuzzing.
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"

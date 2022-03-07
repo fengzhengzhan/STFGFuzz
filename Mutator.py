@@ -4,8 +4,7 @@ import os
 from Fuzzconfig import *
 
 
-# Mutant seeds
-def mutateSeeds(seed: str) -> list:
+def mutateSeeds(seed: str) -> (list, list):
     '''
     Replace and add strings for variant input according to the sliding window.
     '''
@@ -29,6 +28,16 @@ def mutateSeeds(seed: str) -> list:
     record_list.append([MUT_TYPE_INSERT, seed_len, seed_len + len(MUT_STR)])
     # print(sub_list, insert_list)
     mutate_seed_list = sub_list + insert_list
+
+    return mutate_seed_list, record_list
+
+
+def mutateOneChar() -> (list, list):
+    '''
+    Mutate one character at a time.
+    '''
+    mutate_seed_list = []
+    record_list = []
 
     return mutate_seed_list, record_list
 

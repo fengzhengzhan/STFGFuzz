@@ -23,7 +23,6 @@ def mainFuzzer():
     '''
 
     # Receive command line parameters.
-    fuzz_command = ""
     program_name = ""
     init_seed = ""
 
@@ -62,6 +61,10 @@ def mainFuzzer():
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), fuzz_command))
 
     # Fuzzing test procedure.
+    constraint_graph: list[dict, dict] = []
+    cmp_map: dict = {}
+    input_map: dict[list] = {}
+    eachloop_input_map: dict = {}
     Generator.prepareEnv(program_name)
     execute_seedfile = filepath_initseeds + init_seed
 
@@ -86,16 +89,23 @@ def mainFuzzer():
             mut_num_of_pcguard, mut_trace_analysis = Analyzer.traceAyalysis(mut_std_out)
 
             # Analyze the differences in comparison.
-            comparison_report = Builder.compareBytes(init_trace_analysis, mut_trace_analysis, record_list[index])
-            Parser.typeSpeculation(comparison_report)
-
-
-
-
+            comparison_report, cmp_map = Parser.compareBytes(init_trace_analysis, mut_trace_analysis, record_list[index], cmp_map)
+            cmp_map, eachloop_input_map = Parser.typeSpeculation(comparison_report, cmp_map, eachloop_input_map)
+        print(eachloop_input_map)
+        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_input_map))
         Mutator.mutateDeleteFile(filelist_mutateseeds, filepath_mutateseeds)
+
+        temp_content = list(seed_content)
+        for k, v in eachloop_input_map.items():
+            temp_content[k] = v
+        temp_content = ''.join(temp_content)
+        filelist_mutateseeds = Mutator.mutateSaveAsFile([temp_content], filepath_mutateseeds, "loop"+str(i))
+        print(filelist_mutateseeds)
         # print(mutate_seeds)
 
+
         # Visualizer.display()
+        eachloop_input_map = {}
 
 
 
