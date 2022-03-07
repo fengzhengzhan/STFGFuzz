@@ -81,6 +81,8 @@ CFG_SUFFIX = ".dot"
 # Mutator
 MUTATE_STR = "aaabaaac"
 STEP = 4  # step size of mutant seeds
+TYPE_SUB = 101
+TYPE_INSERT = 102
 
 # Logging the information during the fuzzing.
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"

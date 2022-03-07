@@ -44,8 +44,8 @@ def createDotFile(bc_file: str, program_name: str) -> (list, list):
     # Change path to generator graph in the directed file.
     proj_path = os.getcwd()
     os.chdir(temp_graphpath)
-    Executor.run(DOTCALLGRAPH + os.path.basename(bc_file))
-    Executor.run(DOTCFG + os.path.basename(bc_file))
+    ret_code, std_out, std_err = Executor.run(DOTCALLGRAPH + os.path.basename(bc_file))
+    ret_code, std_out, std_err = Executor.run(DOTCFG + os.path.basename(bc_file))
 
     temp_filelist = os.listdir()
     os.chdir(proj_path)
@@ -58,6 +58,9 @@ def createDotFile(bc_file: str, program_name: str) -> (list, list):
             cglist.append(onefile)
         elif onefile.find(CFG_SUFFIX) >= 0:
             cfglist.append(onefile)
+
+    if len(cglist) <= 0 or len(cfglist) <= 0:
+        raise Exception("Failed to generate dot file.")
 
     return cglist, cfglist
 

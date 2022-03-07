@@ -10,22 +10,27 @@ def mutateSeeds(seed: str) -> list:
     Replace and add strings for variant input according to the sliding window.
     '''
     seed_len = len(seed)
+    record_list = []
     # Substitution of bytes for seed mutation
     sub_list = []
     endnum = STEP + seed_len%STEP
     for i in range(0, seed_len-endnum, STEP):
         sub_list.append(seed[0:i]+MUTATE_STR+seed[i+len(MUTATE_STR):seed_len])
+        record_list.append([TYPE_SUB, i, i+len(MUTATE_STR)])
     sub_list.append(seed[0:seed_len-endnum]+MUTATE_STR[0:endnum])
+    record_list.append([TYPE_SUB, seed_len-endnum, seed_len])
 
     # Insert byte for seed variation
     insert_list = []
     for i in range(0, seed_len, STEP):
         insert_list.append(seed[0:i]+MUTATE_STR+seed[i:seed_len])
+        record_list.append([TYPE_INSERT, i, i+len(MUTATE_STR)])
     insert_list.append(seed+MUTATE_STR)
+    record_list.append([TYPE_INSERT, seed_len, seed_len+len(MUTATE_STR)])
     # print(sub_list, insert_list)
     mutate_seed_list = sub_list + insert_list
 
-    return mutate_seed_list
+    return mutate_seed_list, record_list
 
 
 def mutateSaveAsFile(mutate_seeds: list, filepath_mutateseeds: str, label: str) -> list:
@@ -51,4 +56,5 @@ def mutateDeleteFile(filelist_mutateseeds: list, filepath_mutateseeds: str):
         os.remove(filepath_mutateseeds + each)
 
 if __name__ == "__main__":
-    mutateSeeds("1234567812345678")
+    mutate_seed_list = mutateSeeds("12345678123456789")
+    print(mutate_seed_list)

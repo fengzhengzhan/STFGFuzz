@@ -71,7 +71,8 @@ def mainFuzzer():
         num_of_pcguard, trace_analysis = Analyzer.traceAyalysis(std_out)
 
         # Mutate seeds to find where to change. Then perform to a directed mutate.
-        mutate_seeds = Mutator.mutateSeeds(seed_content)
+        mutate_seeds, record_list = Mutator.mutateSeeds(seed_content)
+        # print(mutate_seeds, record_list)
         filelist_mutateseeds = Mutator.mutateSaveAsFile(mutate_seeds, filepath_mutateseeds, str(i))
         for each_mutate in filelist_mutateseeds:
             execute_seedfile = filepath_mutateseeds + each_mutate
