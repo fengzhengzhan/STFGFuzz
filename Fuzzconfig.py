@@ -75,6 +75,8 @@ GRAPHDATA = "graph_data"
 # dot -Tpng -o $1.callgraph.png callgraph.dot
 DOTCALLGRAPH = "opt -dot-callgraph "
 DOTCFG = "opt -dot-cfg "
+CG_SUFFIX = ".callgraph.dot"
+CFG_SUFFIX = ".dot"
 
 # Mutator
 MUTATE_STR = "aaabaaac"
