@@ -4,12 +4,15 @@ import getopt
 import os
 import re
 
-import Analyzer
+import Parser
 from Fuzzconfig import *
+import Analyzer
+import Builder
+import Executor
 import Generator
+import History
 import Monitor
 import Mutator
-import Executor
 import Scheduler
 import Visualizer
 
@@ -66,19 +69,28 @@ def mainFuzzer():
     # while True:
     for i in range(1):
         # First run to collect information.
-        seed_content = Analyzer.getSeedContent(execute_seedfile)
-        ret_code, std_out, std_err = Executor.run(fuzz_command.replace('@@', execute_seedfile))
-        num_of_pcguard, trace_analysis = Analyzer.traceAyalysis(std_out)
+        init_seedfile = execute_seedfile
+        seed_content = Analyzer.getSeedContent(init_seedfile)
+        init_ret_code, init_std_out, init_std_err = Executor.run(fuzz_command.replace('@@', init_seedfile))
+        init_num_of_pcguard, init_trace_analysis = Analyzer.traceAyalysis(init_std_out)
 
         # Mutate seeds to find where to change. Then perform to a directed mutate.
         mutate_seeds, record_list = Mutator.mutateSeeds(seed_content)
         # print(mutate_seeds, record_list)
         filelist_mutateseeds = Mutator.mutateSaveAsFile(mutate_seeds, filepath_mutateseeds, str(i))
-        for each_mutate in filelist_mutateseeds:
+
+        for index, each_mutate in enumerate(filelist_mutateseeds):
+            # Track execution information of mutate seeds.
             execute_seedfile = filepath_mutateseeds + each_mutate
-            ret_code, std_out, std_err = Executor.run(fuzz_command.replace('@@', execute_seedfile))
-            num_of_pcguard, trace_analysis = Analyzer.traceAyalysis(std_out)
-            # Visualizer.display()
+            mut_ret_code, mut_std_out, mut_std_err = Executor.run(fuzz_command.replace('@@', execute_seedfile))
+            mut_num_of_pcguard, mut_trace_analysis = Analyzer.traceAyalysis(mut_std_out)
+
+            # Analyze the differences in comparison.
+            comparison_report = Builder.compareBytes(init_trace_analysis, mut_trace_analysis, record_list[index])
+            Parser.typeSpeculation(comparison_report)
+
+
+
         Mutator.mutateDeleteFile(filelist_mutateseeds, filepath_mutateseeds)
         # print(mutate_seeds)
 
