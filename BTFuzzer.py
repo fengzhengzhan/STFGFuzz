@@ -100,11 +100,12 @@ def mainFuzzer():
             temp_content[k] = v
         temp_content = ''.join(temp_content)
         filelist_mutateseeds = Mutator.mutateSaveAsFile([temp_content], filepath_mutateseeds, "loop"+str(i))
-        print(filelist_mutateseeds)
+        Mutator.mutateDeleteFile(filelist_mutateseeds, filepath_mutateseeds)
+        # print(filelist_mutateseeds)
         # print(mutate_seeds)
 
 
-        # Visualizer.display()
+        Visualizer.display(seed_content, eachloop_input_map)
         eachloop_input_map = {}
 
 

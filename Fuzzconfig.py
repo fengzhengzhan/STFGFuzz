@@ -121,6 +121,11 @@ PAR_CHANGED = 202
 
 # Visualizer
 # Red for frozen bytes.
+# Yellow is the confirmation bytes.
+# White is undetected bytes.
+# Gray is the raw bytes.
+
+
 
 # Logging the information during the fuzzing.
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
