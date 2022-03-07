@@ -19,3 +19,4 @@ llvm_mode/Programs/dataset
 otherfunc/
 dataset/
 EachFuzzer/
+InfoData/
