@@ -20,3 +20,5 @@ otherfunc/
 dataset/
 EachFuzzer/
 InfoData/
+SeedPool/crash_seeds/
+SeedPool/mutate_seeds/
