@@ -13,20 +13,20 @@ def mutateSeeds(seed: str) -> list:
     record_list = []
     # Substitution of bytes for seed mutation
     sub_list = []
-    endnum = STEP + seed_len%STEP
-    for i in range(0, seed_len-endnum, STEP):
-        sub_list.append(seed[0:i]+MUTATE_STR+seed[i+len(MUTATE_STR):seed_len])
-        record_list.append([TYPE_SUB, i, i+len(MUTATE_STR)])
-    sub_list.append(seed[0:seed_len-endnum]+MUTATE_STR[0:endnum])
-    record_list.append([TYPE_SUB, seed_len-endnum, seed_len])
+    endnum = MUT_STEP + seed_len % MUT_STEP
+    for i in range(0, seed_len-endnum, MUT_STEP):
+        sub_list.append(seed[0:i] + MUT_STR + seed[i + len(MUT_STR):seed_len])
+        record_list.append([MUT_TYPE_SUB, i, i + len(MUT_STR)])
+    sub_list.append(seed[0:seed_len-endnum] + MUT_STR[0:endnum])
+    record_list.append([MUT_TYPE_SUB, seed_len - endnum, seed_len])
 
     # Insert byte for seed variation
     insert_list = []
-    for i in range(0, seed_len, STEP):
-        insert_list.append(seed[0:i]+MUTATE_STR+seed[i:seed_len])
-        record_list.append([TYPE_INSERT, i, i+len(MUTATE_STR)])
-    insert_list.append(seed+MUTATE_STR)
-    record_list.append([TYPE_INSERT, seed_len, seed_len+len(MUTATE_STR)])
+    for i in range(0, seed_len, MUT_STEP):
+        insert_list.append(seed[0:i] + MUT_STR + seed[i:seed_len])
+        record_list.append([MUT_TYPE_INSERT, i, i + len(MUT_STR)])
+    insert_list.append(seed + MUT_STR)
+    record_list.append([MUT_TYPE_INSERT, seed_len, seed_len + len(MUT_STR)])
     # print(sub_list, insert_list)
     mutate_seed_list = sub_list + insert_list
 
@@ -44,7 +44,7 @@ def mutateSaveAsFile(mutate_seeds: list, filepath_mutateseeds: str, label: str) 
         with open(filepath_mutateseeds + temp_filename, "w") as f:
             f.write(one)
     # print(filelist_mutateseeds)
-    FUZZLOGGING(DEBUG, LOG_STR(LOG_FUNCINFO(), filelist_mutateseeds))
+    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), filelist_mutateseeds))
     return filelist_mutateseeds
 
 

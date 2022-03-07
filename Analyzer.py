@@ -14,7 +14,7 @@ def getSeedContent(filepathname: str) -> str:
 
     for each in seed_content:
         seed_str += each
-    FUZZLOGGING(DEBUG, LOG_STR(LOG_FUNCINFO(), seed_content, seed_str.encode()))
+    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), seed_content, seed_str.encode()))
     return seed_str
     
 
@@ -67,7 +67,7 @@ def traceAyalysis(out_info: str) -> (int, list):
             combine_line = each_line
 
         # print(combine_line.encode())
-        FUZZLOGGING(DEBUG, LOG_STR(LOG_FUNCINFO(), combine_line))
+        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), combine_line))
 
         # Matching Symbols.
         each = combine_line.split(" ")
@@ -114,7 +114,7 @@ def traceAyalysis(out_info: str) -> (int, list):
                 arg2 = each[3]
                 arg_len = each[4]
                 call_pc_list.append(call_pc)
-                temp_content = [call_pc, arg1, arg2, arg_len]
+                temp_content = [type, call_pc, arg1, arg2, arg_len]
                 content_list.append(temp_content)
             elif each[0] == COV_TRACE_SWITCH:
                 type = each[0]
@@ -123,7 +123,7 @@ def traceAyalysis(out_info: str) -> (int, list):
                 size_val = each[3]
 
                 call_pc_list.append(call_pc)
-                temp_content = [call_pc, num_case, size_val]
+                temp_content = [type, call_pc, num_case, size_val]
                 for i in range(num_case):
                     temp_content.append(each[i+4])
                 content_list.append(temp_content)
@@ -140,11 +140,11 @@ def traceAyalysis(out_info: str) -> (int, list):
                 result = int(each[-2])
 
                 call_pc_list.append(call_pc)
-                temp_content = [call_pc, s1, s2, size_n, result]
+                temp_content = [type, call_pc, s1, s2, size_n, result]
                 content_list.append(temp_content)
 
                 # print(type, call_pc, s1.encode(), s2.encode(), size_n, result)
-                FUZZLOGGING(DEBUG, LOG_STR(LOG_FUNCINFO(), type, call_pc, s1.encode(), s2.encode(), size_n, result))
+                LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), type, call_pc, s1.encode(), s2.encode(), size_n, result))
 
         else:
             # Here content has high possible as the normal program output.

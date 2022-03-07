@@ -30,7 +30,7 @@ def mainFuzzer():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hn:")
         # print(opts, args)
-        FUZZLOGGING(DEBUG, LOG_STR(LOG_FUNCINFO(), opts, args))
+        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), opts, args))
     except getopt.GetoptError:
         print("{}.py -- [files] [OPTIONS] @@".format(BTFUZZ))
         raise Exception("Error options.")
@@ -53,13 +53,13 @@ def mainFuzzer():
     filepath_initseeds = SEEDPOOL + os.sep + INITSEEDS + os.sep + program_name + os.sep
     filepath_mutateseeds = SEEDPOOL + os.sep + MUTATESEEDS + os.sep + program_name + os.sep
     filepath_crashseeds = SEEDPOOL + os.sep + CRASHSEEDS + os.sep + program_name + os.sep
-    FUZZLOGGING(DEBUG, LOG_STR(LOG_FUNCINFO(), filepath_initseeds, filepath_mutateseeds, filepath_crashseeds))
+    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), filepath_initseeds, filepath_mutateseeds, filepath_crashseeds))
 
     if os.path.isdir(filepath_initseeds):
         init_seed = os.listdir(filepath_initseeds)[0]
 
     # print(fuzz_command)
-    FUZZLOGGING(DEBUG, LOG_STR(LOG_FUNCINFO(), fuzz_command))
+    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), fuzz_command))
 
     # Fuzzing test procedure.
     Generator.prepareEnv(program_name)
@@ -88,6 +88,7 @@ def mainFuzzer():
             # Analyze the differences in comparison.
             comparison_report = Builder.compareBytes(init_trace_analysis, mut_trace_analysis, record_list[index])
             Parser.typeSpeculation(comparison_report)
+
 
 
 

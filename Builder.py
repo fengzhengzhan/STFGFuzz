@@ -7,8 +7,8 @@ def compareBytes(init_trace_analysis: list, mut_trace_analysis: list, location: 
     Bytes of change compared to the initial sample.
     '''
     # list[list[int], list[list[str]], list[list[list]]]
-    FUZZLOGGING(DEBUG, LOG_STR(LOG_FUNCINFO(), init_trace_analysis, mut_trace_analysis))
-    comparison_report: list = []
+    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), init_trace_analysis, mut_trace_analysis))
+    comparison_report: list[list[list, list, list]] = []
 
     # Only differences in mutation are recorded.
     max_i = max(len(init_trace_analysis[0]), len(mut_trace_analysis[0]))
@@ -22,7 +22,8 @@ def compareBytes(init_trace_analysis: list, mut_trace_analysis: list, location: 
                         if init_trace_analysis[2][i][j][k] == mut_trace_analysis[2][i][j][k]:
                             pass
                         else:
-                            print(location, str(init_trace_analysis[2][i][j]).encode(), str(mut_trace_analysis[2][i][j]).encode())
+                            comparison_report.append([location, init_trace_analysis[2][i][j], mut_trace_analysis[2][i][j]])
+                            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), location, str(init_trace_analysis[2][i][j]).encode(), str(mut_trace_analysis[2][i][j]).encode()))
                 else:
                     pass
         else:

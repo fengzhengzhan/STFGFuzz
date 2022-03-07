@@ -70,6 +70,27 @@ FLAG_DICT = {'a': "COV_TRACE_CMP1",
              'E': "PROGRAM_END",
              }
 
+# Parameter Location Index
+IND_CMP_TYPE = 0
+IND_CALLPC = 1
+IND_ARG1 = 2
+IND_ARG2 = 3
+IND_ARGLEN = 4
+
+IND_S1 = 2
+IND_S2 = 3
+IND_SIZEN = 4
+IND_RESULT = 5
+
+IND_NUMCASE = 2
+IND_SIZEVAL = 3
+
+IND_MUT_TYPE = 0
+IND_MUT_START = 1
+IND_MUT_END = 2
+
+
+
 # Generator
 SEEDPOOL = "SeedPool"
 INITSEEDS = "init_seeds"
@@ -88,10 +109,14 @@ CG_SUFFIX = ".callgraph.dot"
 CFG_SUFFIX = ".dot"
 
 # Mutator
-MUTATE_STR = "aaabaaac"
-STEP = 4  # step size of mutant seeds
-TYPE_SUB = 101
-TYPE_INSERT = 102
+MUT_STR = "aaabaaac"
+MUT_STEP = 4  # step size of mutant seeds
+MUT_TYPE_SUB = 101
+MUT_TYPE_INSERT = 102
+
+# Parser
+PAR_FIXED = 201
+PAR_CHANGED = 202
 
 # Logging the information during the fuzzing.
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
@@ -100,28 +125,30 @@ logging.debug("-------------------------")
 
 LOG_FUNCINFO = lambda : str(sys._getframe(1).f_code.co_name) + ":" + str(sys._getframe(1).f_lineno)
 
+LOG_DEBUG = 251
+LOG_INFO = 252
+LOG_WARNING = 253
+LOG_ERROR = 254
+LOG_CRITICAL = 255
+
+
 def LOG_STR(funcinfo, *args):
     logstr = "{}-> ".format(funcinfo)
     for content in args:
         logstr += "{} || ".format(content)
     return logstr
 
-DEBUG = 101
-INFO = 102
-WARNING = 103
-ERROR = 104
-CRITICAL = 105
 
-def FUZZLOGGING(loggingtype: str, infomation: str) -> None:
-    if loggingtype == DEBUG:
+def LOG(loggingtype: str, infomation: str) -> None:
+    if loggingtype == LOG_DEBUG:
         logging.debug(infomation)
-    elif loggingtype == INFO:
+    elif loggingtype == LOG_INFO:
         logging.info(infomation)
-    elif loggingtype == WARNING:
+    elif loggingtype == LOG_WARNING:
         logging.warning(infomation)
-    elif loggingtype == ERROR:
+    elif loggingtype == LOG_ERROR:
         logging.error(infomation)
-    elif loggingtype == CRITICAL:
+    elif loggingtype == LOG_CRITICAL:
         logging.critical(infomation)
     else:
         raise Exception("Error logging.")
