@@ -123,8 +123,18 @@ PAR_CHANGED = 202
 # Red for frozen bytes.
 # Yellow is the confirmation bytes.
 # White is undetected bytes.
-# Gray is the raw bytes.
+# Blue is the raw bytes.
+VIS_BLACK = 1
+VIS_BLUE = 2
+VIS_CYAN = 3
+VIS_GREEN = 4
+VIS_MAGENTA = 5
+VIS_RED = 6
+VIS_WHITE = 7
+VIS_YELLOW = 8
 
+VIS_Q = 113
+VIS_SEED_LINE = 16
 
 
 # Logging the information during the fuzzing.

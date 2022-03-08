@@ -16,6 +16,9 @@ import Mutator
 import Scheduler
 import Visualizer
 
+start_time = time.time()
+vis = Visualizer.Visualizer()
+
 
 def mainFuzzer():
     '''
@@ -104,8 +107,7 @@ def mainFuzzer():
         # print(filelist_mutateseeds)
         # print(mutate_seeds)
 
-
-        Visualizer.display(seed_content, eachloop_input_map)
+        res = vis.display(start_time, seed_content, eachloop_input_map)
         eachloop_input_map = {}
 
 
