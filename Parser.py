@@ -91,11 +91,11 @@ def compareBytes(init_trace_analysis: list, mut_trace_analysis: list, location: 
     comparison_report: list[list[list, list, list]] = []
 
     # Only differences in mutation are recorded.
-    max_i = max(len(init_trace_analysis[0]), len(mut_trace_analysis[0]))
-    for i in range(0, max_i):
+    min_i = min(len(init_trace_analysis[0]), len(mut_trace_analysis[0]))
+    for i in range(0, min_i):
         if init_trace_analysis[0][i] == mut_trace_analysis[0][i]:
-            max_j = max(len(init_trace_analysis[1][i]), len(mut_trace_analysis[1][i]))
-            for j in range(0, max_j):
+            min_j = min(len(init_trace_analysis[1][i]), len(mut_trace_analysis[1][i]))
+            for j in range(0, min_j):
                 if init_trace_analysis[1][i][j] not in cmp_map:
                     cmp_map[init_trace_analysis[1][i][j]] = []
                 if init_trace_analysis[1][i][j] == mut_trace_analysis[1][i][j]:

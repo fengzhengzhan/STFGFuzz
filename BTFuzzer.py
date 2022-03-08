@@ -16,9 +16,6 @@ import Mutator
 import Scheduler
 import Visualizer
 
-start_time = time.time()
-vis = Visualizer.Visualizer()
-
 
 def mainFuzzer():
     '''
@@ -28,6 +25,9 @@ def mainFuzzer():
     # Receive command line parameters.
     program_name = ""
     init_seed = ""
+    start_time = time.time()
+    loop = 0
+    vis = Visualizer.Visualizer()
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hn:")
@@ -72,8 +72,9 @@ def mainFuzzer():
     execute_seedfile = filepath_initseeds + init_seed
 
     # Fuzzing test cycle
-    # while True:
-    for i in range(1):
+    while True:
+    # for i in range(1):
+        loop += 1
         # First run to collect information.
         init_seedfile = execute_seedfile
         seed_content = Analyzer.getSeedContent(init_seedfile)
@@ -83,7 +84,7 @@ def mainFuzzer():
         # Mutate seeds to find where to change. Then perform to a directed mutate.
         mutate_seeds, record_list = Mutator.mutateSeeds(seed_content)
         # print(mutate_seeds, record_list)
-        filelist_mutateseeds = Mutator.mutateSaveAsFile(mutate_seeds, filepath_mutateseeds, str(i))
+        filelist_mutateseeds = Mutator.mutateSaveAsFile(mutate_seeds, filepath_mutateseeds, str(loop))
 
         for index, each_mutate in enumerate(filelist_mutateseeds):
             # Track execution information of mutate seeds.
@@ -94,7 +95,7 @@ def mainFuzzer():
             # Analyze the differences in comparison.
             comparison_report, cmp_map = Parser.compareBytes(init_trace_analysis, mut_trace_analysis, record_list[index], cmp_map)
             cmp_map, eachloop_input_map = Parser.typeSpeculation(comparison_report, cmp_map, eachloop_input_map)
-        print(eachloop_input_map)
+        # print(eachloop_input_map)
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_input_map))
         Mutator.mutateDeleteFile(filelist_mutateseeds, filepath_mutateseeds)
 
@@ -102,12 +103,16 @@ def mainFuzzer():
         for k, v in eachloop_input_map.items():
             temp_content[k] = v
         temp_content = ''.join(temp_content)
-        filelist_mutateseeds = Mutator.mutateSaveAsFile([temp_content], filepath_mutateseeds, "loop"+str(i))
-        Mutator.mutateDeleteFile(filelist_mutateseeds, filepath_mutateseeds)
+        filelist_mutateseeds = Mutator.mutateSaveAsFile([temp_content], filepath_mutateseeds, "loop"+str(loop))
+        execute_seedfile = filepath_mutateseeds + filelist_mutateseeds[0]
+        time.sleep(1)
+        # Mutator.mutateDeleteFile(filelist_mutateseeds, filepath_mutateseeds)
         # print(filelist_mutateseeds)
         # print(mutate_seeds)
 
         res = vis.display(start_time, seed_content, eachloop_input_map)
+        if res == 1:
+            break
         eachloop_input_map = {}
 
 
