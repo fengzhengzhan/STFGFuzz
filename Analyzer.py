@@ -1,21 +1,6 @@
 import re
 
 from Fuzzconfig import *
-
-
-def getSeedContent(filepathname: str) -> str:
-    '''
-    Get the content of the seed file.
-    '''
-    seed_content = []
-    seed_str = ""
-    with open(filepathname, 'r', encoding="UTF-8") as f:
-        seed_content = f.readlines()
-
-    for each in seed_content:
-        seed_str += each
-    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), seed_content, seed_str.encode()))
-    return seed_str
     
 
 def traceAyalysis(out_info: str) -> (int, list):

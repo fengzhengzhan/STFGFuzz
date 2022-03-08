@@ -1,7 +1,9 @@
 import sys
 import subprocess
 import time
+import queue
 
+from classqueue import Test
 
 
 # run cmd to get information from executable files or other tools
@@ -29,4 +31,13 @@ def mainFuzzer():
 
 
 if __name__ == "__main__":
-    mainFuzzer()
+    # mainFuzzer()
+
+    q = queue.Queue(maxsize=0)
+    q.put(Test(0, [1, 2, ]))
+    q.put(Test(1, [3, 4]))
+
+    tt = q.get()
+    print(tt.s, tt.b)
+    tt = q.get()
+    print(tt.s, tt.b)

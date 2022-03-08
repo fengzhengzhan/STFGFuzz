@@ -4,6 +4,19 @@ import sys
 # Program information.
 BTFUZZ = "BTFuzzer"
 FILEREPLACE = "@@"
+INIT = 100
+
+# Struct
+class StructSeed:
+    def __init__(self, filename: str, content: str, seedtype: int, location: list):
+        self.filename = filename
+        if content == "":
+            self.content = self.getSeedContent(filename)
+        else:
+            self.content = content
+        self.seedtype = seedtype
+        self.location = location
+
 
 # The fisrt character represent the type of compare instruction.
 # In order to save space, using one character as the flag to mark.
@@ -89,8 +102,6 @@ IND_MUT_TYPE = 0
 IND_MUT_START = 1
 IND_MUT_END = 2
 
-
-
 # Generator
 SEEDPOOL = "SeedPool"
 INITSEEDS = "init_seeds"
@@ -119,6 +130,9 @@ MUT_TYPE_INSERT = 102
 PAR_FIXED = 201
 PAR_CHANGED = 202
 
+# Scheduler
+
+
 # Visualizer
 # Red for frozen bytes.
 # Yellow is the confirmation bytes.
@@ -133,7 +147,10 @@ VIS_RED = 6
 VIS_WHITE = 7
 VIS_YELLOW = 8
 
+VIS_A = 97
+VIS_P = 112
 VIS_Q = 113
+VIS_S = 115
 VIS_SEED_LINE = 16
 
 

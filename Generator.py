@@ -11,27 +11,36 @@ def __createDir(path: str) -> None:
         os.makedirs(path)
 
 
-def prepareEnv(program_name: str) -> None:
+def prepareEnv(program_name: str) -> list:
     '''
     Prepare the environment before running the fuzzing loop.
     '''
     # Seed files are managed using program_name.
+    temp_initseeds = SEEDPOOL + os.sep + INITSEEDS + os.sep + program_name
+    temp_crashseeds = SEEDPOOL + os.sep + CRASHSEEDS + os.sep + program_name
+    temp_mutateseeds = SEEDPOOL + os.sep + MUTATESEEDS + os.sep + program_name
     # Create SeedPool.
     __createDir(SEEDPOOL)
     __createDir(SEEDPOOL + os.sep + INITSEEDS)
     __createDir(SEEDPOOL + os.sep + CRASHSEEDS)
     __createDir(SEEDPOOL + os.sep + MUTATESEEDS)
-    __createDir(SEEDPOOL + os.sep + INITSEEDS + os.sep + program_name)
-    __createDir(SEEDPOOL + os.sep + CRASHSEEDS + os.sep + program_name)
-    __createDir(SEEDPOOL + os.sep + MUTATESEEDS + os.sep + program_name)
+    __createDir(temp_initseeds)
+    __createDir(temp_crashseeds)
+    __createDir(temp_mutateseeds)
     # Create InfoData.
     __createDir(INFODATA)
     __createDir(INFODATA + os.sep + GRAPHDATA)
     __createDir(INFODATA + os.sep + GRAPHDATA + os.sep + program_name)
 
-
     # Copy all seed files from init_seeds to mutate_seeds
     # as the starting seeds from mutation.
+    init_seeds_list = []
+    for onefile in os.listdir(temp_initseeds):
+        copy(temp_initseeds + os.sep + onefile, temp_mutateseeds)
+        init_seeds_list.append(onefile)
+
+    return init_seeds_list
+
 
 def createDotFile(bc_file: str, program_name: str) -> (list, list):
     '''
@@ -66,7 +75,9 @@ def createDotFile(bc_file: str, program_name: str) -> (list, list):
 
 
 if __name__ == "__main__":
-    print(os.getcwd())
-    cglist, cfglist = createDotFile("Programs/IR/demo.ll", "demo")
-    print(cglist, cfglist)
-    print(os.getcwd())
+    # print(os.getcwd())
+    # cglist, cfglist = createDotFile("Programs/IR/demo.ll", "demo")
+    # print(cglist, cfglist)
+    # print(os.getcwd())
+
+    prepareEnv("demo")

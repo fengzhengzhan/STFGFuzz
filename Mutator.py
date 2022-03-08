@@ -42,27 +42,20 @@ def mutateOneChar() -> (list, list):
     return mutate_seed_list, record_list
 
 
-def mutateSaveAsFile(mutate_seeds: list, filepath_mutateseeds: str, label: str) -> list:
+def mutateSaveAsFile(mutate_contents: list[str], record_list: list[list], filepath_mutateseeds: str, label: str) -> list[StructSeed]:
     '''
     Store mutated strings as files for easy reading by test programs.
     '''
     filelist_mutateseeds = []
-    for one in mutate_seeds:
-        temp_filename = str(datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')) + "_" + str(label) + ".seed"
-        filelist_mutateseeds.append(temp_filename)
-        with open(filepath_mutateseeds + temp_filename, "w") as f:
+    for i, one in enumerate(mutate_contents):
+        temp_filename = filepath_mutateseeds + str(datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')) + "_" + str(label) + ".seed"
+        filelist_mutateseeds.append(StructSeed(temp_filename, one, record_list[i][0], record_list[i][1:]))
+        with open(temp_filename, "w") as f:
             f.write(one)
     # print(filelist_mutateseeds)
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), filelist_mutateseeds))
     return filelist_mutateseeds
 
-
-def mutateDeleteFile(filelist_mutateseeds: list, filepath_mutateseeds: str):
-    '''
-    Delete mutated intermediate files.
-    '''
-    for each in filelist_mutateseeds:
-        os.remove(filepath_mutateseeds + each)
 
 if __name__ == "__main__":
     mutate_seed_list = mutateSeeds("12345678123456789")

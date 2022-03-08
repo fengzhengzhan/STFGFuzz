@@ -11,15 +11,8 @@ class Visualizer:
         self.stdscr = curses.initscr()
         curses.start_color()
         curses.use_default_colors()
-        curses.noecho()  # Turn off command line display back
+        # curses.noecho()  # Turn off command line display back
         self.stdscr.nodelay(True)
-
-    def display(self, start_time, seed_content: str, eachloop_input_map: dict) -> int:
-        '''
-        This function use to show state during fuzzing on the terminal.
-        '''
-        xnum = ">" * (int(time.time()) % 5)
-        runtime = time.strftime("%H:%M:%S", time.gmtime(time.time()-start_time))
         # curses.color_pair(1)
         curses.init_pair(1, curses.COLOR_BLACK, -1)
         curses.init_pair(2, curses.COLOR_BLUE, -1)
@@ -29,6 +22,13 @@ class Visualizer:
         curses.init_pair(6, curses.COLOR_RED, -1)
         curses.init_pair(7, curses.COLOR_WHITE, -1)
         curses.init_pair(8, curses.COLOR_YELLOW, -1)
+
+    def display(self, start_time, seed_content: str, eachloop_input_map: dict) -> int:
+        '''
+        This function use to show state during fuzzing on the terminal.
+        '''
+        xnum = ">" * (int(time.time()) % 5)
+        runtime = time.strftime("%H:%M:%S", time.gmtime(time.time()-start_time))
 
 
         # Title.
@@ -49,6 +49,11 @@ class Visualizer:
         self.terminal_status.addstr(3, 1, "    Mem: {}%".format(psutil.virtual_memory()[2]))
         self.terminal_status.hline(4, 1, curses.ACS_HLINE, 74)
         self.terminal_status.vline(1, 20, curses.ACS_VLINE, 3)
+        self.terminal_status.addstr(15, 2, "Q", curses.color_pair(VIS_MAGENTA))
+        self.terminal_status.addstr(15, 3, "uit")
+        self.terminal_status.addstr(15, 8, "P", curses.color_pair(VIS_MAGENTA))
+        self.terminal_status.addstr(15, 9, "ause")
+
 
         self.terminal_status.noutrefresh()
 
@@ -80,7 +85,6 @@ class Visualizer:
 
         self.terminal_seeds.noutrefresh()
 
-
         if self.stdscr.getch() == VIS_Q:
             curses.endwin()
             return 1
@@ -96,16 +100,19 @@ class Visualizer:
 
 
 if __name__ == "__main__":
-    test = {0: 'T', 1: 'h', 2: 'e', 3: ' ', 4: 'q', 5: 'u', 6: 'i', 7: 'c', 8: 'k', 9: ' ', 10: 'b',
-            11: 'r', 12: 'o', 13: 'w', 14: 'n', 15: ' ', 16: 'f', 17: 'o', 18: 'x', 19: ' '}
-    start_time = time.time()
-    v = Visualizer()
-    while True:
-        time.sleep(0.1)
-        res = v.display(start_time, "abcdefghijklmnopqrstuvwxyz", test)
-        if res == 1:
-            break
-
+    try:
+        test = {0: 'T', 1: 'h', 2: 'e', 3: ' ', 4: 'q', 5: 'u', 6: 'i', 7: 'c', 8: 'k', 9: ' ', 10: 'b',
+                11: 'r', 12: 'o', 13: 'w', 14: 'n', 15: ' ', 16: 'f', 17: 'o', 18: 'x', 19: ' '}
+        start_time = time.time()
+        v = Visualizer()
+        while True:
+            time.sleep(0.1)
+            res = v.display(start_time, "abcdefghijklmnopqrstuvwxyz", test)
+            if res == 1:
+                break
+    except Exception as e:
+        curses.endwin()
+        print(e)
     # os.system("clear")
     # xnum = ">" * (int(time.time()) % 4)
     # runtime = time.strftime("%d:%H:%M:%S", time.localtime(time.time()-start_time))

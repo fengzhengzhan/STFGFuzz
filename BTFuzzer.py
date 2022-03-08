@@ -3,9 +3,11 @@ import sys
 import getopt
 import os
 import re
+import curses
 
-import Parser
 from Fuzzconfig import *
+from Tools import *
+
 import Analyzer
 import Builder
 import Executor
@@ -13,6 +15,7 @@ import Generator
 import History
 import Monitor
 import Mutator
+import Parser
 import Scheduler
 import Visualizer
 
@@ -28,6 +31,7 @@ def mainFuzzer():
     start_time = time.time()
     loop = 0
     vis = Visualizer.Visualizer()
+    sch = Scheduler.Scheduler()
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hn:")
@@ -57,9 +61,6 @@ def mainFuzzer():
     filepath_crashseeds = SEEDPOOL + os.sep + CRASHSEEDS + os.sep + program_name + os.sep
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), filepath_initseeds, filepath_mutateseeds, filepath_crashseeds))
 
-    if os.path.isdir(filepath_initseeds):
-        init_seed = os.listdir(filepath_initseeds)[0]
-
     # print(fuzz_command)
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), fuzz_command))
 
@@ -68,44 +69,44 @@ def mainFuzzer():
     cmp_map: dict = {}
     input_map: dict[list] = {}
     eachloop_input_map: dict = {}
-    Generator.prepareEnv(program_name)
-    execute_seedfile = filepath_initseeds + init_seed
+    init_seeds_list = Generator.prepareEnv(program_name)
+    sch.addSeeds(filepath_mutateseeds, init_seeds_list)
 
     # Fuzzing test cycle
     while True:
-    # for i in range(1):
         loop += 1
         # First run to collect information.
-        init_seedfile = execute_seedfile
-        seed_content = Analyzer.getSeedContent(init_seedfile)
-        init_ret_code, init_std_out, init_std_err = Executor.run(fuzz_command.replace('@@', init_seedfile))
+        init_seed = sch.selectOneSeed()
+        seed_content = init_seed.content
+        init_ret_code, init_std_out, init_std_err = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         init_num_of_pcguard, init_trace_analysis = Analyzer.traceAyalysis(init_std_out)
 
         # Mutate seeds to find where to change. Then perform to a directed mutate.
-        mutate_seeds, record_list = Mutator.mutateSeeds(seed_content)
+        mutate_contents, record_list = Mutator.mutateSeeds(seed_content)
         # print(mutate_seeds, record_list)
-        filelist_mutateseeds = Mutator.mutateSaveAsFile(mutate_seeds, filepath_mutateseeds, str(loop))
+        structseed_list = Mutator.mutateSaveAsFile(mutate_contents, record_list, filepath_mutateseeds, str(loop))
+        sch.addMutSeeds(structseed_list)
 
-        for index, each_mutate in enumerate(filelist_mutateseeds):
+        while not sch.mutateTestqEmpty():
             # Track execution information of mutate seeds.
-            execute_seedfile = filepath_mutateseeds + each_mutate
-            mut_ret_code, mut_std_out, mut_std_err = Executor.run(fuzz_command.replace('@@', execute_seedfile))
+            execute_seed = sch.selectMutOneSeed()
+            mut_ret_code, mut_std_out, mut_std_err = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
             mut_num_of_pcguard, mut_trace_analysis = Analyzer.traceAyalysis(mut_std_out)
 
             # Analyze the differences in comparison.
-            comparison_report, cmp_map = Parser.compareBytes(init_trace_analysis, mut_trace_analysis, record_list[index], cmp_map)
+            comparison_report, cmp_map = Parser.compareBytes(init_trace_analysis, mut_trace_analysis, [execute_seed.seedtype, execute_seed.location[0], execute_seed.location[1]], cmp_map)
             cmp_map, eachloop_input_map = Parser.typeSpeculation(comparison_report, cmp_map, eachloop_input_map)
         # print(eachloop_input_map)
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_input_map))
-        Mutator.mutateDeleteFile(filelist_mutateseeds, filepath_mutateseeds)
+        sch.deleteSeeds()
 
         temp_content = list(seed_content)
         for k, v in eachloop_input_map.items():
             temp_content[k] = v
         temp_content = ''.join(temp_content)
         filelist_mutateseeds = Mutator.mutateSaveAsFile([temp_content], filepath_mutateseeds, "loop"+str(loop))
-        execute_seedfile = filepath_mutateseeds + filelist_mutateseeds[0]
-        time.sleep(1)
+        execute_seed = filepath_mutateseeds + filelist_mutateseeds[0]
+        sch.addSeeds()
         # Mutator.mutateDeleteFile(filelist_mutateseeds, filepath_mutateseeds)
         # print(filelist_mutateseeds)
         # print(mutate_seeds)
@@ -114,9 +115,14 @@ def mainFuzzer():
         if res == 1:
             break
         eachloop_input_map = {}
-
-
+        # raise Exception("test")
 
 
 if __name__ == "__main__":
-    mainFuzzer()
+    try:
+        mainFuzzer()
+    except Exception as e:
+        curses.endwin()
+        print(e)
+
+
