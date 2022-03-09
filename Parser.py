@@ -3,7 +3,7 @@ import struct
 from Fuzzconfig import *
 
 
-def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceReport]', mut_trace_analysis: 'list[StructTraceReport]', cmp_map: dict) -> list:
+def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceReport]', mut_trace_analysis: 'list[StructTraceReport]', cmp_map: dict) -> 'list[StructComparisonReport]':
     '''
     Bytes of change compared to the initial sample.
     '''
