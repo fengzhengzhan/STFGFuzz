@@ -20,7 +20,7 @@ class Scheduler:
         self.deleteq.put(temp_one)
         return temp_one
 
-    def addSeeds(self, mode: int, structseed_list: list):
+    def addSeeds(self, mode: int, structseed_list: 'list[StructSeed]'):
         for each in structseed_list:
             if mode == SCH_INIT_SEED:
                 self.seedq.put(each)

@@ -8,7 +8,9 @@ BTFUZZ = "BTFuzzer"
 FILEREPLACE = "@@"
 INIT = 100
 
+
 # Struct
+# The structure stores information about the seed file.
 class StructSeed:
     def __init__(self, filename: str, content: str, seedtype: int, location: list):
         self.filename = filename
@@ -19,6 +21,45 @@ class StructSeed:
         self.seedtype = seedtype  # INIT MUT_TYPE_SUB MUT_TYPE_INSERT
         self.location = location
 
+
+# The structure stores information about trace report.
+class StructTraceReport:
+    def __init__(self, startguard: int, endguard: int, constraint: 'list[str]', stvalue: 'list[list[str, str]]', programcontent: 'list[str]'):
+        self.startguard = startguard
+        self.endguard = endguard
+        self.constraint = constraint
+        self.stvalue = stvalue
+        self.progcontent = programcontent
+
+
+class StructComparisonReport:
+    def __init__(self, mutseed: StructSeed, init_sttrace: list, mut_sttrace: list, startguard: int, endguard: int, stguard: str):
+        self.mutseed = mutseed
+        self.init_sttrace = init_sttrace
+        self.mut_sttrace = mut_sttrace
+        self.startguard = startguard
+        self.endguard = endguard
+        self.stguard = stguard
+
+
+# This is the global compare command mapping.
+class StructCmpMap:
+    def __init__(self):
+        self.cmpmap: 'dict[StructCmpInfo]' = {}
+
+
+class StructCmpInfo:
+    def __init__(self, cmptype, startguard, endguard, inputmap: list):
+        self.cmptype = cmptype
+        self.startguard = startguard
+        self.endguard = endguard
+        self.inputmap = inputmap  # Compare the input bytes involved in the instruction.
+
+
+# This is the global constraint graph.
+class StructConstraintGraph:
+    def __init__(self):
+        self.constraintgraph = []
 
 # The fisrt character represent the type of compare instruction.
 # In order to save space, using one character as the flag to mark.
@@ -103,6 +144,10 @@ IND_SIZEVAL = 3
 IND_MUT_TYPE = 0
 IND_MUT_START = 1
 IND_MUT_END = 2
+
+# Analyzer
+ANA_STARTPROG_IND = -1
+ANA_ENDPROG_IND = -2
 
 # Generator
 SEEDPOOL = "SeedPool"

@@ -2,7 +2,7 @@
 from Fuzzconfig import *
 
 
-def mutateSeeds(seed: str, filepath: str, label: str) -> list:
+def mutateSeeds(seed: str, filepath: str, label: str) -> 'list[StructSeed]':
     '''
     Replace and add strings for variant input according to the sliding window.
     '''

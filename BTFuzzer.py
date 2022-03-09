@@ -31,6 +31,9 @@ def mainFuzzer():
     loop = 0
     vis = Visualizer.Visualizer()
     sch = Scheduler.Scheduler()
+    ana = Analyzer.Analyzer()
+
+
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hn:")
@@ -64,8 +67,8 @@ def mainFuzzer():
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), fuzz_command))
 
     # Fuzzing test procedure.
-    constraint_graph: list[dict, dict] = []
-    cmp_map: dict = {}
+    constraint_graph: 'list[dict, dict]' = StructConstraintGraph().constraintgraph
+    cmp_map: dict = StructCmpMap().cmpmap
     input_map: dict[list] = {}
     eachloop_input_map: dict = {}
     init_seeds_list = Generator.prepareEnv(program_name)
@@ -82,7 +85,8 @@ def mainFuzzer():
         seed_content = init_seed.content
         saveAsFile(init_seed.content, init_seed.filename)
         init_ret_code, init_std_out, init_std_err = Executor.run(fuzz_command.replace('@@', init_seed.filename))
-        init_num_of_pcguard, init_trace_analysis = Analyzer.traceAyalysis(init_std_out)
+        init_trace_analysis = ana.traceAyalysis(init_std_out)
+        init_num_of_pcguard = ana.getNumOfPcguard()
 
         # Mutate seeds to find where to change. Then perform to a directed mutate.
         temp_mutate_listq = Mutator.mutateSeeds(seed_content, filepath_mutateseeds, str(loop))
@@ -94,11 +98,11 @@ def mainFuzzer():
             execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
             saveAsFile(execute_seed.content, execute_seed.filename)
             mut_ret_code, mut_std_out, mut_std_err = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
-            mut_num_of_pcguard, mut_trace_analysis = Analyzer.traceAyalysis(mut_std_out)
+            mut_trace_analysis = ana.traceAyalysis(mut_std_out)
 
             # Analyze the differences in comparison.
-            comparison_report, cmp_map = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis, cmp_map)
-            cmp_map, eachloop_input_map = Parser.typeSpeculation(comparison_report, cmp_map, eachloop_input_map)
+            comparison_report = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis, cmp_map)
+            eachloop_input_map = Parser.typeSpeculation(comparison_report, eachloop_input_map, cmp_map)
         # print(eachloop_input_map)
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_input_map))
 
@@ -117,7 +121,7 @@ def mainFuzzer():
             break
         eachloop_input_map = {}
         sch.deleteSeeds()
-        raise Exception("test")
+        # raise Exception("test")
 
 
 if __name__ == "__main__":
