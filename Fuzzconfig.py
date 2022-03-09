@@ -33,8 +33,9 @@ class StructTraceReport:
 
 
 class StructComparisonReport:
-    def __init__(self, mutseed: StructSeed, init_sttrace: list, mut_sttrace: list, startguard: int, endguard: int, stpcguard: str):
+    def __init__(self, mutseed: StructSeed, sttype: str, init_sttrace: list, mut_sttrace: list, startguard: int, endguard: int, stpcguard: str):
         self.mutseed = mutseed
+        self.sttype = sttype
         self.init_sttrace = init_sttrace
         self.mut_sttrace = mut_sttrace
         self.startguard = startguard

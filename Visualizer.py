@@ -8,6 +8,7 @@ from Fuzzconfig import *
 
 class Visualizer:
     def __init__(self):
+        # sudo apt reinstall ncurses-base
         self.stdscr = curses.initscr()
         curses.start_color()
         curses.use_default_colors()
@@ -22,6 +23,7 @@ class Visualizer:
         curses.init_pair(6, curses.COLOR_RED, -1)
         curses.init_pair(7, curses.COLOR_WHITE, -1)
         curses.init_pair(8, curses.COLOR_YELLOW, -1)
+
 
     def display(self, start_time, seed_content: str, eachloop_input_map: dict) -> int:
         '''

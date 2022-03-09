@@ -70,7 +70,7 @@ def mainFuzzer():
     constraint_graph: 'list[dict, dict]' = StructConstraintGraph().constraintgraph
     cmp_map: dict = StructCmpMap().cmpmap
     input_map: dict[list] = {}
-    eachloop_input_map: dict = {}
+    eachloop_change_inputmap: dict = {}
     init_seeds_list = Generator.prepareEnv(program_name)
     temp_listq = []
     for each in init_seeds_list:
@@ -101,13 +101,13 @@ def mainFuzzer():
             mut_trace_analysis = ana.traceAyalysis(mut_std_out)
 
             # Analyze the differences in comparison.
-            comparison_report = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis, cmp_map)
-            eachloop_input_map = Parser.typeSpeculation(comparison_report, eachloop_input_map, cmp_map)
-        # print(eachloop_input_map)
-        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_input_map))
+            comparison_report = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis)
+            eachloop_change_inputmap = Parser.typeSpeculation(comparison_report, cmp_map)
+        # print(eachloop_change_inputmap)
+        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_change_inputmap))
 
         temp_content = list(seed_content)
-        for k, v in eachloop_input_map.items():
+        for k, v in eachloop_change_inputmap.items():
             temp_content[k] = v
         temp_content = ''.join(temp_content)
         sch.addSeeds(SCH_INIT_SEED, [StructSeed(filepath_mutateseeds+getMutfilename("loop"+str(loop)),
@@ -116,11 +116,11 @@ def mainFuzzer():
         # print(filelist_mutateseeds)
         # print(mutate_seeds)
 
-        res = vis.display(start_time, seed_content, eachloop_input_map)
-        if res == 1:
-            break
-        eachloop_input_map = {}
+        eachloop_change_inputmap = {}
         sch.deleteSeeds()
+        # res = vis.display(start_time, seed_content, eachloop_change_inputmap)
+        # if res == 1:
+        #     break
         # raise Exception("test")
 
 
