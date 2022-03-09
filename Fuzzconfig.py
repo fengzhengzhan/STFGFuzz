@@ -1,6 +1,8 @@
 import logging
 import sys
 
+from Tools import *
+
 # Program information.
 BTFUZZ = "BTFuzzer"
 FILEREPLACE = "@@"
@@ -11,10 +13,10 @@ class StructSeed:
     def __init__(self, filename: str, content: str, seedtype: int, location: list):
         self.filename = filename
         if content == "":
-            self.content = self.getSeedContent(filename)
+            self.content = getSeedContent(filename)
         else:
             self.content = content
-        self.seedtype = seedtype
+        self.seedtype = seedtype  # INIT MUT_TYPE_SUB MUT_TYPE_INSERT
         self.location = location
 
 
@@ -131,7 +133,8 @@ PAR_FIXED = 201
 PAR_CHANGED = 202
 
 # Scheduler
-
+SCH_INIT_SEED = 221
+SCH_MUT_SEED = 222
 
 # Visualizer
 # Red for frozen bytes.

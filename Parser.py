@@ -30,9 +30,9 @@ def typeSpeculation(comparison_report: list, cmp_map: dict, eachloop_input_map: 
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), comparison_report))
 
     for each in comparison_report:
-        loc, ini, mut = each
+        seed, ini, mut = each
         cmp_callpc = ini[IND_CALLPC]
-        if loc[IND_MUT_TYPE] == MUT_TYPE_SUB:
+        if seed.seedtype == MUT_TYPE_SUB:
             if mut[IND_CMP_TYPE] in TRACECMPLIST:
                 ini_arg1 = ini[IND_ARG1]
                 ini_arg2 = ini[IND_ARG2]
@@ -59,9 +59,9 @@ def typeSpeculation(comparison_report: list, cmp_map: dict, eachloop_input_map: 
                     start_match = changed_bytes.find(MUT_STR[0:MUT_MATCH])
                     end_match = changed_bytes.find(MUT_STR[len(MUT_STR)-MUT_MATCH:len(MUT_STR)])
                     # Direct byte matching requires only one copy of the string.
-                    if loc[IND_MUT_START]-start_match not in eachloop_input_map:
+                    if seed.location[0]-start_match not in eachloop_input_map:
                         if start_match != -1:
-                            input_start_loc = loc[IND_MUT_START] - start_match
+                            input_start_loc = seed.location[0] - start_match
                             for l in range(0, len(fixed_bytes)):
                                 eachloop_input_map[input_start_loc+l] = fixed_bytes[l]
                         elif end_match != -1:
@@ -74,7 +74,7 @@ def typeSpeculation(comparison_report: list, cmp_map: dict, eachloop_input_map: 
 
             elif mut[IND_CMP_TYPE] == COV_TRACE_SWITCH:
                 pass
-        elif loc[IND_MUT_TYPE] == MUT_TYPE_INSERT:
+        elif seed.seedtype == MUT_TYPE_INSERT:
             pass
 
     return cmp_map, eachloop_input_map
@@ -82,7 +82,7 @@ def typeSpeculation(comparison_report: list, cmp_map: dict, eachloop_input_map: 
 
 
 
-def compareBytes(init_trace_analysis: list, mut_trace_analysis: list, location: list, cmp_map: dict) -> list:
+def compareBytes(mutseed: StructSeed, init_trace_analysis: list, mut_trace_analysis: list, cmp_map: dict) -> list:
     '''
     Bytes of change compared to the initial sample.
     '''
@@ -104,8 +104,8 @@ def compareBytes(init_trace_analysis: list, mut_trace_analysis: list, location: 
                         if init_trace_analysis[2][i][j][k] == mut_trace_analysis[2][i][j][k]:
                             pass
                         else:
-                            comparison_report.append([location, init_trace_analysis[2][i][j], mut_trace_analysis[2][i][j]])
-                            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), location, str(init_trace_analysis[2][i][j]).encode(), str(mut_trace_analysis[2][i][j]).encode()))
+                            comparison_report.append([mutseed, init_trace_analysis[2][i][j], mut_trace_analysis[2][i][j]])
+                            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), mutseed, str(init_trace_analysis[2][i][j]).encode(), str(mut_trace_analysis[2][i][j]).encode()))
                 else:
                     pass
         else:
