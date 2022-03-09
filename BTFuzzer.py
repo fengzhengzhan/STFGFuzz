@@ -102,6 +102,7 @@ def mainFuzzer():
 
             # Analyze the differences in comparison.
             comparison_report = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis, cmp_map)
+            
             eachloop_input_map = Parser.typeSpeculation(comparison_report, eachloop_input_map, cmp_map)
         # print(eachloop_input_map)
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_input_map))

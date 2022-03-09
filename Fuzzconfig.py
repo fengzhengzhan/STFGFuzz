@@ -33,13 +33,13 @@ class StructTraceReport:
 
 
 class StructComparisonReport:
-    def __init__(self, mutseed: StructSeed, init_sttrace: list, mut_sttrace: list, startguard: int, endguard: int, stguard: str):
+    def __init__(self, mutseed: StructSeed, init_sttrace: list, mut_sttrace: list, startguard: int, endguard: int, stpcguard: str):
         self.mutseed = mutseed
         self.init_sttrace = init_sttrace
         self.mut_sttrace = mut_sttrace
         self.startguard = startguard
         self.endguard = endguard
-        self.stguard = stguard
+        self.stpcguard = stpcguard
 
 
 # This is the global compare command mapping.

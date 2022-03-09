@@ -9,7 +9,7 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
     '''
     # list[StructTraceReport]
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), init_trace_analysis, mut_trace_analysis))
-    # comparison_report: list[list[list, list, list]] = []
+    comparison_report: 'list[StructComparisonReport]' = []
 
     # Only differences in mutation are recorded.
     num_i = 0
@@ -20,41 +20,114 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
         # Determine if the compare instruction is in the same block.
         if init_trace_analysis[num_i].startguard == mut_trace_analysis[num_m].startguard and \
                 init_trace_analysis[num_i].endguard == mut_trace_analysis[num_m].endguard:
-            num_i += 1
-            num_m += 1
             num_st_i = 0
             num_st_m = 0
             initst_len = len(init_trace_analysis[num_i].constraint)
             mutst_len = len(mut_trace_analysis[num_m].constraint)
             while num_st_i < initst_len and num_st_m < mutst_len:
                 if init_trace_analysis[num_i].constraint[num_st_i] == mut_trace_analysis[num_m].constraint[num_st_m]:
-                    temp_st = init_trace_analysis[num_i].constraint[num_st_i]
-                    if temp_st in cmp_map:
-                        pass
-                    else:
-                        cmp_map[temp_st] =
+                    comparison_report.append(StructComparisonReport(mutseed,
+                                                                    init_trace_analysis[num_i].stvalue[num_st_i],
+                                                                    mut_trace_analysis[num_m].stvalue[num_st_m],
+                                                                    init_trace_analysis[num_i].startguard,
+                                                                    init_trace_analysis[num_i].endguard,
+                                                                    init_trace_analysis[num_i].constraint[num_st_i]))
+                    num_st_i += 1
+                    num_st_m += 1
                 else:
-                    pass
+                    if initst_len > mutst_len:
+                        comparison_report.append(StructComparisonReport(mutseed,
+                                                                        init_trace_analysis[num_i].stvalue[num_st_i],
+                                                                        [],
+                                                                        init_trace_analysis[num_i].startguard,
+                                                                        init_trace_analysis[num_i].endguard,
+                                                                        init_trace_analysis[num_i].constraint[num_st_i]))
+                        num_st_i += 1
+                    elif initst_len < mutst_len:
+                        comparison_report.append(StructComparisonReport(mutseed,
+                                                                        [],
+                                                                        mut_trace_analysis[num_m].stvalue[num_st_m],
+                                                                        init_trace_analysis[num_i].startguard,
+                                                                        init_trace_analysis[num_i].endguard,
+                                                                        mut_trace_analysis[num_m].constraint[num_st_m]))
+                        num_st_m += 1
+                    elif initst_len == mutst_len:
+                        comparison_report.append(StructComparisonReport(mutseed,
+                                                                        init_trace_analysis[num_i].stvalue[num_st_i],
+                                                                        [],
+                                                                        init_trace_analysis[num_i].startguard,
+                                                                        init_trace_analysis[num_i].endguard,
+                                                                        init_trace_analysis[num_i].constraint[num_st_i]))
+                        comparison_report.append(StructComparisonReport(mutseed,
+                                                                        [],
+                                                                        mut_trace_analysis[num_m].stvalue[num_st_m],
+                                                                        init_trace_analysis[num_i].startguard,
+                                                                        init_trace_analysis[num_i].endguard,
+                                                                        mut_trace_analysis[num_m].constraint[num_st_m]))
+                        num_st_i += 1
+                        num_st_m += 1
 
                 # Prevent crossing the border.
                 if num_st_i >= initst_len and num_st_m < mutst_len:
                     num_st_i = initst_len - 1
                 elif num_st_i < initst_len and num_st_m >= mutst_len:
                     num_st_m = mutst_len - 1
+            num_i += 1
+            num_m += 1
 
 
         # Determine that comparison instructions are not in the same block.
         else:
             # Comparative traversal based on length.
             if inittrace_len > muttrace_len:
+                num_st_i = 0
+                initst_len = len(init_trace_analysis[num_i].constraint)
+                while num_st_i < initst_len:
+                    comparison_report.append(StructComparisonReport(mutseed,
+                                                                    init_trace_analysis[num_i].stvalue[num_st_i],
+                                                                    [],
+                                                                    init_trace_analysis[num_i].startguard,
+                                                                    init_trace_analysis[num_i].endguard,
+                                                                    init_trace_analysis[num_i].constraint[num_st_i]))
+                    num_st_i += 1
                 num_i += 1
-                # todo
 
             elif inittrace_len < muttrace_len:
+                num_st_m = 0
+                mutst_len = len(mut_trace_analysis[num_m].constraint)
+                while num_st_m < mutst_len:
+                    comparison_report.append(StructComparisonReport(mutseed,
+                                                                    mut_trace_analysis[num_i].stvalue[num_st_m],
+                                                                    [],
+                                                                    mut_trace_analysis[num_i].startguard,
+                                                                    mut_trace_analysis[num_i].endguard,
+                                                                    mut_trace_analysis[num_i].constraint[num_st_m]))
+                    num_st_m += 1
                 num_m += 1
-                # todo
 
             elif inittrace_len == muttrace_len:
+                num_st_i = 0
+                initst_len = len(init_trace_analysis[num_i].constraint)
+                while num_st_i < initst_len:
+                    comparison_report.append(StructComparisonReport(mutseed,
+                                                                    init_trace_analysis[num_i].stvalue[num_st_i],
+                                                                    [],
+                                                                    init_trace_analysis[num_i].startguard,
+                                                                    init_trace_analysis[num_i].endguard,
+                                                                    init_trace_analysis[num_i].constraint[num_st_i]))
+                    num_st_i += 1
+
+                num_st_m = 0
+                mutst_len = len(mut_trace_analysis[num_m].constraint)
+                while num_st_m < mutst_len:
+                    comparison_report.append(StructComparisonReport(mutseed,
+                                                                    mut_trace_analysis[num_i].stvalue[num_st_m],
+                                                                    [],
+                                                                    mut_trace_analysis[num_i].startguard,
+                                                                    mut_trace_analysis[num_i].endguard,
+                                                                    mut_trace_analysis[num_i].constraint[num_st_m]))
+                    num_st_m += 1
+
                 num_i += 1
                 num_m += 1
 
@@ -63,35 +136,6 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
             num_i = inittrace_len - 1
         elif num_i < inittrace_len and num_m >= muttrace_len:
             num_m = muttrace_len - 1
-
-
-
-
-
-
-
-
-
-
-    min_i = min(len(init_trace_analysis[0]), len(mut_trace_analysis[0]))
-    for i in range(0, min_i):
-        if init_trace_analysis[0][i] == mut_trace_analysis[0][i]:
-            min_j = min(len(init_trace_analysis[1][i]), len(mut_trace_analysis[1][i]))
-            for j in range(0, min_j):
-                if init_trace_analysis[1][i][j] not in cmp_map:
-                    cmp_map[init_trace_analysis[1][i][j]] = []
-                if init_trace_analysis[1][i][j] == mut_trace_analysis[1][i][j]:
-                    max_k = len(mut_trace_analysis[2][i][j])
-                    for k in range(0, max_k):
-                        if init_trace_analysis[2][i][j][k] == mut_trace_analysis[2][i][j][k]:
-                            pass
-                        else:
-                            comparison_report.append([mutseed, init_trace_analysis[2][i][j], mut_trace_analysis[2][i][j]])
-                            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), mutseed, str(init_trace_analysis[2][i][j]).encode(), str(mut_trace_analysis[2][i][j]).encode()))
-                else:
-                    pass
-        else:
-            pass
 
     return comparison_report
 
