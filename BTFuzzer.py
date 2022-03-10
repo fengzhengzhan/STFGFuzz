@@ -28,6 +28,7 @@ def mainFuzzer():
     init_seed = ""
     start_time = time.time()
     loop = 0
+    total = 0
     vis = Visualizer.Visualizer()
     sch = Scheduler.Scheduler()
     ana = Analyzer.Analyzer()
@@ -81,18 +82,18 @@ def mainFuzzer():
         loop += 1
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_INIT_SEED)
-        seed_content = init_seed.content
         saveAsFile(init_seed.content, init_seed.filename)
         init_ret_code, init_std_out, init_std_err = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         init_trace_analysis = ana.traceAyalysis(init_std_out)
         init_num_of_pcguard = ana.getNumOfPcguard()
 
         # Mutate seeds to find where to change. Then perform to a directed mutate.
-        temp_mutate_listq = Mutator.mutateSeeds(seed_content, filepath_mutateseeds, str(loop))
+        temp_mutate_listq = Mutator.mutateSeeds(init_seed.content, filepath_mutateseeds, str(loop))
         sch.addSeeds(SCH_MUT_SEED, temp_mutate_listq)
         # print(mutate_seeds, record_list)
 
         while not sch.isEmpty(SCH_MUT_SEED):
+            total += 1
             # Track execution information of mutate seeds.
             execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
             saveAsFile(execute_seed.content, execute_seed.filename)
@@ -103,9 +104,13 @@ def mainFuzzer():
             comparison_diffreport, comparison_onereport = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis)
             each_change_inputmap = Parser.typeSpeculation(comparison_diffreport, comparison_onereport, cmp_map)
             Generator.genMapReport(each_change_inputmap, eachloop_change_inputmap)
+            res = vis.display(start_time, execute_seed.content, eachloop_change_inputmap, loop, total)
+            if res == 1:
+                sch.deleteSeeds()
+                return
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_change_inputmap))
 
-        temp_content = list(seed_content)
+        temp_content = list(init_seed.content)
         for k, v in eachloop_change_inputmap.items():
             temp_content[k] = v
         temp_content = ''.join(temp_content)
@@ -116,10 +121,10 @@ def mainFuzzer():
         # print(mutate_seeds)
 
         eachloop_change_inputmap = {}
-        sch.deleteSeeds()
-        res = vis.display(start_time, seed_content, eachloop_change_inputmap)
+        res = vis.display(start_time, init_seed.content, eachloop_change_inputmap, loop, total)
         if res == 1:
-            break
+            sch.deleteSeeds()
+            return
         # raise Exception("test")
 
 

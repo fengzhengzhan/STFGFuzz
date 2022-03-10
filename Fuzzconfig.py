@@ -220,6 +220,8 @@ VIS_Q = 113
 VIS_S = 115
 VIS_SEED_LINE = 16
 
+VIS_MAX_LINE = 25
+
 
 # Logging the information during the fuzzing.
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
