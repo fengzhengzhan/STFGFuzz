@@ -4,6 +4,7 @@ import datetime
 def getMutfilename(label: str) -> str:
     return str(datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')) + "_" + str(label) + ".seed"
 
+
 def saveAsFile(content: str, filename: str):
     '''
     Store mutated strings as files for easy reading by test programs.
