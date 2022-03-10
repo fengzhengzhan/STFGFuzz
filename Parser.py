@@ -2,7 +2,11 @@ import struct
 
 from Fuzzconfig import *
 
+import Generator
 
+"""
+Tracking Comparison Module.
+"""
 def traceBack(init_trace, mut_trace, lcstable, i, m, init_list, mut_list):
     '''
     Backtracking to find a location
@@ -26,6 +30,7 @@ def traceBack(init_trace, mut_trace, lcstable, i, m, init_list, mut_list):
 def compareLCS(init_trace: list, mut_trace: list):
     '''
     Find the longest common subsequence.
+    Return to coordinate position.
     '''
     init_len = len(init_trace)
     mut_len = len(mut_trace)
@@ -77,49 +82,50 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
 
     # Common subsequence comparison constraints are different.
     for gi in range(len(guard_init_list)):
-        
-        st_lcs_len, st_init_list, st_mut_list = compareLCS(init_trace_analysis[guard_init_list[gi]].constraint, mut_trace_analysis[guard_mut_list[gi]].constraint)
+        igi = guard_init_list[gi]
+        mgi = guard_mut_list[gi]
+        st_lcs_len, st_init_list, st_mut_list = compareLCS(init_trace_analysis[igi].constraint, mut_trace_analysis[mgi].constraint)
         # Same part of the constraint.
         for sti in range(len(st_init_list)):
             comparison_diffreport.append(
                 StructComparisonReport(
                     mutseed,
-                    init_trace_analysis[guard_init_list[gi]].stvalue[st_init_list[sti]][IND_CMP_TYPE],
-                    init_trace_analysis[guard_init_list[gi]].stvalue[st_init_list[sti]],
-                    mut_trace_analysis[guard_mut_list[gi]].stvalue[st_mut_list[sti]],
-                    init_trace_analysis[guard_init_list[gi]].startguard,
-                    init_trace_analysis[guard_init_list[gi]].endguard,
-                    init_trace_analysis[guard_init_list[gi]].constraint[st_init_list[sti]],
+                    init_trace_analysis[igi].stvalue[st_init_list[sti]][IND_CMP_TYPE],
+                    init_trace_analysis[igi].stvalue[st_init_list[sti]],
+                    mut_trace_analysis[mgi].stvalue[st_mut_list[sti]],
+                    init_trace_analysis[igi].startguard,
+                    init_trace_analysis[igi].endguard,
+                    init_trace_analysis[igi].constraint[st_init_list[sti]],
                 )
             )
 
         # Different parts of the initial constraint
-        for ii in range(len(init_trace_analysis[guard_init_list[gi]].constraint)):
+        for ii in range(len(init_trace_analysis[igi].constraint)):
             if ii not in st_init_list:
                 comparison_onereport.append(
                     StructComparisonReport(
                         mutseed,
-                        init_trace_analysis[guard_init_list[gi]].stvalue[ii][IND_CMP_TYPE],
-                        init_trace_analysis[guard_init_list[gi]].stvalue[ii],
+                        init_trace_analysis[igi].stvalue[ii][IND_CMP_TYPE],
+                        init_trace_analysis[igi].stvalue[ii],
                         [],
-                        init_trace_analysis[guard_init_list[gi]].startguard,
-                        init_trace_analysis[guard_init_list[gi]].endguard,
-                        init_trace_analysis[guard_init_list[gi]].constraint[ii]
+                        init_trace_analysis[igi].startguard,
+                        init_trace_analysis[igi].endguard,
+                        init_trace_analysis[igi].constraint[ii]
                     )
                 )
 
         # Different parts of the variation constraint
-        for mi in range(len(mut_trace_analysis[guard_mut_list[gi]].constraint)):
+        for mi in range(len(mut_trace_analysis[mgi].constraint)):
             if mi not in st_mut_list:
                 comparison_onereport.append(
                     StructComparisonReport(
                         mutseed,
-                        mut_trace_analysis[guard_mut_list[gi]].stvalue[mi][IND_CMP_TYPE],
+                        mut_trace_analysis[mgi].stvalue[mi][IND_CMP_TYPE],
                         [],
-                        mut_trace_analysis[guard_mut_list[gi]].stvalue[mi],
-                        mut_trace_analysis[guard_mut_list[gi]].startguard,
-                        mut_trace_analysis[guard_mut_list[gi]].endguard,
-                        mut_trace_analysis[guard_mut_list[gi]].constraint[mi]
+                        mut_trace_analysis[mgi].stvalue[mi],
+                        mut_trace_analysis[mgi].startguard,
+                        mut_trace_analysis[mgi].endguard,
+                        mut_trace_analysis[mgi].constraint[mi]
 
                     )
                 )
@@ -159,23 +165,63 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
     return comparison_diffreport, comparison_onereport
 
 
-def inferFixedOrChanged(ini1, ini2, mut1, mut2):
-    temp_infer: list[list, list] = [[0, 0], ["", ""]]
-    if ini1 == mut1:
-        temp_infer[0][0] = PAR_FIXED
-        temp_infer[1][0] = ini1
+"""
+Multiple comparison type handling functions
+"""
+def handleMagic(mutseed, fixed_list, changed_list) -> dict:
+    change_inputmap = {}
+    fixed_bytes = fixed_list[PAR_VARINIT]
+    changed_bytes = changed_list[PAR_VARMUT]
+    # Using characters to match location of the input bytes.
+    start_match = changed_bytes.find(MUT_STR[0:MUT_MATCH])
+    end_match = changed_bytes.find(MUT_STR[len(MUT_STR)-MUT_MATCH : len(MUT_STR)])
+    # Direct byte matching requires only one copy of the string.
+    if start_match != -1:
+        input_start_loc = mutseed.location[0] - start_match
+        for l in range(0, len(fixed_bytes)):
+            change_inputmap[input_start_loc + l] = fixed_bytes[l]
+    elif end_match != -1:
+        pass
     else:
-        temp_infer[0][0] = PAR_CHANGED
-        temp_infer[1][0] = mut1
+        # This case requires the use of single-byte probes.
+        pass
+    return change_inputmap
+
+"""
+Type Inference Module.
+"""
+def inferFixedOrChanged(ini1, ini2, mut1, mut2) -> StructCmpInfer:
+    temp_infer = StructCmpInfer(USE_INITNUM, USE_INITSTR, USE_INITNUM, USE_INITSTR)
+    if ini1 == mut1:
+        temp_infer.var1_type = PAR_FIXED
+        temp_infer.var1_cont = [ini1, mut1]
+    else:
+        temp_infer.var1_type = PAR_CHANGED
+        temp_infer.var1_cont = [ini1, mut1]
 
     if ini2 == mut2:
-        temp_infer[0][1] = PAR_FIXED
-        temp_infer[1][1] = ini2
+        temp_infer.var2_type = PAR_FIXED
+        temp_infer.var2_cont = [ini2, mut2]
     else:
-        temp_infer[0][1] = PAR_CHANGED
-        temp_infer[1][1] = mut2
+        temp_infer.var2_type = PAR_CHANGED
+        temp_infer.var2_cont = [ini2, mut2]
 
     return temp_infer
+
+
+def varChangeSpeculation(infer_bytes: StructCmpInfer):
+    temp_flag = USE_INITNUM
+    if infer_bytes.var1_type == PAR_FIXED and infer_bytes.var2_type == PAR_CHANGED:
+        temp_flag = PAR_MAGIC1_TYPE
+    elif infer_bytes.var1_type == PAR_CHANGED and infer_bytes.var2_type == PAR_FIXED:
+        temp_flag = PAR_MAGIC2_TYPE
+    elif infer_bytes.var1_type == PAR_CHANGED and infer_bytes.var2_type == PAR_CHANGED:
+        temp_flag = PAR_CHECKSUMS_TYPE
+    elif infer_bytes.var1_type == PAR_FIXED and infer_bytes.var2_type == PAR_FIXED:
+        temp_flag = PAR_FIX_TYPE
+
+    return temp_flag
+
 
 
 def typeSpeculation(comparison_diffreport: 'list[StructComparisonReport]', comparison_onereport: 'list[StructComparisonReport]', cmp_map: dict) -> dict:
@@ -184,65 +230,49 @@ def typeSpeculation(comparison_diffreport: 'list[StructComparisonReport]', compa
     '''
     # print(comparison_report)
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), comparison_diffreport, comparison_onereport))
-    eachloop_change_inputmap = {}
+    each_change_inputmap = {}
 
+    # Loop through the cases where the initial and variant correspond to each other.
     for each in comparison_diffreport:
         mutseed = each.mutseed
-        if len(each.init_sttrace) != 0 and len(each.mut_sttrace) != 0:
-            if mutseed.seedtype == MUT_TYPE_SUB:
-                if each.sttype in TRACECMPLIST:
-                    ini_arg1 = each.init_sttrace[IND_ARG1]
-                    ini_arg2 = each.init_sttrace[IND_ARG2]
-                    mut_arg1 = each.mut_sttrace[IND_ARG1]
-                    mut_arg2 = each.mut_sttrace[IND_ARG2]
-                    infer_bytes = inferFixedOrChanged(ini_arg1, ini_arg2, mut_arg1, mut_arg2)
+        change_inputmap = {}
+        if mutseed.seedtype == MUT_TYPE_SUB:
+            if each.sttype in TRACECMPLIST:
+                infer_bytes = inferFixedOrChanged(
+                    each.init_sttrace[IND_ARG1], each.init_sttrace[IND_ARG2],
+                    each.mut_sttrace[IND_ARG1], each.mut_sttrace[IND_ARG2]
+                )
 
-                elif each.sttype in HOOKCMPLIST:
-                    ini_s1 = each.init_sttrace[IND_S1]
-                    ini_s2 = each.init_sttrace[IND_S2]
-                    mut_s1 = each.mut_sttrace[IND_S1]
-                    mut_s2 = each.mut_sttrace[IND_S2]
-                    infer_bytes = inferFixedOrChanged(ini_s1, ini_s2, mut_s1, mut_s2)
-                    # Find fixed bytes and changed bytes.
-                    if PAR_FIXED in infer_bytes[0]:
-                        if infer_bytes[0][0] == PAR_FIXED:
-                            fixed_bytes = infer_bytes[1][0]
-                            changed_bytes = infer_bytes[1][1]
-                        elif infer_bytes[0][1] == PAR_FIXED:
-                            fixed_bytes = infer_bytes[1][1]
-                            changed_bytes = infer_bytes[1][0]
-
-                        # Using characters to match location of the input bytes.
-                        start_match = changed_bytes.find(MUT_STR[0:MUT_MATCH])
-                        end_match = changed_bytes.find(MUT_STR[len(MUT_STR)-MUT_MATCH:len(MUT_STR)])
-                        # Direct byte matching requires only one copy of the string.
-                        if mutseed.location[0]-start_match not in eachloop_change_inputmap:
-                            if start_match != -1:
-                                input_start_loc = mutseed.location[0] - start_match
-                                for l in range(0, len(fixed_bytes)):
-                                    eachloop_change_inputmap[input_start_loc+l] = fixed_bytes[l]
-                            elif end_match != -1:
-                                pass
-                            else:
-                                # This case requires the use of single-byte probes.
-                                pass
-                    else:
-                        pass
-
-                elif each.sttype == COV_TRACE_SWITCH:
+            elif each.sttype in HOOKCMPLIST:
+                infer_bytes = inferFixedOrChanged(
+                    each.init_sttrace[IND_S1], each.init_sttrace[IND_S2],
+                    each.mut_sttrace[IND_S1], each.mut_sttrace[IND_S2]
+                )
+                # Find fixed bytes and changed bytes.
+                var_flag = varChangeSpeculation(infer_bytes)
+                if var_flag == PAR_MAGIC1_TYPE:
+                    change_inputmap = handleMagic(mutseed, infer_bytes.var1_cont, infer_bytes.var2_cont)
+                elif var_flag == PAR_MAGIC2_TYPE:
+                    change_inputmap = handleMagic(mutseed, infer_bytes.var2_cont, infer_bytes.var1_cont)
+                elif var_flag == PAR_CHECKSUMS_TYPE:
                     pass
-            elif mutseed.seedtype == MUT_TYPE_INSERT:
+                elif var_flag == PAR_FIX_TYPE:
+                    pass
+
+            elif each.sttype == COV_TRACE_SWITCH:
                 pass
-
-        elif len(each.init_sttrace) != 0 and len(each.mut_sttrace) == 0:
-            pass
-        elif len(each.init_sttrace) == 0 and len(each.mut_sttrace) != 0:
-            pass
-        elif len(each.init_sttrace) == 0 and len(each.mut_sttrace) == 0:
+        elif mutseed.seedtype == MUT_TYPE_INSERT:
             pass
 
+        # Handling input change mapping.
+        Generator.genMapReport(change_inputmap, each_change_inputmap)
 
-    return eachloop_change_inputmap
+    # The loop traverses the case where only a single variant exists for the initial and variant.
+    for each in comparison_onereport:
+        pass
+
+    # print(each_change_inputmap)
+    return each_change_inputmap
 
 
 if __name__ == "__main__":

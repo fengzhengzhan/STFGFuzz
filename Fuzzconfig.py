@@ -7,7 +7,8 @@ from Tools import *
 BTFUZZ = "BTFuzzer"
 FILEREPLACE = "@@"
 INIT = 100
-
+USE_INITNUM = -11
+USE_INITSTR = ""
 
 # Struct
 # The structure stores information about the seed file.
@@ -61,6 +62,14 @@ class StructCmpInfo:
 class StructConstraintGraph:
     def __init__(self):
         self.constraintgraph = []
+
+# Identification of the type of comparison instruction.
+class StructCmpInfer:
+    def __init__(self, var1_type: int, var1_cont: list, var2_type: int, var2_cont: list):
+        self.var1_type = var1_type
+        self.var1_cont = var1_cont
+        self.var2_type = var2_type
+        self.var2_cont = var2_cont
 
 # The fisrt character represent the type of compare instruction.
 # In order to save space, using one character as the flag to mark.
@@ -177,6 +186,15 @@ MUT_TYPE_INSERT = 102
 # Parser
 PAR_FIXED = 201
 PAR_CHANGED = 202
+
+PAR_MAGIC1_TYPE = 181  # fixed changed
+PAR_MAGIC2_TYPE = 182  # changed fixed
+PAR_CHECKSUMS_TYPE = 183  # changed changed
+PAR_FIX_TYPE = 184  # fixed fixed
+
+PAR_VARINIT = 0
+PAR_VARMUT = 1
+
 
 # Scheduler
 SCH_INIT_SEED = 221

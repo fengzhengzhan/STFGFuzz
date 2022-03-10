@@ -74,6 +74,15 @@ def createDotFile(bc_file: str, program_name: str) -> (list, list):
     return cglist, cfglist
 
 
+def genMapReport(inputmap, totalinputmap):
+    '''
+    Generate byte-level mapping reports.
+    '''
+    for loc, byte in inputmap.items():
+        if loc not in totalinputmap:
+            totalinputmap[loc] = byte
+
+
 if __name__ == "__main__":
     # print(os.getcwd())
     # cglist, cfglist = createDotFile("Programs/IR/demo.ll", "demo")

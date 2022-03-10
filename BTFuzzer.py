@@ -12,7 +12,6 @@ import Builder
 import Executor
 import Generator
 import History
-import Monitor
 import Mutator
 import Parser
 import Scheduler
@@ -102,8 +101,8 @@ def mainFuzzer():
 
             # Analyze the differences in comparison.
             comparison_diffreport, comparison_onereport = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis)
-            eachloop_change_inputmap = Parser.typeSpeculation(comparison_diffreport, comparison_onereport, cmp_map)
-        # print(eachloop_change_inputmap)
+            each_change_inputmap = Parser.typeSpeculation(comparison_diffreport, comparison_onereport, cmp_map)
+            Generator.genMapReport(each_change_inputmap, eachloop_change_inputmap)
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_change_inputmap))
 
         temp_content = list(seed_content)
@@ -118,9 +117,9 @@ def mainFuzzer():
 
         eachloop_change_inputmap = {}
         sch.deleteSeeds()
-        # res = vis.display(start_time, seed_content, eachloop_change_inputmap)
-        # if res == 1:
-        #     break
+        res = vis.display(start_time, seed_content, eachloop_change_inputmap)
+        if res == 1:
+            break
         # raise Exception("test")
 
 
