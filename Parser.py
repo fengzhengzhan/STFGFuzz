@@ -3,11 +3,14 @@ import struct
 from Fuzzconfig import *
 
 
-def traceBack(init_trace, mut_trace, lcstable, i, m, init_set, mut_set):
+def traceBack(init_trace, mut_trace, lcstable, i, m, init_list, mut_list):
+    '''
+    Backtracking to find a location
+    '''
     while i > 0 and m > 0:
         if init_trace[i - 1] == mut_trace[m - 1]:
-            init_set.add(i - 1)
-            mut_set.add(m - 1)
+            init_list.append(i - 1)
+            mut_list.append(m - 1)
             i -= 1
             m -= 1
         else:
@@ -16,7 +19,7 @@ def traceBack(init_trace, mut_trace, lcstable, i, m, init_set, mut_set):
             elif lcstable[i - 1][m] < lcstable[i][m - 1]:
                 m -= 1
             else:
-                traceBack(init_trace, mut_trace, lcstable, i - 1, m, init_set, mut_set)
+                traceBack(init_trace, mut_trace, lcstable, i - 1, m, init_list, mut_list)
                 break
 
 
@@ -39,195 +42,121 @@ def compareLCS(init_trace: list, mut_trace: list):
     #     print(each)
     lcs_len = lcstable[init_len][mut_len]
 
-    # Backtracking to find a location
-    init_set = set()
-    mut_set = set()
-    traceBack(init_trace, mut_trace, lcstable, init_len, mut_len, init_set, mut_set)
-    # print(init_set, mut_set)
+    # Backtracking to find a location.
+    init_list = []
+    mut_list = []
+    traceBack(init_trace, mut_trace, lcstable, init_len, mut_len, init_list, mut_list)
+    init_list.reverse()
+    mut_list.reverse()
+    # print(init_list, mut_list)
 
-    return lcs_len, init_set, mut_set
+    return lcs_len, init_list, mut_list
 
 
-def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceReport]', mut_trace_analysis: 'list[StructTraceReport]') -> 'list[StructComparisonReport]':
+def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceReport]', mut_trace_analysis: 'list[StructTraceReport]') -> ('list[StructComparisonReport]', 'list[StructComparisonReport]'):
     '''
     Bytes of change compared to the initial sample.
     '''
     # list[StructTraceReport]
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), init_trace_analysis, mut_trace_analysis))
-    comparison_report: 'list[StructComparisonReport]' = []
+    comparison_diffreport: 'list[StructComparisonReport]' = []
+    comparison_onereport: 'list[StructComparisonReport]' = []
+
 
     # Only differences in mutation are recorded.
-    num_i = 0
-    num_m = 0
     inittrace_len = len(init_trace_analysis)
     muttrace_len = len(mut_trace_analysis)
-    while num_i < inittrace_len and num_m < muttrace_len:
-        # Determine if the compare instruction is in the same block.
-        if init_trace_analysis[num_i].startguard == mut_trace_analysis[num_m].startguard and \
-                init_trace_analysis[num_i].endguard == mut_trace_analysis[num_m].endguard:
-            num_st_i = 0
-            num_st_m = 0
-            initst_len = len(init_trace_analysis[num_i].constraint)
-            mutst_len = len(mut_trace_analysis[num_m].constraint)
-            while num_st_i < initst_len and num_st_m < mutst_len:
-                if init_trace_analysis[num_i].constraint[num_st_i] == mut_trace_analysis[num_m].constraint[num_st_m]:
-                    comparison_report.append(
-                        StructComparisonReport(
-                            mutseed,
-                            init_trace_analysis[num_i].stvalue[num_st_i][IND_CMP_TYPE],
-                            init_trace_analysis[num_i].stvalue[num_st_i],
-                            mut_trace_analysis[num_m].stvalue[num_st_m],
-                            init_trace_analysis[num_i].startguard,
-                            init_trace_analysis[num_i].endguard,
-                            init_trace_analysis[num_i].constraint[num_st_i]
-                        )
+
+    temp_inittrace = []
+    for ti in range(inittrace_len):
+        temp_inittrace.append(str(init_trace_analysis[ti].startguard) + "_" + str(init_trace_analysis[ti].endguard))
+    temp_muttrace = []
+    for ti in range(muttrace_len):
+        temp_muttrace.append(str(mut_trace_analysis[ti].startguard) + "_" + str(mut_trace_analysis[ti].endguard))
+    guard_lcs_len, guard_init_list, guard_mut_list = compareLCS(temp_inittrace, temp_muttrace)
+
+    # Common subsequence comparison constraints are different.
+    for gi in range(len(guard_init_list)):
+        
+        st_lcs_len, st_init_list, st_mut_list = compareLCS(init_trace_analysis[guard_init_list[gi]].constraint, mut_trace_analysis[guard_mut_list[gi]].constraint)
+        # Same part of the constraint.
+        for sti in range(len(st_init_list)):
+            comparison_diffreport.append(
+                StructComparisonReport(
+                    mutseed,
+                    init_trace_analysis[guard_init_list[gi]].stvalue[st_init_list[sti]][IND_CMP_TYPE],
+                    init_trace_analysis[guard_init_list[gi]].stvalue[st_init_list[sti]],
+                    mut_trace_analysis[guard_mut_list[gi]].stvalue[st_mut_list[sti]],
+                    init_trace_analysis[guard_init_list[gi]].startguard,
+                    init_trace_analysis[guard_init_list[gi]].endguard,
+                    init_trace_analysis[guard_init_list[gi]].constraint[st_init_list[sti]],
+                )
+            )
+
+        # Different parts of the initial constraint
+        for ii in range(len(init_trace_analysis[guard_init_list[gi]].constraint)):
+            if ii not in st_init_list:
+                comparison_onereport.append(
+                    StructComparisonReport(
+                        mutseed,
+                        init_trace_analysis[guard_init_list[gi]].stvalue[ii][IND_CMP_TYPE],
+                        init_trace_analysis[guard_init_list[gi]].stvalue[ii],
+                        [],
+                        init_trace_analysis[guard_init_list[gi]].startguard,
+                        init_trace_analysis[guard_init_list[gi]].endguard,
+                        init_trace_analysis[guard_init_list[gi]].constraint[ii]
                     )
-                    num_st_i += 1
-                    num_st_m += 1
-                else:
-                    if initst_len > mutst_len:
-                        comparison_report.append(
-                            StructComparisonReport(
-                                mutseed,
-                                init_trace_analysis[num_i].stvalue[num_st_i][IND_CMP_TYPE],
-                                init_trace_analysis[num_i].stvalue[num_st_i],
-                                [],
-                                init_trace_analysis[num_i].startguard,
-                                init_trace_analysis[num_i].endguard,
-                                init_trace_analysis[num_i].constraint[num_st_i]
-                            )
-                        )
-                        num_st_i += 1
-                    elif initst_len < mutst_len:
-                        comparison_report.append(
-                            StructComparisonReport(
-                                mutseed,
-                                mut_trace_analysis[num_m].stvalue[num_st_m][IND_CMP_TYPE],
-                                [],
-                                mut_trace_analysis[num_m].stvalue[num_st_m],
-                                mut_trace_analysis[num_i].startguard,
-                                mut_trace_analysis[num_i].endguard,
-                                mut_trace_analysis[num_m].constraint[num_st_m]
-                            )
-                        )
-                        num_st_m += 1
-                    elif initst_len == mutst_len:
-                        comparison_report.append(
-                            StructComparisonReport(
-                                mutseed,
-                                init_trace_analysis[num_i].stvalue[num_st_i][IND_CMP_TYPE],
-                                init_trace_analysis[num_i].stvalue[num_st_i],
-                                [],
-                                init_trace_analysis[num_i].startguard,
-                                init_trace_analysis[num_i].endguard,
-                                init_trace_analysis[num_i].constraint[num_st_i]
-                            )
-                        )
-                        comparison_report.append(
-                            StructComparisonReport(
-                                mutseed,
-                                mut_trace_analysis[num_m].stvalue[num_st_m][IND_CMP_TYPE],
-                                [],
-                                mut_trace_analysis[num_m].stvalue[num_st_m],
-                                mut_trace_analysis[num_i].startguard,
-                                mut_trace_analysis[num_i].endguard,
-                                mut_trace_analysis[num_m].constraint[num_st_m]
-                            )
-                        )
-                        num_st_i += 1
-                        num_st_m += 1
+                )
 
-                # Prevent crossing the border.
-                if num_st_i >= initst_len and num_st_m < mutst_len:
-                    num_st_i = initst_len - 1
-                elif num_st_i < initst_len and num_st_m >= mutst_len:
-                    num_st_m = mutst_len - 1
-            num_i += 1
-            num_m += 1
+        # Different parts of the variation constraint
+        for mi in range(len(mut_trace_analysis[guard_mut_list[gi]].constraint)):
+            if mi not in st_mut_list:
+                comparison_onereport.append(
+                    StructComparisonReport(
+                        mutseed,
+                        mut_trace_analysis[guard_mut_list[gi]].stvalue[mi][IND_CMP_TYPE],
+                        [],
+                        mut_trace_analysis[guard_mut_list[gi]].stvalue[mi],
+                        mut_trace_analysis[guard_mut_list[gi]].startguard,
+                        mut_trace_analysis[guard_mut_list[gi]].endguard,
+                        mut_trace_analysis[guard_mut_list[gi]].constraint[mi]
 
-
-        # Determine that comparison instructions are not in the same block.
-        else:
-            # Comparative traversal based on length.
-            if inittrace_len > muttrace_len:
-                num_st_i = 0
-                initst_len = len(init_trace_analysis[num_i].constraint)
-                while num_st_i < initst_len:
-                    comparison_report.append(
-                        StructComparisonReport(
-                            mutseed,
-                            init_trace_analysis[num_i].stvalue[num_st_i][IND_CMP_TYPE],
-                            init_trace_analysis[num_i].stvalue[num_st_i],
-                            [],
-                            init_trace_analysis[num_i].startguard,
-                            init_trace_analysis[num_i].endguard,
-                            init_trace_analysis[num_i].constraint[num_st_i]
-                        )
                     )
-                    num_st_i += 1
-                num_i += 1
+                )
 
-            elif inittrace_len < muttrace_len:
-                num_st_m = 0
-                mutst_len = len(mut_trace_analysis[num_m].constraint)
-                while num_st_m < mutst_len:
-                    comparison_report.append(
-                        StructComparisonReport(
-                            mutseed,
-                            mut_trace_analysis[num_m].stvalue[num_st_m][IND_CMP_TYPE],
-                            [],
-                            mut_trace_analysis[num_i].stvalue[num_st_m],
-                            mut_trace_analysis[num_i].startguard,
-                            mut_trace_analysis[num_i].endguard,
-                            mut_trace_analysis[num_i].constraint[num_st_m]
-                        )
+    # Different parts of the initial trace
+    for i in range(inittrace_len):
+        if i not in guard_init_list:
+            for st_i in range(len(init_trace_analysis[i].constraint)):
+                comparison_onereport.append(
+                    StructComparisonReport(
+                        mutseed,
+                        init_trace_analysis[i].stvalue[st_i][IND_CMP_TYPE],
+                        init_trace_analysis[i].stvalue[st_i],
+                        [],
+                        init_trace_analysis[i].startguard,
+                        init_trace_analysis[i].endguard,
+                        init_trace_analysis[i].constraint[st_i]
                     )
-                    num_st_m += 1
-                num_m += 1
+                )
 
-            elif inittrace_len == muttrace_len:
-                num_st_i = 0
-                initst_len = len(init_trace_analysis[num_i].constraint)
-                while num_st_i < initst_len:
-                    comparison_report.append(
-                        StructComparisonReport(
-                            mutseed,
-                            init_trace_analysis[num_i].stvalue[num_st_i][IND_CMP_TYPE],
-                            init_trace_analysis[num_i].stvalue[num_st_i],
-                            [],
-                            init_trace_analysis[num_i].startguard,
-                            init_trace_analysis[num_i].endguard,
-                            init_trace_analysis[num_i].constraint[num_st_i]
-                        )
+    # Different parts of the variation tracking
+    for m in range(muttrace_len):
+        if m not in guard_mut_list:
+            for st_m in range(len(mut_trace_analysis[m].constraint)):
+                comparison_onereport.append(
+                    StructComparisonReport(
+                        mutseed,
+                        mut_trace_analysis[m].stvalue[st_m][IND_CMP_TYPE],
+                        [],
+                        mut_trace_analysis[m].stvalue[st_m],
+                        mut_trace_analysis[m].startguard,
+                        mut_trace_analysis[m].endguard,
+                        mut_trace_analysis[m].constraint[st_m]
                     )
-                    num_st_i += 1
+                )
 
-                num_st_m = 0
-                mutst_len = len(mut_trace_analysis[num_m].constraint)
-                while num_st_m < mutst_len:
-                    comparison_report.append(
-                        StructComparisonReport(
-                            mutseed,
-                            mut_trace_analysis[num_m].stvalue[num_st_m][IND_CMP_TYPE],
-                            [],
-                            mut_trace_analysis[num_i].stvalue[num_st_m],
-                            mut_trace_analysis[num_i].startguard,
-                            mut_trace_analysis[num_i].endguard,
-                            mut_trace_analysis[num_i].constraint[num_st_m]
-                        )
-                    )
-                    num_st_m += 1
-
-                num_i += 1
-                num_m += 1
-
-        # Prevent crossing the border.
-        if num_i >= inittrace_len and num_m < muttrace_len:
-            num_i = inittrace_len - 1
-        elif num_i < inittrace_len and num_m >= muttrace_len:
-            num_m = muttrace_len - 1
-
-    return comparison_report
+    return comparison_diffreport, comparison_onereport
 
 
 def inferFixedOrChanged(ini1, ini2, mut1, mut2):
@@ -249,15 +178,15 @@ def inferFixedOrChanged(ini1, ini2, mut1, mut2):
     return temp_infer
 
 
-def typeSpeculation(comparison_report: 'list[StructComparisonReport]', cmp_map: dict) -> dict:
+def typeSpeculation(comparison_diffreport: 'list[StructComparisonReport]', comparison_onereport: 'list[StructComparisonReport]', cmp_map: dict) -> dict:
     '''
     Type identification and speculation.
     '''
     # print(comparison_report)
-    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), comparison_report))
+    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), comparison_diffreport, comparison_onereport))
     eachloop_change_inputmap = {}
 
-    for each in comparison_report:
+    for each in comparison_diffreport:
         mutseed = each.mutseed
         if len(each.init_sttrace) != 0 and len(each.mut_sttrace) != 0:
             if mutseed.seedtype == MUT_TYPE_SUB:

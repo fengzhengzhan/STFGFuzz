@@ -101,8 +101,8 @@ def mainFuzzer():
             mut_trace_analysis = ana.traceAyalysis(mut_std_out)
 
             # Analyze the differences in comparison.
-            comparison_report = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis)
-            eachloop_change_inputmap = Parser.typeSpeculation(comparison_report, cmp_map)
+            comparison_diffreport, comparison_onereport = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis)
+            eachloop_change_inputmap = Parser.typeSpeculation(comparison_diffreport, comparison_onereport, cmp_map)
         # print(eachloop_change_inputmap)
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_change_inputmap))
 
