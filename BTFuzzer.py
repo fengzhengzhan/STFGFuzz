@@ -74,7 +74,7 @@ def mainFuzzer():
     init_seeds_list = Generator.prepareEnv(program_name)
     temp_listq = []
     for each in init_seeds_list:
-        temp_listq.append(StructSeed(filepath_mutateseeds+each, "", INIT, []))
+        temp_listq.append(StructSeed(filepath_mutateseeds+each, "", INIT, [0, 0]))
     sch.addSeeds(SCH_INIT_SEED, temp_listq)
 
     # Fuzzing test cycle
@@ -104,7 +104,7 @@ def mainFuzzer():
             comparison_diffreport, comparison_onereport = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis)
             each_change_inputmap = Parser.typeSpeculation(comparison_diffreport, comparison_onereport, cmp_map)
             Generator.genMapReport(each_change_inputmap, eachloop_change_inputmap)
-            res = vis.display(start_time, execute_seed.content, eachloop_change_inputmap, loop, total)
+            res = vis.display(start_time, execute_seed, eachloop_change_inputmap, loop, total)
             if res == 1:
                 sch.deleteSeeds()
                 return
@@ -115,13 +115,13 @@ def mainFuzzer():
             temp_content[k] = v
         temp_content = ''.join(temp_content)
         sch.addSeeds(SCH_INIT_SEED, [StructSeed(filepath_mutateseeds+getMutfilename("loop"+str(loop)),
-                                         temp_content, INIT, [])])
+                                         temp_content, INIT, [0, 0])])
         # Mutator.mutateDeleteFile(filelist_mutateseeds, filepath_mutateseeds)
         # print(filelist_mutateseeds)
         # print(mutate_seeds)
 
         eachloop_change_inputmap = {}
-        res = vis.display(start_time, init_seed.content, eachloop_change_inputmap, loop, total)
+        res = vis.display(start_time, init_seed, eachloop_change_inputmap, loop, total)
         if res == 1:
             sch.deleteSeeds()
             return
@@ -129,11 +129,11 @@ def mainFuzzer():
 
 
 if __name__ == "__main__":
-    # mainFuzzer()
-    try:
-        mainFuzzer()
-    except Exception as e:
-        curses.endwin()
-        print(e)
+    mainFuzzer()
+    # try:
+    #     mainFuzzer()
+    # except Exception as e:
+    #     curses.endwin()
+    #     print(e)
 
 

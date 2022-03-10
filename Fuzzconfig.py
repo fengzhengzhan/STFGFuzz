@@ -202,7 +202,8 @@ SCH_MUT_SEED = 222
 
 # Visualizer
 # Red for frozen bytes.
-# Yellow is the confirmation bytes.
+# Yellow is the change bytes.
+# _ is the confirmation bytes.
 # White is undetected bytes.
 # Blue is the raw bytes.
 VIS_BLACK = 1

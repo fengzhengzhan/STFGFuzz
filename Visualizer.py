@@ -25,7 +25,7 @@ class Visualizer:
         curses.init_pair(8, curses.COLOR_YELLOW, -1)
 
 
-    def display(self, start_time, seed_content: str, eachloop_input_map: dict, loop: int, total: int) -> int:
+    def display(self, start_time, mutseed: StructSeed, eachloop_input_map: dict, loop: int, total: int) -> int:
         '''
         This function use to show state during fuzzing on the terminal.
         '''
@@ -63,7 +63,7 @@ class Visualizer:
         self.terminal_status.noutrefresh()
 
         # Initual terminal seeds.
-        seed_len = len(seed_content)
+        seed_len = len(mutseed.content)
         layout_x = int(seed_len / VIS_SEED_LINE)
         layout_y = int(seed_len % VIS_SEED_LINE)
 
@@ -82,8 +82,10 @@ class Visualizer:
 
             for j in range(0, j_len):
                 seed_index = i*16+j
-                show_char = seed_content[seed_index]
+                show_char = mutseed.content[seed_index]
                 color_pair = curses.color_pair(VIS_WHITE)
+                if mutseed.location[0] <= seed_index < mutseed.location[1]:
+                    color_pair = curses.color_pair(VIS_YELLOW)
                 if seed_index in eachloop_input_map:
                     show_char = eachloop_input_map[seed_index]
                     color_pair = curses.color_pair(VIS_RED)
