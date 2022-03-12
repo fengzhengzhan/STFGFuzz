@@ -26,38 +26,30 @@ def prepareEnv(program_name: str) -> list:
     # ---- seeds_mutate
     # ---- seeds_crash
 
-    # Seed files are managed using program_name.
-    # temp_initseeds = SEEDPOOL + os.sep + INITSEEDS + os.sep + program_name
-    # temp_crashseeds = SEEDPOOL + os.sep + CRASHSEEDS + os.sep + program_name
-    # temp_mutateseeds = SEEDPOOL + os.sep + MUTATESEEDS + os.sep + program_name
-
     # Create Programs.
     __createDir(PROGRAMS)
     __createDir(PROGRAMS + os.sep + program_name)
     __createDir(PROGRAMS + os.sep + program_name + os.sep + CODESOURCES)
-    __createDir(PROGRAMS + os.sep + program_name + os.sep + CODEBIN)
     __createDir(PROGRAMS + os.sep + program_name + os.sep + CODEIR)
+    __createDir(PROGRAMS + os.sep + program_name + os.sep + CODEBIN)
     __createDir(PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH)
     __createDir(PROGRAMS + os.sep + program_name + os.sep + DATACRASHLOC)
-    __createDir(PROGRAMS + os.sep + program_name + os.sep + SEEDSINIT)
-    __createDir(PROGRAMS + os.sep + program_name + os.sep + SEEDSMUTATE)
+    temp_seedsinit = PROGRAMS + os.sep + program_name + os.sep + SEEDSINIT
+    __createDir(temp_seedsinit)
+    temp_seedsmutate = PROGRAMS + os.sep + program_name + os.sep + SEEDSMUTATE
+    __createDir(temp_seedsmutate)
+
     __createDir(PROGRAMS + os.sep + program_name + os.sep + SEEDSCRASH)
 
-    # # Create InfoData.
-    # __createDir(INFODATA)
-    # __createDir(INFODATA + os.sep + GRAPHDATA)
-    # __createDir(INFODATA + os.sep + GRAPHDATA + os.sep + program_name)
-    # __createDir(INFODATA + os.sep + CRASHLOCDATA)
-    # __createDir(INFODATA + os.sep + CRASHLOCDATA + os.sep + program_name)
-    #
-    # # Copy all seed files from init_seeds to mutate_seeds
-    # # as the starting seeds from mutation.
-    # init_seeds_list = []
-    # for onefile in os.listdir(temp_initseeds):
-    #     copy(temp_initseeds + os.sep + onefile, temp_mutateseeds)
-    #     init_seeds_list.append(onefile)
 
-    # return init_seeds_list
+    # Copy all seed files from init_seeds to mutate_seeds
+    # as the starting seeds from mutation.
+    init_seeds_list = []
+    for onefile in os.listdir(temp_seedsinit):
+        copy(temp_seedsinit + os.sep + onefile, temp_seedsmutate)
+        init_seeds_list.append(onefile)
+
+    return init_seeds_list
 
 
 def createDotFile(bc_file: str, program_name: str) -> (list, list):
@@ -68,7 +60,7 @@ def createDotFile(bc_file: str, program_name: str) -> (list, list):
     @return:
     """
 
-    temp_graphpath = INFODATA + os.sep + GRAPHDATA + os.sep + program_name
+    temp_graphpath = PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH
     copy(bc_file, temp_graphpath)  # Copy file to the graph location.
 
     # Change path to generator graph in the directed file.

@@ -36,8 +36,8 @@ def mainFuzzer():
     for opt, arg in opts:
         if opt == "-h":
             print("{}.py -- [files] [OPTIONS] @@".format(FUZZNAME))
-            print("e.g. python {}.py -n demo -- ./Programs/Bin/demo -f @@".format(FUZZNAME))
-            # python3.7 BTFuzzer.py -n demo -- ./Programs/Bin/demo -f @@
+            print("e.g. python {}.py -n demo -- ./Programs/demo/code_Bin/demo -f @@".format(FUZZNAME))
+            # python3.7 BTFuzzer.py -n demo -- ./Programs/demo/code_Bin/demo -f @@
             sys.exit()
         elif opt == "-n":
             program_name = arg
@@ -48,9 +48,9 @@ def mainFuzzer():
         print("e.g. python {}.py -n demo -- ./Programs/Bin/demo -f @@".format(FUZZNAME))
         raise Exception("Error empty parameters for fuzzing test files.")
 
-    filepath_initseeds = SEEDPOOL + os.sep + INITSEEDS + os.sep + program_name + os.sep
-    filepath_mutateseeds = SEEDPOOL + os.sep + MUTATESEEDS + os.sep + program_name + os.sep
-    filepath_crashseeds = SEEDPOOL + os.sep + CRASHSEEDS + os.sep + program_name + os.sep
+    filepath_initseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSINIT + os.sep
+    filepath_mutateseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSMUTATE + os.sep
+    filepath_crashseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSCRASH + os.sep
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), filepath_initseeds, filepath_mutateseeds, filepath_crashseeds))
 
     # print(fuzz_command)
