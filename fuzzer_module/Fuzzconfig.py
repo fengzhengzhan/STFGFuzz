@@ -4,7 +4,7 @@ import sys
 from Tools import *
 
 # Program information.
-BTFUZZ = "BTFuzzer"
+FUZZNAME = "BTFuzzer"
 FILEREPLACE = "@@"
 INIT = 100
 USE_INITNUM = -11
@@ -170,17 +170,23 @@ IND_MUT_TYPE = 0
 IND_MUT_START = 1
 IND_MUT_END = 2
 
-# Analyzer
+'''Analyzer'''
 ANA_STARTPROG_IND = -1
 ANA_ENDPROG_IND = -2
 
-# Generator
+'''Comparator'''
+COM_PATCH = 31
+COM_SANITIZER = 32
+COM_MANUAL = 33
+
+'''Generator'''
 SEEDPOOL = "SeedPool"
 INITSEEDS = "init_seeds"
 CRASHSEEDS = "crash_seeds"
 MUTATESEEDS = "mutate_seeds"
 INFODATA = "InfoData"
 GRAPHDATA = "graph_data"
+CRASHLOCDATA = "crashloc_data"
 # clang $1.c -emit-llvm -S
 # opt -dot-cfg $1.ll > /dev/null   // get CFG
 # opt -dot-callgraph $1.ll > /dev/null   // get CG
@@ -191,14 +197,14 @@ DOTCFG = "opt -dot-cfg "
 CG_SUFFIX = ".callgraph.dot"
 CFG_SUFFIX = ".dot"
 
-# Mutator
+'''Mutator'''
 MUT_STR = "aaabaaac"
 MUT_MATCH = 4  # Truncate 4 bytes as a fast variant flag for fast matching.
 MUT_STEP = 4  # step size of mutant seeds
 MUT_TYPE_SUB = 101
 MUT_TYPE_INSERT = 102
 
-# Parser
+'''Parser'''
 PAR_FIXED = 201
 PAR_CHANGED = 202
 
@@ -211,11 +217,11 @@ PAR_VARINIT = 0
 PAR_VARMUT = 1
 
 
-# Scheduler
+'''Scheduler'''
 SCH_INIT_SEED = 221
 SCH_MUT_SEED = 222
 
-# Visualizer
+'''Visualizer'''
 # Red for frozen bytes.
 # Yellow is the change bytes.
 # _ is the confirmation bytes.
@@ -238,11 +244,11 @@ VIS_SEED_LINE = 16
 
 VIS_MAX_LINE = 25
 
-
+'''Logging'''
 # Logging the information during the fuzzing.
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 logging.basicConfig(filename='InfoData/log_data/BTFuzzer.log', level=logging.WARNING, format=LOG_FORMAT)
-logging.debug("-------------------------")
+logging.debug("{} -------------------------".format(FUZZNAME))
 
 LOG_FUNCINFO = lambda : str(sys._getframe(1).f_code.co_name) + ":" + str(sys._getframe(1).f_lineno)
 

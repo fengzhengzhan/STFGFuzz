@@ -1,5 +1,6 @@
 .git/
 .idea/
+.vscode/
 __pycache__/
 LLVM/
 pin_mode/pin320/

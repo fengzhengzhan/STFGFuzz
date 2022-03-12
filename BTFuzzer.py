@@ -5,17 +5,17 @@ import os
 import re
 import curses
 
-from Fuzzconfig import *
+from fuzzer_module.Fuzzconfig import *
 
-import Analyzer
-import Builder
-import Executor
-import Generator
-import Comparator
-import Mutator
-import Parser
-import Scheduler
-import Visualizer
+import fuzzer_module.Analyzer
+import fuzzer_module.Builder
+import fuzzer_module.Executor
+import fuzzer_module.Generator
+import fuzzer_module.Comparator
+import fuzzer_module.Mutator
+import fuzzer_module.Parser
+import fuzzer_module.Scheduler
+import fuzzer_module.Visualizer
 
 
 def mainFuzzer():
@@ -39,13 +39,13 @@ def mainFuzzer():
         # print(opts, args)
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), opts, args))
     except getopt.GetoptError:
-        print("{}.py -- [files] [OPTIONS] @@".format(BTFUZZ))
+        print("{}.py -- [files] [OPTIONS] @@".format(FUZZNAME))
         raise Exception("Error options.")
 
     for opt, arg in opts:
         if opt == "-h":
-            print("{}.py -- [files] [OPTIONS] @@".format(BTFUZZ))
-            print("e.g. python {}.py -n demo -- ./Programs/Bin/demo -f @@".format(BTFUZZ))
+            print("{}.py -- [files] [OPTIONS] @@".format(FUZZNAME))
+            print("e.g. python {}.py -n demo -- ./Programs/Bin/demo -f @@".format(FUZZNAME))
             # python3.7 BTFuzzer.py -n demo -- ./Programs/Bin/demo -f @@
             sys.exit()
         elif opt == "-n":
@@ -54,7 +54,7 @@ def mainFuzzer():
     fuzz_command = " ".join(args)
 
     if fuzz_command == "" or program_name == "":
-        print("e.g. python {}.py -n demo -- ./Programs/Bin/demo -f @@".format(BTFUZZ))
+        print("e.g. python {}.py -n demo -- ./Programs/Bin/demo -f @@".format(FUZZNAME))
         raise Exception("Error empty parameters for fuzzing test files.")
 
     filepath_initseeds = SEEDPOOL + os.sep + INITSEEDS + os.sep + program_name + os.sep

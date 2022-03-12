@@ -1,7 +1,0 @@
-
-
-def getDirectedLocation():
-    """
-
-    @return:
-    """

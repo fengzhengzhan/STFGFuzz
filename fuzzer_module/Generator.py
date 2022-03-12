@@ -33,6 +33,8 @@ def prepareEnv(program_name: str) -> list:
     __createDir(INFODATA)
     __createDir(INFODATA + os.sep + GRAPHDATA)
     __createDir(INFODATA + os.sep + GRAPHDATA + os.sep + program_name)
+    __createDir(INFODATA + os.sep + CRASHLOCDATA)
+    __createDir(INFODATA + os.sep + CRASHLOCDATA + os.sep + program_name)
 
     # Copy all seed files from init_seeds to mutate_seeds
     # as the starting seeds from mutation.

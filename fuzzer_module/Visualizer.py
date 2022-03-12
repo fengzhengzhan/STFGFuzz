@@ -43,7 +43,7 @@ class Visualizer:
         # Title.
         self.stdscr.erase()
         self.stdscr.noutrefresh()
-        self.stdscr.addstr(0, 0, " {} {}".format(BTFUZZ, xnum), curses.color_pair(VIS_BLUE))
+        self.stdscr.addstr(0, 0, " {} {}".format(FUZZNAME, xnum), curses.color_pair(VIS_BLUE))
         # self.stdscr.refresh()
 
         # Initual terminal status.
@@ -106,12 +106,6 @@ class Visualizer:
             return 1
 
         return -1
-
-
-
-
-
-
 
 
 
