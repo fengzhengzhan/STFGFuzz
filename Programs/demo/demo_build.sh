@@ -22,12 +22,16 @@ IR="code_IR"
 BIN="code_Bin"
 
 LLVMPASSPATH="llvm_mode/Build/LLVMObfuscator.so"
+LINE_SAVE="data_patchloc/binaryline.info"
 SANPATH="llvm_mode/ClangSanitizer"
 SUFFIX="bc"
 
 cd ${PROGRAMS}/${PROGRAMNAME}
 clang++ -g -c -emit-llvm ${SOURCES}/${PROGRAMNAME}.cc -o ${IR}/${PROGRAMNAME}.${SUFFIX} -fsanitize=address -fsanitize-coverage=trace-pc-guard,trace-cmp  # IR
-opt -load ../../${LLVMPASSPATH} -line -S ${IR}/${PROGRAMNAME}.${SUFFIX} -o ${IR}/${PROGRAMNAME_PASS}.${SUFFIX}
+rm -f ${LINE_SAVE}
+echo "{" >> ${LINE_SAVE}
+opt -load ../../${LLVMPASSPATH} -line -S ${IR}/${PROGRAMNAME}.${SUFFIX} -o ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} >> ${LINE_SAVE}
+echo "}" >> ${LINE_SAVE}
 llc -filetype=obj ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} -o ${IR}/${PROGRAMNAME_PASS}.o  # Object file 
 clang++ ${IR}/${PROGRAMNAME_PASS}.o -o ${BIN}/${PROGRAMNAME} -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive  # Link
 cd ../..

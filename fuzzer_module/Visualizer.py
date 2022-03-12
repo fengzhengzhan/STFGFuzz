@@ -58,7 +58,7 @@ class Visualizer:
         self.terminal_status.addstr(3, 1, "    Mem: {}%".format(psutil.virtual_memory()[2]))
         self.terminal_status.addstr(1, 21, " Loop Number: {}".format(loop))
         self.terminal_status.addstr(2, 21, "Total Number: {}".format(total))
-        self.terminal_status.addstr(3, 21, "       Speed: {} n/s".format(int(total/last_time)))
+        self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(total/last_time)))
         self.terminal_status.hline(4, 1, curses.ACS_HLINE, 74)
         self.terminal_status.vline(1, 20, curses.ACS_VLINE, 3)
         self.terminal_status.addstr(15, 2, "Q", curses.color_pair(VIS_MAGENTA))

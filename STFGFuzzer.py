@@ -37,7 +37,7 @@ def mainFuzzer():
         if opt == "-h":
             print("{}.py -- [files] [OPTIONS] @@".format(FUZZNAME))
             print("e.g. python {}.py -n demo -- ./Programs/demo/code_Bin/demo -f @@".format(FUZZNAME))
-            # python3.7 BTFuzzer.py -n demo -- ./Programs/demo/code_Bin/demo -f @@
+            # python3.7 STFGFuzzer.py -n demo -- ./Programs/demo/code_Bin/demo -f @@
             sys.exit()
         elif opt == "-n":
             program_name = arg

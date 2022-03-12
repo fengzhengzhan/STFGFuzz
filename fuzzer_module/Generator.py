@@ -33,7 +33,7 @@ def prepareEnv(program_name: str) -> list:
     __createDir(PROGRAMS + os.sep + program_name + os.sep + CODEIR)
     __createDir(PROGRAMS + os.sep + program_name + os.sep + CODEBIN)
     __createDir(PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH)
-    __createDir(PROGRAMS + os.sep + program_name + os.sep + DATACRASHLOC)
+    __createDir(PROGRAMS + os.sep + program_name + os.sep + DATAPATCHLOC)
     temp_seedsinit = PROGRAMS + os.sep + program_name + os.sep + SEEDSINIT
     __createDir(temp_seedsinit)
     temp_seedsmutate = PROGRAMS + os.sep + program_name + os.sep + SEEDSMUTATE
@@ -52,7 +52,7 @@ def prepareEnv(program_name: str) -> list:
     return init_seeds_list
 
 
-def createDotFile(bc_file: str, program_name: str) -> (list, list):
+def createDotFile(program_name: str, bc_file: str) -> (list, list):
     """
     From .bc file get .dot files, then get Control Flow Graph and Call Graph.
     @param bc_file:

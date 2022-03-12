@@ -39,28 +39,6 @@ static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int
     // printf("%lx ", traceflag);
     int i = 0;
     if(n == 0){
-        // printf("<s1\"");
-        // i = 0;
-        // while (1)
-        // {
-        //     if(s1[i] == '\0'){
-        //         break;
-        //     }
-        //     printf("%c", s1[i]);
-        //     i ++;
-        // }
-        // printf("\"1s> <s2\"");
-        // i = 0;
-        // while (1)
-        // {
-        //     if(s2[i] == '\0'){
-        //         break;
-        //     }
-        //     printf("%c", s2[i]);
-        //     i ++;
-        // }
-        // printf("\"2s> ");
-
         printf("<s1\"%s\"1s> <s2\"%s\"2s> ", s1, s2);
     }
     else if(n != 0){

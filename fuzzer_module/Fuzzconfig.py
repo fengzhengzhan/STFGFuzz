@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 
 from fuzzer_module.Tools import *
@@ -12,13 +13,13 @@ USE_INITNUM = -11
 USE_INITSTR = ""
 
 
-# Struct
+'''Struct'''
 # The structure stores information about the seed file.
 class StructSeed:
     def __init__(self, filename: str, content: str, seedtype: int, location: list):
         self.filename = filename
         if content == "":
-            self.content = getSeedContent(filename)
+            self.content = getFileContent(filename)
         else:
             self.content = content
         self.seedtype = seedtype  # INIT MUT_TYPE_SUB MUT_TYPE_INSERT
@@ -186,7 +187,7 @@ CODESOURCES = "code_sources"
 CODEBIN = "code_Bin"
 CODEIR = "code_IR"
 DATAGRAPH = "data_graph"
-DATACRASHLOC = "data_crashloc"
+DATAPATCHLOC = "data_patchloc"
 SEEDSINIT = "seeds_init"
 SEEDSMUTATE = "seeds_mutate"
 SEEDSCRASH = "seeds_crash"
@@ -199,6 +200,9 @@ DOTCALLGRAPH = "opt -dot-callgraph "
 DOTCFG = "opt -dot-cfg "
 CG_SUFFIX = ".callgraph.dot"
 CFG_SUFFIX = ".dot"
+
+'''Builder'''
+PATCHFILE = DATAPATCHLOC + os.sep + "binaryline.info"
 
 '''Mutator'''
 MUT_STR = "aaabaaac"
@@ -249,8 +253,12 @@ VIS_MAX_LINE = 25
 
 '''Logging'''
 # Logging the information during the fuzzing.
+# LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), arg1, arg2, arg3))
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
-logging.basicConfig(filename='Programs/{}.log'.format(FUZZNAME), level=logging.WARNING, format=LOG_FORMAT)
+try:
+    logging.basicConfig(filename='Programs/{}.log'.format(FUZZNAME), level=logging.WARNING, format=LOG_FORMAT)
+except:
+    logging.basicConfig(filename='{}.log'.format(FUZZNAME), level=logging.WARNING, format=LOG_FORMAT)
 logging.debug("{} -------------------------".format(FUZZNAME))
 
 LOG_FUNCINFO = lambda : str(sys._getframe(1).f_code.co_name) + ":" + str(sys._getframe(1).f_lineno)

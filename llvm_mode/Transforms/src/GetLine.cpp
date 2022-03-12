@@ -4,7 +4,9 @@
 #include "llvm/IR/DebugInfo.h"
 #include "llvm/IR/Instruction.h"
 
+#include <iostream>
 #include <string>
+#include <fstream>
 
 using namespace llvm;
 
@@ -12,6 +14,7 @@ namespace{
     class GetLine : public FunctionPass{
         public:
             static char ID;
+
             GetLine() : FunctionPass(ID) {}
 
             bool runOnFunction(Function &F);
@@ -19,16 +22,28 @@ namespace{
 }
 
 bool GetLine::runOnFunction(Function &F){
+    outs() << "\'" << F.getName() << "\':{";
     for(BasicBlock &BB : F){
         for(Instruction &In : BB){
             const DebugLoc &location = In.getDebugLoc();
-            if (location)
-                outs() << In <<" see line:  " << location.getLine() << ", col " << location.getCol() << F.getName() << "   " << location->getFilename() << " " << location->getDirectory() << " \n \n \n";
-            else
-                outs() << "no debugloc information detected\n";
+            if (location){
+                // std::string str;
+                // llvm::raw_string_ostream rso(str);
+                // In.print(rso);
+                outs() << location.getLine() << ":{"
+                        << "\'I\':\'" << In << "\',"
+                        << "\'F\':\'" << F.getName() << "\',"
+                        << "\'C\':\'" << location.getCol() << "\',"
+                        << "\'N\':\'" << location->getFilename() << "\',"
+                        << "\'D\':\'" << location->getDirectory() << "\',"
+                        << "\'P\':\'" << location->isImplicitCode() << "\',"
+                        << "},";
+            }
+                
         }
     }
+    outs() << "},";    
 }
 
 char GetLine::ID = 0;
-static RegisterPass<GetLine> X("line", "My first line of llvm pass");
+static RegisterPass<GetLine> X("line", "Binary to source code line mapping.");
