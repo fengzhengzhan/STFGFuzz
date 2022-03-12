@@ -1,2 +1,2 @@
-# BTFuzz
+# STFGFuzz
 Constraint Flow Graph Fuzzer

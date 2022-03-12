@@ -1,10 +1,11 @@
 import logging
 import sys
 
-from Tools import *
+from fuzzer_module.Tools import *
+
 
 # Program information.
-FUZZNAME = "BTFuzzer"
+FUZZNAME = "STFGFuzzer"
 FILEREPLACE = "@@"
 INIT = 100
 USE_INITNUM = -11
@@ -180,13 +181,15 @@ COM_SANITIZER = 32
 COM_MANUAL = 33
 
 '''Generator'''
-SEEDPOOL = "SeedPool"
-INITSEEDS = "init_seeds"
-CRASHSEEDS = "crash_seeds"
-MUTATESEEDS = "mutate_seeds"
-INFODATA = "InfoData"
-GRAPHDATA = "graph_data"
-CRASHLOCDATA = "crashloc_data"
+PROGRAMS = "Programs"
+CODESOURCES = "code_sources"
+CODEBIN = "code_Bin"
+CODEIR = "code_IR"
+DATAGRAPH = "data_graph"
+DATACRASHLOC = "data_crashloc"
+SEEDSINIT = "seeds_init"
+SEEDSMUTATE = "seeds_mutate"
+SEEDSCRASH = "seeds_crash"
 # clang $1.c -emit-llvm -S
 # opt -dot-cfg $1.ll > /dev/null   // get CFG
 # opt -dot-callgraph $1.ll > /dev/null   // get CG
@@ -247,7 +250,7 @@ VIS_MAX_LINE = 25
 '''Logging'''
 # Logging the information during the fuzzing.
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
-logging.basicConfig(filename='InfoData/log_data/BTFuzzer.log', level=logging.WARNING, format=LOG_FORMAT)
+logging.basicConfig(filename='Programs/{}.log'.format(FUZZNAME), level=logging.WARNING, format=LOG_FORMAT)
 logging.debug("{} -------------------------".format(FUZZNAME))
 
 LOG_FUNCINFO = lambda : str(sys._getframe(1).f_code.co_name) + ":" + str(sys._getframe(1).f_lineno)

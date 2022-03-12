@@ -1,5 +1,5 @@
 
-from Fuzzconfig import *
+from fuzzer_module.Fuzzconfig import *
 
 
 def getDirectedLocation(filetype: str, ):

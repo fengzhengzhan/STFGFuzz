@@ -1,5 +1,5 @@
 
-from Fuzzconfig import *
+from fuzzer_module.Fuzzconfig import *
 
 
 def mutateSeeds(seed: str, filepath: str, label: str) -> 'list[StructSeed]':
@@ -50,5 +50,5 @@ def mutateOneChar() -> list:
 
 
 if __name__ == "__main__":
-    mutate_seed_list = mutateSeeds("12345678123456789")
+    mutate_seed_list = mutateSeeds("12345678123456789", "", "1")
     print(mutate_seed_list)

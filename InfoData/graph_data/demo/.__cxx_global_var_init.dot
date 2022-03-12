@@ -1,5 +1,0 @@
-digraph "CFG for '__cxx_global_var_init' function" {
-	label="CFG for '__cxx_global_var_init' function";
-
-	Node0x558df726d630 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870",label="{entry:\l  call void @__sanitizer_cov_trace_pc_guard(i32* getelementptr inbounds ([1 x\l... i32], [1 x i32]* @__sancov_gen_, i32 0, i32 0)) #8\l  call void @_ZNSt8ios_base4InitC1Ev(%\"class.std::ios_base::Init\"* nonnull\l... dereferenceable(1) getelementptr inbounds (\{ %\"class.std::ios_base::Init\",\l... [63 x i8] \}, \{ %\"class.std::ios_base::Init\", [63 x i8] \}* @_ZStL8__ioinit,\l... i32 0, i32 0))\l  %0 = call i32 @__cxa_atexit(void (i8*)* bitcast (void\l... (%\"class.std::ios_base::Init\"*)* @_ZNSt8ios_base4InitD1Ev to void (i8*)*),\l... i8* getelementptr inbounds (\{ %\"class.std::ios_base::Init\", [63 x i8] \}, \{\l... %\"class.std::ios_base::Init\", [63 x i8] \}* @_ZStL8__ioinit, i32 0, i32 0, i32\l... 0), i8* @__dso_handle) #3\l  ret void\l}"];
-}

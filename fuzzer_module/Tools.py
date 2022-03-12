@@ -1,5 +1,5 @@
 import datetime
-
+import subprocess
 
 def saveAsFile(content: str, filename: str):
     """
@@ -40,3 +40,20 @@ def mergeMapReport(inputmap, totalinputmap):
     for loc, byte in inputmap.items():
         if loc not in totalinputmap:
             totalinputmap[loc] = byte
+
+def runothercmd(cmd: str) -> (int, str, str):
+    """
+    run cmd to get information from executable files or other tools
+    @param cmd:
+    @return:
+    """
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    # timeout kill child process
+    try:
+        std_out, std_err = process.communicate()
+    except Exception as e:
+        process.kill()
+        raise Exception("Error cmd ")
+    ret_code = 128 - process.returncode
+    # print(ret_code, std_out, std_err)
+    return ret_code, std_out, std_err

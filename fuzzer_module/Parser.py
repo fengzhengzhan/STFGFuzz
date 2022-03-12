@@ -1,6 +1,7 @@
 import struct
 
-from Fuzzconfig import *
+from fuzzer_module.Fuzzconfig import *
+
 
 '''
 Tracking Comparison Module.

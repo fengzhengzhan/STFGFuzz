@@ -1,7 +1,8 @@
 import re
 
-from Fuzzconfig import *
-    
+from fuzzer_module.Fuzzconfig import *
+
+
 class Analyzer:
     def __init__(self):
         self.num_of_pcguard: int = -1
@@ -139,5 +140,4 @@ class Analyzer:
         if self.num_of_pcguard == -1:
             raise Exception("Error: Number of tracks not acquired.")
         return self.num_of_pcguard
-
 

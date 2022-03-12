@@ -3,7 +3,7 @@ import time
 import curses
 import psutil
 
-from Fuzzconfig import *
+from fuzzer_module.Fuzzconfig import *
 
 
 class Visualizer:

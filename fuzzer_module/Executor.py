@@ -1,6 +1,7 @@
 import subprocess
 import sys
-from Fuzzconfig import *
+
+from fuzzer_module.Fuzzconfig import *
 
 
 def run(cmd: str) -> (int, str, str):

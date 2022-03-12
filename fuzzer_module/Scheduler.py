@@ -1,7 +1,8 @@
 import os
 from queue import Queue
 
-from Fuzzconfig import *
+from fuzzer_module.Fuzzconfig import *
+
 
 class Scheduler:
     def __init__(self):

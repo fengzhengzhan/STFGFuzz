@@ -5,17 +5,8 @@ import os
 import re
 import curses
 
+from fuzzer_module import *
 from fuzzer_module.Fuzzconfig import *
-
-import fuzzer_module.Analyzer
-import fuzzer_module.Builder
-import fuzzer_module.Executor
-import fuzzer_module.Generator
-import fuzzer_module.Comparator
-import fuzzer_module.Mutator
-import fuzzer_module.Parser
-import fuzzer_module.Scheduler
-import fuzzer_module.Visualizer
 
 
 def mainFuzzer():
