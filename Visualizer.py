@@ -26,9 +26,15 @@ class Visualizer:
 
 
     def display(self, start_time, mutseed: StructSeed, eachloop_input_map: dict, loop: int, total: int) -> int:
-        '''
+        """
         This function use to show state during fuzzing on the terminal.
-        '''
+        @param start_time:
+        @param mutseed:
+        @param eachloop_input_map:
+        @param loop:
+        @param total:
+        @return:
+        """
         xnum = ">" * (int(time.time()) % 5)
         last_time = time.time()-start_time
         runtime = time.strftime("%H:%M:%S", time.gmtime(last_time))

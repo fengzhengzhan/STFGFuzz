@@ -10,6 +10,7 @@ INIT = 100
 USE_INITNUM = -11
 USE_INITSTR = ""
 
+
 # Struct
 # The structure stores information about the seed file.
 class StructSeed:
@@ -51,11 +52,24 @@ class StructCmpMap:
 
 
 class StructCmpInfo:
-    def __init__(self, cmptype, startguard, endguard, inputmap: list):
+    def __init__(self, cmptype, inputmap: list, ansvalue, startguard, endguardtrue, endguardfalse):
         self.cmptype = cmptype
-        self.startguard = startguard
-        self.endguard = endguard
         self.inputmap = inputmap  # Compare the input bytes involved in the instruction.
+        self.ansvalue = ansvalue
+        self.startguard = startguard
+        self.endguardtrue = endguardtrue
+        self.endguardfalse = endguardfalse
+
+
+# class StructFreezeMap:
+#     def __init__(self):
+#         self.freezemap = []
+
+class StructMutateLocation:
+    def __init__(self):
+        self.freezemap = []
+        self.mutonelist = []
+        self.rawdatalist = []
 
 
 # This is the global constraint graph.
@@ -70,6 +84,7 @@ class StructCmpInfer:
         self.var1_cont = var1_cont
         self.var2_type = var2_type
         self.var2_cont = var2_cont
+
 
 # The fisrt character represent the type of compare instruction.
 # In order to save space, using one character as the flag to mark.

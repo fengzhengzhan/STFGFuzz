@@ -11,7 +11,7 @@ import Analyzer
 import Builder
 import Executor
 import Generator
-import History
+import Comparator
 import Mutator
 import Parser
 import Scheduler
@@ -19,9 +19,10 @@ import Visualizer
 
 
 def mainFuzzer():
-    '''
+    """
     The fuzzing Loop.
-    '''
+    @return:
+    """
 
     # Receive command line parameters.
     program_name = ""
@@ -32,8 +33,6 @@ def mainFuzzer():
     vis = Visualizer.Visualizer()
     sch = Scheduler.Scheduler()
     ana = Analyzer.Analyzer()
-
-
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hn:")
@@ -70,6 +69,7 @@ def mainFuzzer():
     constraint_graph: 'list[dict, dict]' = StructConstraintGraph().constraintgraph
     cmp_map: dict = StructCmpMap().cmpmap
     input_map: dict[list] = {}
+    mutate_loc = StructMutateLocation()
     eachloop_change_inputmap: dict = {}
     init_seeds_list = Generator.prepareEnv(program_name)
     temp_listq = []
@@ -78,7 +78,7 @@ def mainFuzzer():
     sch.addSeeds(SCH_INIT_SEED, temp_listq)
 
     # Fuzzing test cycle
-    while True:
+    while not sch.isEmpty(SCH_INIT_SEED):
         loop += 1
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_INIT_SEED)
@@ -102,8 +102,9 @@ def mainFuzzer():
 
             # Analyze the differences in comparison.
             comparison_diffreport, comparison_onereport = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis)
-            each_change_inputmap = Parser.typeSpeculation(comparison_diffreport, comparison_onereport, cmp_map)
-            Generator.genMapReport(each_change_inputmap, eachloop_change_inputmap)
+            each_change_inputmap = Parser.typeSpeculation(comparison_diffreport, comparison_onereport, cmp_map, mutate_loc)
+
+            mergeMapReport(each_change_inputmap, eachloop_change_inputmap)
             res = vis.display(start_time, execute_seed, eachloop_change_inputmap, loop, total)
             if res == 1:
                 sch.deleteSeeds()
@@ -129,11 +130,11 @@ def mainFuzzer():
 
 
 if __name__ == "__main__":
-    mainFuzzer()
-    # try:
-    #     mainFuzzer()
-    # except Exception as e:
-    #     curses.endwin()
-    #     print(e)
+    # mainFuzzer()
+    try:
+        mainFuzzer()
+    except Exception as e:
+        curses.endwin()
+        print(e)
 
 

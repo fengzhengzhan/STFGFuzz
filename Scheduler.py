@@ -36,8 +36,9 @@ class Scheduler:
         return temp_flag
 
     def deleteSeeds(self):
-        '''
+        """
         Delete mutated intermediate files.
-        '''
+        @return:
+        """
         while not self.deleteq.empty():
             os.remove(self.deleteq.get().filename)

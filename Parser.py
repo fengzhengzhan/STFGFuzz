@@ -2,15 +2,21 @@ import struct
 
 from Fuzzconfig import *
 
-import Generator
-
-"""
+'''
 Tracking Comparison Module.
-"""
+'''
 def traceBack(init_trace, mut_trace, lcstable, i, m, init_list, mut_list):
-    '''
+    """
     Backtracking to find a location
-    '''
+    @param init_trace:
+    @param mut_trace:
+    @param lcstable:
+    @param i:
+    @param m:
+    @param init_list:
+    @param mut_list:
+    @return:
+    """
     while i > 0 and m > 0:
         if init_trace[i - 1] == mut_trace[m - 1]:
             init_list.append(i - 1)
@@ -28,10 +34,12 @@ def traceBack(init_trace, mut_trace, lcstable, i, m, init_list, mut_list):
 
 
 def compareLCS(init_trace: list, mut_trace: list):
-    '''
+    """
     Find the longest common subsequence.
-    Return to coordinate position.
-    '''
+    @param init_trace:
+    @param mut_trace:
+    @return: Return to coordinate position.
+    """
     init_len = len(init_trace)
     mut_len = len(mut_trace)
     lcstable = [[0 for _ in range(mut_len+1)] for _ in range(init_len+1)]
@@ -59,9 +67,13 @@ def compareLCS(init_trace: list, mut_trace: list):
 
 
 def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceReport]', mut_trace_analysis: 'list[StructTraceReport]') -> ('list[StructComparisonReport]', 'list[StructComparisonReport]'):
-    '''
+    """
     Bytes of change compared to the initial sample.
-    '''
+    @param mutseed:
+    @param init_trace_analysis:
+    @param mut_trace_analysis:
+    @return:
+    """
     # list[StructTraceReport]
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), init_trace_analysis, mut_trace_analysis))
     comparison_diffreport: 'list[StructComparisonReport]' = []
@@ -165,10 +177,10 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
     return comparison_diffreport, comparison_onereport
 
 
-"""
+'''
 Multiple comparison type handling functions
-"""
-def handleMagic(mutseed, fixed_list, changed_list) -> dict:
+'''
+def handleStrMagic(mutseed, fixed_list, changed_list, mutate_loc) -> dict:
     change_inputmap = {}
     fixed_bytes = fixed_list[PAR_VARINIT]
     changed_bytes = changed_list[PAR_VARMUT]
@@ -180,16 +192,38 @@ def handleMagic(mutseed, fixed_list, changed_list) -> dict:
         input_start_loc = mutseed.location[0] - start_match
         for l in range(0, len(fixed_bytes)):
             change_inputmap[input_start_loc + l] = fixed_bytes[l]
-    elif end_match != -1:
-        pass
+    else:
+        # This case requires the use of single-byte probes.
+        for one in mutseed.location:
+            mutate_loc.mutonelist.append(one)
+    return change_inputmap
+
+
+def handleNumMagic(mutseed, fixed_list, changed_list, mutate_loc) -> dict:
+    change_inputmap = {}
+    fixed_bytes = fixed_list[PAR_VARINIT]
+    changed_bytes = changed_list[PAR_VARMUT]
+    # Using characters to match location of the input bytes.
+    start_match = changed_bytes.find(MUT_STR[0:MUT_MATCH])
+    # end_match = changed_bytes.find(MUT_STR[len(MUT_STR) - MUT_MATCH: len(MUT_STR)])
+    # Direct byte matching requires only one copy of the string.
+    if start_match != -1:
+        input_start_loc = mutseed.location[0] - start_match
+        for l in range(0, len(fixed_bytes)):
+            change_inputmap[input_start_loc + l] = fixed_bytes[l]
     else:
         # This case requires the use of single-byte probes.
         pass
     return change_inputmap
 
-"""
+
+def handleChecksums():
+    pass
+
+
+'''
 Type Inference Module.
-"""
+'''
 def inferFixedOrChanged(ini1, ini2, mut1, mut2) -> StructCmpInfer:
     temp_infer = StructCmpInfer(USE_INITNUM, USE_INITSTR, USE_INITNUM, USE_INITSTR)
     if ini1 == mut1:
@@ -224,13 +258,18 @@ def varChangeSpeculation(infer_bytes: StructCmpInfer):
 
 
 
-def typeSpeculation(comparison_diffreport: 'list[StructComparisonReport]', comparison_onereport: 'list[StructComparisonReport]', cmp_map: dict) -> dict:
-    '''
+def typeSpeculation(comparison_diffreport: 'list[StructComparisonReport]', comparison_onereport: 'list[StructComparisonReport]', cmp_map: dict, mutate_loc: StructMutateLocation) -> dict:
+    """
     Type identification and speculation.
-    '''
+    @param comparison_diffreport:
+    @param comparison_onereport:
+    @param cmp_map:
+    @param mutate_loc:
+    @return:
+    """
     # print(comparison_report)
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), comparison_diffreport, comparison_onereport))
-    each_change_inputmap = {}
+    each_change_inputmap = {}  # Determine the changed bytes.
 
     # Loop through the cases where the initial and variant correspond to each other.
     for each in comparison_diffreport:
@@ -242,6 +281,16 @@ def typeSpeculation(comparison_diffreport: 'list[StructComparisonReport]', compa
                     each.init_sttrace[IND_ARG1], each.init_sttrace[IND_ARG2],
                     each.mut_sttrace[IND_ARG1], each.mut_sttrace[IND_ARG2]
                 )
+                # Find fixed bytes and changed bytes.
+                var_flag = varChangeSpeculation(infer_bytes)
+                if var_flag == PAR_MAGIC1_TYPE:
+                    change_inputmap = handleNumMagic(mutseed, infer_bytes.var1_cont, infer_bytes.var2_cont, mutate_loc)
+                elif var_flag == PAR_MAGIC2_TYPE:
+                    change_inputmap = handleNumMagic(mutseed, infer_bytes.var2_cont, infer_bytes.var1_cont, mutate_loc)
+                elif var_flag == PAR_CHECKSUMS_TYPE:
+                    pass
+                elif var_flag == PAR_FIX_TYPE:
+                    pass
 
             elif each.sttype in HOOKCMPLIST:
                 infer_bytes = inferFixedOrChanged(
@@ -251,9 +300,9 @@ def typeSpeculation(comparison_diffreport: 'list[StructComparisonReport]', compa
                 # Find fixed bytes and changed bytes.
                 var_flag = varChangeSpeculation(infer_bytes)
                 if var_flag == PAR_MAGIC1_TYPE:
-                    change_inputmap = handleMagic(mutseed, infer_bytes.var1_cont, infer_bytes.var2_cont)
+                    change_inputmap = handleStrMagic(mutseed, infer_bytes.var1_cont, infer_bytes.var2_cont, mutate_loc)
                 elif var_flag == PAR_MAGIC2_TYPE:
-                    change_inputmap = handleMagic(mutseed, infer_bytes.var2_cont, infer_bytes.var1_cont)
+                    change_inputmap = handleStrMagic(mutseed, infer_bytes.var2_cont, infer_bytes.var1_cont, mutate_loc)
                 elif var_flag == PAR_CHECKSUMS_TYPE:
                     pass
                 elif var_flag == PAR_FIX_TYPE:
@@ -265,7 +314,7 @@ def typeSpeculation(comparison_diffreport: 'list[StructComparisonReport]', compa
             pass
 
         # Handling input change mapping.
-        Generator.genMapReport(change_inputmap, each_change_inputmap)
+        mergeMapReport(change_inputmap, each_change_inputmap)
 
     # The loop traverses the case where only a single variant exists for the initial and variant.
     for each in comparison_onereport:

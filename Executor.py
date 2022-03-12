@@ -4,9 +4,11 @@ from Fuzzconfig import *
 
 
 def run(cmd: str) -> (int, str, str):
-    '''
+    """
     run cmd to get information from executable files or other tools
-    '''
+    @param cmd:
+    @return:
+    """
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmd))
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     # timeout kill child process

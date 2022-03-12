@@ -18,4 +18,5 @@ add_llvm_library( LLVMObfuscator MODULE
     src/GetCFG.cpp
     src/GetOperand.cpp
     src/TrackingEachBlock.cpp
+    src/GetLine.cpp
 )

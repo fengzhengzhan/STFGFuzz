@@ -12,9 +12,11 @@ def __createDir(path: str) -> None:
 
 
 def prepareEnv(program_name: str) -> list:
-    '''
+    """
     Prepare the environment before running the fuzzing loop.
-    '''
+    @param program_name:
+    @return:
+    """
     # Seed files are managed using program_name.
     temp_initseeds = SEEDPOOL + os.sep + INITSEEDS + os.sep + program_name
     temp_crashseeds = SEEDPOOL + os.sep + CRASHSEEDS + os.sep + program_name
@@ -43,9 +45,12 @@ def prepareEnv(program_name: str) -> list:
 
 
 def createDotFile(bc_file: str, program_name: str) -> (list, list):
-    '''
+    """
     From .bc file get .dot files, then get Control Flow Graph and Call Graph.
-    '''
+    @param bc_file:
+    @param program_name:
+    @return:
+    """
 
     temp_graphpath = INFODATA + os.sep + GRAPHDATA + os.sep + program_name
     copy(bc_file, temp_graphpath)  # Copy file to the graph location.
@@ -73,14 +78,6 @@ def createDotFile(bc_file: str, program_name: str) -> (list, list):
 
     return cglist, cfglist
 
-
-def genMapReport(inputmap, totalinputmap):
-    '''
-    Generate byte-level mapping reports.
-    '''
-    for loc, byte in inputmap.items():
-        if loc not in totalinputmap:
-            totalinputmap[loc] = byte
 
 
 if __name__ == "__main__":

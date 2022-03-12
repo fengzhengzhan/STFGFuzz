@@ -3,9 +3,13 @@ from Fuzzconfig import *
 
 
 def mutateSeeds(seed: str, filepath: str, label: str) -> 'list[StructSeed]':
-    '''
+    """
     Replace and add strings for variant input according to the sliding window.
-    '''
+    @param seed:
+    @param filepath:
+    @param label:
+    @return:
+    """
     seed_len = len(seed)
     mutate_listq = []
     # Substitution of bytes for seed mutation
@@ -35,9 +39,10 @@ def mutateSeeds(seed: str, filepath: str, label: str) -> 'list[StructSeed]':
 
 
 def mutateOneChar() -> list:
-    '''
+    """
     Mutate one character at a time.
-    '''
+    @return:
+    """
     mutate_listq = []
 
     return mutate_listq
