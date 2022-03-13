@@ -11,6 +11,13 @@
 
 using namespace std;
 
+void bug(){
+    int i = 0;
+    int j = 10;
+    int k;
+    k = j / i;
+}
+
 int main(int argc, char *argv[]) {
 
     int opt, opt_index;
@@ -99,5 +106,6 @@ int main(int argc, char *argv[]) {
     }
 
     printf("Puzzle solved, Congratulations!\n");
+    bug();
     return 0;
 }

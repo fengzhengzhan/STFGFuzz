@@ -14,6 +14,13 @@ USE_INITSTR = ""
 
 
 '''Struct'''
+class StructTarget:
+    def __init__(self, tnum, ttrace, tfunc, tline):
+        self.tnum: int = tnum
+        self.ttrace: int = ttrace
+        self.tfunc: str = tfunc
+        self.tline: int = tline
+
 # The structure stores information about the seed file.
 class StructSeed:
     def __init__(self, filename: str, content: str, seedtype: int, location: list):

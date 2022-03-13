@@ -17,18 +17,28 @@ def getMutfilename(label: str) -> str:
     return str(datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')) + "_" + str(label) + ".seed"
 
 
-def getFileContent(filepathname: str) -> str:
+def getFileList(filepathname: str) -> list:
     """
-    Get the content of the seed file.
+    Get the content list of the file for each lines.
     @param filepathname:
     @return:
     """
-    file_str = ""
     with open(filepathname, 'r', encoding="UTF-8") as f:
-        file_content = f.readlines()
-    for each in file_content:
-        file_str += each
-    return file_str
+        file_list = f.readlines()
+    return file_list
+
+
+def getFileContent(filepathname: str) -> str:
+    """
+    Get the content of the file.
+    @param filepathname:
+    @return:
+    """
+    file_cont = ""
+    file_list = getFileList(filepathname)
+    for each in file_list:
+        file_cont += each
+    return file_cont
 
 
 def mergeMapReport(inputmap, totalinputmap):
