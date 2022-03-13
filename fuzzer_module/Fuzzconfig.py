@@ -176,10 +176,15 @@ IND_MUT_END = 2
 ANA_STARTPROG_IND = -1
 ANA_ENDPROG_IND = -2
 
+'''Builder'''
+PATCHFILE = "binaryline.info"
+
 '''Comparator'''
-COM_PATCH = 31
-COM_SANITIZER = 32
-COM_MANUAL = 33
+COM_PATCH = 'patch'
+COM_SANITIZER = 'sanitizer'
+COM_MANUAL = 'manual'
+
+COM_MANUAL_FILE = "errors_manual.info"
 
 '''Generator'''
 PROGRAMS = "Programs"
@@ -201,8 +206,6 @@ DOTCFG = "opt -dot-cfg "
 CG_SUFFIX = ".callgraph.dot"
 CFG_SUFFIX = ".dot"
 
-'''Builder'''
-PATCHFILE = DATAPATCHLOC + os.sep + "binaryline.info"
 
 '''Mutator'''
 MUT_STR = "aaabaaac"
