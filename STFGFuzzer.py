@@ -17,6 +17,7 @@ def mainFuzzer():
 
     # Receive command line parameters.
     program_name = ""
+    patchtype = USE_INITNUM
     init_seed = ""
     start_time = time.time()
     loop = 0
@@ -26,7 +27,7 @@ def mainFuzzer():
     ana = Analyzer.Analyzer()
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hn:")
+        opts, args = getopt.getopt(sys.argv[1:], "hn:t:")
         # print(opts, args)
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), opts, args))
     except getopt.GetoptError:
@@ -35,18 +36,27 @@ def mainFuzzer():
 
     for opt, arg in opts:
         if opt == "-h":
-            print("{}.py -- [files] [OPTIONS] @@".format(FUZZNAME))
-            print("e.g. python {}.py -n demo -- ./Programs/demo/code_Bin/demo -f @@".format(FUZZNAME))
-            # python3.7 STFGFuzzer.py -n demo -- ./Programs/demo/code_Bin/demo -f @@
+            print()
+            print("Usage:")
+            print(" python {}.py [OPTIONS] -- [files] [OPTIONS] @@".format(FUZZNAME))
+            print(" python {}.py -n demo -- ./Programs/demo/code_Bin/demo -f @@".format(FUZZNAME))
+            print(" python {}.py -n demo -t manual -- ./Programs/demo/code_Bin/demo -f @@".format(FUZZNAME))
+            print()
+            print("STFGFuzzer")
+            print()
+            print("Options:")
+            print(" -t ['patch','sanitizer','manual']   Specify the target location file type.")
             sys.exit()
         elif opt == "-n":
             program_name = arg
+        elif opt == "-t":
+            patchtype = arg
 
     fuzz_command = " ".join(args)
 
-    if fuzz_command == "" or program_name == "":
-        print("e.g. python {}.py -n demo -- ./Programs/Bin/demo -f @@".format(FUZZNAME))
-        raise Exception("Error empty parameters for fuzzing test files.")
+    if fuzz_command == "" or program_name == "" or patchtype not in COM_PATCHLIST:
+        print("python {}.py -h".format(FUZZNAME))
+        raise Exception("Error parameters.")
 
     filepath_initseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSINIT + os.sep
     filepath_mutateseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSMUTATE + os.sep

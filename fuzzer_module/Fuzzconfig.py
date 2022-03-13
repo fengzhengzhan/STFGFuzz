@@ -183,7 +183,10 @@ PATCHFILE = "binaryline.info"
 COM_PATCH = 'patch'
 COM_SANITIZER = 'sanitizer'
 COM_MANUAL = 'manual'
+COM_PATCHLIST = [USE_INITNUM, COM_PATCH, COM_SANITIZER, COM_MANUAL]
 
+COM_PATCH_FILE = 'errors_patch.info'
+COM_SANITIZER_FILE = 'errors_sanitizer.info'
 COM_MANUAL_FILE = "errors_manual.info"
 
 '''Generator'''

@@ -2,7 +2,7 @@
 from fuzzer_module.Fuzzconfig import *
 
 
-def getDirectedLocation(programe_name: str, filetype: str, ):
+def getDirectedLocation(programe_name: str, filetype: str, filename):
     """
     Get the required number of lines of directed functions corresponding to the binary block position.
     There are three types: git patch, sanitizer, manual.
