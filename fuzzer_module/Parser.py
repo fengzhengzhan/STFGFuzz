@@ -103,7 +103,7 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
             comparison_diffreport.append(
                 StructComparisonReport(
                     mutseed,
-                    init_trace_analysis[igi].stvalue[st_init_list[sti]][IND_CMP_TYPE],
+                    init_trace_analysis[igi].stvalue[st_init_list[sti]][IDX_CMP_TYPE],
                     init_trace_analysis[igi].stvalue[st_init_list[sti]],
                     mut_trace_analysis[mgi].stvalue[st_mut_list[sti]],
                     init_trace_analysis[igi].startguard,
@@ -118,7 +118,7 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
                 comparison_onereport.append(
                     StructComparisonReport(
                         mutseed,
-                        init_trace_analysis[igi].stvalue[ii][IND_CMP_TYPE],
+                        init_trace_analysis[igi].stvalue[ii][IDX_CMP_TYPE],
                         init_trace_analysis[igi].stvalue[ii],
                         [],
                         init_trace_analysis[igi].startguard,
@@ -133,7 +133,7 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
                 comparison_onereport.append(
                     StructComparisonReport(
                         mutseed,
-                        mut_trace_analysis[mgi].stvalue[mi][IND_CMP_TYPE],
+                        mut_trace_analysis[mgi].stvalue[mi][IDX_CMP_TYPE],
                         [],
                         mut_trace_analysis[mgi].stvalue[mi],
                         mut_trace_analysis[mgi].startguard,
@@ -150,7 +150,7 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
                 comparison_onereport.append(
                     StructComparisonReport(
                         mutseed,
-                        init_trace_analysis[i].stvalue[st_i][IND_CMP_TYPE],
+                        init_trace_analysis[i].stvalue[st_i][IDX_CMP_TYPE],
                         init_trace_analysis[i].stvalue[st_i],
                         [],
                         init_trace_analysis[i].startguard,
@@ -166,7 +166,7 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
                 comparison_onereport.append(
                     StructComparisonReport(
                         mutseed,
-                        mut_trace_analysis[m].stvalue[st_m][IND_CMP_TYPE],
+                        mut_trace_analysis[m].stvalue[st_m][IDX_CMP_TYPE],
                         [],
                         mut_trace_analysis[m].stvalue[st_m],
                         mut_trace_analysis[m].startguard,
@@ -279,8 +279,8 @@ def typeSpeculation(comparison_diffreport: 'list[StructComparisonReport]', compa
         if mutseed.seedtype == MUT_TYPE_SUB:
             if each.sttype in TRACECMPLIST:
                 infer_bytes = inferFixedOrChanged(
-                    each.init_sttrace[IND_ARG1], each.init_sttrace[IND_ARG2],
-                    each.mut_sttrace[IND_ARG1], each.mut_sttrace[IND_ARG2]
+                    each.init_sttrace[IDX_ARG1], each.init_sttrace[IDX_ARG2],
+                    each.mut_sttrace[IDX_ARG1], each.mut_sttrace[IDX_ARG2]
                 )
                 # Find fixed bytes and changed bytes.
                 var_flag = varChangeSpeculation(infer_bytes)
@@ -295,8 +295,8 @@ def typeSpeculation(comparison_diffreport: 'list[StructComparisonReport]', compa
 
             elif each.sttype in HOOKCMPLIST:
                 infer_bytes = inferFixedOrChanged(
-                    each.init_sttrace[IND_S1], each.init_sttrace[IND_S2],
-                    each.mut_sttrace[IND_S1], each.mut_sttrace[IND_S2]
+                    each.init_sttrace[IDX_S1], each.init_sttrace[IDX_S2],
+                    each.mut_sttrace[IDX_S1], each.mut_sttrace[IDX_S2]
                 )
                 # Find fixed bytes and changed bytes.
                 var_flag = varChangeSpeculation(infer_bytes)

@@ -161,27 +161,27 @@ FLAG_DICT = {'a': "COV_TRACE_CMP1",
              }
 
 # Parameter Location Index
-IND_CMP_TYPE = 0
-IND_CALLPC = 1
-IND_ARG1 = 2
-IND_ARG2 = 3
-IND_ARGLEN = 4
+IDX_CMP_TYPE = 0
+IDX_CALLPC = 1
+IDX_ARG1 = 2
+IDX_ARG2 = 3
+IDX_ARGLEN = 4
 
-IND_S1 = 2
-IND_S2 = 3
-IND_SIZEN = 4
-IND_RESULT = 5
+IDX_S1 = 2
+IDX_S2 = 3
+IDX_SIZEN = 4
+IDX_RESULT = 5
 
-IND_NUMCASE = 2
-IND_SIZEVAL = 3
+IDX_NUMCASE = 2
+IDX_SIZEVAL = 3
 
-IND_MUT_TYPE = 0
-IND_MUT_START = 1
-IND_MUT_END = 2
+IDX_MUT_TYPE = 0
+IDX_MUT_START = 1
+IDX_MUT_END = 2
 
 '''Analyzer'''
-ANA_STARTPROG_IND = -1
-ANA_ENDPROG_IND = -2
+ANA_STARTPROG_IDX = -1
+ANA_ENDPROG_IDX = -2
 
 '''Builder'''
 BUI_PATCHFILE = "binaryline.info"
@@ -191,8 +191,10 @@ BUI_NODE_NUM = "_gvid"
 BUI_NODE_NAME = "name"
 BUI_NODE_LABEL = "label"  # node text
 BUI_EDGE_NUM = "_gvid"
-BUI_EDGE_HEAD = "head"
-BUI_EDGE_TAIL = "tail"
+BUI_EDGE_START = "tail"  # tail -> head
+BUI_EDGE_END = "head"
+BUI_EDGE_START_IDX = 0  # tail -> head
+BUI_EDGE_END_IDX = 1
 BUI_INIT_WEIGHT = 0
 
 '''Comparator'''

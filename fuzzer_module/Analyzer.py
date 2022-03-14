@@ -23,7 +23,7 @@ class Analyzer:
         content_list = []
 
         exist_z = True
-        before_guard_num = ANA_STARTPROG_IND
+        before_guard_num = ANA_STARTPROG_IDX
         combine_line = ""
         for each_line in each_line_list:
             # Handling blank lines.
@@ -82,7 +82,7 @@ class Analyzer:
                     type = each[0]
                     call_pc = each[1]
                     end = True
-                    struct_trace_report_list.append(StructTraceReport(before_guard_num, ANA_ENDPROG_IND, call_pc_list, content_list, []))
+                    struct_trace_report_list.append(StructTraceReport(before_guard_num, ANA_ENDPROG_IDX, call_pc_list, content_list, []))
                 # Matching comparison identifier.
                 elif each[0] == COV_TRACE_CMP1 or each[0] == COV_TRACE_CMP2 \
                         or each[0] == COV_TRACE_CMP4 or each[0] == COV_TRACE_CMP8 \
