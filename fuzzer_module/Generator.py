@@ -52,7 +52,7 @@ def prepareEnv(program_name: str) -> list:
     return init_seeds_list
 
 
-def createDotFile(program_name: str, bc_file: str) -> (list, list):
+def createDotJsonFile(program_name: str, bc_file: str) -> (list, list):
     """
     From .bc file get .dot files, then get Control Flow Graph and Call Graph.
     @param bc_file:
@@ -66,26 +66,39 @@ def createDotFile(program_name: str, bc_file: str) -> (list, list):
     # Change path to generator graph in the directed file.
     proj_path = os.getcwd()
     os.chdir(temp_graphpath)
-    ret_code, std_out, std_err = runothercmd(DOTCALLGRAPH + os.path.basename(bc_file))
-    ret_code, std_out, std_err = runothercmd(DOTCFG + os.path.basename(bc_file))
+    ret_code, std_out, std_err = runothercmd(GEN_DOTCALLGRAPH + os.path.basename(bc_file))
+    ret_code, std_out, std_err = runothercmd(GEN_DOTCFG + os.path.basename(bc_file))
 
     temp_filelist = os.listdir()
     os.chdir(proj_path)
 
     # Get dot filename.
-    cglist = []  # Call Graph
-    cfglist = []  # Call Flow Graph
+    cgdotlist = []  # Call Graph
+    cfgdotlist = []  # Call Flow Graph
     for onefile in temp_filelist:
-        if onefile.find(CG_SUFFIX) >= 0:
-            cglist.append(onefile)
-        elif onefile.find(CFG_SUFFIX) >= 0:
-            cfglist.append(onefile)
+        if onefile.endswith(GEN_CG_SUFFIX):
+            cgdotlist.append(PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH + os.sep + onefile)
+        elif onefile.endswith(GEN_CFG_SUFFIX):
+            cfgdotlist.append(PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH + os.sep + onefile)
 
-    if len(cglist) <= 0 or len(cfglist) <= 0:
+    if len(cgdotlist) <= 0 or len(cfgdotlist) <= 0:
         raise Exception("Failed to generate dot file.")
 
-    return cglist, cfglist
+    cglist = []  # json
+    cfglist = []
+    for each in cgdotlist:
+        temp_path = each + ".json"
+        ret_code, std_out, std_err = runothercmd(GEN_DOTJSON + each + GEN_OVERLAY + temp_path)
+        if not std_err:
+            cglist.append(temp_path)
 
+    for each in cfgdotlist:
+        temp_path = each + ".json"
+        ret_code, std_out, std_err = runothercmd(GEN_DOTJSON + each + GEN_OVERLAY + temp_path)
+        if not std_err:
+            cfglist.append(temp_path)
+
+    return cglist, cfglist
 
 
 if __name__ == "__main__":

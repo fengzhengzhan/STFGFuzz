@@ -18,7 +18,7 @@ def getDirectedLocation(programe_name: str, filetype: str, filename=[]):
     if filetype == COM_MANUAL:
         # target:stack:funcname:line
         # A blank line is required between the different targets of the manual mutation target.
-        temp_manualfile = PROGRAMS + os.sep + programe_name + os.sep + DATAPATCHLOC + os.sep+ COM_MANUAL_FILE
+        temp_manualfile = PROGRAMS + os.sep + programe_name + os.sep + DATAPATCHLOC + os.sep + COM_MANUAL_FILE
         manual_cont = getFileList(temp_manualfile)
 
         # Generate a dictionary of targets for easy finding and navigation.
@@ -47,12 +47,6 @@ def getDirectedLocation(programe_name: str, filetype: str, filename=[]):
         # print(target_dict[1][1].__dict__)
 
     return target_dict
-
-
-
-
-
-
 
 
 def reuseHistorySTFG():

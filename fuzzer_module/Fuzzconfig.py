@@ -211,10 +211,14 @@ SEEDSCRASH = "seeds_crash"
 # opt -dot-callgraph $1.ll > /dev/null   // get CG
 # dot -Tpng -o $1.png cfg.main.dot
 # dot -Tpng -o $1.callgraph.png callgraph.dot
-DOTCALLGRAPH = "opt -dot-callgraph "
-DOTCFG = "opt -dot-cfg "
-CG_SUFFIX = ".callgraph.dot"
-CFG_SUFFIX = ".dot"
+GEN_DOTCALLGRAPH = "opt -dot-callgraph "
+GEN_DOTCFG = "opt -dot-cfg "
+GEN_CG_SUFFIX = ".callgraph.dot"
+GEN_CFG_SUFFIX = ".dot"
+GEN_DOTJSON = "dot -Tdot_json "
+GEN_OVERLAY = " > "
+GEN_APPEND = " >> "
+
 
 
 '''Mutator'''

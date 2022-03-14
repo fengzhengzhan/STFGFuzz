@@ -1,7 +1,13 @@
 import ast
 import re
+import json
 
 from fuzzer_module.Fuzzconfig import *
+
+
+class Graph:
+    def __init__(self):
+        pass
 
 
 def getPatchInfo(program_name: str) -> 'dict[str:dict[int:dict[str:str]]]':
@@ -21,6 +27,23 @@ def getPatchInfo(program_name: str) -> 'dict[str:dict[int:dict[str:str]]]':
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), patchline_info, patchline_sub, patchline_dict))
     return patchline_dict
 
+
+def getCG(cglist):
+    # print(cglist)
+    for jsonfile in cglist:
+        with open(jsonfile, 'r') as f:
+            data = json.load(f)
+        for k, v in data.items():
+            print(k, v)
+        # print(data)
+        # print(data['objects'])
+        # print(len(data))
+
+
+def getCFG(cfglist):
+    for jsonfile in cfglist:
+        with open(jsonfile, 'r') as f:
+            data = json.load(f)
 
 
 

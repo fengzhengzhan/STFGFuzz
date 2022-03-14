@@ -2,6 +2,7 @@ import os
 import time
 import curses
 import psutil
+import graphviz
 
 from fuzzer_module.Fuzzconfig import *
 
