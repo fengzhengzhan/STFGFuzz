@@ -184,7 +184,16 @@ ANA_STARTPROG_IND = -1
 ANA_ENDPROG_IND = -2
 
 '''Builder'''
-PATCHFILE = "binaryline.info"
+BUI_PATCHFILE = "binaryline.info"
+BUI_NODES = "objects"
+BUI_EDGES = "edges"
+BUI_NODE_NUM = "_gvid"
+BUI_NODE_NAME = "name"
+BUI_NODE_LABEL = "label"  # node text
+BUI_EDGE_NUM = "_gvid"
+BUI_EDGE_HEAD = "head"
+BUI_EDGE_TAIL = "tail"
+BUI_INIT_WEIGHT = 0
 
 '''Comparator'''
 COM_PATCH = 'patch'
