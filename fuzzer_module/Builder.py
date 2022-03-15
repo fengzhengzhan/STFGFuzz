@@ -61,25 +61,7 @@ def getCG(cglist):
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), nodes_list, edges_list))
         cggraph = Graph(nodes_list, edges_list)
 
-        dot = Digraph(comment="Test")
-        for one in cggraph.dg.nodes:
-            # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
-            dot.node(str(one), str(cggraph.dg.nodes[one][BUI_NODE_LABEL]))
 
-        for one in cggraph.dg.edges:
-            # print(one)
-            dot.edge(str(one[0]), str(one[1]), "")
-
-        dot.view()
-
-        # plt.subplot(121)
-        # nx.draw(cggraph.dg, with_labels=True, font_weight='bold')
-        # plt.show()
-
-        # from networkx.drawing.nx_pydot import write_dot
-        # pos = nx.nx_agraph.graphviz_layout(cggraph.dg)
-        # nx.draw(cggraph.dg, pos=pos)
-        # write_dot(cggraph.dg, 'file.dot')
 
 
 def getCFG(cfglist):

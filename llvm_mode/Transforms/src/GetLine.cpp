@@ -36,8 +36,8 @@ bool GetLine::runOnFunction(Function &F){
                         << "\'C\':\'" << location.getCol() << "\',"
                         << "\'N\':\'" << location->getFilename() << "\',"
                         << "\'D\':\'" << location->getDirectory() << "\',"
-                        << "\'P\':\'" << location->isImplicitCode() << "\',"
                         << "},";
+                        // << "\'P\':\'" << location->isImplicitCode() << "\',"
             }
                 
         }

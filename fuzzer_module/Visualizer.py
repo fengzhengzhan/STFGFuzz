@@ -25,7 +25,6 @@ class Visualizer:
         curses.init_pair(7, curses.COLOR_WHITE, -1)
         curses.init_pair(8, curses.COLOR_YELLOW, -1)
 
-
     def display(self, start_time, mutseed: StructSeed, eachloop_input_map: dict, loop: int, total: int) -> int:
         """
         This function use to show state during fuzzing on the terminal.
@@ -107,6 +106,28 @@ class Visualizer:
             return 1
 
         return -1
+
+    def showGraph(self):
+        pass
+        # dot = Digraph(comment="")
+        # for one in cggraph.dg.nodes:
+        #     # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
+        #     dot.node(str(one), str(cggraph.dg.nodes[one][BUI_NODE_LABEL]))
+        #
+        # for one in cggraph.dg.edges:
+        #     # print(one)
+        #     dot.edge(str(one[0]), str(one[1]), "")
+        #
+        # dot.view()
+
+        # plt.subplot(121)
+        # nx.draw(cggraph.dg, with_labels=True, font_weight='bold')
+        # plt.show()
+
+        # from networkx.drawing.nx_pydot import write_dot
+        # pos = nx.nx_agraph.graphviz_layout(cggraph.dg)
+        # nx.draw(cggraph.dg, pos=pos)
+        # write_dot(cggraph.dg, 'file.dot')
 
 
 
