@@ -185,6 +185,7 @@ ANA_ENDPROG_IDX = -2
 
 '''Builder'''
 BUI_PATCHFILE = "binaryline.info"
+BUI_NAME = "name"
 BUI_NODES = "objects"
 BUI_EDGES = "edges"
 BUI_NODE_NUM = "_gvid"
