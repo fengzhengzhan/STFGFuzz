@@ -10,12 +10,13 @@
 ## Download the files to be compiled.
 
 ```bash
+sudo apt-get install xz-utils 
 mkdir LLVM
 # install cmake 3.21.1
 wget https://github.com/Kitware/CMake/releases/download/v3.21.1/cmake-3.21.1-linux-x86_64.tar.gz
 tar -zxvf cmake-3.21.1-linux-x86_64.tar.gz
-mv cmake-3.21.1-linux-x86_64 /opt/cmake-3.21.1
-ln -sf /opt/cmake-3.21.1/bin/* /usr/bin/
+mv cmake-3.21.1-linux-x86_64 /opt/cmake321
+ln -sf /opt/cmake321/bin/* /usr/bin/
 cmake --version
 
 # install clang, llvm, compiler-rt.
@@ -57,7 +58,7 @@ Build compiler-rt.
 mv compiler-rt llvm/projects/
 cd llvm/projects/compiler-rt
 cmake ../compiler-rt -DLLVM_CONFIG_PATH=PATH/LLVM/build/bin/llvm-config
-nano CMakeCache.txt
+vim CMakeCache.txt
 # COMPILER_RT_INSTALL_PATH:PATH=/usr/local/lib/clang/12.0.1  # Replace path string.
 make
 make install

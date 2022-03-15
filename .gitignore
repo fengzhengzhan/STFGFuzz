@@ -21,10 +21,12 @@ llvm_mode/Programs/otherfunc
 llvm_mode/Programs/dataset
 llvm_mode/.vscode
 otherfunc/
+dataset/
+EachFuzzer/
 Programs/demo/seeds_crash/
 Programs/demo/seeds_mutate/
 Programs/demo/code_Bin/
 Programs/demo/code_IR/
 Programs/demo/data_patchloc
 Programs/demo/data_graph
-
+fuzzer_module/__pycache__/
