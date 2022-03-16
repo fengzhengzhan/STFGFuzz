@@ -32,6 +32,8 @@ mkdir build
 wget https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/compiler-rt-12.0.1.src.tar.xz
 tar -xf compiler-rt-12.0.1.src.tar.xz
 mv compiler-rt-12.0.1.src compiler-rt
+
+vim build.sh
 ```
 
 Create build.sh file. The contents of this file.
@@ -60,7 +62,7 @@ cd llvm/projects/compiler-rt
 cmake ../compiler-rt -DLLVM_CONFIG_PATH=PATH/LLVM/build/bin/llvm-config
 vim CMakeCache.txt
 # COMPILER_RT_INSTALL_PATH:PATH=/usr/local/lib/clang/12.0.1  # Replace path string.
-make
+make -j6
 make install
 ```
 

@@ -34,11 +34,12 @@ then
 
 
 	cd ${PROGRAMS}/${PROGRAMNAME}
-	clang++ -g -c -emit-llvm ${SOURCES}/${PROGRAMNAME}.cc -o ${IR}/${PROGRAMNAME}.${SUFFIX} -fsanitize=address -fsanitize-coverage=trace-pc-guard,trace-cmp  # IR
+	# clang++ -g -c -emit-llvm ${SOURCES}/${PROGRAMNAME}.cc -o ${IR}/${PROGRAMNAME}.${SUFFIX} -fsanitize=address -fsanitize-coverage=trace-pc-guard,trace-cmp  # IR
 	rm -f ${LINE_SAVE}
 	echo "{" >> ${LINE_SAVE}
 	opt -load ../../${LLVMPASSPATH} -line -S ${IR}/${PROGRAMNAME}.${SUFFIX} -o ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} >> ${LINE_SAVE}
 	echo "}" >> ${LINE_SAVE}
+	echo opt -load ../../${LLVMPASSPATH} -line -S ${IR}/${PROGRAMNAME}.${SUFFIX} -o ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} >> ${LINE_SAVE}
 	llc -filetype=obj ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} -o ${IR}/${PROGRAMNAME_PASS}.o  # Object file 
 	clang++ ${IR}/${PROGRAMNAME_PASS}.o -o ${BIN}/${PROGRAMNAME} -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive  # Link
 	cd ../..
@@ -46,7 +47,7 @@ then
 
 	echo -e "\n------- ${PROGRAMNAME} -------"
 	# Run
-	./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME} -f "${PROGRAMS}/${PROGRAMNAME}/seeds_init/init3.seed"
+	./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME} -d "${PROGRAMS}/${PROGRAMNAME}/seeds_init/rand.b64"
 
 
 	# Clear files.

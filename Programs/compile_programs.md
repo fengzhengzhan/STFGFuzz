@@ -13,14 +13,14 @@ docker ps -a
 sudo docker exec -it ContainerID /bin/bash
 
 # root 
-apt-get install python3-pip
-pip install wllvm
+apt-get install python3 python3-pip
+pip3 install wllvm
 
 chmod 777 dataset
 cd lava_corpus/LAVA-M/base64/coreutils-8.24-lava-safe
 export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
-CC=wllvm CFLAGS="-fsanitize=address -fsanitize-coverage=trace-pc-guard,trace-cmp" ./configure --prefix=`pwd`/lava-install LIBS="-lacl"
+CC=wllvm CFLAGS="-fsanitize=address -fsanitize-coverage=trace-pc-guard,trace-cmp -g -O0" LIBS="-lacl" ./configure --prefix=`pwd`/lava-install 
 make -j6  # -j Depends on the number of computer processes.
 make install
 cd lava-install/bin/
@@ -45,7 +45,7 @@ apt install selinux selinux-utils selinux-basics auditd audispd-plugins
 apt-get install libcap-dev
 apt-get install libgmp3-dev
 # configure: error: C compiler cannot create executables
-
+apt-get install gcc libc6-dev
 ```
 
  
