@@ -26,7 +26,7 @@ make install
 cd lava-install/bin/
 
 extract-bc base64
-opt -load ../Build/LLVMObfuscator.so -split -S xx.bc -o xx_pass.bc
+opt -load ../Build/LLVMObfuscator.so -line -S xx.bc -o xx_pass.bc
 llc -filetype=obj base64.bc -o base64.o
 clang++ base64.o -o base64 -fsanitize=address -Wl,--whole-archive -L./ClangSanitizer -lcmpcov -Wl,--no-whole-archive 
 ```
