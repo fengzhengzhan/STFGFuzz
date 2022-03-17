@@ -34,7 +34,7 @@ then
 
 
 	cd ${PROGRAMS}/${PROGRAMNAME}
-	clang++ -g -c -emit-llvm ${SOURCES}/${PROGRAMNAME}.cc -o ${IR}/${PROGRAMNAME}.${SUFFIX} -fsanitize=address -fsanitize-coverage=trace-pc-guard,trace-cmp  # IR
+	clang++ -g -c -emit-llvm ${SOURCES}/${PROGRAMNAME}.cc -o ${IR}/${PROGRAMNAME}.${SUFFIX} -fsanitize-recover=address -fsanitize-coverage=trace-pc-guard,trace-cmp  # IR
 	rm -f ${LINE_SAVE}
 	echo "{" >> ${LINE_SAVE}
 	opt -load ../../${LLVMPASSPATH} -line -S ${IR}/${PROGRAMNAME}.${SUFFIX} -o ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} >> ${LINE_SAVE}

@@ -20,7 +20,7 @@ chmod 777 dataset
 cd lava_corpus/LAVA-M/base64/coreutils-8.24-lava-safe
 export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
-CC=wllvm CFLAGS="-fsanitize=address -fsanitize-coverage=trace-pc-guard,trace-cmp -g -O0" LIBS="-lacl" ./configure --prefix=`pwd`/lava-install 
+CC=wllvm CFLAGS="-fsanitize=address -fsanitize-coverage=trace-pc-guard,trace-cmp -g" LIBS="-lacl" ./configure --prefix=`pwd`/lava-install 
 make -j6  # -j Depends on the number of computer processes.
 make install
 cd lava-install/bin/
@@ -28,7 +28,7 @@ cd lava-install/bin/
 extract-bc base64
 opt -load ../Build/LLVMObfuscator.so -line -S xx.bc -o xx_pass.bc
 llc -filetype=obj base64.bc -o base64.o
-clang++ base64.o -o base64 -fsanitize=address -Wl,--whole-archive -L./ClangSanitizer -lcmpcov -Wl,--no-whole-archive 
+clang++ base64.o -o base64 -fsanitize-recover=address -Wl,--whole-archive -L./ClangSanitizer -lcmpcov -Wl,--no-whole-archive 
 ```
 
 ## Problems
@@ -46,6 +46,14 @@ apt-get install libcap-dev
 apt-get install libgmp3-dev
 # configure: error: C compiler cannot create executables
 apt-get install gcc libc6-dev
+# fatal error: zlib.h: No such file or directory
+apt-get install zlib1g-dev
+# install check
+./configure
+make
+make check
+make install then
+make installcheck 
 ```
 
  
