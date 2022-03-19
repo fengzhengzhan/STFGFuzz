@@ -2,7 +2,7 @@ import os
 import subprocess
 
 
-PROGRAM_NAME = "base64after"
+PROGRAM_NAME = "base64"
 
 def run(cmd: str) -> (int, str, str):
     """
