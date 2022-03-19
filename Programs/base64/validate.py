@@ -37,14 +37,14 @@ if __name__ == "__main__":
             valibugslist.append(line.replace('\n', ''))
     len_valibugs = len(valibugslist)
     num_success = 0
-    "validated.txt"
+    # "validated.txt"
     vfname = "validated.txt"
     if os.path.exists(vfname):
         os.remove(vfname)
 
     vf = open(vfname, "a+")
     for i in range(len_valibugs):
-        fuzz_cmd = "./code_Bin/" + PROGRAM_NAME + " -d validate_inputs/utmp-fuzzed-" + str(valibugslist[i]) + ".b64"
+        fuzz_cmd = "./code_Bin/" + PROGRAM_NAME + " -d seeds_crash/validate_inputs/utmp-fuzzed-" + str(valibugslist[i]) + ".b64"
         # fuzz_cmd = "./code_Bin/" + PROGRAM_NAME + " -d seeds_init/rand.b64"
         ret_code, std_out, std_err = run(fuzz_cmd)
         find_state = std_out.find(bytes("Successfully triggered bug {}, crashing now!".format(str(valibugslist[i])), encoding="utf-8"))

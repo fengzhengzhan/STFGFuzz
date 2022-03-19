@@ -28,8 +28,8 @@ cd lava-install/bin/
 extract-bc base64
 
 clang -fsanitize=address -fsanitize-coverage=trace-pc-guard,trace-cmp -emit-llvm -c base64.bc -o base64trace.bc
-opt -load ../Build/LLVMObfuscator.so -line -S base64trace.bc -o base64trace_pass.bc
-llc -filetype=obj base64trace_pass.bc -o base64.o
+opt -load ../Build/LLVMObfuscator.so -line -S base64trace.bc -o base64_pass.bc
+llc -filetype=obj base64_pass.bc -o base64.o
 clang++ -fsanitize=address -Wl,--whole-archive -L./ClangSanitizer -lcmpcov -Wl,--no-whole-archive base64.o -o base64
 ```
 
