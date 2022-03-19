@@ -3,6 +3,7 @@
 if [ $1 == "-n" ]
 then
 	PROGRAMNAME=$2
+	PROGRAMNAME_TRACE="${PROGRAMNAME}_trace"
 	PROGRAMNAME_PASS="${PROGRAMNAME}_pass"
 	echo "ProgramName: <${PROGRAMNAME}>"
 	
@@ -34,19 +35,20 @@ then
 
 
 	cd ${PROGRAMS}/${PROGRAMNAME}
-	clang++ -g -c -emit-llvm ${SOURCES}/${PROGRAMNAME}.cc -o ${IR}/${PROGRAMNAME}.${SUFFIX} -fsanitize-recover=address -fsanitize-coverage=trace-pc-guard,trace-cmp  # IR
+	clang++ -g -emit-llvm -c ${SOURCES}/${PROGRAMNAME}.cc -o ${IR}/${PROGRAMNAME}.${SUFFIX} # IR
+	clang++ -fsanitize-recover=address -fsanitize-coverage=trace-pc-guard,trace-cmp -emit-llvm -c ${IR}/${PROGRAMNAME}.${SUFFIX} -o ${IR}/${PROGRAMNAME_TRACE}.${SUFFIX} 
 	rm -f ${LINE_SAVE}
 	echo "{" >> ${LINE_SAVE}
-	opt -load ../../${LLVMPASSPATH} -line -S ${IR}/${PROGRAMNAME}.${SUFFIX} -o ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} >> ${LINE_SAVE}
+	opt -load ../../${LLVMPASSPATH} -line -S ${IR}/${PROGRAMNAME_TRACE}.${SUFFIX} -o ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} >> ${LINE_SAVE}
 	echo "}" >> ${LINE_SAVE}
-	llc -filetype=obj ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} -o ${IR}/${PROGRAMNAME_PASS}.o  # Object file 
-	clang++ ${IR}/${PROGRAMNAME_PASS}.o -o ${BIN}/${PROGRAMNAME} -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive  # Link
+	llc -filetype=obj ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} -o ${IR}/${PROGRAMNAME_PASS}.o  # Object file
+	clang++ -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive ${IR}/${PROGRAMNAME_PASS}.o -o ${BIN}/${PROGRAMNAME}  # Link
 	cd ../..
 
 
 	echo -e "\n------- ${PROGRAMNAME} -------"
 	# Run
-	./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME} -f "${PROGRAMS}/${PROGRAMNAME}/seeds_init/init3.seed"
+	./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME} -f "${PROGRAMS}/${PROGRAMNAME}/seeds_crash/final.seed"
 
 
 	# Clear files.

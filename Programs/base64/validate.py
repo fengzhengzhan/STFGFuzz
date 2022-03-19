@@ -2,7 +2,7 @@ import os
 import subprocess
 
 
-PROGRAM_NAME = "base64"
+PROGRAM_NAME = "base64after"
 
 def run(cmd: str) -> (int, str, str):
     """
@@ -45,16 +45,19 @@ if __name__ == "__main__":
     vf = open(vfname, "a+")
     for i in range(len_valibugs):
         fuzz_cmd = "./code_Bin/" + PROGRAM_NAME + " -d validate_inputs/utmp-fuzzed-" + str(valibugslist[i]) + ".b64"
+        # fuzz_cmd = "./code_Bin/" + PROGRAM_NAME + " -d seeds_init/rand.b64"
         ret_code, std_out, std_err = run(fuzz_cmd)
-        print(std_out.decode("utf-8"))
-        num_success += 1
+        find_state = std_out.find(bytes("Successfully triggered bug {}, crashing now!".format(str(valibugslist[i])), encoding="utf-8"))
+        if find_state != -1:
+            num_success += 1
+            print("{}:{}->{} ".format(i+1, str(valibugslist[i]), "Success"), end=" ")
+        else:
+            print("{}:{}->{} ".format(i+1, str(valibugslist[i]), "Fail"), end=" ")
         vf.write(str(valibugslist[i]) + " " + str(ret_code) + "\n")
     vf.close()
+    print()
     print("Validated {} / {} bugs".format(num_success, len_valibugs))
     print("You can see validated.txt for the exit code of each buggy version.")
 
 
-# Successfully triggered bug 1, crashing now!
-# Successfully triggered bug 1, crashing now!
-# Segmentation fault (core dumped)
 

@@ -18,6 +18,7 @@ pip3 install wllvm
 
 chmod 777 dataset
 cd lava_corpus/LAVA-M/base64/coreutils-8.24-lava-safe
+# wllvm-sanity-checker
 export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
 CC=wllvm CFLAGS="-fsanitize=address -fsanitize-coverage=trace-pc-guard,trace-cmp -g" LIBS="-lacl" ./configure --prefix=`pwd`/lava-install 
@@ -28,7 +29,7 @@ cd lava-install/bin/
 extract-bc base64
 opt -load ../Build/LLVMObfuscator.so -line -S xx.bc -o xx_pass.bc
 llc -filetype=obj base64.bc -o base64.o
-clang++ base64.o -o base64 -fsanitize-recover=address -Wl,--whole-archive -L./ClangSanitizer -lcmpcov -Wl,--no-whole-archive 
+clang++ base64.o -o base64 -fsanitize=address -Wl,--whole-archive -L./ClangSanitizer -lcmpcov -Wl,--no-whole-archive 
 ```
 
 ## Problems
@@ -54,6 +55,9 @@ make
 make check
 make install then
 make installcheck 
+## /usr/bin/ld: ../boot/a6le/kernel.o: relocation R_X86_64_32S against `.rodata' can not be used when making a PIE object; recompile with -fPIE
+LDFLAGS=-no-pie ./configure
+# -fsanitize-recover=address
 ```
 
  
