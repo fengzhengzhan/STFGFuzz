@@ -50,9 +50,9 @@ if __name__ == "__main__":
         find_state = std_out.find(bytes("Successfully triggered bug {}, crashing now!".format(str(valibugslist[i])), encoding="utf-8"))
         if find_state != -1:
             num_success += 1
-            print("{}:{}->{} ".format(i+1, str(valibugslist[i]), "Success"), end=" ")
+            print("{}:{}->{} ".format(i+1, str(valibugslist[i]), "Success"))
         else:
-            print("{}:{}->{} ".format(i+1, str(valibugslist[i]), "Fail"), end=" ")
+            print("{}:{}->{} ".format(i+1, str(valibugslist[i]), "Fail"))
         vf.write(str(valibugslist[i]) + " " + str(ret_code) + "\n")
     vf.close()
     print()
