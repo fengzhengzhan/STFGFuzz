@@ -56,6 +56,7 @@ def mainFuzzer():
     filepath_initseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSINIT + os.sep
     filepath_mutateseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSMUTATE + os.sep
     filepath_crashseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSCRASH + os.sep
+    filepath_graph = PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH + os.sep
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), filepath_initseeds, filepath_mutateseeds, filepath_crashseeds))
 
     # print(fuzz_command)
@@ -133,7 +134,6 @@ def mainFuzzer():
             # raise Exception("test")
 
     except Exception as e:
-        curses.endwin()
         print(e)
 
 

@@ -1,3 +1,10 @@
+#ifdef _WIN32
+#include <windows.h>
+#include <psapi.h>
+#elif __linux__
+#include <unistd.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sanitizer/dfsan_interface.h>
@@ -5,6 +12,18 @@
 #include <string.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#if defined(__SANITIZE_ADDRESS__) || (defined(__has_feature) && __has_feature(address_sanitizer))
+#error The cmpcov module should be compiled separately to the fuzzing target,\
+       without AddressSanitizer enabled, to avoid infinite recursions and other\
+       problems. Compile cmpcov to object files first, and then include them in\
+       your project.
+#endif
+
+#if !defined(_WIN32) && !defined(__linux__)
+#error Unsupported operating system.
+#endif
+
 
 // Define the type of all hook functions for the compare instruction.
 #define COV_TRACE_CMP1 'a'
@@ -29,15 +48,15 @@
 #define WEAK_HOOK_STRCASECMP 'q'
 
 // return the stack of the function
-# define GET_CALLER_PC __builtin_return_address(0)  
+#define GET_CALLER_PC __builtin_return_address(0)
 
-// The first 8 bytes magic numbers of *.sancov files.
-// From: https://clang.llvm.org/docs/SanitizerCoverage.html#id13
-const uint64_t fMagic64 = 0xC0BFFFFFFFFFFF64;
-const uint64_t fMagic32 = 0xC0BFFFFFFFFFFF32;
-
-// Maximum length memory/string buffer for strcmp(), strncmp() and memcmp() functions.
-const uint8_t maxCmpLen = 32;
+//// The first 8 bytes magic numbers of *.sancov files.
+//// From: https://clang.llvm.org/docs/SanitizerCoverage.html#id13
+//const uint64_t fMagic64 = 0xC0BFFFFFFFFFFF64;
+//const uint64_t fMagic32 = 0xC0BFFFFFFFFFFF32;
+//
+//// Maximum length memory/string buffer for strcmp(), strncmp() and memcmp() functions.
+//const uint8_t maxCmpLen = 32;
 
 
 // The end of analysis.

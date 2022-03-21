@@ -197,6 +197,8 @@ BUI_EDGE_END = "head"
 BUI_EDGE_START_IDX = 0  # tail -> head
 BUI_EDGE_END_IDX = 1
 BUI_INIT_WEIGHT = 0
+BUI_GUARD_RE = "@__sanitizer_cov_trace_pc_guard\(i32\* inttoptr \(i64 add \(i64\\\\l... ptrtoint \(\[15 x i32\]\* @__sancov_gen_.2 to i64\), i64 (.*)\) to i32\*\)\)"
+BUI_LOC_INTERVAL = 4
 
 '''Comparator'''
 COM_PATCH = 'patch'
@@ -279,6 +281,9 @@ VIS_S = 115
 VIS_SEED_LINE = 16
 
 VIS_MAX_LINE = 25
+
+VIS_CG_NAME = "CG.gv"
+VIS_CFG_NAME = "CFG.gv"
 
 '''Logging'''
 # Logging the information during the fuzzing.

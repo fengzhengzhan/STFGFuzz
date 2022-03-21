@@ -3,6 +3,10 @@ import time
 import curses
 import psutil
 import graphviz
+import matplotlib
+import matplotlib.pyplot as plt
+import networkx as nx
+import matplotlib.image as mpimg  # Read .png format images.
 
 from fuzzer_module.Fuzzconfig import *
 
@@ -24,6 +28,9 @@ class Visualizer:
         curses.init_pair(6, curses.COLOR_RED, -1)
         curses.init_pair(7, curses.COLOR_WHITE, -1)
         curses.init_pair(8, curses.COLOR_YELLOW, -1)
+
+    def __del__(self):
+        curses.endwin()
 
     def display(self, start_time, mutseed: StructSeed, eachloop_input_map: dict, loop: int, total: int) -> int:
         """
@@ -102,32 +109,50 @@ class Visualizer:
         self.terminal_seeds.noutrefresh()
 
         if self.stdscr.getch() == VIS_Q:
-            curses.endwin()
             return 1
 
         return -1
 
-    def showGraph(self):
-        pass
-        # dot = Digraph(comment="")
-        # for one in cggraph.dg.nodes:
-        #     # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
-        #     dot.node(str(one), str(cggraph.dg.nodes[one][BUI_NODE_LABEL]))
-        #
-        # for one in cggraph.dg.edges:
-        #     # print(one)
-        #     dot.edge(str(one[0]), str(one[1]), "")
-        #
-        # dot.view()
+    def showGraph(self, filepath_graph: str, cggraph: 'Graph', cfggraph: 'Graph'):
+        dotcg = graphviz.Digraph(comment="Call Graoh")
+        for one in cggraph.dg.nodes:
+            # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
+            dotcg.node(str(one), str(cggraph.dg.nodes[one][BUI_NODE_LABEL]))
 
-        # plt.subplot(121)
-        # nx.draw(cggraph.dg, with_labels=True, font_weight='bold')
-        # plt.show()
+        for one in cggraph.dg.edges:
+            # print(one)
+            dotcg.edge(str(one[0]), str(one[1]), "")
 
-        # from networkx.drawing.nx_pydot import write_dot
-        # pos = nx.nx_agraph.graphviz_layout(cggraph.dg)
-        # nx.draw(cggraph.dg, pos=pos)
-        # write_dot(cggraph.dg, 'file.dot')
+        cgpath = dotcg.render(directory=filepath_graph, filename=VIS_CG_NAME, format='png')
+
+        dotcfg = graphviz.Digraph(comment="Control Flow Graph")
+        for one in cfggraph.dg.nodes:
+            # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
+            dotcfg.node(str(one), str(cfggraph.dg.nodes[one][BUI_NODE_LABEL]))
+
+        for one in cfggraph.dg.edges:
+            # print(one)
+            dotcfg.edge(str(one[0]), str(one[1]), "")
+
+        cfgpath = dotcfg.render(directory=filepath_graph, filename=VIS_CFG_NAME, format='png')
+
+        # print(path)
+        plt.figure(num='graph', figsize=(10, 6), )
+
+        plt.subplot(1, 2, 1)
+        plt.title('CG')
+        cg = mpimg.imread(cgpath)
+        plt.imshow(cg)  # show picture
+        plt.axis('off')  # not show axis
+
+        plt.subplot(1, 2, 2)
+        plt.title('CFG')
+        cfg = mpimg.imread(cfgpath)
+        plt.imshow(cfg)  # show picture
+        plt.axis('off')  # not show axis
+
+        plt.show()
+
 
 
 
@@ -143,7 +168,6 @@ if __name__ == "__main__":
             if res == 1:
                 break
     except Exception as e:
-        curses.endwin()
         print(e)
     # os.system("clear")
     # xnum = ">" * (int(time.time()) % 4)

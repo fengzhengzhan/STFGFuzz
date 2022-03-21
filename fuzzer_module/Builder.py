@@ -1,10 +1,8 @@
 import ast
 import re
 import json
-import networkx
 import networkx as nx
-from graphviz import Digraph
-import matplotlib.pyplot as plt
+
 
 from fuzzer_module.Fuzzconfig import *
 
@@ -14,9 +12,7 @@ class Graph:
         self.dgname = dgname
         self.dg = nx.DiGraph()
         self.dg.add_nodes_from(nodes_list)
-        self.dg.add_weighted_edges_from(edges_list)
-
-
+        self.dg.add_weighted_edges_from(edges_list, st={})
 
 
 def getPatchInfo(program_name: str) -> 'dict[str:dict[int:dict[str:str]]]':
@@ -38,7 +34,11 @@ def getPatchInfo(program_name: str) -> 'dict[str:dict[int:dict[str:str]]]':
 
 
 def getCG(cglist) -> Graph:
-    # print(cglist)
+    """
+    Get the function Call Graph, the most important graph usually has only one.
+    @param cglist:
+    @return:
+    """
     for jsonfile in cglist:
         with open(jsonfile, 'r') as f:
             data = json.load(f)
@@ -65,6 +65,11 @@ def getCG(cglist) -> Graph:
 
 
 def getCFG(cfglist) -> 'dict[str:Graph]':
+    """
+    Get the
+    @param cfglist:
+    @return:
+    """
     cfggraph_dict = {}
     for jsonfile in cfglist:
         with open(jsonfile, 'r') as f:
@@ -79,10 +84,15 @@ def getCFG(cfglist) -> 'dict[str:Graph]':
             # Nodes
             nodes_list = []
             for node in data[BUI_NODES]:
+                pattern = re.compile(BUI_GUARD_RE)
+                results = pattern.findall(node[BUI_NODE_LABEL])
+                temp_intlist = []
+                for one in results:
+                    temp_intlist.append(int(int(one, 10) / BUI_LOC_INTERVAL))
                 nodes_list.append((node[BUI_NODE_NUM],
                                    {BUI_NODE_NUM: node[BUI_NODE_NUM],
                                     BUI_NODE_NAME: node[BUI_NODE_NAME],
-                                    BUI_NODE_LABEL: node[BUI_NODE_LABEL]}))
+                                    BUI_NODE_LABEL: temp_intlist}))
             # Edges
             edges_list = []
             for edge in data[BUI_EDGES]:
@@ -98,11 +108,14 @@ def getCFG(cfglist) -> 'dict[str:Graph]':
     return cfggraph_dict
 
 
-def buildConstraint():
+def buildConstraint(start_node, end_node, st_list):
     """
     Constructing constraint graph.
     @return:
     """
+
+
+
 
 
 if __name__ == "__main__":
