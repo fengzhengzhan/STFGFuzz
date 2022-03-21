@@ -29,6 +29,8 @@ class Visualizer:
         curses.init_pair(7, curses.COLOR_WHITE, -1)
         curses.init_pair(8, curses.COLOR_YELLOW, -1)
 
+        plt.ion()
+
     def __del__(self):
         curses.endwin()
 
@@ -114,6 +116,7 @@ class Visualizer:
         return -1
 
     def showGraph(self, filepath_graph: str, cggraph: 'Graph', cfggraph: 'Graph'):
+        # Call Graph
         dotcg = graphviz.Digraph(comment="Call Graoh")
         for one in cggraph.dg.nodes:
             # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
@@ -125,19 +128,27 @@ class Visualizer:
 
         cgpath = dotcg.render(directory=filepath_graph, filename=VIS_CG_NAME, format='png')
 
+        # Control Flow Graph
         dotcfg = graphviz.Digraph(comment="Control Flow Graph")
         for one in cfggraph.dg.nodes:
             # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
-            dotcfg.node(str(one), str(cfggraph.dg.nodes[one][BUI_NODE_LABEL]))
+            node_cont = ""
+            if len(cfggraph.dg.nodes[one][BUI_NODE_LABEL]) > 0:
+                node_cont = cfggraph.dg.nodes[one][BUI_NODE_LABEL]
+            dotcfg.node(str(one), str(node_cont)[1:-1])
 
         for one in cfggraph.dg.edges:
             # print(one)
-            dotcfg.edge(str(one[0]), str(one[1]), "")
+            edge_cont = ""
+            if len(cfggraph.dg.edges[one][BUI_GRAPH_ST]) > 0:
+                edge_cont = cfggraph.dg.edges[one][BUI_GRAPH_ST]
+            dotcfg.edge(str(one[0]), str(one[1]), str(edge_cont))
 
         cfgpath = dotcfg.render(directory=filepath_graph, filename=VIS_CFG_NAME, format='png')
 
         # print(path)
-        plt.figure(num='graph', figsize=(10, 6), )
+        # Show graph
+        plt.figure(num='graph', figsize=(10, 8),)
 
         plt.subplot(1, 2, 1)
         plt.title('CG')
@@ -151,7 +162,11 @@ class Visualizer:
         plt.imshow(cfg)  # show picture
         plt.axis('off')  # not show axis
 
-        plt.show()
+        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
+        # plt.show()
+
+        plt.draw()
+        plt.pause(0.01)
 
 
 

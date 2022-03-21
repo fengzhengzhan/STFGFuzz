@@ -199,6 +199,7 @@ BUI_EDGE_END_IDX = 1
 BUI_INIT_WEIGHT = 0
 BUI_GUARD_RE = "@__sanitizer_cov_trace_pc_guard\(i32\* inttoptr \(i64 add \(i64\\\\l... ptrtoint \(\[15 x i32\]\* @__sancov_gen_.2 to i64\), i64 (.*)\) to i32\*\)\)"
 BUI_LOC_INTERVAL = 4
+BUI_GRAPH_ST = "st"
 
 '''Comparator'''
 COM_PATCH = 'patch'
