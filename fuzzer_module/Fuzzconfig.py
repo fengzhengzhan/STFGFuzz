@@ -12,7 +12,8 @@ USE_INITNUM = -11
 USE_INITSTR = ""
 
 '''Key Structure'''
-#
+# map_funcTocgnode
+# map_guardTofuncnode
 
 '''Struct'''
 class StructTarget:

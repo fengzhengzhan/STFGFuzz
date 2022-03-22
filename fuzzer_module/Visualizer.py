@@ -161,7 +161,7 @@ class Visualizer:
         plt.imshow(cg)  # show picture
         plt.axis('off')  # not show axis
         plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
-        plt.show()
+        # plt.show()
         plt.draw()
         plt.pause(0.01)
 
@@ -171,7 +171,7 @@ class Visualizer:
         plt.imshow(cfg)  # show picture
         plt.axis('off')  # not show axis
         plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
-        plt.show()
+        # plt.show()
         plt.draw()
         plt.pause(0.01)
 
