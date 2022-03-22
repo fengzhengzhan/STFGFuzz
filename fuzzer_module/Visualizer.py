@@ -71,8 +71,10 @@ class Visualizer:
         self.terminal_status.vline(1, 20, curses.ACS_VLINE, 3)
         self.terminal_status.addstr(15, 2, "Q", curses.color_pair(VIS_MAGENTA))
         self.terminal_status.addstr(15, 3, "uit")
-        self.terminal_status.addstr(15, 8, "P", curses.color_pair(VIS_MAGENTA))
-        self.terminal_status.addstr(15, 9, "ause")
+        self.terminal_status.addstr(15, 8, "S", curses.color_pair(VIS_MAGENTA))
+        self.terminal_status.addstr(15, 9, "how_graph")
+        self.terminal_status.addstr(15, 20, "N", curses.color_pair(VIS_MAGENTA))
+        self.terminal_status.addstr(15, 21, "ot_show")
 
         self.terminal_status.noutrefresh()
 
@@ -111,69 +113,76 @@ class Visualizer:
 
         if self.stdscr.getch() == VIS_Q:
             return 1
+        elif self.stdscr.getch() == VIS_S:
+            # global VIS_SHOWGRAPH_SWITCH
+            VIS_SHOWGRAPH_SWITCH = True
+        elif self.stdscr.getch() == VIS_N:
+            # global VIS_SHOWGRAPH_SWITCH
+            VIS_SHOWGRAPH_SWITCH = False
 
         return -1
 
     def showGraph(self, filepath_graph: str, cggraph: 'Graph', cfggraph: 'Graph'):
-        # Call Graph
-        dotcg = graphviz.Digraph(comment="Call Graoh")
-        for one in cggraph.dg.nodes:
-            # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
-            dotcg.node(str(one), str(cggraph.dg.nodes[one][BUI_NODE_LABEL]))
+        if VIS_SHOWGRAPH_SWITCH:
+            # Call Graph
+            dotcg = graphviz.Digraph(comment="Call Graoh")
+            for one in cggraph.dg.nodes:
+                # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
+                dotcg.node(str(one), str(cggraph.dg.nodes[one][BUI_NODE_LABEL]))
 
-        for one in cggraph.dg.edges:
-            # print(one)
-            dotcg.edge(str(one[0]), str(one[1]), "")
+            for one in cggraph.dg.edges:
+                # print(one)
+                dotcg.edge(str(one[0]), str(one[1]), "")
 
-        cgpath = dotcg.render(directory=filepath_graph, filename=VIS_CG_NAME, format='png')
+            cgpath = dotcg.render(directory=filepath_graph, filename=VIS_CG_NAME, format='png')
 
-        # Control Flow Graph
-        dotcfg = graphviz.Digraph(comment="Control Flow Graph")
-        for one in cfggraph.dg.nodes:
-            # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
-            node_cont = ""
-            if len(cfggraph.dg.nodes[one][BUI_NODE_LABEL]) > 0:
-                node_cont = cfggraph.dg.nodes[one][BUI_NODE_LABEL]
-                node_cont = str(node_cont)[1:-1]
-            if len(cfggraph.dg.nodes[one][BUI_NODE_ST]) > 0:
-                for nodest in cfggraph.dg.nodes[one][BUI_NODE_ST]:
-                    node_cont += "\n"
-                    for each in nodest:
-                        node_cont += str(each) + " "
+            # Control Flow Graph
+            dotcfg = graphviz.Digraph(comment="Control Flow Graph")
+            for one in cfggraph.dg.nodes:
+                # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
+                node_cont = ""
+                if len(cfggraph.dg.nodes[one][BUI_NODE_LABEL]) > 0:
+                    node_cont = cfggraph.dg.nodes[one][BUI_NODE_LABEL]
+                    node_cont = str(node_cont)[1:-1]
+                if len(cfggraph.dg.nodes[one][BUI_NODE_ST]) > 0:
+                    for nodest in cfggraph.dg.nodes[one][BUI_NODE_ST]:
+                        node_cont += "\n"
+                        for each in nodest:
+                            node_cont += str(each) + " "
 
-            dotcfg.node(str(one), node_cont)
+                dotcfg.node(str(one), node_cont)
 
-        for one in cfggraph.dg.edges:
-            # edge_cont = ""
-            # if len(cfggraph.dg.edges[one][BUI_GRAPH_ST]) > 0:
-            #     edge_cont = cfggraph.dg.edges[one][BUI_GRAPH_ST]
-            # dotcfg.edge(str(one[0]), str(one[1]), str(edge_cont))
-            dotcfg.edge(str(one[0]), str(one[1]), "")
+            for one in cfggraph.dg.edges:
+                # edge_cont = ""
+                # if len(cfggraph.dg.edges[one][BUI_GRAPH_ST]) > 0:
+                #     edge_cont = cfggraph.dg.edges[one][BUI_GRAPH_ST]
+                # dotcfg.edge(str(one[0]), str(one[1]), str(edge_cont))
+                dotcfg.edge(str(one[0]), str(one[1]), "")
 
-        cfgpath = dotcfg.render(directory=filepath_graph, filename=VIS_CFG_NAME, format='png')
+            cfgpath = dotcfg.render(directory=filepath_graph, filename=VIS_CFG_NAME, format='png')
 
-        # print(path)
-        # Show graph
-        cg = Image.open(cgpath)
-        # round() function, rounding five into two, that is, 4 rounding 6 into 5 to make even.
-        plt.figure(num='CG', figsize=(round(cg.size[0]/VIS_DPI, 1), round(cg.size[1]/VIS_DPI,1)),)
-        # plt.title('CG')
-        plt.imshow(cg)  # show picture
-        plt.axis('off')  # not show axis
-        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
-        # plt.show()
-        plt.draw()
-        plt.pause(0.01)
+            # print(path)
+            # Show graph
+            cg = Image.open(cgpath)
+            # round() function, rounding five into two, that is, 4 rounding 6 into 5 to make even.
+            plt.figure(num='CG', figsize=(round(cg.size[0]/VIS_DPI, 1), round(cg.size[1]/VIS_DPI,1)),)
+            # plt.title('CG')
+            plt.imshow(cg)  # show picture
+            plt.axis('off')  # not show axis
+            plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
+            # plt.show()
+            plt.draw()
+            plt.pause(0.01)
 
-        cfg = Image.open(cfgpath)
-        plt.figure(num='CFG', figsize=(round(cfg.size[0]/VIS_DPI, 1), round(cfg.size[1]/VIS_DPI, 1)),)
-        # plt.title('CFG')
-        plt.imshow(cfg)  # show picture
-        plt.axis('off')  # not show axis
-        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
-        # plt.show()
-        plt.draw()
-        plt.pause(0.01)
+            cfg = Image.open(cfgpath)
+            plt.figure(num='CFG', figsize=(round(cfg.size[0]/VIS_DPI, 1), round(cfg.size[1]/VIS_DPI, 1)),)
+            # plt.title('CFG')
+            plt.imshow(cfg)  # show picture
+            plt.axis('off')  # not show axis
+            plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
+            # plt.show()
+            plt.draw()
+            plt.pause(0.01)
 
 
 if __name__ == "__main__":

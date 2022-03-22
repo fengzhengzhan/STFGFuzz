@@ -12,8 +12,8 @@ USE_INITNUM = -11
 USE_INITSTR = ""
 
 '''Key Structure'''
-# map_funcTocgnode
-# map_guardTofuncnode
+# map_funcTocgname
+# map_guardTofuncname
 
 '''Struct'''
 class StructTarget:
@@ -236,6 +236,7 @@ GEN_CFG_SUFFIX = ".dot"
 GEN_DOTJSON = "dot -Tdot_json "
 GEN_OVERLAY = " > "
 GEN_APPEND = " >> "
+GEN_TRACEBC_SUFFIX = "_trace.bc"
 
 
 
@@ -279,6 +280,7 @@ VIS_WHITE = 7
 VIS_YELLOW = 8
 
 VIS_A = 97
+VIS_N = 110
 VIS_P = 112
 VIS_Q = 113
 VIS_S = 115
@@ -286,6 +288,7 @@ VIS_SEED_LINE = 16
 
 VIS_MAX_LINE = 25
 
+VIS_SHOWGRAPH_SWITCH = False
 VIS_CG_NAME = "CG.gv"
 VIS_CFG_NAME = "CFG.gv"
 VIS_DPI = 300

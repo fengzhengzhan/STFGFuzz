@@ -74,7 +74,7 @@ def getCFG(cfglist) -> 'dict[str:Graph]':
     @param cfglist:
     @return:
     """
-    map_guardTofuncnode: dict[str:str] = {}
+    map_guardTofuncname: dict[str:str] = {}
     cfggraph_dict = {}
     for jsonfile in cfglist:
         # funcname = jsonfile.split(os.sep)[-1][1:-9]
@@ -96,7 +96,7 @@ def getCFG(cfglist) -> 'dict[str:Graph]':
                 for one in results:
                     temp_guardnum = int(int(one, 10) / BUI_LOC_INTERVAL)
                     temp_intlist.append(temp_guardnum)
-                    map_guardTofuncnode[temp_guardnum] = node[BUI_NODE_NAME]
+                    map_guardTofuncname[temp_guardnum] = node[BUI_NODE_NAME]
 
                 nodes_list.append((node[BUI_NODE_NUM],
                                    {BUI_NODE_NUM: node[BUI_NODE_NUM],
@@ -115,7 +115,7 @@ def getCFG(cfglist) -> 'dict[str:Graph]':
             cfggraph = Graph(temp_graphname, nodes_list, edges_list)
             cfggraph_dict[temp_graphname] = cfggraph
 
-    return cfggraph_dict, map_guardTofuncnode
+    return cfggraph_dict, map_guardTofuncname
 
 
 def buildConstraint(start_node, end_node, st_list):

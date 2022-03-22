@@ -22,8 +22,8 @@ make -j6  # -j Depends on the number of computer processes.
 make install
 extract-bc xxx  # Get the file in .bc format.
 
-clang -fsanitize=address -fsanitize-coverage=trace-pc-guard,trace-cmp -emit-llvm -c xxx.bc -o xxxtrace.bc
-opt -load ../Build/LLVMObfuscator.so -line -S xxxtrace.bc -o xxx_pass.bc
+clang -fsanitize=address -fsanitize-coverage=trace-pc-guard,trace-cmp -emit-llvm -c xxx.bc -o xxx_trace.bc
+opt -load ../Build/LLVMObfuscator.so -line -S xxx_trace.bc -o xxx_pass.bc
 llc -filetype=obj xxx_pass.bc -o xxx.o
 clang++ -fsanitize=address -Wl,--whole-archive -L./ClangSanitizer -lcmpcov -Wl,--no-whole-archive xxx.o -o xxx
 ```

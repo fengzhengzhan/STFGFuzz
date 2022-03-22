@@ -3,7 +3,7 @@
 if [ $1 == "-n" ]
 then
 	PROGRAMNAME=$2
-	PROGRAMNAME_TRACE="${PROGRAMNAME}trace"
+	PROGRAMNAME_TRACE="${PROGRAMNAME}_trace"
 	PROGRAMNAME_PASS="${PROGRAMNAME}_pass"
 	echo "ProgramName: <${PROGRAMNAME}>"
 	

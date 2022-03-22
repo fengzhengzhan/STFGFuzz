@@ -57,6 +57,7 @@ def mainFuzzer():
     filepath_mutateseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSMUTATE + os.sep
     filepath_crashseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSCRASH + os.sep
     filepath_graph = PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH + os.sep
+    filepath_codeIR = PROGRAMS + os.sep + program_name + os.sep + CODEIR + os.sep
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), filepath_initseeds, filepath_mutateseeds, filepath_crashseeds))
 
     # print(fuzz_command)
@@ -70,6 +71,10 @@ def mainFuzzer():
         vis = Visualizer.Visualizer()
         sch = Scheduler.Scheduler()
         ana = Analyzer.Analyzer()
+        cglist, cfglist = Generator.createDotJsonFile(program_name, filepath_codeIR+program_name+GEN_TRACEBC_SUFFIX)
+        cggraph, map_funcTocgname = Builder.getCG(cglist)
+        cfggraph_dict, map_guardTofuncname = Builder.getCFG(cfglist)
+        # vis.showGraph(filepath_graph, cggraph, cfggraph_dict['main'])
 
         constraint_graph: 'list[dict, dict]' = StructConstraintGraph().constraintgraph
         cmp_map: dict = StructCmpMap().cmpmap
