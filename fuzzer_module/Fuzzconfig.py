@@ -4,7 +4,6 @@ import sys
 
 from fuzzer_module.Tools import *
 
-
 # Program information.
 FUZZNAME = "STFGFuzzer"
 FILEREPLACE = "@@"
@@ -12,6 +11,8 @@ INIT = 100
 USE_INITNUM = -11
 USE_INITSTR = ""
 
+'''Key Structure'''
+#
 
 '''Struct'''
 class StructTarget:
@@ -20,6 +21,7 @@ class StructTarget:
         self.ttrace: int = ttrace
         self.tfunc: str = tfunc
         self.tline: int = tline
+
 
 # The structure stores information about the seed file.
 class StructSeed:
@@ -285,6 +287,7 @@ VIS_MAX_LINE = 25
 
 VIS_CG_NAME = "CG.gv"
 VIS_CFG_NAME = "CFG.gv"
+VIS_DPI = 300
 
 '''Logging'''
 # Logging the information during the fuzzing.

@@ -111,9 +111,11 @@ def getCFG(cfglist) -> 'dict[str:Graph]':
 def buildConstraint(start_node, end_node, st_list):
     """
     Constructing constraint graph.
+    Record only important constraints.
+    Add important constraints text to each node.
+    Use color labels for key nodes.
     @return:
     """
-
 
 
 

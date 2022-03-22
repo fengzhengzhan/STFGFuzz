@@ -6,7 +6,7 @@ import graphviz
 import matplotlib
 import matplotlib.pyplot as plt
 import networkx as nx
-import matplotlib.image as mpimg  # Read .png format images.
+from PIL import Image  # Read .png format images.
 
 from fuzzer_module.Fuzzconfig import *
 
@@ -28,8 +28,7 @@ class Visualizer:
         curses.init_pair(6, curses.COLOR_RED, -1)
         curses.init_pair(7, curses.COLOR_WHITE, -1)
         curses.init_pair(8, curses.COLOR_YELLOW, -1)
-
-        plt.ion()
+        # plt.ion()
 
     def __del__(self):
         curses.endwin()
@@ -138,37 +137,36 @@ class Visualizer:
             dotcfg.node(str(one), str(node_cont)[1:-1])
 
         for one in cfggraph.dg.edges:
-            # print(one)
-            edge_cont = ""
-            if len(cfggraph.dg.edges[one][BUI_GRAPH_ST]) > 0:
-                edge_cont = cfggraph.dg.edges[one][BUI_GRAPH_ST]
-            dotcfg.edge(str(one[0]), str(one[1]), str(edge_cont))
+            # edge_cont = ""
+            # if len(cfggraph.dg.edges[one][BUI_GRAPH_ST]) > 0:
+            #     edge_cont = cfggraph.dg.edges[one][BUI_GRAPH_ST]
+            # dotcfg.edge(str(one[0]), str(one[1]), str(edge_cont))
+            dotcfg.edge(str(one[0]), str(one[1]), "")
 
         cfgpath = dotcfg.render(directory=filepath_graph, filename=VIS_CFG_NAME, format='png')
 
         # print(path)
         # Show graph
-        plt.figure(num='graph', figsize=(10, 8),)
-
-        plt.subplot(1, 2, 1)
-        plt.title('CG')
-        cg = mpimg.imread(cgpath)
+        cg = Image.open(cgpath)
+        # round() function, rounding five into two, that is, 4 rounding 6 into 5 to make even.
+        plt.figure(num='CG', figsize=(round(cg.size[0]/VIS_DPI, 1), round(cg.size[1]/VIS_DPI,1)),)
+        # plt.title('CG')
         plt.imshow(cg)  # show picture
         plt.axis('off')  # not show axis
-
-        plt.subplot(1, 2, 2)
-        plt.title('CFG')
-        cfg = mpimg.imread(cfgpath)
-        plt.imshow(cfg)  # show picture
-        plt.axis('off')  # not show axis
-
         plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
         # plt.show()
-
         plt.draw()
         plt.pause(0.01)
 
-
+        cfg = Image.open(cfgpath)
+        plt.figure(num='CFG', figsize=(round(cfg.size[0]/VIS_DPI, 1), round(cfg.size[1]/VIS_DPI, 1)),)
+        # plt.title('CFG')
+        plt.imshow(cfg)  # show picture
+        plt.axis('off')  # not show axis
+        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
+        # plt.show()
+        plt.draw()
+        plt.pause(0.01)
 
 
 if __name__ == "__main__":
