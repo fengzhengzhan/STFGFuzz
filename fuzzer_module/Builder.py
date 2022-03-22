@@ -12,7 +12,8 @@ class Graph:
         self.dgname = dgname
         self.dg = nx.DiGraph()
         self.dg.add_nodes_from(nodes_list)
-        self.dg.add_weighted_edges_from(edges_list, st={})
+        # self.dg.add_weighted_edges_from(edges_list, stedge={})
+        self.dg.add_weighted_edges_from(edges_list)
 
 
 def getPatchInfo(program_name: str) -> 'dict[str:dict[int:dict[str:str]]]':
@@ -92,7 +93,8 @@ def getCFG(cfglist) -> 'dict[str:Graph]':
                 nodes_list.append((node[BUI_NODE_NUM],
                                    {BUI_NODE_NUM: node[BUI_NODE_NUM],
                                     BUI_NODE_NAME: node[BUI_NODE_NAME],
-                                    BUI_NODE_LABEL: temp_intlist}))
+                                    BUI_NODE_LABEL: temp_intlist,
+                                    BUI_NODE_ST: []}))
             # Edges
             edges_list = []
             for edge in data[BUI_EDGES]:
