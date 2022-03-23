@@ -27,6 +27,12 @@ Programs/demo/seeds_crash/
 Programs/demo/seeds_mutate/
 Programs/demo/code_Bin/
 Programs/demo/code_IR/
-Programs/demo/data_patchloc
-Programs/demo/data_graph
+Programs/demo/data_patchloc/
+Programs/demo/data_graph/
+Programs/base64/seeds_crash/
+Programs/base64/seeds_mutate/
+Programs/base64/code_Bin/
+Programs/base64/code_IR/
+Programs/base64/data_patchloc/
+Programs/base64/data_graph/
 fuzzer_module/__pycache__/
