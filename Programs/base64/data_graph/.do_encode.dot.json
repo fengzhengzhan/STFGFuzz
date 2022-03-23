@@ -1,0 +1,531 @@
+{
+  "name": "CFG for 'do_encode' function",
+  "directed": true,
+  "strict": false,
+  "label": "CFG for 'do_encode' function",
+  "_subgraph_cnt": 0,
+  "objects": [
+    {
+      "_gvid": 0,
+      "name": "Node0x555ee4ea49b0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#b9d0f970",
+      "label": "{%3:\\l  %4 = alloca %struct._IO_FILE*, align 8\\l  %5 = alloca %struct._IO_FILE*, align 8\\l  %6 = alloca i64, align 8\\l  %7 = alloca i64, align 8\\l  %8 = alloca [30720 x i8], align 16\\l  %9 = alloca [40960 x i8], align 16\\l  %10 = alloca i64, align 8\\l  %11 = alloca i64, align 8\\l  call void @__sanitizer_cov_trace_pc_guard(i32* getelementptr inbounds ([17 x\\l... i32], [17 x i32]* @__sancov_gen_.9, i32 0, i32 0)) #14, !dbg !782\\l  store %struct._IO_FILE* %0, %struct._IO_FILE** %4, align 8\\l  call void @llvm.dbg.declare(metadata %struct._IO_FILE** %4, metadata !783,\\l... metadata !DIExpression()), !dbg !784\\l  store %struct._IO_FILE* %1, %struct._IO_FILE** %5, align 8\\l  call void @llvm.dbg.declare(metadata %struct._IO_FILE** %5, metadata !785,\\l... metadata !DIExpression()), !dbg !786\\l  store i64 %2, i64* %6, align 8\\l  call void @llvm.dbg.declare(metadata i64* %6, metadata !787, metadata\\l... !DIExpression()), !dbg !788\\l  call void @llvm.dbg.declare(metadata i64* %7, metadata !789, metadata\\l... !DIExpression()), !dbg !790\\l  store i64 0, i64* %7, align 8, !dbg !790\\l  call void @llvm.dbg.declare(metadata [30720 x i8]* %8, metadata !791,\\l... metadata !DIExpression()), !dbg !795\\l  call void @llvm.dbg.declare(metadata [40960 x i8]* %9, metadata !796,\\l... metadata !DIExpression()), !dbg !800\\l  call void @llvm.dbg.declare(metadata i64* %10, metadata !801, metadata\\l... !DIExpression()), !dbg !802\\l  br label %12, !dbg !803\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 1,
+      "name": "Node0x555ee4eb9290",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f7b39670",
+      "label": "{%12:\\l12:                                               \\l  call void @llvm.dbg.declare(metadata i64* %11, metadata !804, metadata\\l... !DIExpression()), !dbg !806\\l  store i64 0, i64* %10, align 8, !dbg !807\\l  br label %13, !dbg !808\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 2,
+      "name": "Node0x555ee4eb92e0",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%13:\\l13:                                               \\l  %14 = getelementptr inbounds [30720 x i8], [30720 x i8]* %8, i64 0, i64 0,\\l... !dbg !809\\l  %15 = load i64, i64* %10, align 8, !dbg !809\\l  %16 = getelementptr inbounds i8, i8* %14, i64 %15, !dbg !809\\l  %17 = load i64, i64* %10, align 8, !dbg !809\\l  %18 = sub i64 30720, %17, !dbg !809\\l  %19 = load %struct._IO_FILE*, %struct._IO_FILE** %4, align 8, !dbg !809\\l  %20 = call i64 @fread_unlocked(i8* %16, i64 1, i64 %18, %struct._IO_FILE*\\l... %19), !dbg !809\\l  store i64 %20, i64* %11, align 8, !dbg !811\\l  %21 = load i64, i64* %11, align 8, !dbg !812\\l  %22 = load i64, i64* %10, align 8, !dbg !813\\l  %23 = add i64 %22, %21, !dbg !813\\l  store i64 %23, i64* %10, align 8, !dbg !813\\l  br label %24, !dbg !814\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 3,
+      "name": "Node0x555ee4eb9330",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%24:\\l24:                                               \\l  %25 = load %struct._IO_FILE*, %struct._IO_FILE** %4, align 8, !dbg !815\\l  %26 = call i32 @feof_unlocked(%struct._IO_FILE* %25) #15, !dbg !815\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 0, i32 %26), !dbg !815\\l  %27 = icmp ne i32 %26, 0, !dbg !815\\l  br i1 %27, label %._crit_edge, label %28, !dbg !816\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 4,
+      "name": "Node0x555ee4eb9380",
+      "color": "#b70d28ff",
+      "fillcolor": "#c5333470",
+      "label": "{._crit_edge:                                      \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 4) to i32*)) #14, !dbg\\l... !816\\l  br label %35, !dbg !816\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 5,
+      "name": "Node0x555ee4eb93d0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#d6524470",
+      "label": "{%28:\\l28:                                               \\l  %29 = load %struct._IO_FILE*, %struct._IO_FILE** %4, align 8, !dbg !817\\l  %30 = call i32 @ferror_unlocked(%struct._IO_FILE* %29) #15, !dbg !817\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 0, i32 %30), !dbg !817\\l  %31 = icmp ne i32 %30, 0, !dbg !817\\l  br i1 %31, label %._crit_edge1, label %32, !dbg !818\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 6,
+      "name": "Node0x555ee4eb94c0",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%35:\\l35:                                               \\l  %36 = phi i1 [ false, %._crit_edge1 ], [ false, %._crit_edge ], [ %34, %32\\l... ], !dbg !821\\l  br i1 %36, label %._crit_edge2, label %37, !dbg !814, !llvm.loop !822\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 7,
+      "name": "Node0x555ee4eb9420",
+      "color": "#3d50c3ff",
+      "fillcolor": "#e1675170",
+      "label": "{._crit_edge1:                                     \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 8) to i32*)) #14, !dbg\\l... !818\\l  br label %35, !dbg !818\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 8,
+      "name": "Node0x555ee4eb9470",
+      "color": "#3d50c3ff",
+      "fillcolor": "#e97a5f70",
+      "label": "{%32:\\l32:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 12) to i32*)) #14, !dbg\\l... !819\\l  %33 = load i64, i64* %10, align 8, !dbg !819\\l  call void @__sanitizer_cov_trace_const_cmp8(i64 30720, i64 %33), !dbg !820\\l  %34 = icmp ult i64 %33, 30720, !dbg !820\\l  br label %35\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 9,
+      "name": "Node0x555ee4eb9510",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{._crit_edge2:                                     \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 16) to i32*)) #14, !dbg\\l... !814\\l  br label %13, !dbg !814\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 10,
+      "name": "Node0x555ee4eb9560",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f7b39670",
+      "label": "{%37:\\l37:                                               \\l  %38 = load i64, i64* %10, align 8, !dbg !825\\l  call void @__sanitizer_cov_trace_const_cmp8(i64 0, i64 %38), !dbg !827\\l  %39 = icmp ugt i64 %38, 0, !dbg !827\\l  br i1 %39, label %40, label %._crit_edge3, !dbg !828\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 11,
+      "name": "Node0x555ee4eb9600",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f4c5ad70",
+      "label": "{%40:\\l40:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 24) to i32*)) #14, !dbg\\l... !829\\l  %41 = getelementptr inbounds [30720 x i8], [30720 x i8]* %8, i64 0, i64 0,\\l... !dbg !829\\l  %42 = load i64, i64* %10, align 8, !dbg !831\\l  %43 = getelementptr inbounds [40960 x i8], [40960 x i8]* %9, i64 0, i64 0,\\l... !dbg !832\\l  %44 = load i64, i64* %10, align 8, !dbg !833\\l  %45 = add i64 %44, 2, !dbg !833\\l  %46 = udiv i64 %45, 3, !dbg !833\\l  %47 = mul i64 %46, 4, !dbg !833\\l  call void @base64_encode(i8* %41, i64 %42, i8* %43, i64 %47), !dbg !834\\l  %48 = getelementptr inbounds [40960 x i8], [40960 x i8]* %9, i64 0, i64 0,\\l... !dbg !835\\l  %49 = load i64, i64* %10, align 8, !dbg !836\\l  %50 = add i64 %49, 2, !dbg !836\\l  %51 = udiv i64 %50, 3, !dbg !836\\l  %52 = mul i64 %51, 4, !dbg !836\\l  %53 = load i64, i64* %6, align 8, !dbg !837\\l  %54 = load %struct._IO_FILE*, %struct._IO_FILE** %5, align 8, !dbg !838\\l  call void @wrap_write(i8* %48, i64 %52, i64 %53, i64* %7, %struct._IO_FILE*\\l... %54), !dbg !839\\l  br label %55, !dbg !840\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 12,
+      "name": "Node0x555ee4eb95b0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f4c5ad70",
+      "label": "{._crit_edge3:                                     \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 20) to i32*)) #14, !dbg\\l... !828\\l  br label %55, !dbg !828\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 13,
+      "name": "Node0x555ee4eb9650",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f7b39670",
+      "label": "{%55:\\l55:                                               \\l  br label %56, !dbg !841\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 14,
+      "name": "Node0x555ee4eb96a0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f7b39670",
+      "label": "{%56:\\l56:                                               \\l  %57 = load %struct._IO_FILE*, %struct._IO_FILE** %4, align 8, !dbg !842\\l  %58 = call i32 @feof_unlocked(%struct._IO_FILE* %57) #15, !dbg !842\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 0, i32 %58), !dbg !842\\l  %59 = icmp ne i32 %58, 0, !dbg !842\\l  br i1 %59, label %._crit_edge4, label %60, !dbg !843\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 15,
+      "name": "Node0x555ee4eb96f0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f6bfa670",
+      "label": "{._crit_edge4:                                     \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 28) to i32*)) #14, !dbg\\l... !843\\l  br label %67, !dbg !843\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 16,
+      "name": "Node0x555ee4eb9740",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f2cab570",
+      "label": "{%60:\\l60:                                               \\l  %61 = load %struct._IO_FILE*, %struct._IO_FILE** %4, align 8, !dbg !844\\l  %62 = call i32 @ferror_unlocked(%struct._IO_FILE* %61) #15, !dbg !844\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 0, i32 %62), !dbg !844\\l  %63 = icmp ne i32 %62, 0, !dbg !844\\l  br i1 %63, label %._crit_edge5, label %64, !dbg !845\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 17,
+      "name": "Node0x555ee4eb9830",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f7b39670",
+      "label": "{%67:\\l67:                                               \\l  %68 = phi i1 [ false, %._crit_edge5 ], [ false, %._crit_edge4 ], [ %66, %64\\l... ], !dbg !848\\l  br i1 %68, label %._crit_edge6, label %69, !dbg !841, !llvm.loop !849\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 18,
+      "name": "Node0x555ee4eb9790",
+      "color": "#3d50c3ff",
+      "fillcolor": "#ead5c970",
+      "label": "{._crit_edge5:                                     \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 32) to i32*)) #14, !dbg\\l... !845\\l  br label %67, !dbg !845\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 19,
+      "name": "Node0x555ee4eb97e0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#e0dbd870",
+      "label": "{%64:\\l64:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 36) to i32*)) #14, !dbg\\l... !846\\l  %65 = load i64, i64* %10, align 8, !dbg !846\\l  call void @__sanitizer_cov_trace_const_cmp8(i64 30720, i64 %65), !dbg !847\\l  %66 = icmp eq i64 %65, 30720, !dbg !847\\l  br label %67\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 20,
+      "name": "Node0x555ee4eb9880",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f7b39670",
+      "label": "{._crit_edge6:                                     \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 40) to i32*)) #14, !dbg\\l... !841\\l  br label %12, !dbg !841\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 21,
+      "name": "Node0x555ee4eb98d0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#b9d0f970",
+      "label": "{%69:\\l69:                                               \\l  %70 = load i64, i64* %6, align 8, !dbg !851\\l  call void @__sanitizer_cov_trace_const_cmp8(i64 0, i64 %70), !dbg !851\\l  %71 = icmp ne i64 %70, 0, !dbg !851\\l  br i1 %71, label %72, label %._crit_edge7, !dbg !853\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 22,
+      "name": "Node0x555ee4eb9970",
+      "color": "#3d50c3ff",
+      "fillcolor": "#abc8fd70",
+      "label": "{%72:\\l72:                                               \\l  %73 = load i64, i64* %7, align 8, !dbg !854\\l  call void @__sanitizer_cov_trace_const_cmp8(i64 0, i64 %73), !dbg !855\\l  %74 = icmp ugt i64 %73, 0, !dbg !855\\l  br i1 %74, label %75, label %._crit_edge8, !dbg !856\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 23,
+      "name": "Node0x555ee4eb9920",
+      "color": "#3d50c3ff",
+      "fillcolor": "#9ebeff70",
+      "label": "{._crit_edge7:                                     \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 44) to i32*)) #14, !dbg\\l... !853\\l  br label %83, !dbg !853\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 24,
+      "name": "Node0x555ee4eb9b00",
+      "color": "#3d50c3ff",
+      "fillcolor": "#b9d0f970",
+      "label": "{%83:\\l83:                                               \\l  %84 = load %struct._IO_FILE*, %struct._IO_FILE** %4, align 8, !dbg !863\\l  %85 = call i32 @ferror_unlocked(%struct._IO_FILE* %84) #15, !dbg !863\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 0, i32 %85), !dbg !863\\l  %86 = icmp ne i32 %85, 0, !dbg !863\\l  br i1 %86, label %87, label %._crit_edge10, !dbg !865\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 25,
+      "name": "Node0x555ee4eb9a10",
+      "color": "#3d50c3ff",
+      "fillcolor": "#96b7ff70",
+      "label": "{%75:\\l75:                                               \\l  %76 = load %struct._IO_FILE*, %struct._IO_FILE** %5, align 8, !dbg !857\\l  %77 = call i32 @fputc_unlocked(i32 10, %struct._IO_FILE* %76), !dbg !857\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 -1, i32 %77), !dbg !858\\l  %78 = icmp eq i32 %77, -1, !dbg !858\\l  br i1 %78, label %79, label %._crit_edge9, !dbg !859\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 26,
+      "name": "Node0x555ee4eb99c0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#96b7ff70",
+      "label": "{._crit_edge8:                                     \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 48) to i32*)) #14, !dbg\\l... !856\\l  br label %83, !dbg !856\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 27,
+      "name": "Node0x555ee4eb9ab0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#779af770",
+      "label": "{%79:\\l79:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 56) to i32*)) #14, !dbg\\l... !860\\l  %80 = call i32* @__errno_location() #16, !dbg !860\\l  %81 = load i32, i32* %80, align 4, !dbg !860\\l  %82 = call i8* @gettext(i8* getelementptr inbounds (\\{ [12 x i8], [52 x i8]\\l... \\}, \\{ [12 x i8], [52 x i8] \\}* @.str.43, i32 0, i32 0, i64 0)) #15, !dbg !861\\l  call void (i32, i32, i8*, ...) @error(i32 1, i32 %81, i8* %82), !dbg !862\\l  br label %83, !dbg !862\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 28,
+      "name": "Node0x555ee4eb9a60",
+      "color": "#3d50c3ff",
+      "fillcolor": "#88abfd70",
+      "label": "{._crit_edge9:                                     \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 52) to i32*)) #14, !dbg\\l... !859\\l  br label %83, !dbg !859\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 29,
+      "name": "Node0x555ee4eb9ba0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#abc8fd70",
+      "label": "{%87:\\l87:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 64) to i32*)) #14, !dbg\\l... !866\\l  %88 = call i32* @__errno_location() #16, !dbg !866\\l  %89 = load i32, i32* %88, align 4, !dbg !866\\l  %90 = call i8* @gettext(i8* getelementptr inbounds (\\{ [11 x i8], [53 x i8]\\l... \\}, \\{ [11 x i8], [53 x i8] \\}* @.str.42, i32 0, i32 0, i64 0)) #15, !dbg !867\\l  call void (i32, i32, i8*, ...) @error(i32 1, i32 %89, i8* %90), !dbg !868\\l  br label %91, !dbg !868\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 30,
+      "name": "Node0x555ee4eb9b50",
+      "color": "#3d50c3ff",
+      "fillcolor": "#9ebeff70",
+      "label": "{._crit_edge10:                                    \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([17 x i32]* @__sancov_gen_.9 to i64), i64 60) to i32*)) #14, !dbg\\l... !865\\l  br label %91, !dbg !865\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 31,
+      "name": "Node0x555ee4eb9bf0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#b9d0f970",
+      "label": "{%91:\\l91:                                               \\l  ret void, !dbg !869\\l}",
+      "shape": "record",
+      "style": "filled"
+    }
+  ],
+  "edges": [
+    {
+      "_gvid": 0,
+      "tail": 0,
+      "head": 1
+    },
+    {
+      "_gvid": 1,
+      "tail": 1,
+      "head": 2
+    },
+    {
+      "_gvid": 2,
+      "tail": 2,
+      "head": 3
+    },
+    {
+      "_gvid": 3,
+      "tail": 3,
+      "head": 4,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 4,
+      "tail": 3,
+      "head": 5,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 5,
+      "tail": 4,
+      "head": 6
+    },
+    {
+      "_gvid": 6,
+      "tail": 5,
+      "head": 7,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 7,
+      "tail": 5,
+      "head": 8,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 8,
+      "tail": 6,
+      "head": 9,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 9,
+      "tail": 6,
+      "head": 10,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 10,
+      "tail": 7,
+      "head": 6
+    },
+    {
+      "_gvid": 11,
+      "tail": 8,
+      "head": 6
+    },
+    {
+      "_gvid": 12,
+      "tail": 9,
+      "head": 2
+    },
+    {
+      "_gvid": 13,
+      "tail": 10,
+      "head": 11,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 14,
+      "tail": 10,
+      "head": 12,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 15,
+      "tail": 11,
+      "head": 13
+    },
+    {
+      "_gvid": 16,
+      "tail": 12,
+      "head": 13
+    },
+    {
+      "_gvid": 17,
+      "tail": 13,
+      "head": 14
+    },
+    {
+      "_gvid": 18,
+      "tail": 14,
+      "head": 15,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 19,
+      "tail": 14,
+      "head": 16,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 20,
+      "tail": 15,
+      "head": 17
+    },
+    {
+      "_gvid": 21,
+      "tail": 16,
+      "head": 18,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 22,
+      "tail": 16,
+      "head": 19,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 23,
+      "tail": 17,
+      "head": 20,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 24,
+      "tail": 17,
+      "head": 21,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 25,
+      "tail": 18,
+      "head": 17
+    },
+    {
+      "_gvid": 26,
+      "tail": 19,
+      "head": 17
+    },
+    {
+      "_gvid": 27,
+      "tail": 20,
+      "head": 1
+    },
+    {
+      "_gvid": 28,
+      "tail": 21,
+      "head": 22,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 29,
+      "tail": 21,
+      "head": 23,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 30,
+      "tail": 22,
+      "head": 25,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 31,
+      "tail": 22,
+      "head": 26,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 32,
+      "tail": 23,
+      "head": 24
+    },
+    {
+      "_gvid": 33,
+      "tail": 24,
+      "head": 29,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 34,
+      "tail": 24,
+      "head": 30,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 35,
+      "tail": 25,
+      "head": 27,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 36,
+      "tail": 25,
+      "head": 28,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 37,
+      "tail": 26,
+      "head": 24
+    },
+    {
+      "_gvid": 38,
+      "tail": 27,
+      "head": 24
+    },
+    {
+      "_gvid": 39,
+      "tail": 28,
+      "head": 24
+    },
+    {
+      "_gvid": 40,
+      "tail": 29,
+      "head": 31
+    },
+    {
+      "_gvid": 41,
+      "tail": 30,
+      "head": 31
+    }
+  ]
+}

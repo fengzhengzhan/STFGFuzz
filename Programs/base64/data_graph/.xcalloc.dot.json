@@ -1,0 +1,50 @@
+{
+  "name": "CFG for 'xcalloc' function",
+  "directed": true,
+  "strict": false,
+  "label": "CFG for 'xcalloc' function",
+  "_subgraph_cnt": 0,
+  "objects": [
+    {
+      "_gvid": 0,
+      "name": "Node0x555ee5069600",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%2:\\l  %3 = alloca i64, align 8\\l  %4 = alloca i64, align 8\\l  %5 = alloca i8*, align 8\\l  call void @__sanitizer_cov_trace_pc_guard(i32* getelementptr inbounds ([3 x\\l... i32], [3 x i32]* @__sancov_gen_.80, i32 0, i32 0)) #14, !dbg !725\\l  store i64 %0, i64* %3, align 8\\l  call void @llvm.dbg.declare(metadata i64* %3, metadata !726, metadata\\l... !DIExpression()), !dbg !727\\l  store i64 %1, i64* %4, align 8\\l  call void @llvm.dbg.declare(metadata i64* %4, metadata !728, metadata\\l... !DIExpression()), !dbg !729\\l  call void @llvm.dbg.declare(metadata i8** %5, metadata !730, metadata\\l... !DIExpression()), !dbg !731\\l  %6 = load i64, i64* %3, align 8, !dbg !732\\l  %7 = load i64, i64* %4, align 8, !dbg !734\\l  %8 = call noalias i8* @calloc(i64 %6, i64 %7) #15, !dbg !735\\l  store i8* %8, i8** %5, align 8, !dbg !736\\l  %9 = icmp ne i8* %8, null, !dbg !736\\l  br i1 %9, label %11, label %10, !dbg !737\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 1,
+      "name": "Node0x555ee506a010",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%11:\\l11:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([3 x i32]* @__sancov_gen_.80 to i64), i64 8) to i32*)) #14, !dbg\\l... !739\\l  %12 = load i8*, i8** %5, align 8, !dbg !739\\l  ret i8* %12, !dbg !740\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 2,
+      "name": "Node0x555ee5069fc0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#6687ed70",
+      "label": "{%10:\\l10:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([3 x i32]* @__sancov_gen_.80 to i64), i64 4) to i32*)) #14, !dbg\\l... !738\\l  call void @xalloc_die() #16, !dbg !738\\l  unreachable, !dbg !738\\l}",
+      "shape": "record",
+      "style": "filled"
+    }
+  ],
+  "edges": [
+    {
+      "_gvid": 0,
+      "tail": 0,
+      "head": 1,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 1,
+      "tail": 0,
+      "head": 2,
+      "tailport": "s1"
+    }
+  ]
+}

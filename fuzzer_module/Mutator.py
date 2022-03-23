@@ -43,40 +43,37 @@ def mutateSeeds(seed: str, filepath: str, label: str) -> 'list[StructSeed]':
         mutate_listq.append(StructSeed(filepath+getMutfilename(label),
                                        str(seed[0:i] + MUT_STR + seed[i + len(MUT_STR):seed_len]),
                                        MUT_TYPE_SUB,
-                                       [idx for idx in range(i, i + len(MUT_STR)+1)]))
+                                       set([idx for idx in range(i, i + len(MUT_STR)+1)])))
     mutate_listq.append(StructSeed(filepath+getMutfilename(label),
                                    str(seed[0:seed_len-endnum] + MUT_STR[0:endnum]),
                                    MUT_TYPE_SUB,
-                                   [idx for idx in range(seed_len - endnum, seed_len+1)]))
+                                   set([idx for idx in range(seed_len - endnum, seed_len+1)])))
 
     # Insert byte for seed variation
     for i in range(0, seed_len, MUT_STEP):
         mutate_listq.append(StructSeed(filepath+getMutfilename(label),
                                        str(seed[0:i] + MUT_STR + seed[i:seed_len]),
                                        MUT_TYPE_INSERT,
-                                       [idx for idx in range(i, i + len(MUT_STR)+1)]))
+                                       set([idx for idx in range(i, i + len(MUT_STR)+1)])))
     mutate_listq.append(StructSeed(filepath+getMutfilename(label),
                                    str(seed + MUT_STR),
                                    MUT_TYPE_INSERT,
-                                   [idx for idx in range(seed_len, seed_len + len(MUT_STR)+1)]))
+                                   set([idx for idx in range(seed_len, seed_len + len(MUT_STR)+1)])))
     # print(mutate_listq)
     return mutate_listq
 
 
-def mutateSelectChar(seed: str, filepath: str, label: str, loc_list) -> list:
+def mutateSelectChar(seed: str, filepath: str, label: str, loc_set) -> list:
     """
     Mutate one character at a time.
     @return:
     """
-    mut_str = getMutStr(len(loc_list))
-    for i, loci in enumerate(loc_list):
-        seed[loci] = mut_str[i]
-
-    temp_one: StructSeed = StructSeed(filepath + getMutfilename(label),
-                                      str(seed),
-                                      MUT_TYPE_SUB,
-                                      loc_list)
-
+    seed_list = list(seed)
+    mut_str = getMutStr(len(loc_set))
+    for i, loci in enumerate(loc_set):
+        seed_list[loci] = mut_str[i]
+    seed = ''.join(seed_list)
+    temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), str(seed), MUT_TYPE_SUB, loc_set)
     return temp_one
 
 

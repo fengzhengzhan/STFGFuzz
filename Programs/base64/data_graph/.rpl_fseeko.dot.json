@@ -1,0 +1,188 @@
+{
+  "name": "CFG for 'rpl_fseeko' function",
+  "directed": true,
+  "strict": false,
+  "label": "CFG for 'rpl_fseeko' function",
+  "_subgraph_cnt": 0,
+  "objects": [
+    {
+      "_gvid": 0,
+      "name": "Node0x555ee50a5150",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%3:\\l  %4 = alloca i32, align 4\\l  %5 = alloca %struct._IO_FILE*, align 8\\l  %6 = alloca i64, align 8\\l  %7 = alloca i32, align 4\\l  %8 = alloca i64, align 8\\l  call void @__sanitizer_cov_trace_pc_guard(i32* getelementptr inbounds ([6 x\\l... i32], [6 x i32]* @__sancov_gen_.91, i32 0, i32 0)) #14, !dbg !781\\l  store %struct._IO_FILE* %0, %struct._IO_FILE** %5, align 8\\l  call void @llvm.dbg.declare(metadata %struct._IO_FILE** %5, metadata !782,\\l... metadata !DIExpression()), !dbg !783\\l  store i64 %1, i64* %6, align 8\\l  call void @llvm.dbg.declare(metadata i64* %6, metadata !784, metadata\\l... !DIExpression()), !dbg !785\\l  store i32 %2, i32* %7, align 4\\l  call void @llvm.dbg.declare(metadata i32* %7, metadata !786, metadata\\l... !DIExpression()), !dbg !787\\l  %9 = load %struct._IO_FILE*, %struct._IO_FILE** %5, align 8, !dbg !788\\l  %10 = getelementptr inbounds %struct._IO_FILE, %struct._IO_FILE* %9, i32 0,\\l... i32 2, !dbg !790\\l  %11 = load i8*, i8** %10, align 8, !dbg !790\\l  %12 = load %struct._IO_FILE*, %struct._IO_FILE** %5, align 8, !dbg !791\\l  %13 = getelementptr inbounds %struct._IO_FILE, %struct._IO_FILE* %12, i32 0,\\l... i32 1, !dbg !792\\l  %14 = load i8*, i8** %13, align 8, !dbg !792\\l  %15 = icmp eq i8* %11, %14, !dbg !793\\l  br i1 %15, label %16, label %._crit_edge, !dbg !794\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 1,
+      "name": "Node0x555ee50a5410",
+      "color": "#3d50c3ff",
+      "fillcolor": "#e8765c70",
+      "label": "{%16:\\l16:                                               \\l  %17 = load %struct._IO_FILE*, %struct._IO_FILE** %5, align 8, !dbg !795\\l  %18 = getelementptr inbounds %struct._IO_FILE, %struct._IO_FILE* %17, i32 0,\\l... i32 5, !dbg !796\\l  %19 = load i8*, i8** %18, align 8, !dbg !796\\l  %20 = load %struct._IO_FILE*, %struct._IO_FILE** %5, align 8, !dbg !797\\l  %21 = getelementptr inbounds %struct._IO_FILE, %struct._IO_FILE* %20, i32 0,\\l... i32 4, !dbg !798\\l  %22 = load i8*, i8** %21, align 8, !dbg !798\\l  %23 = icmp eq i8* %19, %22, !dbg !799\\l  br i1 %23, label %24, label %._crit_edge1, !dbg !800\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 2,
+      "name": "Node0x555ee50a53c0",
+      "color": "#b70d28ff",
+      "fillcolor": "#d24b4070",
+      "label": "{._crit_edge:                                      \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([6 x i32]* @__sancov_gen_.91 to i64), i64 4) to i32*)) #14, !dbg\\l... !794\\l  br label %46, !dbg !794\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 3,
+      "name": "Node0x555ee50a5640",
+      "color": "#b70d28ff",
+      "fillcolor": "#bb1b2c70",
+      "label": "{%46:\\l46:                                               \\l  %47 = load %struct._IO_FILE*, %struct._IO_FILE** %5, align 8, !dbg !827\\l  %48 = load i64, i64* %6, align 8, !dbg !828\\l  %49 = load i32, i32* %7, align 4, !dbg !829\\l  %50 = call i32 @fseeko(%struct._IO_FILE* %47, i64 %48, i32 %49), !dbg !830\\l  store i32 %50, i32* %4, align 4, !dbg !831\\l  br label %51, !dbg !831\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 4,
+      "name": "Node0x555ee50a54b0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f7b99e70",
+      "label": "{%24:\\l24:                                               \\l  %25 = load %struct._IO_FILE*, %struct._IO_FILE** %5, align 8, !dbg !801\\l  %26 = getelementptr inbounds %struct._IO_FILE, %struct._IO_FILE* %25, i32 0,\\l... i32 9, !dbg !802\\l  %27 = load i8*, i8** %26, align 8, !dbg !802\\l  %28 = icmp eq i8* %27, null, !dbg !803\\l  br i1 %28, label %29, label %._crit_edge2, !dbg !804\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 5,
+      "name": "Node0x555ee50a5460",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f4987a70",
+      "label": "{._crit_edge1:                                     \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([6 x i32]* @__sancov_gen_.91 to i64), i64 8) to i32*)) #14, !dbg\\l... !800\\l  br label %46, !dbg !800\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 6,
+      "name": "Node0x555ee50a5550",
+      "color": "#3d50c3ff",
+      "fillcolor": "#dedcdb70",
+      "label": "{%29:\\l29:                                               \\l  call void @llvm.dbg.declare(metadata i64* %8, metadata !805, metadata\\l... !DIExpression()), !dbg !807\\l  %30 = load %struct._IO_FILE*, %struct._IO_FILE** %5, align 8, !dbg !808\\l  %31 = call i32 @fileno(%struct._IO_FILE* %30) #15, !dbg !809\\l  %32 = load i64, i64* %6, align 8, !dbg !810\\l  %33 = load i32, i32* %7, align 4, !dbg !811\\l  %34 = call i64 @lseek(i32 %31, i64 %32, i32 %33) #15, !dbg !812\\l  store i64 %34, i64* %8, align 8, !dbg !807\\l  %35 = load i64, i64* %8, align 8, !dbg !813\\l  call void @__sanitizer_cov_trace_const_cmp8(i64 -1, i64 %35), !dbg !815\\l  %36 = icmp eq i64 %35, -1, !dbg !815\\l  br i1 %36, label %37, label %38, !dbg !816\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 7,
+      "name": "Node0x555ee50a5500",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f1ccb870",
+      "label": "{._crit_edge2:                                     \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([6 x i32]* @__sancov_gen_.91 to i64), i64 12) to i32*)) #14, !dbg\\l... !804\\l  br label %46, !dbg !804\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 8,
+      "name": "Node0x555ee50a55a0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#aec9fc70",
+      "label": "{%37:\\l37:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([6 x i32]* @__sancov_gen_.91 to i64), i64 16) to i32*)) #14, !dbg\\l... !817\\l  store i32 -1, i32* %4, align 4, !dbg !817\\l  br label %51, !dbg !817\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 9,
+      "name": "Node0x555ee50a55f0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#c7d7f070",
+      "label": "{%38:\\l38:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([6 x i32]* @__sancov_gen_.91 to i64), i64 20) to i32*)) #14, !dbg\\l... !819\\l  %39 = load %struct._IO_FILE*, %struct._IO_FILE** %5, align 8, !dbg !819\\l  %40 = getelementptr inbounds %struct._IO_FILE, %struct._IO_FILE* %39, i32 0,\\l... i32 0, !dbg !820\\l  %41 = load i32, i32* %40, align 8, !dbg !821\\l  %42 = and i32 %41, -17, !dbg !821\\l  store i32 %42, i32* %40, align 8, !dbg !821\\l  %43 = load i64, i64* %8, align 8, !dbg !822\\l  %44 = load %struct._IO_FILE*, %struct._IO_FILE** %5, align 8, !dbg !823\\l  %45 = getelementptr inbounds %struct._IO_FILE, %struct._IO_FILE* %44, i32 0,\\l... i32 21, !dbg !824\\l  store i64 %43, i64* %45, align 8, !dbg !825\\l  store i32 0, i32* %4, align 4, !dbg !826\\l  br label %51, !dbg !826\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 10,
+      "name": "Node0x555ee50a5690",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%51:\\l51:                                               \\l  %52 = load i32, i32* %4, align 4, !dbg !832\\l  ret i32 %52, !dbg !832\\l}",
+      "shape": "record",
+      "style": "filled"
+    }
+  ],
+  "edges": [
+    {
+      "_gvid": 0,
+      "tail": 0,
+      "head": 1,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 1,
+      "tail": 0,
+      "head": 2,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 2,
+      "tail": 1,
+      "head": 4,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 3,
+      "tail": 1,
+      "head": 5,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 4,
+      "tail": 2,
+      "head": 3
+    },
+    {
+      "_gvid": 5,
+      "tail": 3,
+      "head": 10
+    },
+    {
+      "_gvid": 6,
+      "tail": 4,
+      "head": 6,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 7,
+      "tail": 4,
+      "head": 7,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 8,
+      "tail": 5,
+      "head": 3
+    },
+    {
+      "_gvid": 9,
+      "tail": 6,
+      "head": 8,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 10,
+      "tail": 6,
+      "head": 9,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 11,
+      "tail": 7,
+      "head": 3
+    },
+    {
+      "_gvid": 12,
+      "tail": 8,
+      "head": 10
+    },
+    {
+      "_gvid": 13,
+      "tail": 9,
+      "head": 10
+    }
+  ]
+}

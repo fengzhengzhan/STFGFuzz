@@ -190,7 +190,7 @@ def handleStrMagic(mutseed, fixed_list, changed_list, mutate_loc) -> dict:
     end_match = changed_bytes.find(MUT_STR[len(MUT_STR)-MUT_MATCH : len(MUT_STR)])
     # Direct byte matching requires only one copy of the string.
     if start_match != -1:
-        input_start_loc = mutseed.location[0] - start_match
+        input_start_loc = min(mutseed.location) - start_match
         for l in range(0, len(fixed_bytes)):
             change_inputmap[input_start_loc + l] = fixed_bytes[l]
     else:

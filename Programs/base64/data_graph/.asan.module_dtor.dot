@@ -1,0 +1,5 @@
+digraph "CFG for 'asan.module_dtor' function" {
+	label="CFG for 'asan.module_dtor' function";
+
+	Node0x555ee50f2d70 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870",label="{%0:\l  call void @__asan_unregister_globals(i64 ptrtoint ([121 x \{ i64, i64, i64,\l... i64, i64, i64, i64, i64 \}]* @0 to i64), i64 121)\l  ret void\l}"];
+}
