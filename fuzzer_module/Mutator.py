@@ -27,8 +27,6 @@ def getMutStr(length: int) -> str:
         raise Exception("Error: Mutate string length exceeds limit.")
     return mut_str[0:length]
 
-
-
 def mutateSeeds(seed: str, filepath: str, label: str) -> 'list[StructSeed]':
     """
     Replace and add strings for variant input according to the sliding window.
@@ -70,11 +68,16 @@ def mutateSelectChar(seed: str, filepath: str, label: str, loc_list) -> list:
     Mutate one character at a time.
     @return:
     """
-    mutate_listq = []
+    mut_str = getMutStr(len(loc_list))
+    for i, loci in enumerate(loc_list):
+        seed[loci] = mut_str[i]
 
+    temp_one: StructSeed = StructSeed(filepath + getMutfilename(label),
+                                      str(seed),
+                                      MUT_TYPE_SUB,
+                                      loc_list)
 
-
-    return mutate_listq
+    return temp_one
 
 
 

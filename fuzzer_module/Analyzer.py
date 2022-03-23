@@ -40,7 +40,7 @@ class Analyzer:
                 exist_z = False
                 continue
             elif not exist_z and each_line == '':
-                combine_line += '\n'  # An entire string was splited by '\n', then need to add this character for string.
+                combine_line += '\n'  # An entire string was splited by '\n',then need to add this character for string.
                 continue
             elif not exist_z and each_line[-1] != END_EACH_FLAG:
                 combine_line += '\n' + each_line

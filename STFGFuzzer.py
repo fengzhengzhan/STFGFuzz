@@ -102,15 +102,22 @@ def mainFuzzer():
         # sch.addSeeds(SCH_MUT_SEED, temp_mutate_listq)
         # print(mutate_seeds, record_list)
         for loci in range(0, len(init_seed.content)):
-            sch.locationq.put(loci)
+            sch.locCoarseq.put(loci)
 
         # Find correspondence
-        # seed inputs -> cmp instruction -> cmp type (access method) -> braches
-        while not sch.isEmpty(SCH_LOC_SEED):
-            
+        # XXX: seed inputs -> cmp instruction -> cmp type (access method) -> braches
+        # Coarse-Grained
+        while not sch.isEmpty(SCH_LOC_COARSE_SEED):
             total += 1
+            loc_list = []
+            for locl in range(0, sch.slidWindow):
+                if not sch.isEmpty(SCH_LOC_COARSE_SEED):
+                    loc_list.append(sch.getValue(SCH_LOC_COARSE_SEED))
+
             # Track execution information of mutate seeds.
-            execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
+            # execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
+            execute_seed = Mutator.mutateSelectChar(init_seed.content, filepath_mutateseeds, str(loop), loc_list)
+            sch.addDeleteq(execute_seed)
             saveAsFile(execute_seed.content, execute_seed.filename)
             mut_ret_code, mut_std_out, mut_std_err = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
             mut_trace_analysis = ana.traceAyalysis(mut_std_out)
@@ -124,6 +131,9 @@ def mainFuzzer():
             if res == 1:
                 sch.deleteSeeds()
                 return
+
+        # Fine-Grained
+
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_change_inputmap))
 
         temp_content = list(init_seed.content)
