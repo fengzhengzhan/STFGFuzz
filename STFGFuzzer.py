@@ -109,11 +109,14 @@ def mainFuzzer():
         # Coarse-Grained
         while not sch.isEmpty(SCH_LOC_COARSE_SEED):
             total += 1
+            # 1 seed inputs
             loc_set = set()
             for locl in range(0, sch.slidWindow):
                 if not sch.isEmpty(SCH_LOC_COARSE_SEED):
                     loc_set.add(sch.getValue(SCH_LOC_COARSE_SEED))
             # print(loc_set)
+
+            # 2 cmp instruction
 
             # Track execution information of mutate seeds.
             # execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
@@ -123,11 +126,17 @@ def mainFuzzer():
             mut_ret_code, mut_std_out, mut_std_err = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
             mut_trace_analysis = ana.traceAyalysis(mut_std_out)
 
+            # 3 cmp type
+
             # Analyze the differences in comparison.
             comparison_diffreport, comparison_onereport = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis)
             each_change_inputmap = Parser.typeSpeculation(comparison_diffreport, comparison_onereport, cmp_map, mutate_loc)
-
             # mergeMapReport(each_change_inputmap, eachloop_change_inputmap)
+            
+            # 4 branches
+
+            # 5 visualize
+
             res = vis.display(start_time, execute_seed, eachloop_change_inputmap, loop, total)
             if res == 1:
                 sch.deleteSeeds()
