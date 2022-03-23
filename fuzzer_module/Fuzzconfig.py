@@ -241,7 +241,7 @@ GEN_TRACEBC_SUFFIX = "_trace.bc"
 
 
 '''Mutator'''
-MUT_STR = "aaabaaac"
+MUT_STR = "AAABAAAC"
 MUT_MATCH = 4  # Truncate 4 bytes as a fast variant flag for fast matching.
 MUT_STEP = 4  # step size of mutant seeds
 MUT_TYPE_SUB = 101
@@ -263,6 +263,9 @@ PAR_VARMUT = 1
 '''Scheduler'''
 SCH_INIT_SEED = 221
 SCH_MUT_SEED = 222
+SCH_LOC_SEED = 223
+
+SCH_SLID_WINDOW = 8
 
 '''Visualizer'''
 # Red for frozen bytes.

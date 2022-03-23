@@ -29,6 +29,7 @@ class Visualizer:
         curses.init_pair(7, curses.COLOR_WHITE, -1)
         curses.init_pair(8, curses.COLOR_YELLOW, -1)
         # plt.ion()
+        self.showgraph_switch = VIS_SHOWGRAPH_SWITCH
 
     def __del__(self):
         curses.endwin()
@@ -108,22 +109,19 @@ class Visualizer:
                 self.terminal_seeds.addstr(i+1, j*3+int(j/4)+7, "{} ".format(hex(ord(show_char)))[2:], color_pair)
                 self.terminal_seeds.addstr(i+1, j+58, "{}".format(show_char), color_pair)
 
-
         self.terminal_seeds.noutrefresh()
 
         if self.stdscr.getch() == VIS_Q:
             return 1
         elif self.stdscr.getch() == VIS_S:
-            # global VIS_SHOWGRAPH_SWITCH
-            VIS_SHOWGRAPH_SWITCH = True
+            self.showgraph_switch = True
         elif self.stdscr.getch() == VIS_N:
-            # global VIS_SHOWGRAPH_SWITCH
-            VIS_SHOWGRAPH_SWITCH = False
+            self.showgraph_switch = False
 
         return -1
 
     def showGraph(self, filepath_graph: str, cggraph: 'Graph', cfggraph: 'Graph'):
-        if VIS_SHOWGRAPH_SWITCH:
+        if self.showgraph_switch:
             # Call Graph
             dotcg = graphviz.Digraph(comment="Call Graoh")
             for one in cggraph.dg.nodes:

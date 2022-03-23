@@ -7,9 +7,13 @@ from fuzzer_module.Fuzzconfig import *
 class Scheduler:
     def __init__(self):
         self.seedq: Queue[StructSeed] = Queue(maxsize=0)
+        self.locationq: Queue[int] = Queue(maxsize=0)
+        self.slidWindow: int = SCH_SLID_WINDOW
+        self.freezebytes: dict = {}
         self.mutateTestq: Queue[StructSeed] = Queue(maxsize=0)
         self.importantq: Queue[StructSeed] = Queue(maxsize=0)
         self.deleteq: Queue[StructSeed] = Queue(maxsize=0)
+
 
     def selectOneSeed(self, mode: int) -> StructSeed:
         if mode == SCH_INIT_SEED:
@@ -28,12 +32,14 @@ class Scheduler:
             elif mode == SCH_MUT_SEED:
                 self.mutateTestq.put(each)
 
-    def isEmpty(self, mode) -> int:
-        temp_flag = -1
+    def isEmpty(self, mode) -> bool:
+        temp_flag = False
         if mode == SCH_INIT_SEED:
             temp_flag = self.seedq.empty()
         elif mode == SCH_MUT_SEED:
             temp_flag = self.mutateTestq.empty()
+        elif mode == SCH_LOC_SEED:
+            temp_flag = self.locationq.empty()
         return temp_flag
 
     def deleteSeeds(self):

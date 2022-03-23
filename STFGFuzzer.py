@@ -63,83 +63,85 @@ def mainFuzzer():
     # print(fuzz_command)
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), fuzz_command))
 
-    # Fuzzing test procedure.
-    try:
-        start_time = time.time()
-        loop = 0
-        total = 0
-        vis = Visualizer.Visualizer()
-        sch = Scheduler.Scheduler()
-        ana = Analyzer.Analyzer()
-        cglist, cfglist = Generator.createDotJsonFile(program_name, filepath_codeIR+program_name+GEN_TRACEBC_SUFFIX)
-        cggraph, map_funcTocgname = Builder.getCG(cglist)
-        cfggraph_dict, map_guardTofuncname = Builder.getCFG(cfglist)
-        # vis.showGraph(filepath_graph, cggraph, cfggraph_dict['main'])
+    '''Fuzzing test procedure.'''
+    start_time = time.time()
+    loop = 0
+    total = 0
+    loc_interval = 8
+    vis = Visualizer.Visualizer()
+    sch = Scheduler.Scheduler()
+    ana = Analyzer.Analyzer()
+    cglist, cfglist = Generator.createDotJsonFile(program_name, filepath_codeIR+program_name+GEN_TRACEBC_SUFFIX)
+    cggraph, map_funcTocgname = Builder.getCG(cglist)
+    cfggraph_dict, map_guardTocfgname = Builder.getCFG(cfglist)
+    # vis.showGraph(filepath_graph, cggraph, cfggraph_dict['main'])
 
-        constraint_graph: 'list[dict, dict]' = StructConstraintGraph().constraintgraph
-        cmp_map: dict = StructCmpMap().cmpmap
-        input_map: dict[list] = {}
-        mutate_loc = StructMutateLocation()
-        eachloop_change_inputmap: dict = {}
-        init_seeds_list = Generator.prepareEnv(program_name)
-        temp_listq = []
-        for each in init_seeds_list:
-            temp_listq.append(StructSeed(filepath_mutateseeds+each, "", INIT, [0, 0]))
-        sch.addSeeds(SCH_INIT_SEED, temp_listq)
+    constraint_graph: 'list[dict, dict]' = StructConstraintGraph().constraintgraph
+    cmp_map: dict = StructCmpMap().cmpmap
+    input_map: dict[list] = {}
+    mutate_loc = StructMutateLocation()
+    eachloop_change_inputmap: dict = {}
+    init_seeds_list = Generator.prepareEnv(program_name)
+    temp_listq = []
+    for each in init_seeds_list:
+        temp_listq.append(StructSeed(filepath_mutateseeds+each, "", INIT, [0, 0]))
+    sch.addSeeds(SCH_INIT_SEED, temp_listq)
 
-        # Fuzzing test cycle
-        while not sch.isEmpty(SCH_INIT_SEED):
-            loop += 1
-            # First run to collect information.
-            init_seed = sch.selectOneSeed(SCH_INIT_SEED)
-            saveAsFile(init_seed.content, init_seed.filename)
-            init_ret_code, init_std_out, init_std_err = Executor.run(fuzz_command.replace('@@', init_seed.filename))
-            init_trace_analysis = ana.traceAyalysis(init_std_out)
-            init_num_of_pcguard = ana.getNumOfPcguard()
+    # Fuzzing test cycle
+    while not sch.isEmpty(SCH_INIT_SEED):
+        loop += 1
+        # First run to collect information.
+        init_seed = sch.selectOneSeed(SCH_INIT_SEED)
+        saveAsFile(init_seed.content, init_seed.filename)
+        init_ret_code, init_std_out, init_std_err = Executor.run(fuzz_command.replace('@@', init_seed.filename))
+        init_trace_analysis = ana.traceAyalysis(init_std_out)
+        init_num_of_pcguard = ana.getNumOfPcguard()
 
-            # Mutate seeds to find where to change. Then perform to a directed mutate.
-            temp_mutate_listq = Mutator.mutateSeeds(init_seed.content, filepath_mutateseeds, str(loop))
-            sch.addSeeds(SCH_MUT_SEED, temp_mutate_listq)
-            # print(mutate_seeds, record_list)
+        # Mutate seeds to find where to change. Then perform to a directed mutate.
+        # temp_mutate_listq = Mutator.mutateSeeds(init_seed.content, filepath_mutateseeds, str(loop))
+        # sch.addSeeds(SCH_MUT_SEED, temp_mutate_listq)
+        # print(mutate_seeds, record_list)
+        for loci in range(0, len(init_seed.content)):
+            sch.locationq.put(loci)
 
-            while not sch.isEmpty(SCH_MUT_SEED):
-                total += 1
-                # Track execution information of mutate seeds.
-                execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
-                saveAsFile(execute_seed.content, execute_seed.filename)
-                mut_ret_code, mut_std_out, mut_std_err = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
-                mut_trace_analysis = ana.traceAyalysis(mut_std_out)
+        # Find correspondence
+        # seed inputs -> cmp instruction -> cmp type (access method) -> braches
+        while not sch.isEmpty(SCH_LOC_SEED):
+            
+            total += 1
+            # Track execution information of mutate seeds.
+            execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
+            saveAsFile(execute_seed.content, execute_seed.filename)
+            mut_ret_code, mut_std_out, mut_std_err = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+            mut_trace_analysis = ana.traceAyalysis(mut_std_out)
 
-                # Analyze the differences in comparison.
-                comparison_diffreport, comparison_onereport = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis)
-                each_change_inputmap = Parser.typeSpeculation(comparison_diffreport, comparison_onereport, cmp_map, mutate_loc)
+            # Analyze the differences in comparison.
+            comparison_diffreport, comparison_onereport = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis)
+            each_change_inputmap = Parser.typeSpeculation(comparison_diffreport, comparison_onereport, cmp_map, mutate_loc)
 
-                mergeMapReport(each_change_inputmap, eachloop_change_inputmap)
-                res = vis.display(start_time, execute_seed, eachloop_change_inputmap, loop, total)
-                if res == 1:
-                    sch.deleteSeeds()
-                    return
-            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_change_inputmap))
-
-            temp_content = list(init_seed.content)
-            for k, v in eachloop_change_inputmap.items():
-                temp_content[k] = v
-            temp_content = ''.join(temp_content)
-            sch.addSeeds(SCH_INIT_SEED, [StructSeed(filepath_mutateseeds+getMutfilename("loop"+str(loop)),
-                                             temp_content, INIT, [0, 0])])
-            # Mutator.mutateDeleteFile(filelist_mutateseeds, filepath_mutateseeds)
-            # print(filelist_mutateseeds)
-            # print(mutate_seeds)
-
-            eachloop_change_inputmap = {}
-            res = vis.display(start_time, init_seed, eachloop_change_inputmap, loop, total)
+            mergeMapReport(each_change_inputmap, eachloop_change_inputmap)
+            res = vis.display(start_time, execute_seed, eachloop_change_inputmap, loop, total)
             if res == 1:
                 sch.deleteSeeds()
                 return
-            # raise Exception("test")
+        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_change_inputmap))
 
-    except Exception as e:
-        print(e)
+        temp_content = list(init_seed.content)
+        for k, v in eachloop_change_inputmap.items():
+            temp_content[k] = v
+        temp_content = ''.join(temp_content)
+        sch.addSeeds(SCH_INIT_SEED, [StructSeed(filepath_mutateseeds+getMutfilename("loop"+str(loop)),
+                                         temp_content, INIT, [0, 0])])
+        # Mutator.mutateDeleteFile(filelist_mutateseeds, filepath_mutateseeds)
+        # print(filelist_mutateseeds)
+        # print(mutate_seeds)
+
+        eachloop_change_inputmap = {}
+        res = vis.display(start_time, init_seed, eachloop_change_inputmap, loop, total)
+        if res == 1:
+            sch.deleteSeeds()
+            return
+        # raise Exception("test")
 
 
 if __name__ == "__main__":
