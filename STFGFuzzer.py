@@ -106,7 +106,7 @@ def mainFuzzer():
 
         # Find correspondence
         '''XXX: seed inputs -> cmp instruction -> cmp type (access method) -> braches'''
-        # Coarse-Grained
+        # Coarse-Grained  O(n)
         while not sch.isEmpty(SCH_LOC_COARSE_SEED):
             total += 1
             # 1 seed inputs
@@ -132,7 +132,7 @@ def mainFuzzer():
             comparison_diffreport, comparison_onereport = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis)
             each_change_inputmap = Parser.typeSpeculation(comparison_diffreport, comparison_onereport, cmp_map, mutate_loc)
             # mergeMapReport(each_change_inputmap, eachloop_change_inputmap)
-            
+
             # 4 branches
 
             # 5 visualize
@@ -143,6 +143,7 @@ def mainFuzzer():
                 return
 
         # Fine-Grained
+        # Only the corresponding position is speculated. O(1)
 
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_change_inputmap))
 

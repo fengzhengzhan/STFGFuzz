@@ -2,6 +2,7 @@
 from fuzzer_module.Fuzzconfig import *
 
 def getMutStr(length: int) -> str:
+    # 2600 characters
     mut_str = "AAABAAACAAADAAAEAAAFAAAGAAAHAAAIAAAJAAAKAAALAAAMAAANAAAOAAAPAAAQAAARAAASAAATAAAUAAAVAAAWAAAXAAAYAAAZ" \
               "BBBABBBCBBBDBBBEBBBFBBBGBBBHBBBIBBBJBBBKBBBLBBBMBBBNBBBOBBBPBBBQBBBRBBBSBBBTBBBUBBBVBBBWBBBXBBBYBBBZ" \
               "CCCACCCBCCCDCCCECCCFCCCGCCCHCCCICCCJCCCKCCCLCCCMCCCNCCCOCCCPCCCQCCCRCCCSCCCTCCCUCCCVCCCWCCCXCCCYCCCZ" \
@@ -22,7 +23,12 @@ def getMutStr(length: int) -> str:
               "RRRARRRBRRRCRRRDRRRERRRFRRRGRRRHRRRIRRRJRRRKRRRLRRRMRRRNRRRORRRPRRRQRRRSRRRTRRRURRRVRRRWRRRXRRRYRRRZ" \
               "SSSASSSBSSSCSSSDSSSESSSFSSSGSSSHSSSISSSJSSSKSSSLSSSMSSSNSSSOSSSPSSSQSSSRSSSTSSSUSSSVSSSWSSSXSSSYSSSZ" \
               "TTTATTTBTTTCTTTDTTTETTTFTTTGTTTHTTTITTTJTTTKTTTLTTTMTTTNTTTOTTTPTTTQTTTRTTTSTTTUTTTVTTTWTTTXTTTYTTTZ" \
-              "UUUAUUUBUUUCUUUDUUUEUUUFUUUGUUUHUUUIUUUJUUUKUUUL"
+              "UUUAUUUBUUUCUUUDUUUEUUUFUUUGUUUHUUUIUUUJUUUKUUULUUUMUUUNUUUOUUUPUUUQUUURUUUSUUUTUUUVUUUWUUUXUUUYUUUZ" \
+              "VVVAVVVBVVVCVVVDVVVEVVVFVVVGVVVHVVVIVVVJVVVKVVVLVVVMVVVNVVVOVVVPVVVQVVVRVVVSVVVTVVVUVVVWVVVXVVVYVVVZ" \
+              "WWWAWWWBWWWCWWWDWWWEWWWFWWWGWWWHWWWIWWWJWWWKWWWLWWWMWWWNWWWOWWWPWWWQWWWRWWWSWWWTWWWUWWWVWWWXWWWYWWWZ" \
+              "XXXAXXXBXXXCXXXDXXXEXXXFXXXGXXXHXXXIXXXJXXXKXXXLXXXMXXXNXXXOXXXPXXXQXXXRXXXSXXXTXXXUXXXVXXXWXXXYXXXZ" \
+              "YYYAYYYBYYYCYYYDYYYEYYYFYYYGYYYHYYYIYYYJYYYKYYYLYYYMYYYNYYYOYYYPYYYQYYYRYYYSYYYTYYYUYYYVYYYWYYYXYYYZ" \
+              "ZZZAZZZBZZZCZZZDZZZEZZZFZZZGZZZHZZZIZZZJZZZKZZZLZZZMZZZNZZZOZZZPZZZQZZZRZZZSZZZTZZZUZZZVZZZWZZZXZZZY"
     if length > 2048:
         raise Exception("Error: Mutate string length exceeds limit.")
     return mut_str[0:length]
@@ -63,21 +69,39 @@ def mutateSeeds(seed: str, filepath: str, label: str) -> 'list[StructSeed]':
     return mutate_listq
 
 
-def mutateSelectChar(seed: str, filepath: str, label: str, loc_set) -> list:
+def mutateSelectChar(seed: str, filepath: str, label: str, loc_set) -> StructSeed:
     """
     Mutate one character at a time.
     @return:
     """
-    seed_list = list(seed)
+    seedloc_list = list(seed)
     mut_str = getMutStr(len(loc_set))
     for i, loci in enumerate(loc_set):
-        seed_list[loci] = mut_str[i]
-    seed = ''.join(seed_list)
+        seedloc_list[loci] = mut_str[i]
+    seed = ''.join(seedloc_list)
+    temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), str(seed), MUT_TYPE_SUB, loc_set)
+    return temp_one
+
+def mutateOneChar(seed: str, filepath: str, label: str, loc_set) -> StructSeed:
+    """
+    @param seed:
+    @param filepath:
+    @param label:
+    @param loc_set:
+    @return: only one seed
+    """
+    seedloc_list = list(seed)
+    for i, loci in enumerate(loc_set):
+        seedloc_list[loci] = chr(255 - ord(seedloc_list[loci]))
+    seed = ''.join(seedloc_list)
     temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), str(seed), MUT_TYPE_SUB, loc_set)
     return temp_one
 
 
-
 if __name__ == "__main__":
-    mutate_seed_list = mutateSeeds("12345678123456789", "", "1")
-    print(mutate_seed_list)
+    # mutate_seed_list = mutateSeeds("12345678123456789", "", "1")
+    # print(mutate_seed_list)
+    mutate_seed_list = mutateOneChar("1245678123456789", "", "", set([1]))
+    print(mutate_seed_list.content)
+
+
