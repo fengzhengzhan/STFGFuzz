@@ -1,15 +1,15 @@
-CXX=clang
+CXX=clang++
 CXXFLAGS=-O2 -fPIC
 DEPS= 
-# SRCS=cmpcov.c
-SRCS=cmpcovshm.c
-OBJS=$(subst .c,.o,$(SRCS))
+# SRCS=cmpcov.cc
+SRCS=cmpcovshm.cc
+OBJS=$(subst .cc,.o,$(SRCS))
 LIBA=libcmpcov.a
 
 .PRECIOUS: $(LIBA)
 all: $(LIBA)
 
-%.o: %.c %.h
+%.o: %.cc %.h
 	$(CXX) -c -o $@ $< $(CXXFLAGS)
 
 $(LIBA): $(OBJS)

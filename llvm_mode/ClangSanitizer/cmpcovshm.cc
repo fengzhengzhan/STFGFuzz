@@ -5,6 +5,7 @@
 #include <unistd.h>
 #endif
 
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sanitizer/dfsan_interface.h>
@@ -59,22 +60,49 @@
 //// Maximum length memory/string buffer for strcmp(), strncmp() and memcmp() functions.
 //const uint8_t maxCmpLen = 32;
 
+class Glob{
+    public:
+        // global length
+        int interlen = 0;
+        Glob();
+        ~Glob();
+};
+
+Glob::Glob(void){}
+Glob::~Glob(void){
+    printf("L %d Z\n", interlen);
+}
+
 int id = 0;
 char* data = NULL;
+char buf[1024*1024];
 
+Glob glob;
+
+
+extern "C"{
 // The end of analysis.
 static void saveCovOnEnd() {
-    printf("\nE %x Z\n", *(int *)GET_CALLER_PC);
+    // printf("\nE %x Z\n", *(int *)GET_CALLER_PC);
+    sprintf(buf, "E %x ZZ", *(int *)GET_CALLER_PC);
+    strcpy(data + glob.interlen, buf);
+    glob.interlen += strlen(buf) + 1;
 }
 
 static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
     // uintptr_t PC = reinterpret_cast<uintptr_t>(GET_CALLER_PC);
-    printf("\n%c %x %lu %lu %d Z\n", funcinfo, *(int *)GET_CALLER_PC, arg1, arg2, arg_len);
+    // printf("\n%c %x %lu %lu %d Z\n", funcinfo, *(int *)GET_CALLER_PC, arg1, arg2, arg_len);
+    sprintf(buf, "%c %x %lu %lu %d ZZ", funcinfo, *(int *)GET_CALLER_PC, arg1, arg2, arg_len);
+    strcpy(data + glob.interlen, buf);
+    glob.interlen += strlen(buf) + 1;
 } 
 
 static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char funcinfo) {
 
-    printf("\n%c %x ", funcinfo, *(int *)called_pc);
+    // printf("\n%c %x ", funcinfo, *(int *)called_pc);
+    sprintf(buf, "%c %x ", funcinfo, *(int *)called_pc);
+    strcpy(data + glob.interlen, buf);
+    glob.interlen += strlen(buf);
 
     // uint64_t traceflag =  reinterpret_cast<uint64_t>(called_pc) |
     //     (reinterpret_cast<uint64_t>(s1) << 48) |
@@ -82,21 +110,42 @@ static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int
     // printf("%lx ", traceflag);
     int i = 0;
     if(n == 0){
-        printf("<s1\"%s\"1s> <s2\"%s\"2s> ", s1, s2);
+        // printf("<s1\"%s\"1s> <s2\"%s\"2s> ", s1, s2);
+        sprintf(buf, "<s1\"%s\"1s> <s2\"%s\"2s> ", s1, s2);
+        strcpy(data + glob.interlen, buf);
+        glob.interlen += strlen(buf);
     }
     else if(n != 0){
-        printf("<s1\"");
+        // printf("<s1\"");
+        sprintf(buf, "<s1\"");
+        strcpy(data + glob.interlen, buf);
+        glob.interlen += strlen(buf);
         for (i = 0; i < n; i ++) {
-            printf("%c", s1[i]);
+            // printf("%c", s1[i]);
+            sprintf(buf, "%c", s1[i]);
+            strcpy(data + glob.interlen, buf);
+            glob.interlen += strlen(buf);
         }
-        printf("\"1s> <s2\"");
+        // printf("\"1s> <s2\"");
+        sprintf(buf, "\"1s> <s2\"");
+        strcpy(data + glob.interlen, buf);
+        glob.interlen += strlen(buf);
         for (i = 0; i < n; i ++) {
-            printf("%c", s2[i]);
+            // printf("%c", s2[i]);
+            sprintf(buf, "%c", s2[i]);
+            strcpy(data + glob.interlen, buf);
+            glob.interlen += strlen(buf);
         }
-        printf("\"2s> ");
+        // printf("\"2s> ");
+        sprintf(buf, "\"2s> ");
+        strcpy(data + glob.interlen, buf);
+        glob.interlen += strlen(buf);
     }
     
-    printf("%d %d Z\n", n, result);
+    // printf("%d %d Z\n", n, result);
+    sprintf(buf, "%d %d Z\n", n, result);
+    strcpy(data + glob.interlen, buf);
+    glob.interlen += strlen(buf) + 1;
 }
 
 
@@ -110,12 +159,21 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
         return ;
     }
 
-    printf("\n%c %x %lu %lu", COV_TRACE_SWITCH, *(int *)GET_CALLER_PC, Cases[0], Cases[1]);
+    // printf("\n%c %x %lu %lu", COV_TRACE_SWITCH, *(int *)GET_CALLER_PC, Cases[0], Cases[1]);
+    sprintf(buf, "%c %x %lu %lu", COV_TRACE_SWITCH, *(int *)GET_CALLER_PC, Cases[0], Cases[1]);
+    strcpy(data + glob.interlen, buf);
+    glob.interlen += strlen(buf);
 
     for (int i = 0; i < Cases[0]; i ++) {
-        printf(" %lu", Cases[2 + i]);
+        // printf(" %lu", Cases[2 + i]);
+        sprintf(buf, " %lu", Cases[2 + i]);
+        strcpy(data + glob.interlen, buf);
+        glob.interlen += strlen(buf);
     }
-    printf(" Z\n");
+    // printf(" Z\n");
+    sprintf(buf, " ZZ");
+    strcpy(data + glob.interlen, buf);
+    glob.interlen += strlen(buf) + 1;
 
 }
 
@@ -132,17 +190,18 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     id = shmget(123559, 21 * 1024 * 1024, IPC_CREAT | 0777);
     if (id < 0)
     {
-        printf("get id failed\n");
+        printf("Error Get id failed.\n");
         exit(1);
     }
     data = (char *)shmat(id, NULL, 0);
     if (data == NULL)
     {
-        printf("shmat failed\n");
+        printf("Error Shmat failed.\n");
         exit(1);
     }
+    printf("D %d Z\n", 123559);
 
-    strcpy(data, "CMPCOVSHM");
+    // strcpy(data, "CMPCOVSHM");
 
     static uint64_t N;  // Counter for the guards.
     if (start == stop || *start) return;  // Initialize only once.
@@ -150,14 +209,20 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     
     // char PcDescr[10240];
     // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
-    // printf("\nI %p %p %s\n", start, stop, PcDescr);
-    printf("\nI %x %p %p Z\n", *(int *)GET_CALLER_PC, start, stop);
+    // printf("\nI %x %p %p Z\n", *(int *)GET_CALLER_PC, start, stop);
+    sprintf(buf, "I %x %p %p ZZ", *(int *)GET_CALLER_PC, start, stop);
+    strcpy(data + glob.interlen, buf);
+    glob.interlen += strlen(buf) + 1;
+
     for (uint32_t *x = start; x < stop; x++)
     {
         *x = ++N;
     }
 
-    printf("\nS %x %lu Z\n", *(int *)GET_CALLER_PC, N);  // Guards should start from 1.
+    // printf("\nS %x %lu Z\n", *(int *)GET_CALLER_PC, N);  // Guards should start from 1.
+    sprintf(buf, "S %x %lu ZZ", *(int *)GET_CALLER_PC, N);
+    strcpy(data + glob.interlen, buf);
+    glob.interlen += strlen(buf) + 1;
 
     int value;
     value = atexit(saveCovOnEnd);
@@ -188,7 +253,10 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
     // char PcDescr[10240];
     // __sanitizer_symbolize_pc(PC, "%p_%F_%L", PcDescr, sizeof(PcDescr));
     // printf("\nG %p %x %s\n", guard, *guard, PcDescr);
-    printf("\nG %x %p %x Z\n", *(int *)GET_CALLER_PC, guard, *guard);
+    // printf("\nG %x %p %x Z\n", *(int *)GET_CALLER_PC, guard, *guard);
+    sprintf(buf, "G %x %p %x ZZ", *(int *)GET_CALLER_PC, guard, *guard);
+    strcpy(data + glob.interlen, buf);
+    glob.interlen += strlen(buf) + 1;
 }
 
 void __sanitizer_cov_trace_cmp1(uint8_t Arg1, uint8_t Arg2) { 
@@ -236,3 +304,5 @@ void __dfsan_load_callback(dfsan_label Label, void* Addr);
 void __dfsan_store_callback(dfsan_label Label, void* Addr);
 void __dfsan_mem_transfer_callback(dfsan_label *Start, size_t Len);
 void __dfsan_cmp_callback(dfsan_label CombinedLabel);
+
+}
