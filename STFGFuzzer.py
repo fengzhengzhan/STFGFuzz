@@ -106,7 +106,7 @@ def mainFuzzer():
 
         # Find correspondence
         '''XXX: seed inputs -> cmp instruction -> cmp type (access method) -> braches'''
-        # Coarse-Grained  O(n)
+        # Coarse-Grained  O(n)  # todo multiprocessing
         while not sch.isEmpty(SCH_LOC_COARSE_SEED):
             total += 1
             # 1 seed inputs
