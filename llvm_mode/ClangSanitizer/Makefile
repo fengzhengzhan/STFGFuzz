@@ -1,7 +1,8 @@
 CXX=clang
 CXXFLAGS=-O2 -fPIC
 DEPS= 
-SRCS=cmpcov.c
+# SRCS=cmpcov.c
+SRCS=cmpcovshm.c
 OBJS=$(subst .c,.o,$(SRCS))
 LIBA=libcmpcov.a
 
