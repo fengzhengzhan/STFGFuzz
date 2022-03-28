@@ -120,6 +120,7 @@ static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int
     sprintf(buf, ",\"");
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
+
     for (i = 0; i < n1; i ++) {
         // printf("%c", s1[i]);
         if (s1[i] == '"' || s1[i] == '\\') {
@@ -136,6 +137,7 @@ static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int
     sprintf(buf, "\",\"");
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
+
     for (i = 0; i < n2; i ++) {
         // printf("%c", s2[i]);
         if (s2[i] == '"' || s2[i] == '\\') {
@@ -157,6 +159,9 @@ static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int
     sprintf(buf, ",\"%d\",\"%d\"],", n, result);
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
+    // Update interlen
+    sprintf(buf, "L%dZ", interlen);
+    strcpy(data, buf);
 }
 
 
@@ -189,7 +194,6 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     // Update interlen
     sprintf(buf, "L%dZ", interlen);
     strcpy(data, buf);
-
 }
 
 
