@@ -12,11 +12,5 @@ add_definitions(${LLVM_DEFINITIONS_LIST})
 include_directories(${LLVM_INCLUDE_DIRS}) 
 
 add_llvm_library( LLVMObfuscator MODULE 
-    src/HelloWorld.cpp
-    src/SplitBasicBlock.cpp
-    src/Utils.cpp
-    src/GetCFG.cpp
-    src/GetOperand.cpp
-    src/TrackingEachBlock.cpp
     src/GetLine.cpp
 )

@@ -102,6 +102,10 @@ IDX_MUT_END = 2
 '''Analyzer'''
 ANA_STARTPROG_IDX = -1
 ANA_ENDPROG_IDX = -2
+ANA_MEMSHM_MODE = True
+ANA_INTERLEN_SIZE = 16
+ANA_SHM_INTERVAL = 1024 * 1024
+ANA_CMPCOVSHM = "cmpcovshm"
 
 '''Builder'''
 BUI_PATCHFILE = "binaryline.info"

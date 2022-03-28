@@ -48,7 +48,7 @@ then
 
 	echo -e "\n------- ${PROGRAMNAME} -------"
 	# Run
-	./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME} -f "${PROGRAMS}/${PROGRAMNAME}/seeds_crash/final.seed"
+	./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME} -f "${PROGRAMS}/${PROGRAMNAME}/seeds_init/init.seed"
 
 
 	# Clear files.

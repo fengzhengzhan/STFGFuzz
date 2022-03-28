@@ -13,6 +13,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <sys/shm.h>
+#include <time.h>
 
 #if defined(__SANITIZE_ADDRESS__) || (defined(__has_feature) && __has_feature(address_sanitizer))
 #error The cmpcov module should be compiled separately to the fuzzing target,\
@@ -75,6 +76,14 @@ static void saveCovOnEnd() {
     // Update interlen
     sprintf(buf, "L%dZ", interlen);
     strcpy(data, buf);
+    
+    // Separating shared memory from the current process.
+    if (shmdt(data) == -1)
+    {
+        printf("Error Shmdt failed.\n");
+        exit(1);
+    }
+    // shmctl(id, IPC_RMID, 0);
 }
 
 static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
@@ -205,20 +214,25 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
 // binary (executable or DSO). The callback will be called at least
 // once per DSO and may be called multiple times with the same parameters.
 void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
+    
     //memory share
-    id = shmget(124816, 256 * 1024 * 1024, IPC_CREAT | 0777);
-    if (id < 0)
-    {
-        printf("Error Get id failed.\n");
-        exit(1);
+    key_t id_shm = 124816;
+    id = shmget(id_shm, 512 * 1024 * 1024, IPC_CREAT | 0777);
+    // srand((unsigned)time(NULL));
+    // id_shm = rand();
+    while (id < 0 ) {
+        // srand(id_shm);
+        id_shm = rand();
+        id = shmget(id_shm, 512 * 1024 * 1024, IPC_CREAT | 0777);
     }
+
     data = (char *)shmat(id, NULL, 0);
     if (data == NULL)
     {
         printf("Error Shmat failed.\n");
         exit(1);
     }
-    printf("D%dZ\n", 124816);  // Printf memory share id towards to terminal.
+    printf("D%dZ\n", id_shm);  // Printf memory share id towards to terminal.
 
     // strcpy(data, "CMPCOVSHM");
 

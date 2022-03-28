@@ -82,9 +82,10 @@ def mainFuzzer():
     mutate_loc = StructMutateLocation()
     eachloop_change_inputmap: dict = {}
     init_seeds_list = Generator.prepareEnv(program_name)
+
     temp_listq = []
     for each in init_seeds_list:
-        temp_listq.append(StructSeed(filepath_mutateseeds+each, "", INIT, [0, 0]))
+        temp_listq.append(StructSeed(filepath_mutateseeds+each, "", INIT, {-1, }))
     sch.addSeeds(SCH_INIT_SEED, temp_listq)
 
     # Fuzzing test cycle
@@ -125,6 +126,7 @@ def mainFuzzer():
             saveAsFile(execute_seed.content, execute_seed.filename)
             mut_ret_code, mut_std_out, mut_std_err = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
             mut_trace_analysis = ana.traceAyalysis(mut_std_out)
+            raise Exception()
 
             # 3 cmp type
 

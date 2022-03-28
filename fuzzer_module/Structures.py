@@ -22,7 +22,7 @@ class StructSeed:
         else:
             self.content = content
         self.seedtype = seedtype  # INIT MUT_TYPE_SUB MUT_TYPE_INSERT
-        self.location = location
+        self.location = location  # -1 as the init seed
 
 
 # The structure stores information about trace report.
