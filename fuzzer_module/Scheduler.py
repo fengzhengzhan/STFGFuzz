@@ -39,17 +39,17 @@ class Scheduler:
             temp_flag = self.seedq.empty()
         elif mode == SCH_MUT_SEED:
             temp_flag = self.mutateTestq.empty()
-        elif mode == SCH_LOC_COARSE_SEED:
+        elif mode == SCH_COARSE_SEED:
             temp_flag = self.locCoarseq.empty()
-        elif mode == SCH_LOC_FINE_SEED:
+        elif mode == SCH_FINE_SEED:
             temp_flag = self.locFineq.empty()
         return temp_flag
 
     def getValue(self, mode):
         temp_value = 0
-        if mode == SCH_LOC_COARSE_SEED:
+        if mode == SCH_COARSE_SEED:
             temp_value = self.locCoarseq.get()
-        elif mode == SCH_LOC_FINE_SEED:
+        elif mode == SCH_FINE_SEED:
             temp_value = self.locFineq.get()
         return temp_value
 

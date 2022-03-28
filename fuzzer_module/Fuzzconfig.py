@@ -15,39 +15,36 @@ USE_INITSTR = ""
 # The fisrt character represent the type of compare instruction.
 # In order to save space, using one character as the flag to mark.
 # The meaning of the parameters following the flags is described in the comments.
-COV_TRACE_CMP1 = 'a'  # (call_pc, arg1, arg2, arg_len)
-COV_TRACE_CMP2 = 'b'
-COV_TRACE_CMP4 = 'c'
-COV_TRACE_CMP8 = 'd'
+# trace
+COV_CMP1 = 'a'  # (call_pc, arg1, arg2, arg_len)
+COV_CMP2 = 'b'
+COV_CMP4 = 'c'
+COV_CMP8 = 'd'
 
-COV_TRACE_CONST_CMP1 = 'e'
-COV_TRACE_CONST_CMP2 = 'f'
-COV_TRACE_CONST_CMP4 = 'g'
-COV_TRACE_CONST_CMP8 = 'h'
+COV_CONSTCMP1 = 'e'
+COV_CONSTCMP2 = 'f'
+COV_CONSTCMP4 = 'g'
+COV_CONSTCMP8 = 'h'
 
-TRACECMPSET = {COV_TRACE_CMP1, COV_TRACE_CMP2,
-               COV_TRACE_CMP4, COV_TRACE_CMP8,
-               COV_TRACE_CONST_CMP1, COV_TRACE_CONST_CMP2,
-               COV_TRACE_CONST_CMP4, COV_TRACE_CONST_CMP8}
+TRACECMPSET = {COV_CMP1, COV_CMP2, COV_CMP4, COV_CMP8, COV_CONSTCMP1, COV_CONSTCMP2, COV_CONSTCMP4, COV_CONSTCMP8}
 
-COV_TRACE_SWITCH = 'i'  # (call_pc, num_case, size_val, case_n...)
-COV_TRACE_DIV4 = 'j'
-COV_TRACE_DIV8 = 'k'
-COV_TRACE_GEP = 'l'
+COV_SWITCH = 'i'  # (call_pc, num_case, size_val, case_n...)
+COV_DIV4 = 'j'
+COV_DIV8 = 'k'
+COV_GEP = 'l'
 
-WEAK_HOOK_MEMCMP = 'm'  # (call_pc, <s1"  "1s>, <s2"  "2s>, size_n, result)
-WEAK_HOOK_STRNCMP = 'n'
-WEAK_HOOK_STRCMP = 'o'
-WEAK_HOOK_STRNCASECMP = 'p'
-WEAK_HOOK_STRCASECMP = 'q'
+# weak hook
+HOOK_MEMCMP = 'm'  # (call_pc, <s1"  "1s>, <s2"  "2s>, size_n, result)
+HOOK_STRNCMP = 'n'
+HOOK_STRCMP = 'o'
+HOOK_STRNCASECMP = 'p'
+HOOK_STRCASECMP = 'q'
 
-HOOKCMPSET = {WEAK_HOOK_MEMCMP, WEAK_HOOK_STRNCMP,
-              WEAK_HOOK_STRCMP, WEAK_HOOK_STRNCASECMP,
-              WEAK_HOOK_STRCASECMP}
+HOOKCMPSET = {HOOK_MEMCMP, HOOK_STRNCMP, HOOK_STRCMP, HOOK_STRNCASECMP, HOOK_STRCASECMP}
 
 SHMID_FLAG = "D"  # Content show from stdout, that represent the memory share id.
 INTERLEN_FLAG = "L"  # The length of array.
-INTERLEN_VALUE_FLAG = 16  # The space bytes in the start of content represents interlen values.
+INTERLEN_VALUE = 16  # The space bytes in the start of content represents interlen values.
 END_EACH_FLAG = "Z"  # End of each line.
 INIT_PC_GUARD = "I"  # (call_pc, start, end)
 NUM_PC_GUARD = "S"  # (call_pc, nums) Numbers of pc guard, from 1 to number.
@@ -105,7 +102,7 @@ ANA_ENDPROG_IDX = -2
 ANA_MEMSHM_MODE = True
 ANA_INTERLEN_SIZE = 16
 ANA_SHM_INTERVAL = 1024 * 1024
-ANA_CMPCOVSHM = "cmpcovshm"
+ANA_CMPCOVSHM_NAME = "cmpcovshm"
 
 '''Builder'''
 BUI_PATCHFILE = "binaryline.info"
@@ -184,8 +181,8 @@ PAR_VARMUT = 1
 '''Scheduler'''
 SCH_INIT_SEED = 221
 SCH_MUT_SEED = 222
-SCH_LOC_COARSE_SEED = 223
-SCH_LOC_FINE_SEED = 224
+SCH_COARSE_SEED = 223
+SCH_FINE_SEED = 224
 
 SCH_SLID_WINDOW = 8
 
@@ -213,8 +210,8 @@ VIS_SEED_LINE = 16
 
 VIS_MAX_LINE = 25
 
-VIS_TERMINAL_SWITCH = True
-VIS_SHOWGRAPH_SWITCH = True
+VIS_TERMINAL = True
+VIS_SHOWGRAPH = True
 VIS_CG_NAME = "CG.gv"
 VIS_CFG_NAME = "CFG.gv"
 VIS_DPI = 300

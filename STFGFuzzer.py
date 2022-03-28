@@ -53,12 +53,12 @@ def mainFuzzer():
         print("python {}.py -h".format(FUZZNAME))
         raise Exception("Error parameters.")
 
-    filepath_initseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSINIT + os.sep
-    filepath_mutateseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSMUTATE + os.sep
-    filepath_crashseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSCRASH + os.sep
-    filepath_graph = PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH + os.sep
-    filepath_codeIR = PROGRAMS + os.sep + program_name + os.sep + CODEIR + os.sep
-    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), filepath_initseeds, filepath_mutateseeds, filepath_crashseeds))
+    path_initseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSINIT + os.sep
+    path_mutateseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSMUTATE + os.sep
+    path_crashseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSCRASH + os.sep
+    path_graph = PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH + os.sep
+    path_codeIR = PROGRAMS + os.sep + program_name + os.sep + CODEIR + os.sep
+    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), path_initseeds, path_mutateseeds, path_crashseeds))
 
     # print(fuzz_command)
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), fuzz_command))
@@ -71,21 +71,22 @@ def mainFuzzer():
     vis = Visualizer.Visualizer()
     sch = Scheduler.Scheduler()
     ana = Analyzer.Analyzer()
-    cglist, cfglist = Generator.createDotJsonFile(program_name, filepath_codeIR+program_name+GEN_TRACEBC_SUFFIX)
+    cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR+program_name+GEN_TRACEBC_SUFFIX)
     cggraph, map_funcTocgname = Builder.getCG(cglist)
     cfggraph_dict, map_guardTocfgname = Builder.getCFG(cfglist)
-    # vis.showGraph(filepath_graph, cggraph, cfggraph_dict['main'])
+    # vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
 
-    constraint_graph: 'list[dict, dict]' = StructConstraintGraph().constraintgraph
+    constraint_graph: 'list[dict, dict]' = StructSTGraph().constraintgraph
     cmp_map: dict = StructCmpMap().cmpmap
     input_map: dict[list] = {}
-    mutate_loc = StructMutateLocation()
+    mutate_loc = StructMutLoc()
     eachloop_change_inputmap: dict = {}
     init_seeds_list = Generator.prepareEnv(program_name)
 
+    # Init seed lists
     temp_listq = []
     for each in init_seeds_list:
-        temp_listq.append(StructSeed(filepath_mutateseeds+each, "", INIT, {-1, }))
+        temp_listq.append(StructSeed(path_mutateseeds+each, "", INIT, {-1, }))
     sch.addSeeds(SCH_INIT_SEED, temp_listq)
 
     # Fuzzing test cycle
@@ -94,12 +95,12 @@ def mainFuzzer():
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_INIT_SEED)
         saveAsFile(init_seed.content, init_seed.filename)
-        init_ret_code, init_std_out, init_std_err = Executor.run(fuzz_command.replace('@@', init_seed.filename))
-        init_trace_analysis = ana.traceAyalysis(init_std_out)
-        init_num_of_pcguard = ana.getNumOfPcguard()
+        init_retcode, init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
+        init_trace = ana.traceAyalysis(init_stdout)
+        num_pcguard = ana.getNumOfPcguard()
 
         # Mutate seeds to find where to change. Then perform to a directed mutate.
-        # temp_mutate_listq = Mutator.mutateSeeds(init_seed.content, filepath_mutateseeds, str(loop))
+        # temp_mutate_listq = Mutator.mutateSeeds(init_seed.content, path_mutateseeds, str(loop))
         # sch.addSeeds(SCH_MUT_SEED, temp_mutate_listq)
         # print(mutate_seeds, record_list)
         for loci in range(0, len(init_seed.content)):
@@ -108,31 +109,32 @@ def mainFuzzer():
         # Find correspondence
         '''XXX: seed inputs -> cmp instruction -> cmp type (access method) -> braches'''
         # Coarse-Grained  O(n)  # todo multiprocessing
-        while not sch.isEmpty(SCH_LOC_COARSE_SEED):
+        # Get a report on changes to comparison instructions.
+        while not sch.isEmpty(SCH_COARSE_SEED):
             total += 1
             # 1 seed inputs
             loc_set = set()
             for locl in range(0, sch.slidWindow):
-                if not sch.isEmpty(SCH_LOC_COARSE_SEED):
-                    loc_set.add(sch.getValue(SCH_LOC_COARSE_SEED))
+                if not sch.isEmpty(SCH_COARSE_SEED):
+                    loc_set.add(sch.getValue(SCH_COARSE_SEED))
             # print(loc_set)
 
             # 2 cmp instruction
 
             # Track execution information of mutate seeds.
             # execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
-            execute_seed = Mutator.mutateSelectChar(init_seed.content, filepath_mutateseeds, str(loop), loc_set)
+            execute_seed = Mutator.mutateSelectChar(init_seed.content, path_mutateseeds, str(loop), loc_set)
             sch.addDeleteq(execute_seed)
             saveAsFile(execute_seed.content, execute_seed.filename)
-            mut_ret_code, mut_std_out, mut_std_err = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
-            mut_trace_analysis = ana.traceAyalysis(mut_std_out)
+            mut_retcode, mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+            mut_trace = ana.traceAyalysis(mut_stdout)
             raise Exception()
 
             # 3 cmp type
 
             # Analyze the differences in comparison.
-            comparison_diffreport, comparison_onereport = Parser.compareBytes(execute_seed, init_trace_analysis, mut_trace_analysis)
-            each_change_inputmap = Parser.typeSpeculation(comparison_diffreport, comparison_onereport, cmp_map, mutate_loc)
+            report_cmpdiff, report_cmpone = Parser.compareBytes(execute_seed, init_trace, mut_trace)
+            each_change_inputmap = Parser.typeDetect(report_cmpdiff, report_cmpone, cmp_map, mutate_loc)
             # mergeMapReport(each_change_inputmap, eachloop_change_inputmap)
 
             # 4 branches
@@ -153,9 +155,9 @@ def mainFuzzer():
         for k, v in eachloop_change_inputmap.items():
             temp_content[k] = v
         temp_content = ''.join(temp_content)
-        sch.addSeeds(SCH_INIT_SEED, [StructSeed(filepath_mutateseeds+getMutfilename("loop"+str(loop)),
+        sch.addSeeds(SCH_INIT_SEED, [StructSeed(path_mutateseeds+getMutfilename("loop"+str(loop)),
                                          temp_content, INIT, [0, 0])])
-        # Mutator.mutateDeleteFile(filelist_mutateseeds, filepath_mutateseeds)
+        # Mutator.mutateDeleteFile(filelist_mutateseeds, path_mutateseeds)
         # print(filelist_mutateseeds)
         # print(mutate_seeds)
 

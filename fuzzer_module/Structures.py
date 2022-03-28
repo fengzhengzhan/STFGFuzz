@@ -35,7 +35,7 @@ class StructTraceReport:
         self.progcontent = programcontent
 
 
-class StructComparisonReport:
+class StructCmpReport:
     def __init__(self, mutseed: StructSeed, sttype: str, init_sttrace: list, mut_sttrace: list, startguard: int, endguard: int, stpcguard: str):
         self.mutseed = mutseed
         self.sttype = sttype
@@ -66,7 +66,7 @@ class StructCmpInfo:
 #     def __init__(self):
 #         self.freezemap = []
 
-class StructMutateLocation:
+class StructMutLoc:
     def __init__(self):
         self.freezemap = []
         self.mutonelist = []
@@ -74,7 +74,7 @@ class StructMutateLocation:
 
 
 # This is the global constraint graph.
-class StructConstraintGraph:
+class StructSTGraph:
     def __init__(self):
         self.constraintgraph = []
 

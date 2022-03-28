@@ -67,7 +67,8 @@ def compareLCS(init_trace: list, mut_trace: list):
     return lcs_len, init_list, mut_list
 
 
-def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceReport]', mut_trace_analysis: 'list[StructTraceReport]') -> ('list[StructComparisonReport]', 'list[StructComparisonReport]'):
+def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceReport]', mut_trace_analysis: 'list[StructTraceReport]') -> (
+'list[StructCmpReport]', 'list[StructCmpReport]'):
     """
     Bytes of change compared to the initial sample.
     @param mutseed:
@@ -77,8 +78,8 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
     """
     # list[StructTraceReport]
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), init_trace_analysis, mut_trace_analysis))
-    comparison_diffreport: 'list[StructComparisonReport]' = []
-    comparison_onereport: 'list[StructComparisonReport]' = []
+    comparison_diffreport: 'list[StructCmpReport]' = []
+    comparison_onereport: 'list[StructCmpReport]' = []
 
 
     # Only differences in mutation are recorded.
@@ -101,7 +102,7 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
         # Same part of the constraint.
         for sti in range(len(st_init_list)):
             comparison_diffreport.append(
-                StructComparisonReport(
+                StructCmpReport(
                     mutseed,
                     init_trace_analysis[igi].stvalue[st_init_list[sti]][IDX_CMP_TYPE],
                     init_trace_analysis[igi].stvalue[st_init_list[sti]],
@@ -116,7 +117,7 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
         for ii in range(len(init_trace_analysis[igi].constraint)):
             if ii not in st_init_list:
                 comparison_onereport.append(
-                    StructComparisonReport(
+                    StructCmpReport(
                         mutseed,
                         init_trace_analysis[igi].stvalue[ii][IDX_CMP_TYPE],
                         init_trace_analysis[igi].stvalue[ii],
@@ -131,7 +132,7 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
         for mi in range(len(mut_trace_analysis[mgi].constraint)):
             if mi not in st_mut_list:
                 comparison_onereport.append(
-                    StructComparisonReport(
+                    StructCmpReport(
                         mutseed,
                         mut_trace_analysis[mgi].stvalue[mi][IDX_CMP_TYPE],
                         [],
@@ -148,7 +149,7 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
         if i not in guard_init_list:
             for st_i in range(len(init_trace_analysis[i].constraint)):
                 comparison_onereport.append(
-                    StructComparisonReport(
+                    StructCmpReport(
                         mutseed,
                         init_trace_analysis[i].stvalue[st_i][IDX_CMP_TYPE],
                         init_trace_analysis[i].stvalue[st_i],
@@ -164,7 +165,7 @@ def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceRepo
         if m not in guard_mut_list:
             for st_m in range(len(mut_trace_analysis[m].constraint)):
                 comparison_onereport.append(
-                    StructComparisonReport(
+                    StructCmpReport(
                         mutseed,
                         mut_trace_analysis[m].stvalue[st_m][IDX_CMP_TYPE],
                         [],
@@ -259,7 +260,7 @@ def varChangeSpeculation(infer_bytes: StructCmpInfer):
 
 
 
-def typeSpeculation(comparison_diffreport: 'list[StructComparisonReport]', comparison_onereport: 'list[StructComparisonReport]', cmp_map: dict, mutate_loc: StructMutateLocation) -> dict:
+def typeDetect(comparison_diffreport: 'list[StructCmpReport]', comparison_onereport: 'list[StructCmpReport]', cmp_map: dict, mutate_loc: StructMutLoc) -> dict:
     """
     Type identification and speculation.
     @param comparison_diffreport:
@@ -309,7 +310,7 @@ def typeSpeculation(comparison_diffreport: 'list[StructComparisonReport]', compa
                 elif var_flag == PAR_FIX_TYPE:
                     pass
 
-            elif each.sttype == COV_TRACE_SWITCH:
+            elif each.sttype == COV_SWITCH:
                 pass
         elif mutseed.seedtype == MUT_TYPE_INSERT:
             pass

@@ -14,8 +14,8 @@ from fuzzer_module.Fuzzconfig import *
 class Visualizer:
     def __init__(self):
         # sudo apt reinstall ncurses-base
-        self.terminal_switch = VIS_TERMINAL_SWITCH
-        self.showgraph_switch = VIS_SHOWGRAPH_SWITCH
+        self.terminal_switch = VIS_TERMINAL
+        self.showgraph_switch = VIS_SHOWGRAPH
 
         if self.terminal_switch:
             self.stdscr = curses.initscr()

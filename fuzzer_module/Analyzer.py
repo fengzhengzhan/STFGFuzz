@@ -7,7 +7,7 @@ from fuzzer_module.Fuzzconfig import *
 
 class Analyzer:
     def __init__(self):
-        self.num_of_pcguard: int = -1
+        self.num_pcguard: int = -1
         try:
             self.rt = CDLL('librt.so')
         except:
@@ -59,9 +59,9 @@ class Analyzer:
             self.rt.shmctl(shmid, 0, 0)
 
             # Content to json
-            cmpcovshm_str = '{"' + ANA_CMPCOVSHM + '":[' + cmpcovshm_str + ']}'
+            cmpcovshm_str = '{"' + ANA_CMPCOVSHM_NAME + '":[' + cmpcovshm_str + ']}'
             cmpcovshm_json = json.loads(cmpcovshm_str)
-            print(type(cmpcovshm_json[ANA_CMPCOVSHM]), cmpcovshm_json[ANA_CMPCOVSHM])
+            print(type(cmpcovshm_json[ANA_CMPCOVSHM_NAME]), cmpcovshm_json[ANA_CMPCOVSHM_NAME])
 
         return []
 
@@ -71,7 +71,7 @@ class Analyzer:
         out_info = out_info.decode('UTF-8', 'ignore')
         each_line_list: list[str] = out_info.split("\n")
 
-        struct_trace_report_list: 'list[StructTraceReport]' = []
+        struct_report_list: 'list[StructTraceReport]' = []
 
         call_pc_list = []
         content_list = []
@@ -122,13 +122,13 @@ class Analyzer:
                 elif each[0] == NUM_PC_GUARD:
                     type = each[0]
                     call_pc = each[1]
-                    self.num_of_pcguard = int(each[2])
+                    self.num_pcguard = int(each[2])
                 elif each[0] == EACH_PC_GUARD:
                     type = each[0]
                     call_pc = each[1]
                     guard_addr = each[2]
                     guard_num = int(each[3], 16)
-                    struct_trace_report_list.append(StructTraceReport(before_guard_num, guard_num, call_pc_list, content_list, []))
+                    struct_report_list.append(StructTraceReport(before_guard_num, guard_num, call_pc_list, content_list, []))
                     before_guard_num = guard_num
                     call_pc_list = []
                     content_list = []
@@ -136,12 +136,12 @@ class Analyzer:
                     type = each[0]
                     call_pc = each[1]
                     end = True
-                    struct_trace_report_list.append(StructTraceReport(before_guard_num, ANA_ENDPROG_IDX, call_pc_list, content_list, []))
+                    struct_report_list.append(StructTraceReport(before_guard_num, ANA_ENDPROG_IDX, call_pc_list, content_list, []))
                 # Matching comparison identifier.
-                elif each[0] == COV_TRACE_CMP1 or each[0] == COV_TRACE_CMP2 \
-                        or each[0] == COV_TRACE_CMP4 or each[0] == COV_TRACE_CMP8 \
-                        or each[0] == COV_TRACE_CONST_CMP1 or each[0] == COV_TRACE_CONST_CMP2 \
-                        or each[0] == COV_TRACE_CONST_CMP4 or each[0] == COV_TRACE_CONST_CMP8:
+                elif each[0] == COV_CMP1 or each[0] == COV_CMP2 \
+                        or each[0] == COV_CMP4 or each[0] == COV_CMP8 \
+                        or each[0] == COV_CONSTCMP1 or each[0] == COV_CONSTCMP2 \
+                        or each[0] == COV_CONSTCMP4 or each[0] == COV_CONSTCMP8:
                     type = each[0]
                     call_pc = each[1]
                     arg1 = each[2]
@@ -150,7 +150,7 @@ class Analyzer:
                     call_pc_list.append(call_pc)
                     temp_content = [type, call_pc, arg1, arg2, arg_len]
                     content_list.append(temp_content)
-                elif each[0] == COV_TRACE_SWITCH:
+                elif each[0] == COV_SWITCH:
                     type = each[0]
                     call_pc = each[1]
                     num_case = int(each[2])
@@ -161,11 +161,11 @@ class Analyzer:
                     for i in range(num_case):
                         temp_content.append(each[i+4])
                     content_list.append(temp_content)
-                elif each[0] == COV_TRACE_DIV4 or each[0] == COV_TRACE_DIV8 or each[0] == COV_TRACE_GEP:
+                elif each[0] == COV_DIV4 or each[0] == COV_DIV8 or each[0] == COV_GEP:
                     pass
-                elif each[0] == WEAK_HOOK_MEMCMP or each[0] == WEAK_HOOK_STRNCMP \
-                        or each[0] == WEAK_HOOK_STRCMP or each[0] == WEAK_HOOK_STRNCASECMP \
-                        or each[0] == WEAK_HOOK_STRCASECMP:
+                elif each[0] == HOOK_MEMCMP or each[0] == HOOK_STRNCMP \
+                        or each[0] == HOOK_STRCMP or each[0] == HOOK_STRNCASECMP \
+                        or each[0] == HOOK_STRCASECMP:
                     type = each[0]
                     call_pc = each[1]
                     s1 = re.search(r'<s1"(.*)"1s>', combine_line, flags=re.S).group(1)
@@ -184,14 +184,14 @@ class Analyzer:
                 # Here content has high possible as the normal program output.
                 content = combine_line
 
-        # print(struct_trace_report_list)
-        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), struct_trace_report_list))
+        # print(struct_report_list)
+        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), struct_report_list))
 
         # print(trace_analysis)
-        return struct_trace_report_list
+        return struct_report_list
 
     def getNumOfPcguard(self):
-        if self.num_of_pcguard == -1:
+        if self.num_pcguard == -1:
             raise Exception("Error: Number of tracks not acquired.")
-        return self.num_of_pcguard
+        return self.num_pcguard
 
