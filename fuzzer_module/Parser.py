@@ -277,7 +277,7 @@ def typeSpeculation(comparison_diffreport: 'list[StructComparisonReport]', compa
         mutseed = each.mutseed
         change_inputmap = {}
         if mutseed.seedtype == MUT_TYPE_SUB:
-            if each.sttype in TRACECMPLIST:
+            if each.sttype in TRACECMPSET:
                 infer_bytes = inferFixedOrChanged(
                     each.init_sttrace[IDX_ARG1], each.init_sttrace[IDX_ARG2],
                     each.mut_sttrace[IDX_ARG1], each.mut_sttrace[IDX_ARG2]
@@ -293,7 +293,7 @@ def typeSpeculation(comparison_diffreport: 'list[StructComparisonReport]', compa
                 elif var_flag == PAR_FIX_TYPE:
                     pass
 
-            elif each.sttype in HOOKCMPLIST:
+            elif each.sttype in HOOKCMPSET:
                 infer_bytes = inferFixedOrChanged(
                     each.init_sttrace[IDX_S1], each.init_sttrace[IDX_S2],
                     each.mut_sttrace[IDX_S1], each.mut_sttrace[IDX_S2]

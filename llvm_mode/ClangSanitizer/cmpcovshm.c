@@ -5,7 +5,6 @@
 #include <unistd.h>
 #endif
 
-#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sanitizer/dfsan_interface.h>
@@ -60,92 +59,104 @@
 //// Maximum length memory/string buffer for strcmp(), strncmp() and memcmp() functions.
 //const uint8_t maxCmpLen = 32;
 
-class Glob{
-    public:
-        // global length
-        int interlen = 0;
-        Glob();
-        ~Glob();
-};
-
-Glob::Glob(void){}
-Glob::~Glob(void){
-    printf("L %d Z\n", interlen);
-}
-
 int id = 0;
 char* data = NULL;
+int savelen = 15;
+int interlen = 16;
 char buf[1024*1024];
 
-Glob glob;
-
-
-extern "C"{
 // The end of analysis.
 static void saveCovOnEnd() {
     // printf("\nE %x Z\n", *(int *)GET_CALLER_PC);
-    sprintf(buf, "E %x ZZ", *(int *)GET_CALLER_PC);
-    strcpy(data + glob.interlen, buf);
-    glob.interlen += strlen(buf) + 1;
+    // Add dataflow analysis information.
+    sprintf(buf, "[\"E\",\"%x\"],", *(int *)GET_CALLER_PC);
+    strcpy(data + interlen, buf);
+    interlen += strlen(buf);
+    // Update interlen
+    sprintf(buf, "L%dZ", interlen);
+    strcpy(data, buf);
 }
 
 static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
     // uintptr_t PC = reinterpret_cast<uintptr_t>(GET_CALLER_PC);
+
     // printf("\n%c %x %lu %lu %d Z\n", funcinfo, *(int *)GET_CALLER_PC, arg1, arg2, arg_len);
-    sprintf(buf, "%c %x %lu %lu %d ZZ", funcinfo, *(int *)GET_CALLER_PC, arg1, arg2, arg_len);
-    strcpy(data + glob.interlen, buf);
-    glob.interlen += strlen(buf) + 1;
+    // Add dataflow analysis information.
+    sprintf(buf, "[\"%c\",\"%x\",\"%lu\",\"%lu\",\"%d\"],", funcinfo, *(int *)GET_CALLER_PC, arg1, arg2, arg_len);
+    strcpy(data + interlen, buf);
+    interlen += strlen(buf);
+    // Update interlen
+    sprintf(buf, "L%dZ", interlen);
+    strcpy(data, buf);
 } 
 
 static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char funcinfo) {
-
+    // The length of each string.
+    int n1;
+    int n2;
+    if (n == 0) {
+        n1 = strlen(s1);
+        n2 = strlen(s2);
+    } else if (n != 0)
+    {
+        n1 = n;
+        n2 = n;
+    }
+    
     // printf("\n%c %x ", funcinfo, *(int *)called_pc);
-    sprintf(buf, "%c %x ", funcinfo, *(int *)called_pc);
-    strcpy(data + glob.interlen, buf);
-    glob.interlen += strlen(buf);
+    sprintf(buf, "[\"%c\",\"%x\"", funcinfo, *(int *)called_pc);
+    strcpy(data + interlen, buf);
+    interlen += strlen(buf);
 
     // uint64_t traceflag =  reinterpret_cast<uint64_t>(called_pc) |
     //     (reinterpret_cast<uint64_t>(s1) << 48) |
     //     (reinterpret_cast<uint64_t>(s2) << 60);
     // printf("%lx ", traceflag);
+    
+    // printf("<s1\"%s\"1s> <s2\"%s\"2s> ", s1, s2);
+
     int i = 0;
-    if(n == 0){
-        // printf("<s1\"%s\"1s> <s2\"%s\"2s> ", s1, s2);
-        sprintf(buf, "<s1\"%s\"1s> <s2\"%s\"2s> ", s1, s2);
-        strcpy(data + glob.interlen, buf);
-        glob.interlen += strlen(buf);
-    }
-    else if(n != 0){
-        // printf("<s1\"");
-        sprintf(buf, "<s1\"");
-        strcpy(data + glob.interlen, buf);
-        glob.interlen += strlen(buf);
-        for (i = 0; i < n; i ++) {
-            // printf("%c", s1[i]);
+    // printf("<s1\"");
+    sprintf(buf, ",\"");
+    strcpy(data + interlen, buf);
+    interlen += strlen(buf);
+    for (i = 0; i < n1; i ++) {
+        // printf("%c", s1[i]);
+        if (s1[i] == '"' || s1[i] == '\\') {
+            sprintf(buf, "\\%c", s1[i]);
+            strcpy(data + interlen, buf);
+            interlen += strlen(buf);
+        } else {
             sprintf(buf, "%c", s1[i]);
-            strcpy(data + glob.interlen, buf);
-            glob.interlen += strlen(buf);
+            strcpy(data + interlen, buf);
+            interlen += strlen(buf);
         }
-        // printf("\"1s> <s2\"");
-        sprintf(buf, "\"1s> <s2\"");
-        strcpy(data + glob.interlen, buf);
-        glob.interlen += strlen(buf);
-        for (i = 0; i < n; i ++) {
-            // printf("%c", s2[i]);
-            sprintf(buf, "%c", s2[i]);
-            strcpy(data + glob.interlen, buf);
-            glob.interlen += strlen(buf);
-        }
-        // printf("\"2s> ");
-        sprintf(buf, "\"2s> ");
-        strcpy(data + glob.interlen, buf);
-        glob.interlen += strlen(buf);
     }
+    // printf("\"1s> <s2\"");
+    sprintf(buf, "\",\"");
+    strcpy(data + interlen, buf);
+    interlen += strlen(buf);
+    for (i = 0; i < n2; i ++) {
+        // printf("%c", s2[i]);
+        if (s2[i] == '"' || s2[i] == '\\') {
+            sprintf(buf, "\\%c", s2[i]);
+            strcpy(data + interlen, buf);
+            interlen += strlen(buf);
+        } else {
+            sprintf(buf, "%c", s2[i]);
+            strcpy(data + interlen, buf);
+            interlen += strlen(buf);
+        }               
+    }
+    // printf("\"2s> ");
+    sprintf(buf, "\"");
+    strcpy(data + interlen, buf);
+    interlen += strlen(buf);
     
     // printf("%d %d Z\n", n, result);
-    sprintf(buf, "%d %d Z\n", n, result);
-    strcpy(data + glob.interlen, buf);
-    glob.interlen += strlen(buf) + 1;
+    sprintf(buf, ",\"%d\",\"%d\"],", n, result);
+    strcpy(data + interlen, buf);
+    interlen += strlen(buf);
 }
 
 
@@ -160,20 +171,24 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     }
 
     // printf("\n%c %x %lu %lu", COV_TRACE_SWITCH, *(int *)GET_CALLER_PC, Cases[0], Cases[1]);
-    sprintf(buf, "%c %x %lu %lu", COV_TRACE_SWITCH, *(int *)GET_CALLER_PC, Cases[0], Cases[1]);
-    strcpy(data + glob.interlen, buf);
-    glob.interlen += strlen(buf);
+    sprintf(buf, "[\"%c\",\"%x\",\"%lu\",\"%lu\"", COV_TRACE_SWITCH, *(int *)GET_CALLER_PC, Cases[0], Cases[1]);
+    strcpy(data + interlen, buf);
+    interlen += strlen(buf);
 
     for (int i = 0; i < Cases[0]; i ++) {
         // printf(" %lu", Cases[2 + i]);
-        sprintf(buf, " %lu", Cases[2 + i]);
-        strcpy(data + glob.interlen, buf);
-        glob.interlen += strlen(buf);
+        sprintf(buf, ",\"%lu\"", Cases[2 + i]);
+        strcpy(data + interlen, buf);
+        interlen += strlen(buf);
     }
     // printf(" Z\n");
-    sprintf(buf, " ZZ");
-    strcpy(data + glob.interlen, buf);
-    glob.interlen += strlen(buf) + 1;
+    // Add dataflow analysis information.
+    sprintf(buf, "],");
+    strcpy(data + interlen, buf);
+    interlen += strlen(buf);
+    // Update interlen
+    sprintf(buf, "L%dZ", interlen);
+    strcpy(data, buf);
 
 }
 
@@ -187,7 +202,7 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
 // once per DSO and may be called multiple times with the same parameters.
 void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     //memory share
-    id = shmget(123559, 21 * 1024 * 1024, IPC_CREAT | 0777);
+    id = shmget(124816, 256 * 1024 * 1024, IPC_CREAT | 0777);
     if (id < 0)
     {
         printf("Error Get id failed.\n");
@@ -199,7 +214,7 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
         printf("Error Shmat failed.\n");
         exit(1);
     }
-    printf("D %d Z\n", 123559);
+    printf("D%dZ\n", 124816);  // Printf memory share id towards to terminal.
 
     // strcpy(data, "CMPCOVSHM");
 
@@ -209,10 +224,15 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     
     // char PcDescr[10240];
     // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
+
     // printf("\nI %x %p %p Z\n", *(int *)GET_CALLER_PC, start, stop);
-    sprintf(buf, "I %x %p %p ZZ", *(int *)GET_CALLER_PC, start, stop);
-    strcpy(data + glob.interlen, buf);
-    glob.interlen += strlen(buf) + 1;
+    // Add dataflow analysis information.
+    sprintf(buf, "[\"I\",\"%x\",\"%p\",\"%p\"],", *(int *)GET_CALLER_PC, start, stop);
+    strcpy(data + interlen, buf);
+    interlen += strlen(buf);
+    // Update interlen
+    sprintf(buf, "L%dZ", interlen);
+    strcpy(data, buf);
 
     for (uint32_t *x = start; x < stop; x++)
     {
@@ -220,9 +240,13 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     }
 
     // printf("\nS %x %lu Z\n", *(int *)GET_CALLER_PC, N);  // Guards should start from 1.
-    sprintf(buf, "S %x %lu ZZ", *(int *)GET_CALLER_PC, N);
-    strcpy(data + glob.interlen, buf);
-    glob.interlen += strlen(buf) + 1;
+    // Add dataflow analysis information.
+    sprintf(buf, "[\"S\",\"%x\",\"%lu\"],", *(int *)GET_CALLER_PC, N);
+    strcpy(data + interlen, buf);
+    interlen += strlen(buf);
+    // Update interlen
+    sprintf(buf, "L%dZ", interlen);
+    strcpy(data, buf);
 
     int value;
     value = atexit(saveCovOnEnd);
@@ -254,9 +278,13 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
     // __sanitizer_symbolize_pc(PC, "%p_%F_%L", PcDescr, sizeof(PcDescr));
     // printf("\nG %p %x %s\n", guard, *guard, PcDescr);
     // printf("\nG %x %p %x Z\n", *(int *)GET_CALLER_PC, guard, *guard);
-    sprintf(buf, "G %x %p %x ZZ", *(int *)GET_CALLER_PC, guard, *guard);
-    strcpy(data + glob.interlen, buf);
-    glob.interlen += strlen(buf) + 1;
+    // Add dataflow analysis information.
+    sprintf(buf, "[\"G\",\"%x\",\"%p\",\"%x\"],", *(int *)GET_CALLER_PC, guard, *guard);
+    strcpy(data + interlen, buf);
+    interlen += strlen(buf);
+    // Update interlen
+    sprintf(buf, "L%dZ", interlen);
+    strcpy(data, buf);
 }
 
 void __sanitizer_cov_trace_cmp1(uint8_t Arg1, uint8_t Arg2) { 
@@ -304,5 +332,3 @@ void __dfsan_load_callback(dfsan_label Label, void* Addr);
 void __dfsan_store_callback(dfsan_label Label, void* Addr);
 void __dfsan_mem_transfer_callback(dfsan_label *Start, size_t Len);
 void __dfsan_cmp_callback(dfsan_label CombinedLabel);
-
-}

@@ -49,7 +49,7 @@ def mainFuzzer():
 
     fuzz_command = " ".join(args)
 
-    if fuzz_command == "" or program_name == "" or patchtype not in COM_PATCHLIST:
+    if fuzz_command == "" or program_name == "" or patchtype not in COM_PATCHSET:
         print("python {}.py -h".format(FUZZNAME))
         raise Exception("Error parameters.")
 

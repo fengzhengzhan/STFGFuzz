@@ -25,10 +25,10 @@ COV_TRACE_CONST_CMP2 = 'f'
 COV_TRACE_CONST_CMP4 = 'g'
 COV_TRACE_CONST_CMP8 = 'h'
 
-TRACECMPLIST = [COV_TRACE_CMP1, COV_TRACE_CMP2,
-           COV_TRACE_CMP4, COV_TRACE_CMP8,
-           COV_TRACE_CONST_CMP1, COV_TRACE_CONST_CMP2,
-           COV_TRACE_CONST_CMP4, COV_TRACE_CONST_CMP8]
+TRACECMPSET = {COV_TRACE_CMP1, COV_TRACE_CMP2,
+               COV_TRACE_CMP4, COV_TRACE_CMP8,
+               COV_TRACE_CONST_CMP1, COV_TRACE_CONST_CMP2,
+               COV_TRACE_CONST_CMP4, COV_TRACE_CONST_CMP8}
 
 COV_TRACE_SWITCH = 'i'  # (call_pc, num_case, size_val, case_n...)
 COV_TRACE_DIV4 = 'j'
@@ -41,10 +41,13 @@ WEAK_HOOK_STRCMP = 'o'
 WEAK_HOOK_STRNCASECMP = 'p'
 WEAK_HOOK_STRCASECMP = 'q'
 
-HOOKCMPLIST = [WEAK_HOOK_MEMCMP, WEAK_HOOK_STRNCMP,
-               WEAK_HOOK_STRCMP, WEAK_HOOK_STRNCASECMP,
-               WEAK_HOOK_STRCASECMP]
+HOOKCMPSET = {WEAK_HOOK_MEMCMP, WEAK_HOOK_STRNCMP,
+              WEAK_HOOK_STRCMP, WEAK_HOOK_STRNCASECMP,
+              WEAK_HOOK_STRCASECMP}
 
+SHMID_FLAG = "D"  # Content show from stdout, that represent the memory share id.
+INTERLEN_FLAG = "L"  # The length of array.
+INTERLEN_VALUE_FLAG = 16  # The space bytes in the start of content represents interlen values.
 END_EACH_FLAG = "Z"  # End of each line.
 INIT_PC_GUARD = "I"  # (call_pc, start, end)
 NUM_PC_GUARD = "S"  # (call_pc, nums) Numbers of pc guard, from 1 to number.
@@ -122,7 +125,7 @@ BUI_NODE_ST = "nodest"
 COM_PATCH = 'patch'
 COM_SANITIZER = 'sanitizer'
 COM_MANUAL = 'manual'
-COM_PATCHLIST = [USE_INITNUM, COM_PATCH, COM_SANITIZER, COM_MANUAL]
+COM_PATCHSET = {USE_INITNUM, COM_PATCH, COM_SANITIZER, COM_MANUAL}
 
 COM_PATCH_FILE = 'errors_patch.info'
 COM_SANITIZER_FILE = 'errors_sanitizer.info'
