@@ -101,11 +101,11 @@ class Analyzer:
 
             elif typeflag in TRACECMPSET:
                 # type, func_pc, caller_pc, arg1, arg2, arg_len
-                id_list.append(str(each[1]+each[2]))
+                id_list.append(str(each[1][2:]+each[2][2:]))
                 content_list.append([typeflag, each[1], each[2], each[3], each[4], each[5]])
             elif typeflag == COV_SWITCH:
                 # type, func_pc, caller_pc, num_case, size_val
-                id_list.append(str(each[1] + each[2]))
+                id_list.append(str(each[1][2:] + each[2][2:]))
                 temp_content = [typeflag, each[1], each[2], int(each[3]), each[4]]
                 for i in range(int(each[3])):
                     temp_content.append(each[i + 5])
@@ -114,7 +114,7 @@ class Analyzer:
                 pass
             elif typeflag in HOOKCMPSET:
                 # type, func_pc, caller_pc, s1, s2, size_n, result
-                id_list.append(str(each[1]+each[2]))
+                id_list.append(str(each[1][2:]+each[2][2:]))
                 content_list.append([typeflag, each[1], each[2], each[3], each[4], int(each[5]), int(each[6])])
 
         if len(id_list) > 0 or len(content_list) > 0:

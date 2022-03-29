@@ -238,10 +238,12 @@ LOG_ERROR = 254
 LOG_CRITICAL = 255
 
 
-def LOG_STR(funcinfo, *args):
+def LOG_STR(funcinfo, *args, print_mode=False):
     logstr = "{}-> ".format(funcinfo)
     for content in args:
         logstr += "{} || ".format(content)
+    if print_mode:
+        print(logstr)
     return logstr
 
 
