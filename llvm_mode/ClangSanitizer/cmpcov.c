@@ -72,7 +72,7 @@ static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funci
 
 static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char funcinfo) {
 
-    printf("\n%c %x %p %p ", funcinfo, *(int *)called_pc, GET_FUNC_PC, GET_CALLER_PC);
+    printf("\n%c %x %p %p %p ", funcinfo, *(int *)called_pc, called_pc, GET_FUNC_PC, GET_CALLER_PC);
 
     // uint64_t traceflag =  reinterpret_cast<uint64_t>(called_pc) |
     //     (reinterpret_cast<uint64_t>(s1) << 48) |

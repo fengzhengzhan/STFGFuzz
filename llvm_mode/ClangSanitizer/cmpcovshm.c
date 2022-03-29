@@ -50,7 +50,8 @@
 #define WEAK_HOOK_STRCASECMP 'q'
 
 // return the stack of the function
-#define GET_CALLER_PC __builtin_return_address(0)
+#define GET_FUNC_PC __builtin_return_address(0)
+#define GET_CALLER_PC __builtin_return_address(1)
 
 //// The first 8 bytes magic numbers of *.sancov files.
 //// From: https://clang.llvm.org/docs/SanitizerCoverage.html#id13
@@ -68,9 +69,9 @@ char buf[1024*1024];
 
 // The end of analysis.
 static void saveCovOnEnd() {
-    // printf("\nE %x Z\n", *(int *)GET_CALLER_PC);
+    // printf("\nE %p Z\n", GET_FUNC_PC);
     // Add dataflow analysis information.
-    sprintf(buf, "[\"E\",\"%x\"],", *(int *)GET_CALLER_PC);
+    sprintf(buf, "[\"E\",\"%p\"],", GET_FUNC_PC);
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
     // Update interlen
@@ -87,11 +88,11 @@ static void saveCovOnEnd() {
 }
 
 static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
-    // uintptr_t PC = reinterpret_cast<uintptr_t>(GET_CALLER_PC);
+    // uintptr_t PC = reinterpret_cast<uintptr_t>(GET_FUNC_PC);
 
-    // printf("\n%c %x %lu %lu %d Z\n", funcinfo, *(int *)GET_CALLER_PC, arg1, arg2, arg_len);
+    // printf("\n%c %p %lu %lu %d Z\n", funcinfo, GET_FUNC_PC, arg1, arg2, arg_len);
     // Add dataflow analysis information.
-    sprintf(buf, "[\"%c\",\"%x\",\"%lu\",\"%lu\",\"%d\"],", funcinfo, *(int *)GET_CALLER_PC, arg1, arg2, arg_len);
+    sprintf(buf, "[\"%c\",\"%p\",\"%p\",\"%lu\",\"%lu\",\"%d\"],", funcinfo, GET_FUNC_PC, GET_CALLER_PC, arg1, arg2, arg_len);
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
     // Update interlen
@@ -113,7 +114,7 @@ static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int
     }
     
     // printf("\n%c %x ", funcinfo, *(int *)called_pc);
-    sprintf(buf, "[\"%c\",\"%x\"", funcinfo, *(int *)called_pc);
+    sprintf(buf, "[\"%c\",\"%p\",\"%p\"", funcinfo, GET_FUNC_PC, GET_CALLER_PC);
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
 
@@ -184,8 +185,8 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
         return ;
     }
 
-    // printf("\n%c %x %lu %lu", COV_TRACE_SWITCH, *(int *)GET_CALLER_PC, Cases[0], Cases[1]);
-    sprintf(buf, "[\"%c\",\"%x\",\"%lu\",\"%lu\"", COV_TRACE_SWITCH, *(int *)GET_CALLER_PC, Cases[0], Cases[1]);
+    // printf("\n%c %p %lu %lu", COV_TRACE_SWITCH, GET_FUNC_PC, Cases[0], Cases[1]);
+    sprintf(buf, "[\"%c\",\"%p\",\"%p\",\"%lu\",\"%lu\"", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, Cases[0], Cases[1]);
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
 
@@ -243,9 +244,9 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     // char PcDescr[10240];
     // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
 
-    // printf("\nI %x %p %p Z\n", *(int *)GET_CALLER_PC, start, stop);
+    // printf("\nI %p %p %p Z\n", GET_FUNC_PC, start, stop);
     // Add dataflow analysis information.
-    sprintf(buf, "[\"I\",\"%x\",\"%p\",\"%p\"],", *(int *)GET_CALLER_PC, start, stop);
+    sprintf(buf, "[\"I\",\"%p\",\"%p\",\"%p\"],", GET_FUNC_PC, start, stop);
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
     // Update interlen
@@ -257,9 +258,9 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
         *x = ++N;
     }
 
-    // printf("\nS %x %lu Z\n", *(int *)GET_CALLER_PC, N);  // Guards should start from 1.
+    // printf("\nS %p %lu Z\n", GET_FUNC_PC, N);  // Guards should start from 1.
     // Add dataflow analysis information.
-    sprintf(buf, "[\"S\",\"%x\",\"%lu\"],", *(int *)GET_CALLER_PC, N);
+    sprintf(buf, "[\"S\",\"%p\",\"%lu\"],", GET_FUNC_PC, N);
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
     // Update interlen
@@ -295,9 +296,9 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
     // char PcDescr[10240];
     // __sanitizer_symbolize_pc(PC, "%p_%F_%L", PcDescr, sizeof(PcDescr));
     // printf("\nG %p %x %s\n", guard, *guard, PcDescr);
-    // printf("\nG %x %p %x Z\n", *(int *)GET_CALLER_PC, guard, *guard);
+    // printf("\nG %p %p %p %x Z\n", GET_FUNC_PC, GET_CALLER_PC, guard, *guard);
     // Add dataflow analysis information.
-    // sprintf(buf, "[\"G\",\"%x\",\"%p\",\"%x\"],", *(int *)GET_CALLER_PC, guard, *guard);
+    // sprintf(buf, "[\"G\",\"%p\",\"%p\",\"%p\",\"%x\"],", GET_FUNC_PC, GET_CALLER_PC, guard, *guard);
     sprintf(buf, "[\"G\",\"%x\"],", *guard);
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
