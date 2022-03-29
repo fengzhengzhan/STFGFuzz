@@ -1,4 +1,5 @@
 import os
+import getopt
 from shutil import copy
 
 from fuzzer_module.Fuzzconfig import *
@@ -7,6 +8,43 @@ from fuzzer_module.Fuzzconfig import *
 def __createDir(path: str) -> None:
     if not os.path.exists(path):
         os.makedirs(path)
+
+def genTerminal():
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hn:t:")
+        # print(opts, args)
+        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), opts, args))
+    except getopt.GetoptError:
+        print("python {}.py -h".format(FUZZNAME))
+        raise Exception("Error options.")
+
+    fuzz_command = " ".join(args)
+    program_name = ""
+    patchtype = USE_INITNUM
+
+    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), fuzz_command))
+
+    for opt, arg in opts:
+        if opt == "-h":
+            print()
+            print("Usage:")
+            print(" python {}.py [OPTIONS] -- [files] [OPTIONS] @@".format(FUZZNAME))
+            print(" python {}.py -n demo -- ./Programs/demo/code_Bin/demo -f @@".format(FUZZNAME))
+            print(" python {}.py -n demo -t manual -- ./Programs/demo/code_Bin/demo -f @@".format(FUZZNAME))
+            print()
+            print("STFGFuzzer")
+            print()
+            print("Options:")
+            print(" -n <program_name>   Specify the name of the program item to be mutated.")
+            print(" -t ['patch','sanitizer','manual']   Specify the target location file type.")
+            print()
+            sys.exit()
+        elif opt == "-n":
+            program_name = arg
+        elif opt == "-t":
+            patchtype = arg
+
+    return program_name, patchtype, fuzz_command
 
 
 def prepareEnv(program_name: str) -> list:

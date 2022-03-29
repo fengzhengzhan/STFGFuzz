@@ -1,9 +1,4 @@
 import time
-import sys
-import getopt
-import os
-import re
-import curses
 
 from fuzzer_module import *
 from fuzzer_module.Fuzzconfig import *
@@ -16,38 +11,7 @@ def mainFuzzer():
     """
 
     # Receive command line parameters.
-    program_name = ""
-    patchtype = USE_INITNUM
-
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hn:t:")
-        # print(opts, args)
-        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), opts, args))
-    except getopt.GetoptError:
-        print("python {}.py -h".format(FUZZNAME))
-        raise Exception("Error options.")
-
-    for opt, arg in opts:
-        if opt == "-h":
-            print()
-            print("Usage:")
-            print(" python {}.py [OPTIONS] -- [files] [OPTIONS] @@".format(FUZZNAME))
-            print(" python {}.py -n demo -- ./Programs/demo/code_Bin/demo -f @@".format(FUZZNAME))
-            print(" python {}.py -n demo -t manual -- ./Programs/demo/code_Bin/demo -f @@".format(FUZZNAME))
-            print()
-            print("STFGFuzzer")
-            print()
-            print("Options:")
-            print(" -n <program_name>   Specify the name of the program item to be mutated.")
-            print(" -t ['patch','sanitizer','manual']   Specify the target location file type.")
-            print()
-            sys.exit()
-        elif opt == "-n":
-            program_name = arg
-        elif opt == "-t":
-            patchtype = arg
-
-    fuzz_command = " ".join(args)
+    program_name, patchtype, fuzz_command = Generator.genTerminal()
 
     if fuzz_command == "" or program_name == "" or patchtype not in COM_PATCHSET:
         print("python {}.py -h".format(FUZZNAME))
@@ -60,14 +24,7 @@ def mainFuzzer():
     path_codeIR = PROGRAMS + os.sep + program_name + os.sep + CODEIR + os.sep
     LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), path_initseeds, path_mutateseeds, path_crashseeds))
 
-    # print(fuzz_command)
-    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), fuzz_command))
-
     '''Fuzzing test procedure.'''
-    start_time = time.time()
-    loop = 0
-    total = 0
-    loc_interval = 8
     vis = Visualizer.Visualizer()
     sch = Scheduler.Scheduler()
     ana = Analyzer.Analyzer()
@@ -76,7 +33,11 @@ def mainFuzzer():
     cfggraph_dict, map_guardTocfgname = Builder.getCFG(cfglist)
     # vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
 
-    constraint_graph: 'list[dict, dict]' = StructSTGraph().constraintgraph
+    start_time = time.time()
+    loop = 0
+    total = 0
+
+    st_graph: 'list[dict, dict]' = StructSTGraph().constraintgraph
     cmp_map: dict = StructCmpMap().cmpmap
     input_map: dict[list] = {}
     mutate_loc = StructMutLoc()
@@ -94,38 +55,34 @@ def mainFuzzer():
         loop += 1
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_INIT_SEED)
-        saveAsFile(init_seed.content, init_seed.filename)
         init_retcode, init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         init_trace = ana.traceAyalysis(init_stdout)
+
         num_pcguard = ana.getNumOfPcguard()
 
-        # Mutate seeds to find where to change. Then perform to a directed mutate.
-        # temp_mutate_listq = Mutator.mutateSeeds(init_seed.content, path_mutateseeds, str(loop))
-        # sch.addSeeds(SCH_MUT_SEED, temp_mutate_listq)
-        # print(mutate_seeds, record_list)
+        # Select the location to be mutated and add it to the location queue.
+        sch.initEachloop()
         for loci in range(0, len(init_seed.content)):
-            sch.locCoarseq.put(loci)
+            sch.locCoarseList.append(loci)
 
         # Find correspondence
         '''XXX: seed inputs -> cmp instruction -> cmp type (access method) -> braches'''
         # Coarse-Grained  O(n)  # todo multiprocessing
         # Get a report on changes to comparison instructions.
-        while not sch.isEmpty(SCH_COARSE_SEED):
+        coarse_head = 0
+        coarse_len = len(sch.locCoarseList)
+        while coarse_head <= coarse_len:
             total += 1
             # 1 seed inputs
-            loc_set = set()
+            mut_loc_set = set()
             for locl in range(0, sch.slidWindow):
                 if not sch.isEmpty(SCH_COARSE_SEED):
-                    loc_set.add(sch.getValue(SCH_COARSE_SEED))
-            # print(loc_set)
+                    mut_loc_set.add(sch.getValue(SCH_COARSE_SEED))
 
             # 2 cmp instruction
-
             # Track execution information of mutate seeds.
-            # execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
-            execute_seed = Mutator.mutateSelectChar(init_seed.content, path_mutateseeds, str(loop), loc_set)
+            execute_seed = Mutator.mutateSelectChar(init_seed.content, path_mutateseeds, str(loop), mut_loc_set)
             sch.addDeleteq(execute_seed)
-            saveAsFile(execute_seed.content, execute_seed.filename)
             mut_retcode, mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
             mut_trace = ana.traceAyalysis(mut_stdout)
             raise Exception()
@@ -147,7 +104,10 @@ def mainFuzzer():
                 return
 
         # Fine-Grained
+        # Mutate seeds to find where to change. Then perform to a directed mutate.
         # Only the corresponding position is speculated. O(1)
+        while True:
+            break
 
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_change_inputmap))
 

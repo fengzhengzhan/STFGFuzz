@@ -7,14 +7,18 @@ from fuzzer_module.Fuzzconfig import *
 class Scheduler:
     def __init__(self):
         self.seedq: Queue[StructSeed] = Queue(maxsize=0)
-        self.locCoarseq: Queue[int] = Queue(maxsize=0)
-        self.locFineq: Queue[int] = Queue(maxsize=0)
+        self.locCoarseList: 'list[int]' = []
+        self.locFineList: 'list[int]' = []
         self.slidWindow: int = SCH_SLID_WINDOW
         self.freezebytes: dict = {}
         self.mutateTestq: Queue[StructSeed] = Queue(maxsize=0)
         self.importantq: Queue[StructSeed] = Queue(maxsize=0)
         self.deleteq: Queue[StructSeed] = Queue(maxsize=0)
 
+    def initEachloop(self):
+        self.locCoarseList = []
+        self.locFineList = []
+        self.slidWindow = SCH_SLID_WINDOW
 
     def selectOneSeed(self, mode: int) -> StructSeed:
         if mode == SCH_INIT_SEED:
@@ -23,6 +27,9 @@ class Scheduler:
             temp_one = self.mutateTestq.get()
         else:
             raise Exception("Error: mode type.")
+
+        if SCH_SAVEASFILE:
+            saveAsFile(temp_one.content, temp_one.filename)
         self.addDeleteq(temp_one)
         return temp_one
 
@@ -39,19 +46,8 @@ class Scheduler:
             temp_flag = self.seedq.empty()
         elif mode == SCH_MUT_SEED:
             temp_flag = self.mutateTestq.empty()
-        elif mode == SCH_COARSE_SEED:
-            temp_flag = self.locCoarseq.empty()
-        elif mode == SCH_FINE_SEED:
-            temp_flag = self.locFineq.empty()
         return temp_flag
 
-    def getValue(self, mode):
-        temp_value = 0
-        if mode == SCH_COARSE_SEED:
-            temp_value = self.locCoarseq.get()
-        elif mode == SCH_FINE_SEED:
-            temp_value = self.locFineq.get()
-        return temp_value
 
     def addDeleteq(self, temp_one):
         self.deleteq.put(temp_one)
@@ -61,5 +57,6 @@ class Scheduler:
         Delete mutated intermediate files.
         @return:
         """
-        while not self.deleteq.empty():
-            os.remove(self.deleteq.get().filename)
+        if SCH_SAVEASFILE:
+            while not self.deleteq.empty():
+                os.remove(self.deleteq.get().filename)
