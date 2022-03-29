@@ -50,6 +50,14 @@
 #define WEAK_HOOK_STRCASECMP 'q'
 
 // return the stack of the function
+// __builtin_return_address(LEVEL)
+// This function is used to return the return address of the current function or caller. 
+// The function's parameter LEVEl indicates the different levels of functions in the function call chain, and each value represents the following meaning.
+
+// 0: return the return address of the current function.
+// 1: returns the return address of the current function caller.
+// 2: returns the return address of the caller of the current function caller.
+// ......
 #define GET_FUNC_PC __builtin_return_address(0)
 #define GET_CALLER_PC __builtin_return_address(1)
 

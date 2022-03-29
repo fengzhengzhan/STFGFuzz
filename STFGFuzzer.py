@@ -58,7 +58,7 @@ def mainFuzzer():
         init_retcode, init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         init_trace = ana.traceAyalysis(init_stdout)
 
-        num_pcguard = ana.getNumOfPcguard()
+        # num_pcguard = ana.getNumOfPcguard()
 
         # Select the location to be mutated and add it to the location queue.
         sch.initEachloop()

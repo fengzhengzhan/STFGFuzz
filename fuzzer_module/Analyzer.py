@@ -66,24 +66,42 @@ class Analyzer:
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmpcovshm_list))
 
         # Iterate through the trace report to get the corresponding information
-        for line in cmpcovshm_list:
-            typeflag = line[0]
+        cmp_report_dict: 'dict[str:[StructTraceReport]]' = {}  # According cmp instruction to genetator dict.
+        id_list = []
+        content_list = []
+        before_guard_num = USE_INITNUM
+        for each in cmpcovshm_list:
+            typeflag = each[0]
             if typeflag == INIT_PC_GUARD:
                 pass
             elif typeflag == NUM_PC_GUARD:
-                pass
+                self.num_pcguard = int(each[2])
             elif typeflag == EACH_PC_GUARD:
-                pass
+                type = typeflag
+                guard_num = int(each[1], 16)
+
+                id_list = []
+                content_list = []
             elif typeflag == PROGRAM_END:
-                pass
+                end = True
             elif typeflag in TRACECMPSET:
-                pass
+                # type, func_pc, caller_pc, arg1, arg2, arg_len
+                id_list.append(str(each[1]+each[2]))
+                content_list.append([typeflag, each[1], each[2], each[3], each[4], each[5]])
             elif typeflag == COV_SWITCH:
-                pass
+                # type, func_pc, caller_pc, num_case, size_val
+                id_list.append(str(each[1] + each[2]))
+                temp_content = [typeflag, each[1], each[2], int(each[3]), each[4]]
+                for i in range(int(each[3])):
+                    temp_content.append(each[i + 5])
+                content_list.append(temp_content)
+
             elif typeflag == COV_DIV4 or typeflag == COV_DIV8 or typeflag == COV_GEP:
                 pass
             elif typeflag in HOOKCMPSET:
-                pass
+                # type, func_pc, caller_pc, s1, s2, size_n, result
+                id_list.append(str(each[1]+each[2]))
+                content_list.append([typeflag, each[1], each[2], each[3], each[4], int(each[5]), int(each[6])])
 
         return []
 
@@ -99,7 +117,7 @@ class Analyzer:
         content_list = []
 
         exist_z = True
-        before_guard_num = ANA_STARTPROG_IDX
+        before_guard_num = USE_INITNUM
         combine_line = ""
         for each_line in each_line_list:
             # Handling blank lines.

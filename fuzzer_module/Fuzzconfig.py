@@ -8,7 +8,7 @@ from fuzzer_module.Structures import *
 FUZZNAME = "STFGFuzzer"
 FILEREPLACE = "@@"
 INIT = 100
-USE_INITNUM = -11
+USE_INITNUM = -1
 USE_INITSTR = ""
 
 
@@ -79,7 +79,8 @@ FLAG_DICT = {'a': "COV_TRACE_CMP1",
 
 # Parameter Location Index
 IDX_CMP_TYPE = 0
-IDX_CALLPC = 1
+IDX_FUNCPC = 1
+IDX_CALLERPC = 2
 IDX_ARG1 = 2
 IDX_ARG2 = 3
 IDX_ARGLEN = 4
@@ -97,7 +98,6 @@ IDX_MUT_START = 1
 IDX_MUT_END = 2
 
 '''Analyzer'''
-ANA_STARTPROG_IDX = -1
 ANA_ENDPROG_IDX = -2
 ANA_MEMSHM_MODE = True
 ANA_INTERLEN_SIZE = 16
