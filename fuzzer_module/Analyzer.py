@@ -66,10 +66,12 @@ class Analyzer:
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmpcovshm_list))
 
         # Iterate through the trace report to get the corresponding information
-        cmp_report_dict: 'dict[str:[StructTraceReport]]' = {}  # According cmp instruction to genetator dict.
+        cmprpt_dict: 'dict[str:[StructTraceReport]]' = {}  # According cmp instruction to genetator dict.
         id_list = []
         content_list = []
-        before_guard_num = USE_INITNUM
+        pre_guard_num = USE_INITNUM  # before
+        end_guard_num = USE_ENDNUM
+        exception_guard_num = USE_EXCEPTION
         for each in cmpcovshm_list:
             typeflag = each[0]
             if typeflag == INIT_PC_GUARD:
@@ -79,11 +81,24 @@ class Analyzer:
             elif typeflag == EACH_PC_GUARD:
                 type = typeflag
                 guard_num = int(each[1], 16)
-
+                for idx, oneid in enumerate(id_list):
+                    if idx not in cmprpt_dict:
+                        cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, guard_num, content_list[idx]), ]
+                    else:
+                        cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, guard_num, content_list[idx]))
+                pre_guard_num = guard_num
                 id_list = []
                 content_list = []
             elif typeflag == PROGRAM_END:
                 end = True
+                for idx, oneid in enumerate(id_list):
+                    if idx not in cmprpt_dict:
+                        cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx]), ]
+                    else:
+                        cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx]))
+                id_list = []
+                content_list = []
+
             elif typeflag in TRACECMPSET:
                 # type, func_pc, caller_pc, arg1, arg2, arg_len
                 id_list.append(str(each[1]+each[2]))
@@ -95,7 +110,6 @@ class Analyzer:
                 for i in range(int(each[3])):
                     temp_content.append(each[i + 5])
                 content_list.append(temp_content)
-
             elif typeflag == COV_DIV4 or typeflag == COV_DIV8 or typeflag == COV_GEP:
                 pass
             elif typeflag in HOOKCMPSET:
@@ -103,7 +117,15 @@ class Analyzer:
                 id_list.append(str(each[1]+each[2]))
                 content_list.append([typeflag, each[1], each[2], each[3], each[4], int(each[5]), int(each[6])])
 
-        return []
+        if len(id_list) > 0 or len(content_list) > 0:
+            for idx, oneid in enumerate(id_list):
+                if idx not in cmprpt_dict:
+                    cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx]), ]
+                else:
+                    cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx]))
+
+        cmprpt_set = set(cmprpt_dict)
+        return cmprpt_dict, cmprpt_set
 
 
     def terminalTrace(self, out_info: str):

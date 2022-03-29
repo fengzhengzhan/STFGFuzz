@@ -79,7 +79,9 @@ def mainFuzzer():
             mutseed = Mutator.mutateSelectChar(init_seed.content, path_mutateseeds, str(loop), mutloc_list)
             execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
             mut_retcode, mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
-            mut_trace = ana.traceAyalysis(mut_stdout)
+            mutrpt_dict, mutrpt_set = ana.traceAyalysis(mut_stdout)  # report
+            print(mutrpt_dict, mutrpt_set)
+            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), mutrpt_dict, mutrpt_set))
 
             # 2 cmp instruction
             # Track execution information of mutate seeds.
