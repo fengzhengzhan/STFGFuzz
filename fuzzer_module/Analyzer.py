@@ -40,28 +40,50 @@ class Analyzer:
         shmid = shmget(shm_key, 512 * 1024 * 1024, 0o666)
         if shmid < 0:
             raise Exception("Error System not infected.")
-        else:
-            addr = shmat(shmid, None, 0)
-            # Get the length of cmpcovshm contents.
-            interlen_str = string_at(addr, ANA_INTERLEN_SIZE).decode("utf-8")
-            re_str = INTERLEN_FLAG + "(.*?)" + END_EACH_FLAG
-            interlen = int(re.search(re_str, interlen_str).group(1))
 
-            # Read content in pieces
-            pieces = interlen // ANA_SHM_INTERVAL
-            over = interlen % ANA_SHM_INTERVAL
+        addr = shmat(shmid, None, 0)
+        # Get the length of cmpcovshm contents.
+        interlen_str = string_at(addr, ANA_INTERLEN_SIZE).decode("utf-8")
+        re_str = INTERLEN_FLAG + "(.*?)" + END_EACH_FLAG
+        interlen = int(re.search(re_str, interlen_str).group(1))
 
-            cmpcovshm_str = ""
-            for each in range(0, pieces):
-                cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * each, ANA_SHM_INTERVAL).decode("utf-8")
-            cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * pieces, over).decode("utf-8")
-            cmpcovshm_str = cmpcovshm_str[16:-1]
-            self.rt.shmctl(shmid, 0, 0)
+        # Read content in pieces
+        pieces = interlen // ANA_SHM_INTERVAL
+        over = interlen % ANA_SHM_INTERVAL
 
-            # Content to json
-            cmpcovshm_str = '{"' + ANA_CMPCOVSHM_NAME + '":[' + cmpcovshm_str + ']}'
-            cmpcovshm_json = json.loads(cmpcovshm_str)
-            print(type(cmpcovshm_json[ANA_CMPCOVSHM_NAME]), cmpcovshm_json[ANA_CMPCOVSHM_NAME])
+        cmpcovshm_str = ""
+        for each in range(0, pieces):
+            cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * each, ANA_SHM_INTERVAL).decode("utf-8")
+        cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * pieces, over).decode("utf-8")
+        cmpcovshm_str = cmpcovshm_str[16:-1]
+        self.rt.shmctl(shmid, 0, 0)
+
+        # Content to json
+        cmpcovshm_str = '{"' + ANA_CMPCOVSHM_NAME + '":[' + cmpcovshm_str + ']}'
+        cmpcovshm_json = json.loads(cmpcovshm_str)
+        cmpcovshm_list = cmpcovshm_json[ANA_CMPCOVSHM_NAME]
+        # print(type(cmpcovshm_json[ANA_CMPCOVSHM_NAME]), cmpcovshm_json[ANA_CMPCOVSHM_NAME])
+        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmpcovshm_list))
+
+        # Iterate through the trace report to get the corresponding information
+        for line in cmpcovshm_list:
+            typeflag = line[0]
+            if typeflag == INIT_PC_GUARD:
+                pass
+            elif typeflag == NUM_PC_GUARD:
+                pass
+            elif typeflag == EACH_PC_GUARD:
+                pass
+            elif typeflag == PROGRAM_END:
+                pass
+            elif typeflag in TRACECMPSET:
+                pass
+            elif typeflag == COV_SWITCH:
+                pass
+            elif typeflag == COV_DIV4 or typeflag == COV_DIV8 or typeflag == COV_GEP:
+                pass
+            elif typeflag in HOOKCMPSET:
+                pass
 
         return []
 
@@ -112,19 +134,20 @@ class Analyzer:
 
             # Matching Symbols.
             each = combine_line.split(" ")
-            if each[0] in FLAG_DICT and each[-1] == END_EACH_FLAG:
+            typeflag = each[0]
+            if typeflag in FLAG_DICT and each[-1] == END_EACH_FLAG:
                 # Matching trace identifier.
-                if each[0] == INIT_PC_GUARD:
-                    type = each[0]
+                if typeflag == INIT_PC_GUARD:
+                    type = typeflag
                     call_pc = each[1]
                     start_addr = each[2]
                     end_addr = each[3]
-                elif each[0] == NUM_PC_GUARD:
-                    type = each[0]
+                elif typeflag == NUM_PC_GUARD:
+                    type = typeflag
                     call_pc = each[1]
                     self.num_pcguard = int(each[2])
-                elif each[0] == EACH_PC_GUARD:
-                    type = each[0]
+                elif typeflag == EACH_PC_GUARD:
+                    type = typeflag
                     call_pc = each[1]
                     guard_addr = each[2]
                     guard_num = int(each[3], 16)
@@ -132,17 +155,14 @@ class Analyzer:
                     before_guard_num = guard_num
                     call_pc_list = []
                     content_list = []
-                elif each[0] == PROGRAM_END:
-                    type = each[0]
+                elif typeflag == PROGRAM_END:
+                    type = typeflag
                     call_pc = each[1]
                     end = True
                     struct_report_list.append(StructTraceReport(before_guard_num, ANA_ENDPROG_IDX, call_pc_list, content_list, []))
                 # Matching comparison identifier.
-                elif each[0] == COV_CMP1 or each[0] == COV_CMP2 \
-                        or each[0] == COV_CMP4 or each[0] == COV_CMP8 \
-                        or each[0] == COV_CONSTCMP1 or each[0] == COV_CONSTCMP2 \
-                        or each[0] == COV_CONSTCMP4 or each[0] == COV_CONSTCMP8:
-                    type = each[0]
+                elif typeflag in TRACECMPSET:
+                    type = typeflag
                     call_pc = each[1]
                     arg1 = each[2]
                     arg2 = each[3]
@@ -150,8 +170,8 @@ class Analyzer:
                     call_pc_list.append(call_pc)
                     temp_content = [type, call_pc, arg1, arg2, arg_len]
                     content_list.append(temp_content)
-                elif each[0] == COV_SWITCH:
-                    type = each[0]
+                elif typeflag == COV_SWITCH:
+                    type = typeflag
                     call_pc = each[1]
                     num_case = int(each[2])
                     size_val = each[3]
@@ -161,12 +181,10 @@ class Analyzer:
                     for i in range(num_case):
                         temp_content.append(each[i+4])
                     content_list.append(temp_content)
-                elif each[0] == COV_DIV4 or each[0] == COV_DIV8 or each[0] == COV_GEP:
+                elif typeflag == COV_DIV4 or typeflag == COV_DIV8 or typeflag == COV_GEP:
                     pass
-                elif each[0] == HOOK_MEMCMP or each[0] == HOOK_STRNCMP \
-                        or each[0] == HOOK_STRCMP or each[0] == HOOK_STRNCASECMP \
-                        or each[0] == HOOK_STRCASECMP:
-                    type = each[0]
+                elif typeflag in HOOKCMPSET:
+                    type = typeflag
                     call_pc = each[1]
                     s1 = re.search(r'<s1"(.*)"1s>', combine_line, flags=re.S).group(1)
                     s2 = re.search(r'<s2"(.*)"2s>', combine_line, flags=re.S).group(1)

@@ -297,7 +297,8 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
     // printf("\nG %p %x %s\n", guard, *guard, PcDescr);
     // printf("\nG %x %p %x Z\n", *(int *)GET_CALLER_PC, guard, *guard);
     // Add dataflow analysis information.
-    sprintf(buf, "[\"G\",\"%x\",\"%p\",\"%x\"],", *(int *)GET_CALLER_PC, guard, *guard);
+    // sprintf(buf, "[\"G\",\"%x\",\"%p\",\"%x\"],", *(int *)GET_CALLER_PC, guard, *guard);
+    sprintf(buf, "[\"G\",\"%x\"],", *guard);
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
     // Update interlen

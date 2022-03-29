@@ -48,7 +48,8 @@
 #define WEAK_HOOK_STRCASECMP 'q'
 
 // return the stack of the function
-#define GET_CALLER_PC __builtin_return_address(0)
+#define GET_FUNC_PC __builtin_return_address(0)
+#define GET_CALLER_PC __builtin_return_address(1)
 
 //// The first 8 bytes magic numbers of *.sancov files.
 //// From: https://clang.llvm.org/docs/SanitizerCoverage.html#id13
@@ -61,17 +62,17 @@
 
 // The end of analysis.
 static void saveCovOnEnd() {
-    printf("\nE %x Z\n", *(int *)GET_CALLER_PC);
+    printf("\nE %p Z\n", GET_FUNC_PC);
 }
 
 static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
-    // uintptr_t PC = reinterpret_cast<uintptr_t>(GET_CALLER_PC);
-    printf("\n%c %x %lu %lu %d Z\n", funcinfo, *(int *)GET_CALLER_PC, arg1, arg2, arg_len);
+    // uintptr_t PC = reinterpret_cast<uintptr_t>(GET_FUNC_PC);
+    printf("\n%c %p %p %lu %lu %d Z\n", funcinfo, GET_FUNC_PC, GET_CALLER_PC, arg1, arg2, arg_len);
 } 
 
 static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char funcinfo) {
 
-    printf("\n%c %x ", funcinfo, *(int *)called_pc);
+    printf("\n%c %x %p %p ", funcinfo, *(int *)called_pc, GET_FUNC_PC, GET_CALLER_PC);
 
     // uint64_t traceflag =  reinterpret_cast<uint64_t>(called_pc) |
     //     (reinterpret_cast<uint64_t>(s1) << 48) |
@@ -107,7 +108,7 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
         return ;
     }
 
-    printf("\n%c %x %lu %lu", COV_TRACE_SWITCH, *(int *)GET_CALLER_PC, Cases[0], Cases[1]);
+    printf("\n%c %p %p %lu %lu", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, Cases[0], Cases[1]);
 
     for (int i = 0; i < Cases[0]; i ++) {
         printf(" %lu", Cases[2 + i]);
@@ -132,13 +133,13 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     // char PcDescr[10240];
     // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
     // printf("\nI %p %p %s\n", start, stop, PcDescr);
-    printf("\nI %x %p %p Z\n", *(int *)GET_CALLER_PC, start, stop);
+    printf("\nI %p %p %p Z\n", GET_FUNC_PC, start, stop);
     for (uint32_t *x = start; x < stop; x++)
     {
         *x = ++N;
     }
 
-    printf("\nS %x %lu Z\n", *(int *)GET_CALLER_PC, N);  // Guards should start from 1.
+    printf("\nS %p %lu Z\n", GET_FUNC_PC, N);  // Guards should start from 1.
 
     int value;
     value = atexit(saveCovOnEnd);
@@ -169,7 +170,7 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
     // char PcDescr[10240];
     // __sanitizer_symbolize_pc(PC, "%p_%F_%L", PcDescr, sizeof(PcDescr));
     // printf("\nG %p %x %s\n", guard, *guard, PcDescr);
-    printf("\nG %x %p %x Z\n", *(int *)GET_CALLER_PC, guard, *guard);
+    printf("\nG %p %p %p %x Z\n", GET_FUNC_PC, GET_CALLER_PC, guard, *guard);
 }
 
 void __sanitizer_cov_trace_cmp1(uint8_t Arg1, uint8_t Arg2) { 
