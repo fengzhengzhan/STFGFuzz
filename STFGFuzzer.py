@@ -44,7 +44,7 @@ def mainFuzzer():
     eachloop_change_inputmap: dict = {}
     init_seeds_list = Generator.prepareEnv(program_name)
 
-    # Init seed lists
+    # Init seed lists  # todo if == null
     temp_listq = []
     for each in init_seeds_list:
         temp_listq.append(StructSeed(path_mutateseeds+each, "", INIT, {-1, }))
@@ -74,17 +74,16 @@ def mainFuzzer():
         while coarse_head <= coarse_len:
             total += 1
             # 1 seed inputs
-            mut_loc_set = set()
-            for locl in range(0, sch.slidWindow):
-                if not sch.isEmpty(SCH_COARSE_SEED):
-                    mut_loc_set.add(sch.getValue(SCH_COARSE_SEED))
+            mutloc_list = sch.locCoarseList[coarse_head:coarse_head+sch.slidWindow]
+            coarse_head += sch.slidWindow
+            mutseed = Mutator.mutateSelectChar(init_seed.content, path_mutateseeds, str(loop), mutloc_list)
+            execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
+            mut_retcode, mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+            mut_trace = ana.traceAyalysis(mut_stdout)
 
             # 2 cmp instruction
             # Track execution information of mutate seeds.
-            execute_seed = Mutator.mutateSelectChar(init_seed.content, path_mutateseeds, str(loop), mut_loc_set)
-            sch.addDeleteq(execute_seed)
-            mut_retcode, mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
-            mut_trace = ana.traceAyalysis(mut_stdout)
+
             raise Exception()
 
             # 3 cmp type

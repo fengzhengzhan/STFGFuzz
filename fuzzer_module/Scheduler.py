@@ -20,18 +20,20 @@ class Scheduler:
         self.locFineList = []
         self.slidWindow = SCH_SLID_WINDOW
 
-    def selectOneSeed(self, mode: int) -> StructSeed:
+    def selectOneSeed(self, mode: int, mutseed=None) -> StructSeed:
         if mode == SCH_INIT_SEED:
             temp_one = self.seedq.get()
         elif mode == SCH_MUT_SEED:
             temp_one = self.mutateTestq.get()
+        elif mode == SCH_THIS_SEED:
+            temp_one = mutseed
         else:
             raise Exception("Error: mode type.")
-
         if SCH_SAVEASFILE:
             saveAsFile(temp_one.content, temp_one.filename)
         self.addDeleteq(temp_one)
         return temp_one
+
 
     def addSeeds(self, mode: int, structseed_list: 'list[StructSeed]'):
         for each in structseed_list:
@@ -39,6 +41,9 @@ class Scheduler:
                 self.seedq.put(each)
             elif mode == SCH_MUT_SEED:
                 self.mutateTestq.put(each)
+
+    def addDeleteq(self, temp_one):
+        self.deleteq.put(temp_one)
 
     def isEmpty(self, mode) -> bool:
         temp_flag = False
@@ -48,15 +53,12 @@ class Scheduler:
             temp_flag = self.mutateTestq.empty()
         return temp_flag
 
-
-    def addDeleteq(self, temp_one):
-        self.deleteq.put(temp_one)
-
     def deleteSeeds(self):
         """
         Delete mutated intermediate files.
         @return:
         """
-        if SCH_SAVEASFILE:
-            while not self.deleteq.empty():
-                os.remove(self.deleteq.get().filename)
+        while not self.deleteq.empty():
+            temp_one = self.deleteq.get()
+            if SCH_SAVEASFILE:
+                os.remove(temp_one.filename)
