@@ -4,7 +4,7 @@ from fuzzer_module.Fuzzconfig import *
 '''
 Tracking Comparison Module.
 '''
-def compareRpt(seed: StructSeed, initrpt_dict: 'dict[str:StructCmpIns]', initrpt_set: set, mutrpt_dict, mutrpt_set):
+def compareRptToLoc(seed: StructSeed, initrpt_dict: 'dict[str:StructCmpIns]', initrpt_set: set, mutrpt_dict, mutrpt_set):
     interset = initrpt_set & mutrpt_set  # Intersection
     symdiffset = initrpt_set ^ mutrpt_set  # Symmetric Difference set
     cmpmaploc_rptdict = {}
@@ -108,7 +108,7 @@ def varChangeSpeculation(infer_bytes: StructCmpInfer):
 
 
 
-def typeDetect(comparison_diffreport: 'list[StructCmpReport]', comparison_onereport: 'list[StructCmpReport]', cmp_map: dict, mutate_loc: StructMutLoc) -> dict:
+def typeDetect(execute_seed: 'StructSeed', st_k: 'cmpid', initrpt_dict: 'dict[cmpid:[StructCmpIns]]', mutrpt_dict):
     """
     Type identification and speculation.
     @param comparison_diffreport:
@@ -117,10 +117,10 @@ def typeDetect(comparison_diffreport: 'list[StructCmpReport]', comparison_onerep
     @param mutate_loc:
     @return:
     """
-    # print(comparison_report)
-    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), comparison_diffreport, comparison_onereport))
-    each_change_inputmap = {}  # Determine the changed bytes.
+    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), execute_seed.location, st_k, initrpt_dict, mutrpt_dict, print_mode=True))
 
+    comparison_diffreport = None
+    each_change_inputmap = {}  # Determine the changed bytes.
     # Loop through the cases where the initial and variant correspond to each other.
     for each in comparison_diffreport:
         mutseed = each.mutseed
@@ -166,9 +166,6 @@ def typeDetect(comparison_diffreport: 'list[StructCmpReport]', comparison_onerep
         # Handling input change mapping.
         mergeMapReport(change_inputmap, each_change_inputmap)
 
-    # The loop traverses the case where only a single variant exists for the initial and variant.
-    for each in comparison_onereport:
-        pass
 
     # print(each_change_inputmap)
     return each_change_inputmap

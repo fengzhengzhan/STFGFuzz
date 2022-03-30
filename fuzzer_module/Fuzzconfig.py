@@ -16,6 +16,7 @@ USE_INITSTR = ""
 
 COARSE_STR = "coarse"
 FINE_STR = "fine"
+ST_STR = "st"
 
 
 # The fisrt character represent the type of compare instruction.
