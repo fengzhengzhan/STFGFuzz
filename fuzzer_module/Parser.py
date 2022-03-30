@@ -1,72 +1,9 @@
-import struct
-
 from fuzzer_module.Fuzzconfig import *
 
 
 '''
 Tracking Comparison Module.
 '''
-def traceBack(init_trace, mut_trace, lcstable, i, m, init_list, mut_list):
-    """
-    Backtracking to find a location
-    @param init_trace:
-    @param mut_trace:
-    @param lcstable:
-    @param i:
-    @param m:
-    @param init_list:
-    @param mut_list:
-    @return:
-    """
-    while i > 0 and m > 0:
-        if init_trace[i - 1] == mut_trace[m - 1]:
-            init_list.append(i - 1)
-            mut_list.append(m - 1)
-            i -= 1
-            m -= 1
-        else:
-            if lcstable[i - 1][m] > lcstable[i][m - 1]:
-                i -= 1
-            elif lcstable[i - 1][m] < lcstable[i][m - 1]:
-                m -= 1
-            else:
-                traceBack(init_trace, mut_trace, lcstable, i - 1, m, init_list, mut_list)
-                break
-
-
-def compareLCS(init_trace: list, mut_trace: list):
-    """
-    Find the longest common subsequence.
-    @param init_trace:
-    @param mut_trace:
-    @return: Return to coordinate position.
-    """
-    init_len = len(init_trace)
-    mut_len = len(mut_trace)
-    lcstable = [[0 for _ in range(mut_len+1)] for _ in range(init_len+1)]
-
-    # Constructing the state transfer matrix.
-    for i in range(1, init_len+1):
-        for j in range(1, mut_len+1):
-            if init_trace[i-1] == mut_trace[j-1]:
-                lcstable[i][j] = lcstable[i-1][j-1] + 1
-            else:
-                lcstable[i][j] = max(lcstable[i-1][j], lcstable[i][j-1])
-    # for each in lcstable:
-    #     print(each)
-    lcs_len = lcstable[init_len][mut_len]
-
-    # Backtracking to find a location.
-    init_list = []
-    mut_list = []
-    traceBack(init_trace, mut_trace, lcstable, init_len, mut_len, init_list, mut_list)
-    init_list.reverse()
-    mut_list.reverse()
-    # print(init_list, mut_list)
-
-    return lcs_len, init_list, mut_list
-
-
 def compareRpt(seed: StructSeed, initrpt_dict: 'dict[str:StructCmpIns]', initrpt_set: set, mutrpt_dict, mutrpt_set):
     interset = initrpt_set & mutrpt_set  # Intersection
     symdiffset = initrpt_set ^ mutrpt_set  # Symmetric Difference set
@@ -237,9 +174,3 @@ def typeDetect(comparison_diffreport: 'list[StructCmpReport]', comparison_onerep
     return each_change_inputmap
 
 
-if __name__ == "__main__":
-    a = ['A', 'B', 'C', 'B', 'D', 'A', 'B']
-    b = ['B', 'D', 'C', 'A', 'B', 'A']
-    # a = ['A']
-    # b = ['A']
-    compareLCS(a, b)

@@ -26,7 +26,7 @@ class Analyzer:
 
     def memoryTrace(self, out_info: str):
         re_str = SHMID_FLAG + "(.*?)" + END_EACH_FLAG
-        shm_key = int(re.search(re_str, out_info.decode("utf-8")).group(1))
+        shm_key = int(re.search(re_str, str(out_info)).group(1))
         # print(shm_key)
 
         shmget = self.rt.shmget
@@ -54,6 +54,7 @@ class Analyzer:
         cmpcovshm_str = ""
         for each in range(0, pieces):
             cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * each, ANA_SHM_INTERVAL).decode("utf-8")
+        # fixme .decode("utf-8", "ignore")
         cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * pieces, over).decode("utf-8")
         cmpcovshm_str = cmpcovshm_str[16:-1]
         self.rt.shmctl(shmid, 0, 0)

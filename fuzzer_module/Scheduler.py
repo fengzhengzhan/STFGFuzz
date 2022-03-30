@@ -1,4 +1,3 @@
-import os
 from queue import Queue
 
 from fuzzer_module.Fuzzconfig import *

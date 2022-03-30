@@ -57,8 +57,7 @@ def mainFuzzer():
         init_seed = sch.selectOneSeed(SCH_INIT_SEED)
         init_retcode, init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         initrpt_dict, initrpt_set = ana.traceAyalysis(init_stdout)
-
-        # num_pcguard = ana.getNumOfPcguard()
+        num_pcguard = ana.getNumOfPcguard()
 
         # Select the location to be mutated and add it to the location queue.
         sch.initEachloop()
@@ -67,6 +66,7 @@ def mainFuzzer():
 
         # Find correspondence
         '''XXX: seed inputs -> cmp instruction -> cmp type (access method) -> braches'''
+
         # Coarse-Grained  O(n)  # todo multiprocessing
         # Get a report on changes to comparison instructions.
         coarse_head = 0
@@ -88,10 +88,10 @@ def mainFuzzer():
                 fine_set = fine_set | set(mutloc_list)
 
             LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptdict))
-            # res = vis.display(start_time, execute_seed, eachloop_change_inputmap, loop, total)
-            # if res == 1:
-            #     sch.deleteSeeds()
-            #     return
+            res = vis.display(start_time, execute_seed, eachloop_change_inputmap, loop, total)
+            if res == 1:
+                sch.deleteSeeds()
+                return
 
         # Fine-Grained
         # Mutate seeds to find where to change. Then perform to a directed mutate.
@@ -119,27 +119,32 @@ def mainFuzzer():
                         cmpmaploc_dict[ck] = cv
                     else:
                         cmpmaploc_dict[ck] = cmpmaploc_dict[ck] | cv
+            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptdict))
+            res = vis.display(start_time, execute_seed, eachloop_change_inputmap, loop, total)
+            if res == 1:
+                sch.deleteSeeds()
+                return
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmpmaploc_dict, print_mode=True))
-        raise Exception()
 
-            # 3 cmp type
+        # 3 cmp type
+        # Compare instruction type speculation based on input mapping,
+        # then try to pass the corresponding constraint (1-2 rounds).
+        for onest in cmpmaploc_dict:
 
-            # Analyze the differences in comparison.
+            each_change_inputmap = Parser.typeDetect(report_cmpdiff, report_cmpone, cmp_map, mutate_loc)
 
-            # todo each_change_inputmap = Parser.typeDetect(report_cmpdiff, report_cmpone, cmp_map, mutate_loc)
-            # mergeMapReport(each_change_inputmap, eachloop_change_inputmap)
+        # Analyze the differences in comparison.
+        # mergeMapReport(each_change_inputmap, eachloop_change_inputmap)
 
-            # 4 branches
+        # 4 branches
 
-            # 5 visualize
+        # 5 visualize
 
-            # res = vis.display(start_time, execute_seed, eachloop_change_inputmap, loop, total)
-            # if res == 1:
-            #     sch.deleteSeeds()
-            #     return
+        # res = vis.display(start_time, execute_seed, eachloop_change_inputmap, loop, total)
+        # if res == 1:
+        #     sch.deleteSeeds()
+        #     return
 
-
-        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_change_inputmap))
 
         temp_content = list(init_seed.content)
         for k, v in eachloop_change_inputmap.items():
