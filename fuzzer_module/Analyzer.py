@@ -22,7 +22,7 @@ class Analyzer:
         if ANA_MEMSHM_MODE:
             return self.memoryTrace(out_info)
         else:
-            return self.terminalTrace(out_info)
+            return self.terminalTrace(out_info)  # fixme
 
     def memoryTrace(self, out_info: str):
         re_str = SHMID_FLAG + "(.*?)" + END_EACH_FLAG

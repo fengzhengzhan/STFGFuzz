@@ -67,116 +67,27 @@ def compareLCS(init_trace: list, mut_trace: list):
     return lcs_len, init_list, mut_list
 
 
-def compareBytes(mutseed: StructSeed, init_trace_analysis: 'list[StructTraceReport]', mut_trace_analysis: 'list[StructTraceReport]') -> (
-'list[StructCmpReport]', 'list[StructCmpReport]'):
-    """
-    Bytes of change compared to the initial sample.
-    @param mutseed:
-    @param init_trace_analysis:
-    @param mut_trace_analysis:
-    @return:
-    """
-    # list[StructTraceReport]
-    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), init_trace_analysis, mut_trace_analysis))
-    comparison_diffreport: 'list[StructCmpReport]' = []
-    comparison_onereport: 'list[StructCmpReport]' = []
+def compareRpt(seed: StructSeed, initrpt_dict: 'dict[str:StructCmpIns]', initrpt_set: set, mutrpt_dict, mutrpt_set):
+    interset = initrpt_set & mutrpt_set  # Intersection
+    symdiffset = initrpt_set ^ mutrpt_set  # Symmetric Difference set
+    cmpmaploc_rptdict = {}
+    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), seed.location, interset, symdiffset))
 
+    if len(interset) > 0:
+        # compare whether the parameters of the same constraint are different
+        for key in interset:
+            if len(initrpt_dict[key]) != len(mutrpt_dict[key]):
+                cmpmaploc_rptdict[key] = seed.location
+            else:
+                for l in range(len(initrpt_dict[key])):
+                    for larg in range(len(initrpt_dict[key][l].stargs)):
+                        if initrpt_dict[key][l].stargs[larg] != mutrpt_dict[key][l].stargs[larg]:
+                            cmpmaploc_rptdict[key] = seed.location
+    if len(symdiffset) > 0:
+        for key in symdiffset:
+            cmpmaploc_rptdict[key] = seed.location
 
-    # Only differences in mutation are recorded.
-    inittrace_len = len(init_trace_analysis)
-    muttrace_len = len(mut_trace_analysis)
-
-    temp_inittrace = []
-    for ti in range(inittrace_len):
-        temp_inittrace.append(str(init_trace_analysis[ti].startguard) + "_" + str(init_trace_analysis[ti].endguard))
-    temp_muttrace = []
-    for ti in range(muttrace_len):
-        temp_muttrace.append(str(mut_trace_analysis[ti].startguard) + "_" + str(mut_trace_analysis[ti].endguard))
-    guard_lcs_len, guard_init_list, guard_mut_list = compareLCS(temp_inittrace, temp_muttrace)
-
-    # Common subsequence comparison constraints are different.
-    for gi in range(len(guard_init_list)):
-        igi = guard_init_list[gi]
-        mgi = guard_mut_list[gi]
-        st_lcs_len, st_init_list, st_mut_list = compareLCS(init_trace_analysis[igi].constraint, mut_trace_analysis[mgi].constraint)
-        # Same part of the constraint.
-        for sti in range(len(st_init_list)):
-            comparison_diffreport.append(
-                StructCmpReport(
-                    mutseed,
-                    init_trace_analysis[igi].stvalue[st_init_list[sti]][IDX_CMP_TYPE],
-                    init_trace_analysis[igi].stvalue[st_init_list[sti]],
-                    mut_trace_analysis[mgi].stvalue[st_mut_list[sti]],
-                    init_trace_analysis[igi].startguard,
-                    init_trace_analysis[igi].endguard,
-                    init_trace_analysis[igi].constraint[st_init_list[sti]],
-                )
-            )
-
-        # Different parts of the initial constraint
-        for ii in range(len(init_trace_analysis[igi].constraint)):
-            if ii not in st_init_list:
-                comparison_onereport.append(
-                    StructCmpReport(
-                        mutseed,
-                        init_trace_analysis[igi].stvalue[ii][IDX_CMP_TYPE],
-                        init_trace_analysis[igi].stvalue[ii],
-                        [],
-                        init_trace_analysis[igi].startguard,
-                        init_trace_analysis[igi].endguard,
-                        init_trace_analysis[igi].constraint[ii]
-                    )
-                )
-
-        # Different parts of the variation constraint
-        for mi in range(len(mut_trace_analysis[mgi].constraint)):
-            if mi not in st_mut_list:
-                comparison_onereport.append(
-                    StructCmpReport(
-                        mutseed,
-                        mut_trace_analysis[mgi].stvalue[mi][IDX_CMP_TYPE],
-                        [],
-                        mut_trace_analysis[mgi].stvalue[mi],
-                        mut_trace_analysis[mgi].startguard,
-                        mut_trace_analysis[mgi].endguard,
-                        mut_trace_analysis[mgi].constraint[mi]
-
-                    )
-                )
-
-    # Different parts of the initial trace
-    for i in range(inittrace_len):
-        if i not in guard_init_list:
-            for st_i in range(len(init_trace_analysis[i].constraint)):
-                comparison_onereport.append(
-                    StructCmpReport(
-                        mutseed,
-                        init_trace_analysis[i].stvalue[st_i][IDX_CMP_TYPE],
-                        init_trace_analysis[i].stvalue[st_i],
-                        [],
-                        init_trace_analysis[i].startguard,
-                        init_trace_analysis[i].endguard,
-                        init_trace_analysis[i].constraint[st_i]
-                    )
-                )
-
-    # Different parts of the variation tracking
-    for m in range(muttrace_len):
-        if m not in guard_mut_list:
-            for st_m in range(len(mut_trace_analysis[m].constraint)):
-                comparison_onereport.append(
-                    StructCmpReport(
-                        mutseed,
-                        mut_trace_analysis[m].stvalue[st_m][IDX_CMP_TYPE],
-                        [],
-                        mut_trace_analysis[m].stvalue[st_m],
-                        mut_trace_analysis[m].startguard,
-                        mut_trace_analysis[m].endguard,
-                        mut_trace_analysis[m].constraint[st_m]
-                    )
-                )
-
-    return comparison_diffreport, comparison_onereport
+    return cmpmaploc_rptdict
 
 
 '''

@@ -47,7 +47,7 @@ def mainFuzzer():
     # Init seed lists  # todo if == null
     temp_listq = []
     for each in init_seeds_list:
-        temp_listq.append(StructSeed(path_mutateseeds+each, "", INIT, {-1, }))
+        temp_listq.append(StructSeed(path_mutateseeds+each, "", INIT, {USE_INITNUM}))
     sch.addSeeds(SCH_INIT_SEED, temp_listq)
 
     # Fuzzing test cycle
@@ -70,45 +70,74 @@ def mainFuzzer():
         # Coarse-Grained  O(n)  # todo multiprocessing
         # Get a report on changes to comparison instructions.
         coarse_head = 0
-        coarse_len = len(sch.locCoarseList)
-        while coarse_head <= coarse_len:
+        fine_set = set()
+        while coarse_head < len(sch.locCoarseList):
             total += 1
             # 1 seed inputs
             mutloc_list = sch.locCoarseList[coarse_head:coarse_head+sch.slidWindow]
             coarse_head += sch.slidWindow
-            mutseed = Mutator.mutateSelectChar(init_seed.content, path_mutateseeds, str(loop), mutloc_list)
+            mutseed = Mutator.mutateSelectChar(init_seed.content, path_mutateseeds, COARSE_STR+str(loop), mutloc_list)
             execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
             mut_retcode, mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
 
+            # 2 cmp instruction
+            # Track execution information of mutate seeds.
             mutrpt_dict, mutrpt_set = ana.traceAyalysis(mut_stdout)  # report
-            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), mutrpt_dict, mutrpt_set))
+            cmpmaploc_rptdict = Parser.compareRpt(execute_seed, initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
+            if cmpmaploc_rptdict:  # Determine if the dictionary is empty.
+                fine_set = fine_set | set(mutloc_list)
+
+            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptdict))
+            # res = vis.display(start_time, execute_seed, eachloop_change_inputmap, loop, total)
+            # if res == 1:
+            #     sch.deleteSeeds()
+            #     return
+
+        # Fine-Grained
+        # Mutate seeds to find where to change. Then perform to a directed mutate.
+        # Only the corresponding position is speculated. O(1)
+        sch.locFineList = list(fine_set)
+        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), sch.locFineList))
+        find_head = 0
+        cmpmaploc_dict = {}
+        while find_head < len(sch.locFineList):
+            total += 1
+            # 1 seed inputs
+            mutloc_list = [sch.locFineList[find_head], ]
+            find_head += 1
+            mutseed = Mutator.mutateOneChar(init_seed.content, path_mutateseeds, FINE_STR+str(loop), mutloc_list)
+            execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
+            mut_retcode, mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
 
             # 2 cmp instruction
             # Track execution information of mutate seeds.
-
-            raise Exception()
+            mutrpt_dict, mutrpt_set = ana.traceAyalysis(mut_stdout)  # report
+            cmpmaploc_rptdict = Parser.compareRpt(execute_seed, initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
+            if cmpmaploc_rptdict:  # Determine if the dictionary is empty.
+                for ck, cv in cmpmaploc_rptdict.items():
+                    if ck not in cmpmaploc_dict:
+                        cmpmaploc_dict[ck] = cv
+                    else:
+                        cmpmaploc_dict[ck] = cmpmaploc_dict[ck] | cv
+        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmpmaploc_dict, print_mode=True))
+        raise Exception()
 
             # 3 cmp type
 
             # Analyze the differences in comparison.
-            report_cmpdiff, report_cmpone = Parser.compareBytes(execute_seed, init_trace, mut_trace)
-            each_change_inputmap = Parser.typeDetect(report_cmpdiff, report_cmpone, cmp_map, mutate_loc)
+
+            # todo each_change_inputmap = Parser.typeDetect(report_cmpdiff, report_cmpone, cmp_map, mutate_loc)
             # mergeMapReport(each_change_inputmap, eachloop_change_inputmap)
 
             # 4 branches
 
             # 5 visualize
 
-            res = vis.display(start_time, execute_seed, eachloop_change_inputmap, loop, total)
-            if res == 1:
-                sch.deleteSeeds()
-                return
+            # res = vis.display(start_time, execute_seed, eachloop_change_inputmap, loop, total)
+            # if res == 1:
+            #     sch.deleteSeeds()
+            #     return
 
-        # Fine-Grained
-        # Mutate seeds to find where to change. Then perform to a directed mutate.
-        # Only the corresponding position is speculated. O(1)
-        while True:
-            break
 
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmp_map, eachloop_change_inputmap))
 
@@ -116,8 +145,8 @@ def mainFuzzer():
         for k, v in eachloop_change_inputmap.items():
             temp_content[k] = v
         temp_content = ''.join(temp_content)
-        sch.addSeeds(SCH_INIT_SEED, [StructSeed(path_mutateseeds+getMutfilename("loop"+str(loop)),
-                                         temp_content, INIT, [0, 0])])
+        sch.addSeeds(SCH_INIT_SEED, [
+            StructSeed(path_mutateseeds+getMutfilename("loop"+str(loop)), temp_content, INIT, {USE_INITNUM})])
         # Mutator.mutateDeleteFile(filelist_mutateseeds, path_mutateseeds)
         # print(filelist_mutateseeds)
         # print(mutate_seeds)

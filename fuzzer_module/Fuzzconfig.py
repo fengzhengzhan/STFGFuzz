@@ -5,6 +5,7 @@ import sys
 from fuzzer_module.Structures import *
 
 # Program information.
+'''Main Fuzzer'''
 FUZZNAME = "STFGFuzzer"
 FILEREPLACE = "@@"
 INIT = 100
@@ -12,6 +13,9 @@ USE_INITNUM = -1
 USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
+
+COARSE_STR = "coarse"
+FINE_STR = "fine"
 
 
 # The fisrt character represent the type of compare instruction.
@@ -98,6 +102,7 @@ IDX_SIZEVAL = 3
 IDX_MUT_TYPE = 0
 IDX_MUT_START = 1
 IDX_MUT_END = 2
+
 
 '''Analyzer'''
 ANA_ENDPROG_IDX = -2

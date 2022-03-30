@@ -79,22 +79,22 @@ def mutateSelectChar(seed: str, filepath: str, label: str, mutloc_list) -> Struc
     for i, loci in enumerate(mutloc_list):
         seedloc_list[loci] = mut_str[i]
     seed = ''.join(seedloc_list)
-    temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), str(seed), MUT_TYPE_SUB, mutloc_list)
+    temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), str(seed), MUT_TYPE_SUB, set(mutloc_list))
     return temp_one
 
-def mutateOneChar(seed: str, filepath: str, label: str, loc_set) -> StructSeed:
+def mutateOneChar(seed: str, filepath: str, label: str, loc_list) -> StructSeed:
     """
     @param seed:
     @param filepath:
     @param label:
-    @param loc_set:
+    @param loc_list:
     @return: only one seed
     """
     seedloc_list = list(seed)
-    for i, loci in enumerate(loc_set):
+    for i, loci in enumerate(loc_list):
         seedloc_list[loci] = chr(255 - ord(seedloc_list[loci]))
     seed = ''.join(seedloc_list)
-    temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), str(seed), MUT_TYPE_SUB, loc_set)
+    temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), str(seed), MUT_TYPE_SUB, set(loc_list))
     return temp_one
 
 
