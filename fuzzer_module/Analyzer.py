@@ -66,9 +66,10 @@ class Analyzer:
         LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmpcovshm_list))
 
         # Iterate through the trace report to get the corresponding information
-        cmprpt_dict: 'dict[str:[StructTraceReport]]' = {}  # According cmp instruction to genetator dict.
+        cmprpt_dict: 'dict[str:[StructCmpIns]]' = {}  # According cmp instruction to genetator dict.
         id_list = []
         content_list = []
+        args_list = []
         pre_guard_num = USE_INITNUM  # before
         end_guard_num = USE_ENDNUM
         exception_guard_num = USE_EXCEPTION
@@ -83,46 +84,51 @@ class Analyzer:
                 guard_num = int(each[1], 16)
                 for idx, oneid in enumerate(id_list):
                     if idx not in cmprpt_dict:
-                        cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, guard_num, content_list[idx]), ]
+                        cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, guard_num, content_list[idx], args_list[idx]), ]
                     else:
-                        cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, guard_num, content_list[idx]))
+                        cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, guard_num, content_list[idx], args_list[idx]))
                 pre_guard_num = guard_num
                 id_list = []
                 content_list = []
+                args_list = []
             elif typeflag == PROGRAM_END:
                 end = True
                 for idx, oneid in enumerate(id_list):
                     if idx not in cmprpt_dict:
-                        cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx]), ]
+                        cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx], args_list[idx]), ]
                     else:
-                        cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx]))
+                        cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx], args_list[idx]))
                 id_list = []
                 content_list = []
+                args_list = []
 
             elif typeflag in TRACECMPSET:
                 # type, func_pc, caller_pc, arg1, arg2, arg_len
                 id_list.append(str(each[1][2:]+each[2][2:]))
-                content_list.append([typeflag, each[1], each[2], each[3], each[4], each[5]])
+                content_list.append([typeflag, each[1], each[2], each[5]])
+                args_list.append([each[3], each[4]])
             elif typeflag == COV_SWITCH:
                 # type, func_pc, caller_pc, num_case, size_val
                 id_list.append(str(each[1][2:] + each[2][2:]))
-                temp_content = [typeflag, each[1], each[2], int(each[3]), each[4]]
+                content_list.append([typeflag, each[1], each[2], int(each[3]), each[4]])
+                temp_args = []
                 for i in range(int(each[3])):
-                    temp_content.append(each[i + 5])
-                content_list.append(temp_content)
+                    temp_args.append(each[i + 5])
+                args_list.append(temp_args)
             elif typeflag == COV_DIV4 or typeflag == COV_DIV8 or typeflag == COV_GEP:
                 pass
             elif typeflag in HOOKCMPSET:
                 # type, func_pc, caller_pc, s1, s2, size_n, result
                 id_list.append(str(each[1][2:]+each[2][2:]))
-                content_list.append([typeflag, each[1], each[2], each[3], each[4], int(each[5]), int(each[6])])
+                content_list.append([typeflag, each[1], each[2], int(each[5]), int(each[6])])
+                args_list.append([each[3], each[4]])
 
-        if len(id_list) > 0 or len(content_list) > 0:
+        if len(id_list) > 0:
             for idx, oneid in enumerate(id_list):
                 if idx not in cmprpt_dict:
-                    cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx]), ]
+                    cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx], args_list[idx]), ]
                 else:
-                    cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx]))
+                    cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx], args_list[idx]))
 
         cmprpt_set = set(cmprpt_dict)
         return cmprpt_dict, cmprpt_set

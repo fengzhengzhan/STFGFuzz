@@ -35,11 +35,12 @@ class StructTraceReport:
         self.progcontent = programcontent
 
 class StructCmpIns:
-    def __init__(self, constraint, startguard, endguard, stvalue:list):
+    def __init__(self, constraint, startguard, endguard, stvalue:list, stargs):
         self.constraint = constraint
         self.startguard = startguard
         self.endguard = endguard
         self.stvalue = stvalue
+        self.stargs = stargs
 
 
 class StructCmpReport:
