@@ -38,8 +38,11 @@ class Visualizer:
             # plt.ion()
 
     def __del__(self):
-        if self.stdscr is not None:
-            curses.endwin()
+        try:
+            if self.stdscr is not None:
+                curses.endwin()
+        except Exception as e:
+            pass
 
     def display(self, start_time, mutseed: StructSeed, eachloop_input_map: dict, loop: int, total: int) -> int:
         """

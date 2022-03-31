@@ -129,17 +129,23 @@ def mainFuzzer():
         # 3 cmp type
         # Compare instruction type speculation based on input mapping,
         # then try to pass the corresponding constraint (1-2 rounds).
-        for st_k, st_v in cmpmaploc_dict.items():
+        for st_key, st_val in cmpmaploc_dict.items():
             total += 1
             # 1 seed inputs
-            stloc_list = list(st_v)
+            stloc_list = list(st_val)
             st_seed = Mutator.mutateSelectChar(init_seed.content, path_mutateseeds, ST_STR+str(loop), stloc_list)
             execute_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
             st_retcode, st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
 
             # 2 cmp instruction
             strpt_dict, strpt_set = ana.traceAyalysis(st_stdout)  # report
-            cmpmaploc_rptdict = Parser.typeDetect(execute_seed, st_k, initrpt_dict, mutrpt_dict)
+            # Return cmp type and mutate strategy according to typeDetect
+            cmpmaploc_rptdict = Parser.typeDetect(execute_seed, st_key, initrpt_dict, strpt_dict)
+            # Passing the constraint based on the number of cycles and the distance between comparisons.
+            while True:
+                Parser.exeTypeStrategy()
+                if sch.isEmpty(SCH_MUT_SEED):
+                    break
 
         # Analyze the differences in comparison.
         # mergeMapReport(each_change_inputmap, eachloop_change_inputmap)

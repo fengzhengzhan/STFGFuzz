@@ -70,45 +70,49 @@ def handleNumMagic(mutseed, fixed_list, changed_list, mutate_loc) -> dict:
 def handleChecksums():
     pass
 
+def handleUndefined():
+    pass
 
 '''
 Type Inference Module.
 '''
-def inferFixedOrChanged(ini1, ini2, mut1, mut2) -> StructCmpInfer:
-    temp_infer = StructCmpInfer(USE_INITNUM, USE_INITSTR, USE_INITNUM, USE_INITSTR)
-    if ini1 == mut1:
-        temp_infer.var1_type = PAR_FIXED
-        temp_infer.var1_cont = [ini1, mut1]
-    else:
-        temp_infer.var1_type = PAR_CHANGED
-        temp_infer.var1_cont = [ini1, mut1]
+# Infer bytes status according bytes change.
+def inferFixedOrChanged(ori0, ori1, con0, con1) -> (int, StructCmpInfer):
+    # Original group <-> Control group
+    if ori0 == con0 and ori1 == con1:
+        temp_bytesflag = PAR_FIXAFIX
+        temp_infer = StructCmpInfer(PAR_FIXED, [ori0, con0], PAR_FIXED, [ori1, con1])
+    elif ori0 == con0 and ori1 != con1:
+        temp_bytesflag = PAR_FIXACHG
+        temp_infer = StructCmpInfer(PAR_FIXED, [ori0, con0], PAR_CHANGED, [ori1, con1])
+    elif ori0 != con0 and ori1 == con1:
+        temp_bytesflag = PAR_CHGAFIX
+        temp_infer = StructCmpInfer(PAR_FIXED, [ori1, con1], PAR_CHANGED, [ori0, con0])
+    elif ori0 != con0 and ori1 != con1:
+        temp_bytesflag = PAR_CHGACHG
+        temp_infer = StructCmpInfer(PAR_CHANGED, [ori0, con0], PAR_CHANGED, [ori1, con1])
+    return temp_bytesflag, temp_infer
 
-    if ini2 == mut2:
-        temp_infer.var2_type = PAR_FIXED
-        temp_infer.var2_cont = [ini2, mut2]
-    else:
-        temp_infer.var2_type = PAR_CHANGED
-        temp_infer.var2_cont = [ini2, mut2]
-
-    return temp_infer
-
-
-def varChangeSpeculation(infer_bytes: StructCmpInfer):
+# Detect bytes type from bytes status and bytes contents.
+def detectCmpType(infer_bytes: StructCmpInfer):
     temp_flag = USE_INITNUM
-    if infer_bytes.var1_type == PAR_FIXED and infer_bytes.var2_type == PAR_CHANGED:
+    if infer_bytes.var0_type == PAR_FIXED and infer_bytes.var1_type == PAR_CHANGED:
         temp_flag = PAR_MAGIC1_TYPE
-    elif infer_bytes.var1_type == PAR_CHANGED and infer_bytes.var2_type == PAR_FIXED:
+    elif infer_bytes.var0_type == PAR_CHANGED and infer_bytes.var1_type == PAR_FIXED:
         temp_flag = PAR_MAGIC2_TYPE
-    elif infer_bytes.var1_type == PAR_CHANGED and infer_bytes.var2_type == PAR_CHANGED:
+    elif infer_bytes.var0_type == PAR_CHANGED and infer_bytes.var1_type == PAR_CHANGED:
         temp_flag = PAR_CHECKSUMS_TYPE
-    elif infer_bytes.var1_type == PAR_FIXED and infer_bytes.var2_type == PAR_FIXED:
+    elif infer_bytes.var0_type == PAR_FIXED and infer_bytes.var1_type == PAR_FIXED:
         temp_flag = PAR_FIX_TYPE
 
     return temp_flag
 
+# According type flag to determine which one strategy will be executed.
+def exeTypeStrategy():
+    pass
 
 
-def typeDetect(execute_seed: 'StructSeed', st_k: 'cmpid', initrpt_dict: 'dict[cmpid:[StructCmpIns]]', mutrpt_dict):
+def typeDetect(execute_seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[cmpid:[StructCmpIns]]', strpt_dict):
     """
     Type identification and speculation.
     @param comparison_diffreport:
@@ -117,10 +121,24 @@ def typeDetect(execute_seed: 'StructSeed', st_k: 'cmpid', initrpt_dict: 'dict[cm
     @param mutate_loc:
     @return:
     """
-    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), execute_seed.location, st_k, initrpt_dict, mutrpt_dict, print_mode=True))
+    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), execute_seed.location, st_key, initrpt_dict, strpt_dict))
 
-    comparison_diffreport = None
-    each_change_inputmap = {}  # Determine the changed bytes.
+    # Single Constraint Resolution
+    if (st_key in initrpt_dict) and (st_key in strpt_dict):  # Handling mutually corresponding constraints after mutation
+        for len_i in range(min(len(initrpt_dict[st_key]), len(strpt_dict[st_key]))):
+            ini = initrpt_dict[st_key][len_i].stargs
+            st = strpt_dict[st_key][len_i].stargs
+            bytes_type, bytes_infer = inferFixedOrChanged(ini[0], ini[1], st[0], st[1])  #
+            cmp_type = detectCmpType(bytes_infer)  # Speculative change type
+            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), bytes_type, bytes_infer, ini[0], ini[1], st[0], st[1], print_mode=True))
+
+    elif (st_key in initrpt_dict) and (st_key not in strpt_dict):
+        pass
+    elif (st_key not in initrpt_dict) and (st_key in strpt_dict):
+        pass
+    else:
+        handleUndefined()
+
     # Loop through the cases where the initial and variant correspond to each other.
     for each in comparison_diffreport:
         mutseed = each.mutseed
@@ -132,14 +150,14 @@ def typeDetect(execute_seed: 'StructSeed', st_k: 'cmpid', initrpt_dict: 'dict[cm
                     each.mut_sttrace[IDX_ARG1], each.mut_sttrace[IDX_ARG2]
                 )
                 # Find fixed bytes and changed bytes.
-                var_flag = varChangeSpeculation(infer_bytes)
-                if var_flag == PAR_MAGIC1_TYPE:
-                    change_inputmap = handleNumMagic(mutseed, infer_bytes.var1_cont, infer_bytes.var2_cont, mutate_loc)
-                elif var_flag == PAR_MAGIC2_TYPE:
-                    change_inputmap = handleNumMagic(mutseed, infer_bytes.var2_cont, infer_bytes.var1_cont, mutate_loc)
-                elif var_flag == PAR_CHECKSUMS_TYPE:
+                cmp_type = detectCmpType(infer_bytes)
+                if cmp_type == PAR_MAGIC1_TYPE:
+                    change_inputmap = handleNumMagic(mutseed, infer_bytes.var0_cont, infer_bytes.var1_cont, mutate_loc)
+                elif cmp_type == PAR_MAGIC2_TYPE:
+                    change_inputmap = handleNumMagic(mutseed, infer_bytes.var1_cont, infer_bytes.var0_cont, mutate_loc)
+                elif cmp_type == PAR_CHECKSUMS_TYPE:
                     pass
-                elif var_flag == PAR_FIX_TYPE:
+                elif cmp_type == PAR_FIX_TYPE:
                     pass
 
             elif each.sttype in HOOKCMPSET:
@@ -148,14 +166,14 @@ def typeDetect(execute_seed: 'StructSeed', st_k: 'cmpid', initrpt_dict: 'dict[cm
                     each.mut_sttrace[IDX_S1], each.mut_sttrace[IDX_S2]
                 )
                 # Find fixed bytes and changed bytes.
-                var_flag = varChangeSpeculation(infer_bytes)
-                if var_flag == PAR_MAGIC1_TYPE:
-                    change_inputmap = handleStrMagic(mutseed, infer_bytes.var1_cont, infer_bytes.var2_cont, mutate_loc)
-                elif var_flag == PAR_MAGIC2_TYPE:
-                    change_inputmap = handleStrMagic(mutseed, infer_bytes.var2_cont, infer_bytes.var1_cont, mutate_loc)
-                elif var_flag == PAR_CHECKSUMS_TYPE:
+                cmp_type = detectCmpType(infer_bytes)
+                if cmp_type == PAR_MAGIC1_TYPE:
+                    change_inputmap = handleStrMagic(mutseed, infer_bytes.var0_cont, infer_bytes.var1_cont, mutate_loc)
+                elif cmp_type == PAR_MAGIC2_TYPE:
+                    change_inputmap = handleStrMagic(mutseed, infer_bytes.var1_cont, infer_bytes.var0_cont, mutate_loc)
+                elif cmp_type == PAR_CHECKSUMS_TYPE:
                     pass
-                elif var_flag == PAR_FIX_TYPE:
+                elif cmp_type == PAR_FIX_TYPE:
                     pass
 
             elif each.sttype == COV_SWITCH:

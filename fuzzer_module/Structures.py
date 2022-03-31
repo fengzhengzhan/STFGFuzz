@@ -35,8 +35,8 @@ class StructTraceReport:
         self.progcontent = programcontent
 
 class StructCmpIns:
-    def __init__(self, constraint, startguard, endguard, stvalue:list, stargs):
-        self.constraint = constraint
+    def __init__(self, stcmpid, startguard, endguard, stvalue:list, stargs):
+        self.stcmpid = stcmpid
         self.startguard = startguard
         self.endguard = endguard
         self.stvalue = stvalue
@@ -88,8 +88,8 @@ class StructSTGraph:
 
 # Identification of the type of comparison instruction.
 class StructCmpInfer:
-    def __init__(self, var1_type: int, var1_cont: list, var2_type: int, var2_cont: list):
+    def __init__(self, var0_type: int, var0_cont: list, var1_type: int, var1_cont: list):
+        self.var0_type = var0_type
+        self.var0_cont = var0_cont
         self.var1_type = var1_type
         self.var1_cont = var1_cont
-        self.var2_type = var2_type
-        self.var2_cont = var2_cont

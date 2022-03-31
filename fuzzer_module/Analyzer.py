@@ -83,22 +83,22 @@ class Analyzer:
             elif typeflag == EACH_PC_GUARD:
                 type = typeflag
                 guard_num = int(each[1], 16)
-                for idx, oneid in enumerate(cmpid_list):
-                    if idx not in cmprpt_dict:
-                        cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, guard_num, content_list[idx], args_list[idx]), ]
+                for i, oneid in enumerate(cmpid_list):
+                    if oneid not in cmprpt_dict:
+                        cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, guard_num, content_list[i], args_list[i]), ]
                     else:
-                        cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, guard_num, content_list[idx], args_list[idx]))
+                        cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, guard_num, content_list[i], args_list[i]))
                 pre_guard_num = guard_num
                 cmpid_list = []
                 content_list = []
                 args_list = []
             elif typeflag == PROGRAM_END:
                 end = True
-                for idx, oneid in enumerate(cmpid_list):
-                    if idx not in cmprpt_dict:
-                        cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx], args_list[idx]), ]
+                for i, oneid in enumerate(cmpid_list):
+                    if oneid not in cmprpt_dict:
+                        cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[i], args_list[i]), ]
                     else:
-                        cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx], args_list[idx]))
+                        cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[i], args_list[i]))
                 cmpid_list = []
                 content_list = []
                 args_list = []
@@ -125,11 +125,11 @@ class Analyzer:
                 args_list.append([each[3], each[4]])
 
         if len(cmpid_list) > 0:
-            for idx, oneid in enumerate(cmpid_list):
-                if idx not in cmprpt_dict:
-                    cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx], args_list[idx]), ]
+            for i, oneid in enumerate(cmpid_list):
+                if oneid not in cmprpt_dict:
+                    cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[i], args_list[i]), ]
                 else:
-                    cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[idx], args_list[idx]))
+                    cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[i], args_list[i]))
 
         cmprpt_set: 'cmpid' = set(cmprpt_dict)
         return cmprpt_dict, cmprpt_set
