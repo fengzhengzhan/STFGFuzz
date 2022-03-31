@@ -103,7 +103,7 @@ class Analyzer:
                 content_list = []
                 args_list = []
 
-            elif typeflag in TRACECMPSET:
+            elif typeflag in TRACENUMCMPSET:
                 # type, func_pc, caller_pc, arg1, arg2, arg_len
                 cmpid_list.append(str(each[1][2:]+each[2][2:]))
                 content_list.append([typeflag, each[1], each[2], each[5]])
@@ -118,7 +118,7 @@ class Analyzer:
                 args_list.append(temp_args)
             elif typeflag == COV_DIV4 or typeflag == COV_DIV8 or typeflag == COV_GEP:
                 pass
-            elif typeflag in HOOKCMPSET:
+            elif typeflag in HOOKSTRCMPSET:
                 # type, func_pc, caller_pc, s1, s2, size_n, result
                 cmpid_list.append(str(each[1][2:]+each[2][2:]))
                 content_list.append([typeflag, each[1], each[2], int(each[5]), int(each[6])])
@@ -208,7 +208,7 @@ class Analyzer:
                     end = True
                     struct_report_list.append(StructTraceReport(before_guard_num, ANA_ENDPROG_IDX, call_pc_list, content_list, []))
                 # Matching comparison identifier.
-                elif typeflag in TRACECMPSET:
+                elif typeflag in TRACENUMCMPSET:
                     type = typeflag
                     call_pc = each[1]
                     arg1 = each[2]
@@ -230,7 +230,7 @@ class Analyzer:
                     content_list.append(temp_content)
                 elif typeflag == COV_DIV4 or typeflag == COV_DIV8 or typeflag == COV_GEP:
                     pass
-                elif typeflag in HOOKCMPSET:
+                elif typeflag in HOOKSTRCMPSET:
                     type = typeflag
                     call_pc = each[1]
                     s1 = re.search(r'<s1"(.*)"1s>', combine_line, flags=re.S).group(1)

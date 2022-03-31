@@ -14,7 +14,7 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-VIS_TERMINAL = False
+VIS_TERMINAL = True
 VIS_SHOWGRAPH = True
 
 COARSE_STR = "coarse"
@@ -36,7 +36,7 @@ COV_CONSTCMP2 = 'f'
 COV_CONSTCMP4 = 'g'
 COV_CONSTCMP8 = 'h'
 
-TRACECMPSET = {COV_CMP1, COV_CMP2, COV_CMP4, COV_CMP8, COV_CONSTCMP1, COV_CONSTCMP2, COV_CONSTCMP4, COV_CONSTCMP8}
+TRACENUMCMPSET = {COV_CMP1, COV_CMP2, COV_CMP4, COV_CMP8, COV_CONSTCMP1, COV_CONSTCMP2, COV_CONSTCMP4, COV_CONSTCMP8}
 
 COV_SWITCH = 'i'  # (call_pc, num_case, size_val, case_n...)
 COV_DIV4 = 'j'
@@ -50,7 +50,7 @@ HOOK_STRCMP = 'o'
 HOOK_STRNCASECMP = 'p'
 HOOK_STRCASECMP = 'q'
 
-HOOKCMPSET = {HOOK_MEMCMP, HOOK_STRNCMP, HOOK_STRCMP, HOOK_STRNCASECMP, HOOK_STRCASECMP}
+HOOKSTRCMPSET = {HOOK_MEMCMP, HOOK_STRNCMP, HOOK_STRCMP, HOOK_STRNCASECMP, HOOK_STRCASECMP}
 
 SHMID_FLAG = "D"  # Content show from stdout, that represent the memory share id.
 INTERLEN_FLAG = "L"  # The length of array.
@@ -63,29 +63,35 @@ EACH_PC_GUARD = "G"  # (call_pc, guard_addr, guard_num)
 PROGRAM_END = "E"  # end
 
 # Reverse Correspondence
-FLAG_DICT = {'a': "COV_TRACE_CMP1",
-             'b': "COV_TRACE_CMP2",
-             'c': "COV_TRACE_CMP4",
-             'd': "COV_TRACE_CMP8",
-             'e': "COV_TRACE_CONST_CMP1",
-             'f': "COV_TRACE_CONST_CMP2",
-             'g': "COV_TRACE_CONST_CMP4",
-             'h': "COV_TRACE_CONST_CMP8",
-             'i': "COV_TRACE_SWITCH",
-             'j': "COV_TRACE_DIV4",
-             'k': "COV_TRACE_DIV8",
-             'l': "COV_TRACE_GEP",
-             'm': "WEAK_HOOK_MEMCMP",
-             'n': "WEAK_HOOK_STRNCMP",
-             'o': "WEAK_HOOK_STRCMP",
-             'p': "WEAK_HOOK_STRNCASECMP",
-             'q': "WEAK_HOOK_STRCASECMP",
-             'Z': "END_EACH_FLAG",
-             'I': "INIT_PC_GUARD",
-             'S': "NUM_PC_GUARD",
-             'G': "EACH_PC_GUARD",
-             'E': "PROGRAM_END",
-             }
+FLAG_DICT = {
+    'a': "COV_TRACE_CMP1",
+    'b': "COV_TRACE_CMP2",
+    'c': "COV_TRACE_CMP4",
+    'd': "COV_TRACE_CMP8",
+    'e': "COV_TRACE_CONST_CMP1",
+    'f': "COV_TRACE_CONST_CMP2",
+    'g': "COV_TRACE_CONST_CMP4",
+    'h': "COV_TRACE_CONST_CMP8",
+    'i': "COV_TRACE_SWITCH",
+    'j': "COV_TRACE_DIV4",
+    'k': "COV_TRACE_DIV8",
+    'l': "COV_TRACE_GEP",
+    'm': "WEAK_HOOK_MEMCMP",
+    'n': "WEAK_HOOK_STRNCMP",
+    'o': "WEAK_HOOK_STRCMP",
+    'p': "WEAK_HOOK_STRNCASECMP",
+    'q': "WEAK_HOOK_STRCASECMP",
+    'Z': "END_EACH_FLAG",
+    'I': "INIT_PC_GUARD",
+    'S': "NUM_PC_GUARD",
+    'G': "EACH_PC_GUARD",
+    'E': "PROGRAM_END",
+}
+
+# Detect cmp types
+TYPE_UNDEFINED = 60
+TYPE_MAGICSTR = 61
+TYPE_MAGICNUMS = 62
 
 # Parameter Location Index
 IDX_CMP_TYPE = 0

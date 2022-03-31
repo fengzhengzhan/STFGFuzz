@@ -94,22 +94,24 @@ def inferFixedOrChanged(ori0, ori1, con0, con1) -> (int, StructCmpInfer):
     return temp_bytesflag, temp_infer
 
 # Detect bytes type from bytes status and bytes contents.
-def detectCmpType(infer_bytes: StructCmpInfer):
-    temp_flag = USE_INITNUM
-    if infer_bytes.var0_type == PAR_FIXED and infer_bytes.var1_type == PAR_CHANGED:
-        temp_flag = PAR_MAGIC1_TYPE
-    elif infer_bytes.var0_type == PAR_CHANGED and infer_bytes.var1_type == PAR_FIXED:
-        temp_flag = PAR_MAGIC2_TYPE
-    elif infer_bytes.var0_type == PAR_CHANGED and infer_bytes.var1_type == PAR_CHANGED:
-        temp_flag = PAR_CHECKSUMS_TYPE
-    elif infer_bytes.var0_type == PAR_FIXED and infer_bytes.var1_type == PAR_FIXED:
-        temp_flag = PAR_FIX_TYPE
+def detectCmpType(bytes_type, bytes_infer: StructCmpInfer, cmpins: StructCmpIns) -> list:
+    type_infer = []
+    if bytes_type == PAR_FIXAFIX:
+        type_infer.append(TYPE_UNDEFINED)
+    elif bytes_type == PAR_FIXACHG or bytes_type == PAR_CHGAFIX:
+        if cmpins.stvalue[0] in HOOKSTRCMPSET:
+            type_infer.append(TYPE_MAGICSTR)
+        elif cmpins.stvalue[0] in TRACENUMCMPSET:
+            type_infer.append(TYPE_MAGICNUMS)
+    elif bytes_type == PAR_CHGACHG:
+        type_infer.append(TYPE_UNDEFINED)
 
-    return temp_flag
+    return type_infer
 
 # According type flag to determine which one strategy will be executed.
-def exeTypeStrategy():
-    pass
+def exeTypeStrategy(type_infer_list):
+    for inf_i in type_infer_list:
+        pass
 
 
 def typeDetect(execute_seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[cmpid:[StructCmpIns]]', strpt_dict):
@@ -128,9 +130,10 @@ def typeDetect(execute_seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[
         for len_i in range(min(len(initrpt_dict[st_key]), len(strpt_dict[st_key]))):
             ini = initrpt_dict[st_key][len_i].stargs
             st = strpt_dict[st_key][len_i].stargs
-            bytes_type, bytes_infer = inferFixedOrChanged(ini[0], ini[1], st[0], st[1])  #
-            cmp_type = detectCmpType(bytes_infer)  # Speculative change type
-            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), bytes_type, bytes_infer, ini[0], ini[1], st[0], st[1]))
+            bytes_flag, bytes_infer = inferFixedOrChanged(ini[0], ini[1], st[0], st[1])  # Determining the type of variables
+            type_infer_list = detectCmpType(bytes_flag, bytes_infer, strpt_dict[st_key])  # Speculative change type
+            exeTypeStrategy(type_infer_list, strpt_dict)
+            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), bytes_flag, bytes_infer, ini[0], ini[1], st[0], st[1]))
 
     elif (st_key in initrpt_dict) and (st_key not in strpt_dict):
         pass
