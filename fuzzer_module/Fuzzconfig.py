@@ -7,6 +7,7 @@ from fuzzer_module.Structures import *
 # Program information.
 '''Main Fuzzer'''
 FUZZNAME = "STFGFuzzer"
+FUZZPRINTLOG = FUZZNAME + "_print.log"
 FILEREPLACE = "@@"
 INIT = 100
 USE_INITNUM = -1
@@ -14,7 +15,8 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-VIS_TERMINAL = True
+VIS_TERMINAL = False
+# VIS_TERMINAL = True
 VIS_SHOWGRAPH = True
 
 COARSE_STR = "coarse"
@@ -90,8 +92,9 @@ FLAG_DICT = {
 
 # Detect cmp types
 TYPE_UNDEFINED = 60
-TYPE_MAGICSTR = 61
-TYPE_MAGICNUMS = 62
+TYPE_SOLVED = 61
+TYPE_MAGICSTR = 62
+TYPE_MAGICNUMS = 63
 
 # Parameter Location Index
 IDX_CMP_TYPE = 0
@@ -183,6 +186,7 @@ MUT_TYPE_SUB = 101
 MUT_TYPE_INSERT = 102
 
 '''Parser'''
+PAR_SOLVED = 200
 PAR_FIXAFIX = 201
 PAR_FIXACHG = 202
 PAR_CHGAFIX = 203
@@ -201,7 +205,7 @@ PAR_VARMUT = 1
 
 
 '''Scheduler'''
-SCH_INIT_SEED = 221
+SCH_LOOP_SEED = 221
 SCH_MUT_SEED = 222
 SCH_THIS_SEED = 223
 
@@ -262,9 +266,11 @@ def LOG_STR(funcinfo, *args, print_mode=False):
     for content in args:
         logstr += "{} || ".format(content)
     if print_mode:
-        print("-------   -------")
+        print("\n-------   -------")
         print(logstr)
-        print()
+        with open(PROGRAMS + os.sep + FUZZPRINTLOG, "a+") as f:
+            f.write("\n-------   -------")
+            f.write(logstr)
     return logstr
 
 

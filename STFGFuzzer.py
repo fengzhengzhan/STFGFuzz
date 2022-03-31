@@ -41,19 +41,20 @@ def mainFuzzer():
     cmp_map: dict = StructCmpMap().cmpmap
     input_map: dict[list] = {}
     mutate_loc = StructMutLoc()
+    solved_cmpset = set()
     init_seeds_list = Generator.prepareEnv(program_name)
 
     # Init seed lists  # todo if == null
     temp_listq = []
     for each in init_seeds_list:
         temp_listq.append(StructSeed(path_mutateseeds+each, "", INIT, {USE_INITNUM}))
-    sch.addSeeds(SCH_INIT_SEED, temp_listq)
+    sch.addSeeds(SCH_LOOP_SEED, temp_listq)
 
     # Fuzzing test cycle
-    while not sch.isEmpty(SCH_INIT_SEED):
+    while not sch.isEmpty(SCH_LOOP_SEED):
         loop += 1
         # First run to collect information.
-        init_seed = sch.selectOneSeed(SCH_INIT_SEED)
+        init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
         init_retcode, init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         initrpt_dict, initrpt_set = ana.traceAyalysis(init_stdout)
         num_pcguard = ana.getNumOfPcguard()
@@ -84,10 +85,11 @@ def mainFuzzer():
             mutrpt_dict, mutrpt_set = ana.traceAyalysis(mut_stdout)  # report
             cmpmaploc_rptdict = Parser.compareRptToLoc(execute_seed, initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
             for cmp_key, cmp_val in cmpmaploc_rptdict.items():  # Determine if the dictionary is empty.
-                if cmp_key not in cmpmaploc_coarse_dict:
-                    cmpmaploc_coarse_dict[cmp_key] = cmp_val
-                else:
-                    cmpmaploc_coarse_dict[cmp_key] = cmpmaploc_coarse_dict[cmp_key] | cmp_val
+                if cmp_key not in solved_cmpset:
+                    if cmp_key not in cmpmaploc_coarse_dict:
+                        cmpmaploc_coarse_dict[cmp_key] = cmp_val
+                    else:
+                        cmpmaploc_coarse_dict[cmp_key] = cmpmaploc_coarse_dict[cmp_key] | cmp_val
             LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptdict))
 
             # 5 visualize
@@ -130,29 +132,33 @@ def mainFuzzer():
                     sch.quitFuzz()
             LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), st_key, st_coarseval, fineloc_list))
 
+            st_seed = Mutator.mutateSelectChar(init_seed.content, path_mutateseeds, ST_STR + str(loop), fineloc_list)
+            sch.addSeeds(SCH_MUT_SEED, [st_seed])
             # Type Detection and Breaking the Constraint Cycle (At lease 2 loops)
-            stloop = 0
-            while not sch.isEmpty(SCH_MUT_SEED) or stloop < 2:
+            while not sch.isEmpty(SCH_MUT_SEED):
                 total += 1
-                if sch.isEmpty(SCH_MUT_SEED):
-                    stloop += 1
-                # 1 seed inputs
-                st_seed = Mutator.mutateSelectChar(init_seed.content, path_mutateseeds, ST_STR+str(loop), fineloc_list)
-                execute_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
+                execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
                 st_retcode, st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
 
                 # 2 cmp instruction
                 strpt_dict, strpt_set = ana.traceAyalysis(st_stdout)  # report
                 # Return cmp type and mutate strategy according to typeDetect
-                cmpmaploc_rptdict = Parser.typeDetect(execute_seed, st_key, initrpt_dict, strpt_dict)
+                type_infer_set, locmapdet_dict = Parser.typeDetect(execute_seed, st_key, initrpt_dict, strpt_dict)
+                if TYPE_SOLVED in type_infer_set:
+                    solved_cmpset.add(st_key)
+                    sch.addSeeds(SCH_LOOP_SEED, [execute_seed])
                 # Passing the constraint based on the number of cycles and the distance between comparisons.
-
-                Parser.exeTypeStrategy()
+                st_seed = Mutator.mutateLocFromMap(execute_seed.content, path_mutateseeds, ST_STR + str(loop), locmapdet_dict)
 
                 # 5 visualize
                 res = vis.display(execute_seed, set(fineloc_list), start_time, loop, total)
                 if res == QUIT_FUZZ:
                     sch.quitFuzz()
+
+                if st_seed is not None:
+                    sch.addSeeds(SCH_MUT_SEED, [st_seed])
+
+
 
         # Analyze the differences in comparison.
         # mergeMapReport(each_change_inputmap, eachloop_change_inputmap)

@@ -131,6 +131,7 @@ class Analyzer:
                 else:
                     cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[i], args_list[i]))
 
+        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmprpt_dict))
         cmprpt_set: 'cmpid' = set(cmprpt_dict)
         return cmprpt_dict, cmprpt_set
 

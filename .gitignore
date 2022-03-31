@@ -35,4 +35,6 @@ Programs/base64/code_Bin/
 Programs/base64/code_IR/
 Programs/base64/data_patchloc/
 Programs/base64/data_graph/
+Programs/STFGFuzzer.log
+Programs/STFGFuzzer_print.log
 fuzzer_module/__pycache__/

@@ -79,7 +79,10 @@ Type Inference Module.
 # Infer bytes status according bytes change.
 def inferFixedOrChanged(ori0, ori1, con0, con1) -> (int, StructCmpInfer):
     # Original group <-> Control group
-    if ori0 == con0 and ori1 == con1:
+    if con0 == con1:
+        temp_bytesflag = PAR_SOLVED
+        temp_infer = None
+    elif ori0 == con0 and ori1 == con1:
         temp_bytesflag = PAR_FIXAFIX
         temp_infer = StructCmpInfer(PAR_FIXED, [ori0, con0], PAR_FIXED, [ori1, con1])
     elif ori0 == con0 and ori1 != con1:
@@ -94,9 +97,11 @@ def inferFixedOrChanged(ori0, ori1, con0, con1) -> (int, StructCmpInfer):
     return temp_bytesflag, temp_infer
 
 # Detect bytes type from bytes status and bytes contents.
-def detectCmpType(bytes_type, bytes_infer: StructCmpInfer, cmpins: StructCmpIns) -> list:
+def detectCmpType(bytes_type, cmpins: StructCmpIns) -> list:
     type_infer = []
-    if bytes_type == PAR_FIXAFIX:
+    if bytes_type == PAR_SOLVED:
+        type_infer.append(TYPE_SOLVED)
+    elif bytes_type == PAR_FIXAFIX:
         type_infer.append(TYPE_UNDEFINED)
     elif bytes_type == PAR_FIXACHG or bytes_type == PAR_CHGAFIX:
         if cmpins.stvalue[0] in HOOKSTRCMPSET:
@@ -109,12 +114,22 @@ def detectCmpType(bytes_type, bytes_infer: StructCmpInfer, cmpins: StructCmpIns)
     return type_infer
 
 # According type flag to determine which one strategy will be executed.
-def exeTypeStrategy(type_infer_list):
+def exeTypeStrategy(seed, type_infer_list, bytes_infer):
+    loc = list(seed.location)
+    loc.sort()
+    locmapdet_dict = {}
     for inf_i in type_infer_list:
-        pass
+        if inf_i == TYPE_SOLVED:
+            return {}
+        elif inf_i == TYPE_MAGICSTR:
+            for fix_i in range(len(bytes_infer.var0_cont[0])):
+                locmapdet_dict[loc[fix_i]] = bytes_infer.var0_cont[0][fix_i]
+        elif inf_i == TYPE_MAGICNUMS:
+            pass
 
+    return locmapdet_dict
 
-def typeDetect(execute_seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[cmpid:[StructCmpIns]]', strpt_dict):
+def typeDetect(seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[cmpid:[StructCmpIns]]', strpt_dict):
     """
     Type identification and speculation.
     @param comparison_diffreport:
@@ -123,16 +138,19 @@ def typeDetect(execute_seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[
     @param mutate_loc:
     @return:
     """
-    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), execute_seed.location, st_key, initrpt_dict, strpt_dict))
+    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), seed.location, st_key, initrpt_dict, strpt_dict))
 
+    type_infer_list = []
+    locmapdet_dict = {}
     # Single Constraint Resolution
     if (st_key in initrpt_dict) and (st_key in strpt_dict):  # Handling mutually corresponding constraints after mutation
         for len_i in range(min(len(initrpt_dict[st_key]), len(strpt_dict[st_key]))):
             ini = initrpt_dict[st_key][len_i].stargs
             st = strpt_dict[st_key][len_i].stargs
             bytes_flag, bytes_infer = inferFixedOrChanged(ini[0], ini[1], st[0], st[1])  # Determining the type of variables
-            type_infer_list = detectCmpType(bytes_flag, bytes_infer, strpt_dict[st_key])  # Speculative change type
-            exeTypeStrategy(type_infer_list, strpt_dict)
+            type_infer_list = type_infer_list + detectCmpType(bytes_flag, strpt_dict[st_key][len_i])  # Speculative change type
+            locmapdet_dict = exeTypeStrategy(seed, type_infer_list, bytes_infer)
+
             LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), bytes_flag, bytes_infer, ini[0], ini[1], st[0], st[1]))
 
     elif (st_key in initrpt_dict) and (st_key not in strpt_dict):
@@ -142,53 +160,6 @@ def typeDetect(execute_seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[
     else:
         handleUndefined()
 
-    # Loop through the cases where the initial and variant correspond to each other.
-    # for each in comparison_diffreport:
-    #     mutseed = each.mutseed
-    #     change_inputmap = {}
-    #     if mutseed.seedtype == MUT_TYPE_SUB:
-    #         if each.sttype in TRACECMPSET:
-    #             infer_bytes = inferFixedOrChanged(
-    #                 each.init_sttrace[IDX_ARG1], each.init_sttrace[IDX_ARG2],
-    #                 each.mut_sttrace[IDX_ARG1], each.mut_sttrace[IDX_ARG2]
-    #             )
-    #             # Find fixed bytes and changed bytes.
-    #             cmp_type = detectCmpType(infer_bytes)
-    #             if cmp_type == PAR_MAGIC1_TYPE:
-    #                 change_inputmap = handleNumMagic(mutseed, infer_bytes.var0_cont, infer_bytes.var1_cont, mutate_loc)
-    #             elif cmp_type == PAR_MAGIC2_TYPE:
-    #                 change_inputmap = handleNumMagic(mutseed, infer_bytes.var1_cont, infer_bytes.var0_cont, mutate_loc)
-    #             elif cmp_type == PAR_CHECKSUMS_TYPE:
-    #                 pass
-    #             elif cmp_type == PAR_FIX_TYPE:
-    #                 pass
-    #
-    #         elif each.sttype in HOOKCMPSET:
-    #             infer_bytes = inferFixedOrChanged(
-    #                 each.init_sttrace[IDX_S1], each.init_sttrace[IDX_S2],
-    #                 each.mut_sttrace[IDX_S1], each.mut_sttrace[IDX_S2]
-    #             )
-    #             # Find fixed bytes and changed bytes.
-    #             cmp_type = detectCmpType(infer_bytes)
-    #             if cmp_type == PAR_MAGIC1_TYPE:
-    #                 change_inputmap = handleStrMagic(mutseed, infer_bytes.var0_cont, infer_bytes.var1_cont, mutate_loc)
-    #             elif cmp_type == PAR_MAGIC2_TYPE:
-    #                 change_inputmap = handleStrMagic(mutseed, infer_bytes.var1_cont, infer_bytes.var0_cont, mutate_loc)
-    #             elif cmp_type == PAR_CHECKSUMS_TYPE:
-    #                 pass
-    #             elif cmp_type == PAR_FIX_TYPE:
-    #                 pass
-    #
-    #         elif each.sttype == COV_SWITCH:
-    #             pass
-    #     elif mutseed.seedtype == MUT_TYPE_INSERT:
-    #         pass
-    #
-    #     # Handling input change mapping.
-    #     mergeMapReport(change_inputmap, each_change_inputmap)
-    #
-    #
-    # # print(each_change_inputmap)
-    # return each_change_inputmap
+    return set(type_infer_list), locmapdet_dict
 
 

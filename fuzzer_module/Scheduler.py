@@ -20,7 +20,7 @@ class Scheduler:
         self.slidWindow = SCH_SLID_WINDOW
 
     def selectOneSeed(self, mode: int, mutseed=None) -> StructSeed:
-        if mode == SCH_INIT_SEED:
+        if mode == SCH_LOOP_SEED:
             temp_one = self.seedq.get()
         elif mode == SCH_MUT_SEED:
             temp_one = self.mutateTestq.get()
@@ -36,7 +36,7 @@ class Scheduler:
 
     def addSeeds(self, mode: int, structseed_list: 'list[StructSeed]'):
         for each in structseed_list:
-            if mode == SCH_INIT_SEED:
+            if mode == SCH_LOOP_SEED:
                 self.seedq.put(each)
             elif mode == SCH_MUT_SEED:
                 self.mutateTestq.put(each)
@@ -46,7 +46,7 @@ class Scheduler:
 
     def isEmpty(self, mode) -> bool:
         temp_flag = False
-        if mode == SCH_INIT_SEED:
+        if mode == SCH_LOOP_SEED:
             temp_flag = self.seedq.empty()
         elif mode == SCH_MUT_SEED:
             temp_flag = self.mutateTestq.empty()
