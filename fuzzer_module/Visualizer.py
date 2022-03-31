@@ -44,12 +44,12 @@ class Visualizer:
         except Exception as e:
             pass
 
-    def display(self, start_time, mutseed: StructSeed, eachloop_input_map: dict, loop: int, total: int) -> int:
+    def display(self, mutseed: StructSeed, input_loc: set, start_time, loop: int, total: int) -> int:
         """
         This function use to show state during fuzzing on the terminal.
         @param start_time:
         @param mutseed:
-        @param eachloop_input_map:
+        @param input_loc:
         @param loop:
         @param total:
         @return:
@@ -114,8 +114,7 @@ class Visualizer:
                     color_pair = curses.color_pair(VIS_WHITE)
                     if seed_index in mutseed.location:
                         color_pair = curses.color_pair(VIS_YELLOW)
-                    if seed_index in eachloop_input_map:
-                        show_char = eachloop_input_map[seed_index]
+                    if seed_index in input_loc:
                         color_pair = curses.color_pair(VIS_RED)
                     self.terminal_seeds.addstr(i+1, j*3+int(j/4)+7, "{} ".format(hex(ord(show_char)))[2:], color_pair)
                     self.terminal_seeds.addstr(i+1, j+int(j/4)+58, "{}".format(show_char), color_pair)
@@ -123,13 +122,13 @@ class Visualizer:
             self.terminal_seeds.noutrefresh()
 
             if self.stdscr.getch() == VIS_Q:
-                return 1
+                return QUIT_FUZZ
             elif self.stdscr.getch() == VIS_S:
                 self.showgraph_switch = True
             elif self.stdscr.getch() == VIS_N:
                 self.showgraph_switch = False
 
-        return -1
+        return USE_INITNUM
 
     def showGraph(self, filepath_graph: str, cggraph: 'Graph', cfggraph: 'Graph'):
         if self.showgraph_switch:

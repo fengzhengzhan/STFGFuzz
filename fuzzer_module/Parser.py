@@ -22,7 +22,7 @@ def compareRptToLoc(seed: StructSeed, initrpt_dict: 'dict[str:StructCmpIns]', in
                             cmpmaploc_rptdict[key] = seed.location
     if len(symdiffset) > 0:
         for key in symdiffset:
-            cmpmaploc_rptdict[key] = seed.location
+            cmpmaploc_rptdict[key] = set(seed.location)
 
     return cmpmaploc_rptdict
 
@@ -130,7 +130,7 @@ def typeDetect(execute_seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[
             st = strpt_dict[st_key][len_i].stargs
             bytes_type, bytes_infer = inferFixedOrChanged(ini[0], ini[1], st[0], st[1])  #
             cmp_type = detectCmpType(bytes_infer)  # Speculative change type
-            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), bytes_type, bytes_infer, ini[0], ini[1], st[0], st[1], print_mode=True))
+            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), bytes_type, bytes_infer, ini[0], ini[1], st[0], st[1]))
 
     elif (st_key in initrpt_dict) and (st_key not in strpt_dict):
         pass
@@ -140,52 +140,52 @@ def typeDetect(execute_seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[
         handleUndefined()
 
     # Loop through the cases where the initial and variant correspond to each other.
-    for each in comparison_diffreport:
-        mutseed = each.mutseed
-        change_inputmap = {}
-        if mutseed.seedtype == MUT_TYPE_SUB:
-            if each.sttype in TRACECMPSET:
-                infer_bytes = inferFixedOrChanged(
-                    each.init_sttrace[IDX_ARG1], each.init_sttrace[IDX_ARG2],
-                    each.mut_sttrace[IDX_ARG1], each.mut_sttrace[IDX_ARG2]
-                )
-                # Find fixed bytes and changed bytes.
-                cmp_type = detectCmpType(infer_bytes)
-                if cmp_type == PAR_MAGIC1_TYPE:
-                    change_inputmap = handleNumMagic(mutseed, infer_bytes.var0_cont, infer_bytes.var1_cont, mutate_loc)
-                elif cmp_type == PAR_MAGIC2_TYPE:
-                    change_inputmap = handleNumMagic(mutseed, infer_bytes.var1_cont, infer_bytes.var0_cont, mutate_loc)
-                elif cmp_type == PAR_CHECKSUMS_TYPE:
-                    pass
-                elif cmp_type == PAR_FIX_TYPE:
-                    pass
-
-            elif each.sttype in HOOKCMPSET:
-                infer_bytes = inferFixedOrChanged(
-                    each.init_sttrace[IDX_S1], each.init_sttrace[IDX_S2],
-                    each.mut_sttrace[IDX_S1], each.mut_sttrace[IDX_S2]
-                )
-                # Find fixed bytes and changed bytes.
-                cmp_type = detectCmpType(infer_bytes)
-                if cmp_type == PAR_MAGIC1_TYPE:
-                    change_inputmap = handleStrMagic(mutseed, infer_bytes.var0_cont, infer_bytes.var1_cont, mutate_loc)
-                elif cmp_type == PAR_MAGIC2_TYPE:
-                    change_inputmap = handleStrMagic(mutseed, infer_bytes.var1_cont, infer_bytes.var0_cont, mutate_loc)
-                elif cmp_type == PAR_CHECKSUMS_TYPE:
-                    pass
-                elif cmp_type == PAR_FIX_TYPE:
-                    pass
-
-            elif each.sttype == COV_SWITCH:
-                pass
-        elif mutseed.seedtype == MUT_TYPE_INSERT:
-            pass
-
-        # Handling input change mapping.
-        mergeMapReport(change_inputmap, each_change_inputmap)
-
-
-    # print(each_change_inputmap)
-    return each_change_inputmap
+    # for each in comparison_diffreport:
+    #     mutseed = each.mutseed
+    #     change_inputmap = {}
+    #     if mutseed.seedtype == MUT_TYPE_SUB:
+    #         if each.sttype in TRACECMPSET:
+    #             infer_bytes = inferFixedOrChanged(
+    #                 each.init_sttrace[IDX_ARG1], each.init_sttrace[IDX_ARG2],
+    #                 each.mut_sttrace[IDX_ARG1], each.mut_sttrace[IDX_ARG2]
+    #             )
+    #             # Find fixed bytes and changed bytes.
+    #             cmp_type = detectCmpType(infer_bytes)
+    #             if cmp_type == PAR_MAGIC1_TYPE:
+    #                 change_inputmap = handleNumMagic(mutseed, infer_bytes.var0_cont, infer_bytes.var1_cont, mutate_loc)
+    #             elif cmp_type == PAR_MAGIC2_TYPE:
+    #                 change_inputmap = handleNumMagic(mutseed, infer_bytes.var1_cont, infer_bytes.var0_cont, mutate_loc)
+    #             elif cmp_type == PAR_CHECKSUMS_TYPE:
+    #                 pass
+    #             elif cmp_type == PAR_FIX_TYPE:
+    #                 pass
+    #
+    #         elif each.sttype in HOOKCMPSET:
+    #             infer_bytes = inferFixedOrChanged(
+    #                 each.init_sttrace[IDX_S1], each.init_sttrace[IDX_S2],
+    #                 each.mut_sttrace[IDX_S1], each.mut_sttrace[IDX_S2]
+    #             )
+    #             # Find fixed bytes and changed bytes.
+    #             cmp_type = detectCmpType(infer_bytes)
+    #             if cmp_type == PAR_MAGIC1_TYPE:
+    #                 change_inputmap = handleStrMagic(mutseed, infer_bytes.var0_cont, infer_bytes.var1_cont, mutate_loc)
+    #             elif cmp_type == PAR_MAGIC2_TYPE:
+    #                 change_inputmap = handleStrMagic(mutseed, infer_bytes.var1_cont, infer_bytes.var0_cont, mutate_loc)
+    #             elif cmp_type == PAR_CHECKSUMS_TYPE:
+    #                 pass
+    #             elif cmp_type == PAR_FIX_TYPE:
+    #                 pass
+    #
+    #         elif each.sttype == COV_SWITCH:
+    #             pass
+    #     elif mutseed.seedtype == MUT_TYPE_INSERT:
+    #         pass
+    #
+    #     # Handling input change mapping.
+    #     mergeMapReport(change_inputmap, each_change_inputmap)
+    #
+    #
+    # # print(each_change_inputmap)
+    # return each_change_inputmap
 
 

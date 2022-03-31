@@ -13,6 +13,9 @@ USE_INITNUM = -1
 USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
+QUIT_FUZZ = 11
+VIS_TERMINAL = False
+VIS_SHOWGRAPH = True
 
 COARSE_STR = "coarse"
 FINE_STR = "fine"
@@ -224,8 +227,7 @@ VIS_SEED_LINE = 16
 
 VIS_MAX_LINE = 25
 
-VIS_TERMINAL = False
-VIS_SHOWGRAPH = True
+
 VIS_CG_NAME = "CG.gv"
 VIS_CFG_NAME = "CFG.gv"
 VIS_DPI = 300
@@ -254,7 +256,9 @@ def LOG_STR(funcinfo, *args, print_mode=False):
     for content in args:
         logstr += "{} || ".format(content)
     if print_mode:
+        print("-------   -------")
         print(logstr)
+        print()
     return logstr
 
 

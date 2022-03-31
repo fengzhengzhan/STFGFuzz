@@ -61,3 +61,7 @@ class Scheduler:
             temp_one = self.deleteq.get()
             if SCH_SAVEASFILE:
                 os.remove(temp_one.filename)
+
+    def quitFuzz(self):
+        self.deleteSeeds()
+        sys.exit(0)
