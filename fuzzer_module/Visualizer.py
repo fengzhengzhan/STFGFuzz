@@ -92,18 +92,19 @@ class Visualizer:
 
             # Initual terminal seeds.
             seed_len = len(mutseed.content)
-            layout_x = int(seed_len / VIS_SEED_LINE)
+            layout_x = int(seed_len / VIS_SEED_LINE) + 1  # The end line not full.
             layout_y = int(seed_len % VIS_SEED_LINE)
 
-            self.terminal_seeds = curses.newwin(layout_x+1+2, 78, 17, 0)
+            high = min(layout_x, VIS_MAX_LINE)
+            self.terminal_seeds = curses.newwin(high+2, 78, VIS_SEED_LINE+1, 0)
             self.terminal_seeds.box()
             self.terminal_seeds.erase()
             self.terminal_seeds.border()
             self.terminal_seeds.addstr(0, 2, "Hex")  # (y ->, x |V)
 
-            for i in range(0, min(layout_x, VIS_MAX_LINE)+1):
+            for i in range(0, high):
                 self.terminal_seeds.addstr(i + 1, 1, "{:0>3d}0: ".format(i))
-                if i < layout_x or layout_x > VIS_MAX_LINE:
+                if i < layout_x-1 or layout_x-1 > VIS_MAX_LINE:
                     j_len = VIS_SEED_LINE
                 else:
                     j_len = layout_y
@@ -118,6 +119,14 @@ class Visualizer:
                         color_pair = curses.color_pair(VIS_RED)
                     self.terminal_seeds.addstr(i+1, j*3+int(j/4)+7, "{} ".format(hex(ord(show_char)))[2:], color_pair)
                     self.terminal_seeds.addstr(i+1, j+int(j/4)+58, "{}".format(show_char), color_pair)
+
+            self.terminal_seeds.noutrefresh()
+
+            # Show the program output
+            self.terminal_seeds = curses.newwin(16 + layout_x + 1 + 2, 78, 30, 0)
+            self.terminal_seeds.box()
+            self.terminal_seeds.erase()
+            self.terminal_seeds.border()
 
             self.terminal_seeds.noutrefresh()
 
