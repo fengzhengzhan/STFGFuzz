@@ -9,7 +9,7 @@ class Scheduler:
         self.locCoarseList: 'list[int]' = []
         self.locFineList: 'list[int]' = []
         self.slidWindow: int = SCH_SLID_WINDOW
-        self.freezebytes: dict = {}
+        self.freezebytes: set = set()
         self.mutateTestq: Queue[StructSeed] = Queue(maxsize=0)
         self.importantq: Queue[StructSeed] = Queue(maxsize=0)
         self.deleteq: Queue[StructSeed] = Queue(maxsize=0)

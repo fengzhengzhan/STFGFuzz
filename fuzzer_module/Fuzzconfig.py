@@ -15,8 +15,8 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-VIS_TERMINAL = False
-# VIS_TERMINAL = True
+# VIS_TERMINAL = False
+VIS_TERMINAL = True
 VIS_SHOWGRAPH = True
 
 COARSE_STR = "coarse"
@@ -244,7 +244,7 @@ VIS_DPI = 300
 
 '''Logging'''
 # Logging the information during the fuzzing.
-# LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), arg1, arg2, arg3))
+# LOG(LOG_DEBUG, LOG_FUNCINFO(), arg1, arg2, arg3)
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 try:
     logging.basicConfig(filename='Programs/{}.log'.format(FUZZNAME), level=logging.WARNING, format=LOG_FORMAT)
@@ -260,31 +260,26 @@ LOG_WARNING = 253
 LOG_ERROR = 254
 LOG_CRITICAL = 255
 
-
-def LOG_STR(funcinfo, *args, print_mode=False):
+def LOG(loggingtype: str, funcinfo, *args, print_mode=False) -> None:
     logstr = "{}-> ".format(funcinfo)
     for content in args:
         logstr += "{} || ".format(content)
     if print_mode:
-        print("\n-------   -------")
-        print(logstr)
+        print("\n\n\n"+logstr, end="")
         with open(PROGRAMS + os.sep + FUZZPRINTLOG, "a+") as f:
-            f.write("\n-------   -------")
-            f.write(logstr)
-    return logstr
+            f.write("\n\n\n"+logstr)
 
-
-def LOG(loggingtype: str, infomation: str) -> None:
+    # logging
     if loggingtype == LOG_DEBUG:
-        logging.debug(infomation)
+        logging.debug(logstr)
     elif loggingtype == LOG_INFO:
-        logging.info(infomation)
+        logging.info(logstr)
     elif loggingtype == LOG_WARNING:
-        logging.warning(infomation)
+        logging.warning(logstr)
     elif loggingtype == LOG_ERROR:
-        logging.error(infomation)
+        logging.error(logstr)
     elif loggingtype == LOG_CRITICAL:
-        logging.critical(infomation)
+        logging.critical(logstr)
     else:
         raise Exception("Error logging.")
 

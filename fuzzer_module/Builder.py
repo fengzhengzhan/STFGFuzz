@@ -30,7 +30,7 @@ def getPatchInfo(program_name: str) -> 'dict[str:dict[int:dict[str:str]]]':
     # print(patchline_info)
     patchline_dict = ast.literal_eval(patchline_sub)
     # print(patchline_dict['main'])
-    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), patchline_info, patchline_sub, patchline_dict))
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), patchline_info, patchline_sub, patchline_dict)
     return patchline_dict
 
 
@@ -62,7 +62,7 @@ def getCG(cglist) -> (Graph, dict):
                                edge[BUI_EDGE_END],
                                BUI_INIT_WEIGHT))
         # print(nodes_list, edges_list)
-        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), nodes_list, edges_list))
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), nodes_list, edges_list)
         cggraph = Graph(data[BUI_NAME].split(" ")[-1], nodes_list, edges_list)
 
     return cggraph, map_funcTocgname
@@ -110,7 +110,7 @@ def getCFG(cfglist) -> 'dict[str:Graph]':
                                    edge[BUI_EDGE_END],
                                    BUI_INIT_WEIGHT))
             # print(nodes_list, edges_list)
-            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), nodes_list, edges_list))
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), nodes_list, edges_list)
             temp_graphname = data[BUI_NAME].split(" ")[-2][1:-1]
             cfggraph = Graph(temp_graphname, nodes_list, edges_list)
             cfggraph_dict[temp_graphname] = cfggraph

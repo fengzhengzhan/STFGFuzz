@@ -64,7 +64,7 @@ class Analyzer:
         cmpcovshm_json = json.loads(cmpcovshm_str)
         cmpcovshm_list = cmpcovshm_json[ANA_CMPCOVSHM_NAME]
         # print(type(cmpcovshm_json[ANA_CMPCOVSHM_NAME]), cmpcovshm_json[ANA_CMPCOVSHM_NAME])
-        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmpcovshm_list))
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovshm_list)
 
         # Iterate through the trace report to get the corresponding information
         cmprpt_dict: 'dict[cmpid:[StructCmpIns]]' = {}  # According cmp instruction to genetator dict.
@@ -131,7 +131,7 @@ class Analyzer:
                 else:
                     cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[i], args_list[i]))
 
-        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), cmprpt_dict))
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), cmprpt_dict)
         cmprpt_set: 'cmpid' = set(cmprpt_dict)
         return cmprpt_dict, cmprpt_set
 
@@ -178,7 +178,7 @@ class Analyzer:
                 combine_line = each_line
 
             # print(combine_line.encode())
-            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), combine_line))
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), combine_line)
 
             # Matching Symbols.
             each = combine_line.split(" ")
@@ -244,14 +244,14 @@ class Analyzer:
                     content_list.append(temp_content)
 
                     # print(type, call_pc, s1.encode(), s2.encode(), size_n, result)
-                    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), type, call_pc, s1.encode(), s2.encode(), size_n, result))
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), type, call_pc, s1.encode(), s2.encode(), size_n, result)
 
             else:
                 # Here content has high possible as the normal program output.
                 content = combine_line
 
         # print(struct_report_list)
-        LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), struct_report_list))
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), struct_report_list)
 
         # print(trace_analysis)
         return struct_report_list

@@ -8,7 +8,7 @@ def compareRptToLoc(seed: StructSeed, initrpt_dict: 'dict[str:StructCmpIns]', in
     interset = initrpt_set & mutrpt_set  # Intersection
     symdiffset = initrpt_set ^ mutrpt_set  # Symmetric Difference set
     cmpmaploc_rptdict = {}
-    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), seed.location, interset, symdiffset))
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), seed.location, interset, symdiffset)
 
     if len(interset) > 0:
         # compare whether the parameters of the same constraint are different
@@ -138,7 +138,7 @@ def typeDetect(seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[cmpid:[S
     @param mutate_loc:
     @return:
     """
-    LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), seed.location, st_key, initrpt_dict, strpt_dict))
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), seed.location, st_key, initrpt_dict, strpt_dict)
 
     type_infer_list = []
     locmapdet_dict = {}
@@ -151,7 +151,7 @@ def typeDetect(seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[cmpid:[S
             type_infer_list = type_infer_list + detectCmpType(bytes_flag, strpt_dict[st_key][len_i])  # Speculative change type
             locmapdet_dict = exeTypeStrategy(seed, type_infer_list, bytes_infer)
 
-            LOG(LOG_DEBUG, LOG_STR(LOG_FUNCINFO(), bytes_flag, bytes_infer, ini[0], ini[1], st[0], st[1]))
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, bytes_infer, ini[0], ini[1], st[0], st[1])
 
     elif (st_key in initrpt_dict) and (st_key not in strpt_dict):
         pass
