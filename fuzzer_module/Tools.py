@@ -40,19 +40,6 @@ def getFileContent(filepathname: str) -> str:
         file_cont += each
     return file_cont
 
-
-def mergeMapReport(inputmap, totalinputmap):
-    """
-    Generate byte-level mapping reports.
-    @param inputmap:
-    @param totalinputmap:
-    @return:
-    """
-    for loc, byte in inputmap.items():
-        if loc not in totalinputmap:
-            totalinputmap[loc] = byte
-
-
 def runothercmd(cmd: str) -> (int, str, str):
     """
     run cmd to get information from executable files or other tools

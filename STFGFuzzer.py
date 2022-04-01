@@ -56,7 +56,9 @@ def mainFuzzer():
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
         init_retcode, init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
-        initrpt_dict, initrpt_set = ana.traceAyalysis(init_stdout)
+        cmpcovcont_list, content = ana.gainTraceRpt(init_stdout)
+        initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, content)
+
         num_pcguard = ana.getNumOfPcguard()
 
         # Select the location to be mutated and add it to the location queue.
@@ -84,7 +86,8 @@ def mainFuzzer():
 
             # 2 cmp instruction
             # Track execution information of mutate seeds.
-            mutrpt_dict, mutrpt_set = ana.traceAyalysis(mut_stdout)  # report
+            cmpcovcont_list, content = ana.gainTraceRpt(mut_stdout)  # report
+            mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content)
             cmpmaploc_rptdict = Parser.compareRptToLoc(execute_seed, initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
             for cmp_key, cmp_val in cmpmaploc_rptdict.items():  # Determine if the dictionary is empty.
                 if cmp_key not in solved_cmpset:
@@ -123,7 +126,8 @@ def mainFuzzer():
 
                 # 2 cmp instruction
                 # Track execution information of mutate seeds.
-                mutrpt_dict, mutrpt_set = ana.traceAyalysis(mut_stdout)  # report
+                cmpcovcont_list, content = ana.gainTraceRpt(mut_stdout)  # report
+                mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content)
                 cmpmaploc_rptdict = Parser.compareRptToLoc(execute_seed, initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
                 if st_key in cmpmaploc_rptdict:
                     fineloc_list.extend(stloc_list)
@@ -137,6 +141,7 @@ def mainFuzzer():
 
             st_seed = Mutator.mutateSelectChar(init_seed.content, path_mutateseeds, ST_STR + str(loop), fineloc_list)
             sch.addSeeds(SCH_MUT_SEED, [st_seed])
+            before_strpt_dict = initrpt_dict
             # Type Detection and Breaking the Constraint Cycle (At lease 2 loops)
             while not sch.isEmpty(SCH_MUT_SEED):
                 total += 1
@@ -144,9 +149,13 @@ def mainFuzzer():
                 st_retcode, st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
 
                 # 2 cmp instruction
-                strpt_dict, strpt_set = ana.traceAyalysis(st_stdout)  # report
+                cmpcovcont_list, content = ana.gainTraceRpt(st_stdout)
+                strpt_dict, strpt_set = ana.traceAyalysis(cmpcovcont_list, content)  # report
                 # Return cmp type and mutate strategy according to typeDetect
-                type_infer_set, locmapdet_dict = Parser.typeDetect(execute_seed, st_key, initrpt_dict, strpt_dict)
+                type_infer_set, locmapdet_dict = Parser.typeDetect(execute_seed, st_key, before_strpt_dict, strpt_dict)
+                before_strpt_dict = strpt_dict
+                if TYPE_MAGICNUMS in type_infer_set:
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovcont_list, content, print_mode=True)
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), type_infer_set, locmapdet_dict)
                 if TYPE_SOLVED in type_infer_set:
                     solved_cmpset.add(st_key)
@@ -167,22 +176,8 @@ def mainFuzzer():
         if sch.isEmpty(SCH_LOOP_SEED):
             sch.addSeeds(SCH_LOOP_SEED, [init_seed, ])
 
-
-        # Analyze the differences in comparison.
-        # mergeMapReport(each_change_inputmap, eachloop_change_inputmap)
-
         # 4 branches
 
-        # temp_content = list(init_seed.content)
-        # for k, v in eachloop_change_inputmap.items():
-        #     temp_content[k] = v
-        # temp_content = ''.join(temp_content)
-        # sch.addSeeds(SCH_INIT_SEED, [
-        #     StructSeed(path_mutateseeds+getMutfilename("loop"+str(loop)), temp_content, INIT, {USE_INITNUM})])
-        # # Mutator.mutateDeleteFile(filelist_mutateseeds, path_mutateseeds)
-        # # print(filelist_mutateseeds)
-        # # print(mutate_seeds)
-        #
 
 
 if __name__ == "__main__":
