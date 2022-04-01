@@ -95,7 +95,7 @@ def mainFuzzer():
             LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptdict)
 
             # 5 visualize
-            res = vis.display(execute_seed, set(stloc_list), start_time, loop, total)
+            res = vis.display(execute_seed, set(stloc_list), mut_stdout, mut_stderr, start_time, loop, total)
             if res == QUIT_FUZZ:
                 sch.quitFuzz()
         LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_coarse_dict)
@@ -130,7 +130,7 @@ def mainFuzzer():
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptdict)
 
                 # 5 visualize
-                res = vis.display(execute_seed, set(stloc_list), start_time, loop, total)
+                res = vis.display(execute_seed, set(stloc_list), mut_stdout, mut_stderr, start_time, loop, total)
                 if res == QUIT_FUZZ:
                     sch.quitFuzz()
             LOG(LOG_DEBUG, LOG_FUNCINFO(), st_key, st_coarseval, fineloc_list)
@@ -156,7 +156,7 @@ def mainFuzzer():
                 st_seed = Mutator.mutateLocFromMap(execute_seed.content, path_mutateseeds, ST_STR + str(loop), locmapdet_dict)
 
                 # 5 visualize
-                res = vis.display(execute_seed, set(fineloc_list), start_time, loop, total)
+                res = vis.display(execute_seed, set(fineloc_list), st_stdout, st_stderr, start_time, loop, total)
                 if res == QUIT_FUZZ:
                     sch.quitFuzz()
 
@@ -183,10 +183,6 @@ def mainFuzzer():
         # # print(filelist_mutateseeds)
         # # print(mutate_seeds)
         #
-        # res = vis.display(init_seed, eachloop_change_inputmap, start_time, loop, total)
-        # if res == QUIT_FUZZ:
-        #     sch.quitFuzz()
-        # raise Exception("test")
 
 
 if __name__ == "__main__":

@@ -44,11 +44,11 @@ class Visualizer:
         except Exception as e:
             pass
 
-    def display(self, mutseed: StructSeed, input_loc: set, start_time, loop: int, total: int) -> int:
+    def display(self, seed: StructSeed, input_loc: set, stdout, stderr, start_time, loop: int, total: int) -> int:
         """
         This function use to show state during fuzzing on the terminal.
         @param start_time:
-        @param mutseed:
+        @param seed:
         @param input_loc:
         @param loop:
         @param total:
@@ -66,13 +66,16 @@ class Visualizer:
             self.stdscr.addstr(0, 0, " {} {}".format(FUZZNAME, xnum), curses.color_pair(VIS_BLUE))
             # self.stdscr.refresh()
 
+            curse_len = 76
+            ter_high = 15
             # Initual terminal status.
-            self.terminal_status = curses.newwin(16, 78, 1, 0)
+            # height, width, heightloc, widthloc
+            self.terminal_status = curses.newwin(ter_high, curse_len+2, 1, 0)
             self.terminal_status.box()
             self.terminal_status.erase()
             self.terminal_status.border()
+            self.terminal_status.addstr(0, 1, "Status")  # (y ->, x |V)
 
-            self.terminal_status.addstr(0, 2, "Status")  # (y ->, x |V)
             self.terminal_status.addstr(1, 1, "Runtime: {}".format(runtime))
             self.terminal_status.addstr(2, 1, "    CPU: {}%".format(psutil.cpu_percent()))
             self.terminal_status.addstr(3, 1, "    Mem: {}%".format(psutil.virtual_memory()[2]))
@@ -81,26 +84,26 @@ class Visualizer:
             self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(total/last_time)))
             self.terminal_status.hline(4, 1, curses.ACS_HLINE, 76)
             self.terminal_status.vline(1, 20, curses.ACS_VLINE, 3)
-            self.terminal_status.addstr(15, 2, "Q", curses.color_pair(VIS_MAGENTA))
-            self.terminal_status.addstr(15, 3, "uit")
-            self.terminal_status.addstr(15, 8, "S", curses.color_pair(VIS_MAGENTA))
-            self.terminal_status.addstr(15, 9, "how_graph")
-            self.terminal_status.addstr(15, 20, "N", curses.color_pair(VIS_MAGENTA))
-            self.terminal_status.addstr(15, 21, "ot_show")
+            self.terminal_status.addstr(ter_high-1, 2, "Q", curses.color_pair(VIS_MAGENTA))
+            self.terminal_status.addstr(ter_high-1, 3, "uit")
+            self.terminal_status.addstr(ter_high-1, 8, "S", curses.color_pair(VIS_MAGENTA))
+            self.terminal_status.addstr(ter_high-1, 9, "how_graph")
+            self.terminal_status.addstr(ter_high-1, 20, "N", curses.color_pair(VIS_MAGENTA))
+            self.terminal_status.addstr(ter_high-1, 21, "ot_show")
 
             self.terminal_status.noutrefresh()
 
             # Initual terminal seeds.
-            seed_len = len(mutseed.content)
-            layout_x = int(seed_len / VIS_SEED_LINE) + 1  # The end line not full.
-            layout_y = int(seed_len % VIS_SEED_LINE)
+            seed_len = len(seed.content)
+            layout_x = seed_len // VIS_SEED_LINE + 1  # The end line not full.
+            layout_y = seed_len % VIS_SEED_LINE
 
             high = min(layout_x, VIS_MAX_LINE)
-            self.terminal_seeds = curses.newwin(high+2, 78, VIS_SEED_LINE+1, 0)
+            self.terminal_seeds = curses.newwin(high+2, curse_len+2, ter_high+1, 0)
             self.terminal_seeds.box()
             self.terminal_seeds.erase()
             self.terminal_seeds.border()
-            self.terminal_seeds.addstr(0, 2, "Hex")  # (y ->, x |V)
+            self.terminal_seeds.addstr(0, 1, "Hex")  # (y ->, x |V)
 
             for i in range(0, high):
                 self.terminal_seeds.addstr(i + 1, 1, "{:0>3d}0: ".format(i))
@@ -111,9 +114,9 @@ class Visualizer:
 
                 for j in range(0, j_len):
                     seed_index = i*16+j
-                    show_char = mutseed.content[seed_index]
+                    show_char = seed.content[seed_index]
                     color_pair = curses.color_pair(VIS_WHITE)
-                    if seed_index in mutseed.location:
+                    if seed_index in seed.location:
                         color_pair = curses.color_pair(VIS_YELLOW)
                     if seed_index in input_loc:
                         color_pair = curses.color_pair(VIS_RED)
@@ -123,12 +126,31 @@ class Visualizer:
             self.terminal_seeds.noutrefresh()
 
             # Show the program output
-            self.terminal_seeds = curses.newwin(16 + layout_x + 1 + 2, 78, 30, 0)
-            self.terminal_seeds.box()
-            self.terminal_seeds.erase()
-            self.terminal_seeds.border()
+            stdout = str(stdout)[2:-1]
+            stderr = str(stderr)[2:-1]
+            print(stdout, len(stdout))
+            out_high = min(len(stdout) // (curse_len - 2) + 1, VIS_MAX_OUT)
+            err_high = min(len(stderr) // (curse_len - 2) + 1, VIS_MAX_ERR)
+            output_high = out_high+err_high+2
+            self.terminal_outs = curses.newwin(output_high, curse_len+2, ter_high+1+high+2, 0)
+            self.terminal_outs.box()
+            self.terminal_outs.erase()
+            self.terminal_outs.border()
+            self.terminal_outs.addstr(0, 1, "Output")  # (y ->, x |V)
 
-            self.terminal_seeds.noutrefresh()
+            self.terminal_outs.addstr(1, 0, "O", curses.color_pair(VIS_YELLOW))
+            for x_i in range(0, out_high):
+                self.terminal_outs.addstr(x_i+1, 2, "{}".format(stdout[(curse_len-2)*x_i: (curse_len-2)*(x_i+1)]))
+
+            self.terminal_outs.addstr(out_high+1, 0, "E", curses.color_pair(VIS_YELLOW))
+            for x_i in range(0, err_high):
+                self.terminal_outs.addstr(out_high+x_i+1, 2, "{}".format(stderr[(curse_len-2)*x_i: (curse_len-2)*(x_i+1)]))
+
+            self.terminal_outs.addstr(output_high - 1, 2, "O", curses.color_pair(VIS_YELLOW))
+            self.terminal_outs.addstr(output_high - 1, 3, "utput")
+            self.terminal_outs.addstr(output_high - 1, 10, "E", curses.color_pair(VIS_YELLOW))
+            self.terminal_outs.addstr(output_high - 1, 11, "rror")
+            self.terminal_outs.noutrefresh()
 
             if self.stdscr.getch() == VIS_Q:
                 return QUIT_FUZZ
