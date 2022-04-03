@@ -53,7 +53,7 @@ def strConverUnival(value):
         unique_val = u
     return unique_val
 
-def handleDistanceStr(opt_seed, mut_seed, st_loc, bytes_infer, sch) -> dict:
+def handleDistanceNum(opt_seed, mut_seed, st_loc, bytes_infer, sch) -> dict:
     ret_seed = mut_seed
     change_inputmap = {}
 
@@ -61,32 +61,6 @@ def handleDistanceStr(opt_seed, mut_seed, st_loc, bytes_infer, sch) -> dict:
     val01 = strConverUnival(bytes_infer.var0_cont[1])
     val10 = strConverUnival(bytes_infer.var1_cont[0])
     val11 = strConverUnival(bytes_infer.var1_cont[1])
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), val00, val01, val10, val11)
-    # According distance to return which seed.
-    if abs(val00-val10) >= abs(val01-val11):  # Distance difference in a constraint.
-        ret_seed = mut_seed
-    elif abs(val00-val10) < abs(val01-val11):
-        ret_seed = opt_seed
-
-    # According bytes location to mutation seed location.
-    if sch.mutlocnums < len(st_loc) * 16:
-        chari = sch.mutlocnums // 16
-        charb = sch.mutlocnums % 16
-        sch.mutlocnums += 1
-        c = abs(ord(ret_seed.content[st_loc[chari]]) + MUT_BIT_LIST[charb]) % 256
-        c = chr(c)
-        change_inputmap[st_loc[chari]] = c
-        # print(chari, charb, ret_seed.content, change_inputmap)
-    return ret_seed, change_inputmap
-
-def handleDistanceNum(opt_seed, mut_seed, st_loc, bytes_infer, sch) -> dict:
-    ret_seed = mut_seed
-    change_inputmap = {}
-
-    val00 = int(bytes_infer.var0_cont[0])
-    val01 = int(bytes_infer.var0_cont[1])
-    val10 = int(bytes_infer.var1_cont[0])
-    val11 = int(bytes_infer.var1_cont[1])
     LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, mut_seed.content)
     # According distance to return which seed.
     if abs(val00-val10) >= abs(val01-val11):  # Distance difference in a constraint.
@@ -102,7 +76,7 @@ def handleDistanceNum(opt_seed, mut_seed, st_loc, bytes_infer, sch) -> dict:
         c = abs(ord(ret_seed.content[st_loc[chari]]) + MUT_BIT_LIST[charb]) % 256
         c = chr(c)
         change_inputmap[st_loc[chari]] = c
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, change_inputmap)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, change_inputmap)
     return ret_seed, change_inputmap
 
 def handleChecksums():
