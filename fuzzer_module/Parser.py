@@ -30,10 +30,15 @@ def compareRptToLoc(seed: StructSeed, initrpt_dict: 'dict[str:StructCmpIns]', in
 '''
 Multiple comparison type handling functions
 '''
-def handleStrMagic(loc_seed, bytes_infer) -> dict:
+def handleStrMagic(seed_loc, bytes_infer) -> dict:
     change_inputmap = {}
-    for fix_i in range(len(bytes_infer.var0_cont[0])):
-        change_inputmap[loc_seed[fix_i]] = bytes_infer.var0_cont[0][fix_i]
+    if bytes_infer.var0_type == PAR_FIXED:
+        fixed_cont = bytes_infer.var0_cont[0]
+    elif bytes_infer.var1_type == PAR_FIXED:
+        fixed_cont = bytes_infer.var1_cont[0]
+
+    for fix_i in range(len(fixed_cont)):
+        change_inputmap[seed_loc[fix_i]] = fixed_cont[fix_i]
     return change_inputmap
 
 def strConverUnival(value):
@@ -48,25 +53,29 @@ def strConverUnival(value):
         unique_val = u
     return unique_val
 
-def handleMagicNum(before_seed, mut_seed, loc_seed, bytes_infer, sch) -> dict:
+def handleDistanceNum(before_seed, mut_seed, st_loc, bytes_infer, sch) -> dict:
     ret_seed = mut_seed
     change_inputmap = {}
-    fixed_val = strConverUnival(bytes_infer.var0_cont[1])
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_infer.var0_cont[0], bytes_infer.var0_cont[1], bytes_infer.var1_cont[0], bytes_infer.var1_cont[1])
+
+    fixed_val0 = strConverUnival(bytes_infer.var0_cont[0])
+    fixed_val1 = strConverUnival(bytes_infer.var0_cont[1])
     change_val0 = strConverUnival(bytes_infer.var1_cont[0])
     change_val1 = strConverUnival(bytes_infer.var1_cont[1])
     # According distance to return which seed.
-    if abs(change_val0-fixed_val) >= abs(change_val1-fixed_val):
+    if abs(fixed_val0-change_val0) >= abs(fixed_val1-change_val1):
         ret_seed = mut_seed
-    elif abs(change_val0-fixed_val) < abs(change_val1-fixed_val):
+    elif abs(fixed_val0-change_val0) < abs(fixed_val1-change_val1):
         ret_seed = before_seed
+
     # According bytes location to mutation seed location.
-    if sch.mutlocnums < len(loc_seed) * 16:
+    if sch.mutlocnums < len(st_loc) * 16:
         chari = sch.mutlocnums // 16
         charb = sch.mutlocnums % 16
         sch.mutlocnums += 1
-        c = abs(ord(ret_seed.content[loc_seed[chari]]) + MUT_BIT_LIST[charb]) % 256
+        c = abs(ord(ret_seed.content[st_loc[chari]]) + MUT_BIT_LIST[charb]) % 256
         c = chr(c)
-        change_inputmap[loc_seed[chari]] = c
+        change_inputmap[st_loc[chari]] = c
 
     return ret_seed, change_inputmap
 
@@ -94,7 +103,7 @@ def inferFixedOrChanged(ori0, ori1, con0, con1) -> (int, StructCmpInfer):
         temp_infer = StructCmpInfer(PAR_FIXED, [ori0, con0], PAR_CHANGED, [ori1, con1])
     elif ori0 != con0 and ori1 == con1:
         temp_bytesflag = PAR_CHGAFIX
-        temp_infer = StructCmpInfer(PAR_FIXED, [ori1, con1], PAR_CHANGED, [ori0, con0])
+        temp_infer = StructCmpInfer(PAR_CHANGED, [ori0, con0], PAR_FIXED, [ori1, con1])
     elif ori0 != con0 and ori1 != con1:
         temp_bytesflag = PAR_CHGACHG
         temp_infer = StructCmpInfer(PAR_CHANGED, [ori0, con0], PAR_CHANGED, [ori1, con1])
@@ -106,7 +115,7 @@ def detectCmpType(bytes_type, cmpins: StructCmpIns) -> list:
     if bytes_type == PAR_SOLVED:
         type_infer.append(TYPE_SOLVED)
     elif bytes_type == PAR_FIXAFIX:
-        type_infer.append(TYPE_UNDEFINED)
+        type_infer.append(TYPE_MAGICNUMS)
     elif bytes_type == PAR_FIXACHG or bytes_type == PAR_CHGAFIX:
         if cmpins.stvalue[0] in HOOKSTRCMPSET:
             type_infer.append(TYPE_MAGICSTR)
@@ -118,26 +127,25 @@ def detectCmpType(bytes_type, cmpins: StructCmpIns) -> list:
     return type_infer
 
 # According type flag to determine which one strategy will be executed.
-def exeTypeStrategy(before_seed, seed, type_infer_list, bytes_infer, sch):
-    loc = list(seed.location)
-    loc.sort()
+def exeTypeStrategy(before_seed, seed, st_loc, type_infer_list, bytes_infer, sch):
     ret_seed = seed
     locmapdet_dict = {}
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), type_infer_list)
     for inf_i in type_infer_list:
         if inf_i == TYPE_SOLVED:
             ret_seed = seed
             locmapdet_dict = {}
             break
         elif inf_i == TYPE_MAGICSTR:
-            change_inputmap = handleStrMagic(loc, bytes_infer)
+            change_inputmap = handleStrMagic(st_loc, bytes_infer)
             locmapdet_dict.update(change_inputmap)
         elif inf_i == TYPE_MAGICNUMS:
-            ret_seed, change_inputmap = handleMagicNum(before_seed, seed, loc, bytes_infer, sch)
+            ret_seed, change_inputmap = handleDistanceNum(before_seed, seed, st_loc, bytes_infer, sch)
             locmapdet_dict.update(change_inputmap)
 
     return ret_seed, locmapdet_dict
 
-def typeDetect(before_seed, seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[cmpid:[StructCmpIns]]', strpt_dict, sch: 'Scheduler'):
+def typeDetect(before_seed, seed: 'StructSeed', st_loc, st_key: 'cmpid', initrpt_dict: 'dict[cmpid:[StructCmpIns]]', strpt_dict, sch: 'Scheduler'):
     """
     Type identification and speculation.
     @param comparison_diffreport:
@@ -146,7 +154,7 @@ def typeDetect(before_seed, seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: '
     @param mutate_loc:
     @return:
     """
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), seed.location, st_key, initrpt_dict, strpt_dict)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), seed.location, st_loc, st_key, initrpt_dict, strpt_dict)
 
     type_infer_list = []
     locmapdet_dict = {}
@@ -157,8 +165,10 @@ def typeDetect(before_seed, seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: '
             ini = initrpt_dict[st_key][len_i].stargs
             st = strpt_dict[st_key][len_i].stargs
             bytes_flag, bytes_infer = inferFixedOrChanged(ini[0], ini[1], st[0], st[1])  # Determining the type of variables
-            type_infer_list = type_infer_list + detectCmpType(bytes_flag, strpt_dict[st_key][len_i])  # Speculative change type
-            ret_seed, locmapdet_dict = exeTypeStrategy(before_seed, seed, type_infer_list, bytes_infer, sch)
+            type_infer_list = detectCmpType(bytes_flag, strpt_dict[st_key][len_i])  # Speculative change type
+            ret_seed, locmapdet_dict = exeTypeStrategy(before_seed, seed, st_loc, type_infer_list, bytes_infer, sch)
+            if st_key == "4fc28a4fc7e7":
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, locmapdet_dict, print_mode=True)
 
             LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, bytes_infer, ini[0], ini[1], st[0], st[1])
 

@@ -15,8 +15,8 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-# VIS_TERMINAL = False
-VIS_TERMINAL = True
+VIS_TERMINAL = False
+# VIS_TERMINAL = True
 VIS_SHOWGRAPH = True
 
 COARSE_STR = "coarse"
@@ -53,6 +53,10 @@ HOOK_STRNCASECMP = 'p'
 HOOK_STRCASECMP = 'q'
 
 HOOKSTRCMPSET = {HOOK_MEMCMP, HOOK_STRNCMP, HOOK_STRCMP, HOOK_STRNCASECMP, HOOK_STRCASECMP}
+
+CMPSET = {COV_CMP1, COV_CMP2, COV_CMP4, COV_CMP8, COV_CONSTCMP1, COV_CONSTCMP2, COV_CONSTCMP4, COV_CONSTCMP8,
+          HOOK_MEMCMP, HOOK_STRNCMP, HOOK_STRCMP, HOOK_STRNCASECMP, HOOK_STRCASECMP,
+          COV_SWITCH, COV_DIV4, COV_DIV8, COV_GEP}
 
 SHMID_FLAG = "D"  # Content show from stdout, that represent the memory share id.
 INTERLEN_FLAG = "L"  # The length of array.
@@ -272,9 +276,9 @@ def LOG(loggingtype: str, funcinfo, *args, print_mode=False) -> None:
     for content in args:
         logstr += "{} || ".format(content)
     if print_mode:
-        print("\n\n\n"+logstr, end="")
+        print("\n\n"+logstr, end="")
         with open(PROGRAMS + os.sep + FUZZPRINTLOG, "a+") as f:
-            f.write("\n\n\n"+logstr)
+            f.write("\n\n"+logstr)
 
     # logging
     if loggingtype == LOG_DEBUG:

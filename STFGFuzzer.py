@@ -57,15 +57,15 @@ def mainFuzzer():
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
         init_retcode, init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         cmpcovcont_list, content = ana.gainTraceRpt(init_stdout)
-        initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, content)
+        initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt)
 
         num_pcguard = ana.getNumOfPcguard()
 
         # Select the location to be mutated and add it to the location queue.
         sch.initEachloop()
         for loci in range(0, len(init_seed.content)):
-            if loci not in sch.freezebytes:
-                sch.locCoarseList.append(loci)
+            if loci not in sch.freeze_bytes:
+                sch.loc_coarse_list.append(loci)
 
         '''Find correspondence: seed inputs -> cmp instruction -> cmp type (access method) -> braches'''
 
@@ -74,11 +74,11 @@ def mainFuzzer():
         before_stloc_list = []
         coarse_head = 0
         cmpmaploc_coarse_dict = {}
-        while coarse_head < len(sch.locCoarseList):
+        while coarse_head < len(sch.loc_coarse_list):
             total += 1
             # 1 seed inputs
-            stloc_list = sch.locCoarseList[coarse_head:coarse_head+sch.slidWindow]
-            coarse_head += sch.slidWindow // 2
+            stloc_list = sch.loc_coarse_list[coarse_head:coarse_head + sch.slid_window]
+            coarse_head += sch.slid_window // 2
             mutseed = Mutator.mutateSelectChar(init_seed.content, path_mutateseeds, COARSE_STR+str(loop), stloc_list)
             execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
             mut_retcode, mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
@@ -86,7 +86,7 @@ def mainFuzzer():
             # 2 cmp instruction
             # Track execution information of mutate seeds.
             cmpcovcont_list, content = ana.gainTraceRpt(mut_stdout)  # report
-            mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content)
+            mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt)
             # Gain changed cmp instruction through compare.
             cmpmaploc_rptdict = Parser.compareRptToLoc(execute_seed, initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
 
@@ -112,15 +112,15 @@ def mainFuzzer():
             '''Fine-Grained O(m)'''
             # Mutate seeds to find where to change. Then perform to a directed mutate.
             # Mutate only one position at a time. Only the corresponding position is speculated.
-            sch.locFineList = list(st_coarseval)
-            sch.locFineList.sort()
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.locFineList)
+            sch.loc_fine_list = list(st_coarseval)
+            sch.loc_fine_list.sort()
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.loc_fine_list)
             find_head = 0
             fineloc_list = []
-            while find_head < len(sch.locFineList):
+            while find_head < len(sch.loc_fine_list):
                 total += 1
                 # 1 seed inputs
-                stloc_list = [sch.locFineList[find_head], ]
+                stloc_list = [sch.loc_fine_list[find_head], ]
                 find_head += 1
                 mutseed = Mutator.mutateOneChar(init_seed.content, path_mutateseeds, FINE_STR + str(loop), stloc_list)
                 execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
@@ -129,7 +129,7 @@ def mainFuzzer():
                 # 2 cmp instruction
                 # Track execution information of mutate seeds.
                 cmpcovcont_list, content = ana.gainTraceRpt(mut_stdout)  # report
-                mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content)
+                mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt)
                 cmpmaploc_rptdict = Parser.compareRptToLoc(execute_seed, initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
                 if st_key in cmpmaploc_rptdict:
                     fineloc_list.extend(stloc_list)
@@ -142,6 +142,7 @@ def mainFuzzer():
             LOG(LOG_DEBUG, LOG_FUNCINFO(), st_key, st_coarseval, fineloc_list)
 
             '''Type detect and Mutation strategy'''
+            fineloc_list.sort()
             st_seed = Mutator.mutateSelectChar(init_seed.content, path_mutateseeds, ST_STR + str(loop), fineloc_list)
             sch.addSeeds(SCH_MUT_SEED, [st_seed, ])
             before_strpt_dict = initrpt_dict
@@ -154,28 +155,32 @@ def mainFuzzer():
 
                 # 2 cmp instruction
                 cmpcovcont_list, content = ana.gainTraceRpt(st_stdout)
-                strpt_dict, strpt_set = ana.traceAyalysis(cmpcovcont_list, content)  # report
+                strpt_dict, strpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt)  # report
                 # Return cmp type and mutate strategy according to typeDetect
-                ret_seed, type_infer_set, locmapdet_dict = Parser.typeDetect(before_seed, execute_seed, st_key, before_strpt_dict, strpt_dict, sch)
+                ret_seed, type_infer_set, locmapdet_dict = Parser.typeDetect(before_seed, execute_seed, fineloc_list, st_key, before_strpt_dict, strpt_dict, sch)
+                before_seed = execute_seed
                 before_strpt_dict = strpt_dict
 
-                if TYPE_MAGICNUMS in type_infer_set:
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovcont_list, content)
+                if st_key == "4fc28a4fc7e7":
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), execute_seed.location, locmapdet_dict, print_mode=True)
+
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), type_infer_set, locmapdet_dict)
                 if TYPE_SOLVED in type_infer_set:
                     solved_cmpset.add(st_key)
-                    sch.freezebytes = sch.freezebytes | set(fineloc_list)
+                    sch.freeze_bytes = sch.freeze_bytes | set(fineloc_list)
+                    sch.freezeid_rpt.add(st_key)
                     sch.addSeeds(SCH_LOOP_SEED, [ret_seed, ])
                 # Passing the constraint based on the number of cycles and the distance between comparisons.
                 st_seed = Mutator.mutateLocFromMap(ret_seed.content, path_mutateseeds, ST_STR + str(loop), locmapdet_dict)
+                if st_seed is not None:
+                    sch.addSeeds(SCH_MUT_SEED, [st_seed, ])
 
                 # 5 visualize
                 res = vis.display(ret_seed, set(fineloc_list), st_stdout, st_stderr, start_time, loop, total)
                 if res == QUIT_FUZZ:
                     sch.quitFuzz()
 
-                if st_seed is not None:
-                    sch.addSeeds(SCH_MUT_SEED, [st_seed, ])
+
 
         # Endless fuzzing
         if sch.isEmpty(SCH_LOOP_SEED):

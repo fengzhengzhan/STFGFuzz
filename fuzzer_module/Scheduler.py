@@ -6,26 +6,29 @@ from fuzzer_module.Fuzzconfig import *
 class Scheduler:
     def __init__(self):
         self.seedq: Queue[StructSeed] = Queue(maxsize=0)
-        self.locCoarseList: 'list[int]' = []
-        self.locFineList: 'list[int]' = []
-        self.slidWindow: int = SCH_SLID_WINDOW
-        self.freezebytes: set = set()
-        self.mutateTestq: Queue[StructSeed] = Queue(maxsize=0)
+        self.mutateq: Queue[StructSeed] = Queue(maxsize=0)
         self.importantq: Queue[StructSeed] = Queue(maxsize=0)
         self.deleteq: Queue[StructSeed] = Queue(maxsize=0)
+
+        self.loc_coarse_list: 'list[int]' = []
+        self.loc_fine_list: 'list[int]' = []
+        self.slid_window: int = SCH_SLID_WINDOW
+        self.freeze_bytes: set = set()
+        self.freezeid_rpt = set()
+
         self.mutlocnums = 0
 
     def initEachloop(self):
-        self.locCoarseList = []
-        self.locFineList = []
-        self.slidWindow = SCH_SLID_WINDOW
+        self.loc_coarse_list = []
+        self.loc_fine_list = []
+        self.slid_window = SCH_SLID_WINDOW
         self.mutlocnums = 0
 
     def selectOneSeed(self, mode: int, mutseed=None) -> StructSeed:
         if mode == SCH_LOOP_SEED:
             temp_one = self.seedq.get()
         elif mode == SCH_MUT_SEED:
-            temp_one = self.mutateTestq.get()
+            temp_one = self.mutateq.get()
         elif mode == SCH_THIS_SEED:
             temp_one = mutseed
         else:
@@ -41,7 +44,7 @@ class Scheduler:
             if mode == SCH_LOOP_SEED:
                 self.seedq.put(each)
             elif mode == SCH_MUT_SEED:
-                self.mutateTestq.put(each)
+                self.mutateq.put(each)
 
     def addDeleteq(self, temp_one):
         self.deleteq.put(temp_one)
@@ -51,7 +54,7 @@ class Scheduler:
         if mode == SCH_LOOP_SEED:
             temp_flag = self.seedq.empty()
         elif mode == SCH_MUT_SEED:
-            temp_flag = self.mutateTestq.empty()
+            temp_flag = self.mutateq.empty()
         return temp_flag
 
     def deleteSeeds(self):

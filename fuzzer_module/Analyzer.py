@@ -117,7 +117,7 @@ class Analyzer:
 
         return cmpcovcont_list, content
 
-    def traceAyalysis(self, cmpcovcont_list, cmpcov_content):
+    def traceAyalysis(self, cmpcovcont_list, cmpcov_content, freezeid_rpt):
         # Iterate through the trace report to get the corresponding information
         cmprpt_dict: 'dict[cmpid:[StructCmpIns]]' = {}  # According cmp instruction to genetator dict.
         cmpid_list = []
@@ -128,6 +128,10 @@ class Analyzer:
         exception_guard_num = USE_EXCEPTION
         for each in cmpcovcont_list:
             typeflag = each[0]
+            if typeflag in CMPSET:
+                cmpid = str(each[1][2:]+each[2][2:])
+                if cmpid in freezeid_rpt:
+                    continue
             if typeflag == INIT_PC_GUARD:
                 pass
             elif typeflag == NUM_PC_GUARD:
@@ -157,12 +161,12 @@ class Analyzer:
 
             elif typeflag in TRACENUMCMPSET:
                 # type, func_pc, caller_pc, arg1, arg2, arg_len
-                cmpid_list.append(str(each[1][2:]+each[2][2:]))
+                cmpid_list.append(cmpid)
                 content_list.append([typeflag, each[1], each[2], each[5]])
                 args_list.append([each[3], each[4]])
             elif typeflag == COV_SWITCH:
                 # type, func_pc, caller_pc, num_case, size_val
-                cmpid_list.append(str(each[1][2:] + each[2][2:]))
+                cmpid_list.append(cmpid)
                 content_list.append([typeflag, each[1], each[2], int(each[3]), each[4]])
                 temp_args = []
                 for i in range(int(each[3])):
@@ -172,7 +176,7 @@ class Analyzer:
                 pass
             elif typeflag in HOOKSTRCMPSET:
                 # type, func_pc, caller_pc, s1, s2, size_n, result
-                cmpid_list.append(str(each[1][2:]+each[2][2:]))
+                cmpid_list.append(cmpid)
                 content_list.append([typeflag, each[1], each[2], int(each[5]), int(each[6])])
                 args_list.append([each[3], each[4]])
 
