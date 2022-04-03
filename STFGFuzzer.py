@@ -145,8 +145,8 @@ def mainFuzzer():
             fineloc_list.sort()
             st_seed = Mutator.mutateSelectChar(init_seed.content, path_mutateseeds, ST_STR + str(loop), fineloc_list)
             sch.addSeeds(SCH_MUT_SEED, [st_seed, ])
-            before_strpt_dict = initrpt_dict
-            before_seed = init_seed
+            optrpt_dict = initrpt_dict
+            opt_seed = init_seed
             # Type Detection and Breaking the Constraint Cycle (At lease 2 loops)
             while not sch.isEmpty(SCH_MUT_SEED):
                 total += 1
@@ -157,14 +157,16 @@ def mainFuzzer():
                 cmpcovcont_list, content = ana.gainTraceRpt(st_stdout)
                 strpt_dict, strpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt)  # report
                 # Return cmp type and mutate strategy according to typeDetect
-                ret_seed, type_infer_set, locmapdet_dict = Parser.typeDetect(before_seed, execute_seed, fineloc_list, st_key, before_strpt_dict, strpt_dict, sch)
-                before_seed = execute_seed
-                before_strpt_dict = strpt_dict
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, execute_seed.content)
+                ret_seed, type_infer_set, locmapdet_dict = Parser.typeDetect(opt_seed, execute_seed, fineloc_list, st_key, optrpt_dict, strpt_dict, sch)
+                if ret_seed == opt_seed:
+                    optrpt_dict = optrpt_dict
+                elif ret_seed == execute_seed:
+                    optrpt_dict = strpt_dict
+                opt_seed = ret_seed
 
-                if st_key == "4fc28a4fc7e7":
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), execute_seed.location, locmapdet_dict, print_mode=True)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), execute_seed.location, ret_seed.content, type_infer_set, locmapdet_dict)
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), type_infer_set, locmapdet_dict)
                 if TYPE_SOLVED in type_infer_set:
                     solved_cmpset.add(st_key)
                     sch.freeze_bytes = sch.freeze_bytes | set(fineloc_list)
@@ -172,6 +174,7 @@ def mainFuzzer():
                     sch.addSeeds(SCH_LOOP_SEED, [ret_seed, ])
                 # Passing the constraint based on the number of cycles and the distance between comparisons.
                 st_seed = Mutator.mutateLocFromMap(ret_seed.content, path_mutateseeds, ST_STR + str(loop), locmapdet_dict)
+
                 if st_seed is not None:
                     sch.addSeeds(SCH_MUT_SEED, [st_seed, ])
 
