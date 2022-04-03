@@ -15,8 +15,8 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-VIS_TERMINAL = False
-# VIS_TERMINAL = True
+# VIS_TERMINAL = False
+VIS_TERMINAL = True
 VIS_SHOWGRAPH = True
 
 COARSE_STR = "coarse"
@@ -184,6 +184,8 @@ MUT_MATCH = 4  # Truncate 4 bytes as a fast variant flag for fast matching.
 MUT_STEP = 4  # step size of mutant seeds
 MUT_TYPE_SUB = 101
 MUT_TYPE_INSERT = 102
+
+MUT_BIT_LIST = [128, -128, 64, -64, 32, -32, 16, -16, 8, -8, 4, -4, 2, -2, 1, -1]
 
 '''Parser'''
 PAR_SOLVED = 200

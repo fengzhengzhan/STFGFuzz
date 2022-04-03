@@ -156,7 +156,7 @@ def mainFuzzer():
                 cmpcovcont_list, content = ana.gainTraceRpt(st_stdout)
                 strpt_dict, strpt_set = ana.traceAyalysis(cmpcovcont_list, content)  # report
                 # Return cmp type and mutate strategy according to typeDetect
-                ret_seed, type_infer_set, locmapdet_dict = Parser.typeDetect(before_seed, execute_seed, st_key, before_strpt_dict, strpt_dict)
+                ret_seed, type_infer_set, locmapdet_dict = Parser.typeDetect(before_seed, execute_seed, st_key, before_strpt_dict, strpt_dict, sch)
                 before_strpt_dict = strpt_dict
 
                 if TYPE_MAGICNUMS in type_infer_set:

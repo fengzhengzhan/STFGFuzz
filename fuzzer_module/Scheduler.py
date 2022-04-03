@@ -13,11 +13,13 @@ class Scheduler:
         self.mutateTestq: Queue[StructSeed] = Queue(maxsize=0)
         self.importantq: Queue[StructSeed] = Queue(maxsize=0)
         self.deleteq: Queue[StructSeed] = Queue(maxsize=0)
+        self.mutlocnums = 0
 
     def initEachloop(self):
         self.locCoarseList = []
         self.locFineList = []
         self.slidWindow = SCH_SLID_WINDOW
+        self.mutlocnums = 0
 
     def selectOneSeed(self, mode: int, mutseed=None) -> StructSeed:
         if mode == SCH_LOOP_SEED:
