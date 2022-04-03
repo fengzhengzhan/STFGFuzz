@@ -30,41 +30,40 @@ def compareRptToLoc(seed: StructSeed, initrpt_dict: 'dict[str:StructCmpIns]', in
 '''
 Multiple comparison type handling functions
 '''
-def handleStrMagic(mutseed, fixed_list, changed_list, mutate_loc) -> dict:
+def handleStrMagic(loc_seed, bytes_infer) -> dict:
     change_inputmap = {}
-    fixed_bytes = fixed_list[PAR_VARINIT]
-    changed_bytes = changed_list[PAR_VARMUT]
-    # Using characters to match location of the input bytes.
-    start_match = changed_bytes.find(MUT_STR[0:MUT_MATCH])
-    end_match = changed_bytes.find(MUT_STR[len(MUT_STR)-MUT_MATCH : len(MUT_STR)])
-    # Direct byte matching requires only one copy of the string.
-    if start_match != -1:
-        input_start_loc = min(mutseed.location) - start_match
-        for l in range(0, len(fixed_bytes)):
-            change_inputmap[input_start_loc + l] = fixed_bytes[l]
-    else:
-        # This case requires the use of single-byte probes.
-        for one in mutseed.location:
-            mutate_loc.mutonelist.append(one)
+    for fix_i in range(len(bytes_infer.var0_cont[0])):
+        change_inputmap[loc_seed[fix_i]] = bytes_infer.var0_cont[0][fix_i]
     return change_inputmap
 
+def strConverUnival(value):
+    unique_val = USE_INITNUM
+    if isinstance(value, int):
+        unique_val = value
+    elif isinstance(value, str):
+        u = 0
+        for str_i in range(0, len(str)):
+            u = u * PAR_CONVER_BIT
+            u += ord(value[str_i])
+        unique_val = u
+    return unique_val
 
-def handleNumMagic(mutseed, fixed_list, changed_list, mutate_loc) -> dict:
+def handleMagicNum(before_seed, mut_seed, loc_seed, bytes_infer) -> dict:
     change_inputmap = {}
-    fixed_bytes = fixed_list[PAR_VARINIT]
-    changed_bytes = changed_list[PAR_VARMUT]
-    # Using characters to match location of the input bytes.
-    start_match = changed_bytes.find(MUT_STR[0:MUT_MATCH])
-    # end_match = changed_bytes.find(MUT_STR[len(MUT_STR) - MUT_MATCH: len(MUT_STR)])
-    # Direct byte matching requires only one copy of the string.
-    if start_match != -1:
-        input_start_loc = mutseed.location[0] - start_match
-        for l in range(0, len(fixed_bytes)):
-            change_inputmap[input_start_loc + l] = fixed_bytes[l]
-    else:
-        # This case requires the use of single-byte probes.
-        pass
-    return change_inputmap
+    ret_seed = mut_seed
+    fixed_val = strConverUnival(bytes_infer.var0_cont[1])
+    change_val0 = strConverUnival(bytes_infer.var1_cont[0])
+    change_val1 = strConverUnival(bytes_infer.var1_cont[1])
+    # According distance to return which seed.
+    if abs(change_val0-fixed_val) >= abs(change_val1-fixed_val):
+        ret_seed = mut_seed
+    elif abs(change_val0-fixed_val) < abs(change_val1-fixed_val):
+        ret_seed = before_seed
+    # According bytes location to mutation seed location.
+    
+
+
+    return ret_seed, change_inputmap
 
 
 def handleChecksums():
@@ -114,22 +113,24 @@ def detectCmpType(bytes_type, cmpins: StructCmpIns) -> list:
     return type_infer
 
 # According type flag to determine which one strategy will be executed.
-def exeTypeStrategy(seed, type_infer_list, bytes_infer):
+def exeTypeStrategy(before_seed, seed, type_infer_list, bytes_infer):
     loc = list(seed.location)
     loc.sort()
     locmapdet_dict = {}
+    ret_seed = seed
     for inf_i in type_infer_list:
         if inf_i == TYPE_SOLVED:
             return {}
         elif inf_i == TYPE_MAGICSTR:
-            for fix_i in range(len(bytes_infer.var0_cont[0])):
-                locmapdet_dict[loc[fix_i]] = bytes_infer.var0_cont[0][fix_i]
+            change_inputmap = handleStrMagic(loc, bytes_infer)
+            locmapdet_dict.update(change_inputmap)
         elif inf_i == TYPE_MAGICNUMS:
-            pass
+            ret_seed, change_inputmap = handleMagicNum(before_seed, seed, loc, bytes_infer)
+            locmapdet_dict.update(change_inputmap)
 
-    return locmapdet_dict
+    return ret_seed, locmapdet_dict
 
-def typeDetect(seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[cmpid:[StructCmpIns]]', strpt_dict):
+def typeDetect(before_seed, seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[cmpid:[StructCmpIns]]', strpt_dict):
     """
     Type identification and speculation.
     @param comparison_diffreport:
@@ -142,6 +143,7 @@ def typeDetect(seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[cmpid:[S
 
     type_infer_list = []
     locmapdet_dict = {}
+    ret_seed = seed
     # Single Constraint Resolution
     if (st_key in initrpt_dict) and (st_key in strpt_dict):  # Handling mutually corresponding constraints after mutation
         for len_i in range(min(len(initrpt_dict[st_key]), len(strpt_dict[st_key]))):
@@ -149,7 +151,7 @@ def typeDetect(seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[cmpid:[S
             st = strpt_dict[st_key][len_i].stargs
             bytes_flag, bytes_infer = inferFixedOrChanged(ini[0], ini[1], st[0], st[1])  # Determining the type of variables
             type_infer_list = type_infer_list + detectCmpType(bytes_flag, strpt_dict[st_key][len_i])  # Speculative change type
-            locmapdet_dict = exeTypeStrategy(seed, type_infer_list, bytes_infer)
+            ret_seed, locmapdet_dict = exeTypeStrategy(before_seed, seed, type_infer_list, bytes_infer)
 
             LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, bytes_infer, ini[0], ini[1], st[0], st[1])
 
@@ -160,6 +162,6 @@ def typeDetect(seed: 'StructSeed', st_key: 'cmpid', initrpt_dict: 'dict[cmpid:[S
     else:
         handleUndefined()
 
-    return set(type_infer_list), locmapdet_dict
+    return ret_seed, set(type_infer_list), locmapdet_dict
 
 

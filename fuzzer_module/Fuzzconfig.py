@@ -203,6 +203,8 @@ PAR_FIX_TYPE = 184  # fixed fixed
 PAR_VARINIT = 0
 PAR_VARMUT = 1
 
+PAR_CONVER_BIT = 256
+
 
 '''Scheduler'''
 SCH_LOOP_SEED = 221

@@ -73,10 +73,10 @@ class Analyzer:
         each_line_list: list[str] = out_info.split("\n")
 
         exist_z = True
-        combine_line = ""
         cmpcovcont_list = []
         content = ""
         for each_line in each_line_list:
+            combine_line = ""
             # Handling blank lines.
             if exist_z and each_line == '':
                 continue
