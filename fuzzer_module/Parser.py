@@ -84,8 +84,10 @@ def handleDistanceStr(opt_seed, mut_seed, st_loc, bytes_infer, sch) -> dict:
         c = abs(ord(ret_seed.content[st_loc[chari]]) + MUT_BIT_LIST[charb]) % 256
         c = chr(c)
         change_inputmap[st_loc[chari]] = c
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), chari, charb, st_loc, opt_seed.content, mut_seed.content, change_inputmap, print_mode=True)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), val00, val01, val10, val11, abs(val00-val10), abs(val01-val11), ret_seed.content, print_mode=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), chari, charb, st_loc,
+            opt_seed.content, mut_seed.content, change_inputmap, print_mode=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), val00, val01, val10, val11,
+            abs(val00-val10), abs(val01-val11), ret_seed.content, print_mode=True)
     return ret_seed, change_inputmap
 
 def handleChecksums():
@@ -155,31 +157,34 @@ def exeTypeStrategy(opt_seed, seed, st_loc, type_infer_list, bytes_infer, sch):
     LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content)
     return ret_seed, locmapdet_dict
 
-def typeDetect(opt_seed, seed: 'StructSeed', st_loc, st_key: 'cmpid', optrpt_dict: 'dict[cmpid:[StructCmpIns]]', strpt_dict, sch: 'Scheduler'):
+def typeDetect(opt_seed, seed: 'StructSeed', st_loc, st_key: 'cmpid',
+               optrpt_dict: 'dict[cmpid:[StructCmpIns]]', strpt_dict, sch: 'Scheduler'):
     """
     Type identification and speculation.
-    @param comparison_diffreport:
-    @param comparison_onereport:
-    @param cmp_map:
-    @param mutate_loc:
     @return:
     """
     LOG(LOG_DEBUG, LOG_FUNCINFO(), seed.location, st_loc, st_key, optrpt_dict, strpt_dict)
-
     type_infer_list = []
     locmapdet_dict = {}
     ret_seed = seed
-    # Single Constraint Resolution
+    # Both parties report the existence of a single binding solution
     if (st_key in optrpt_dict) and (st_key in strpt_dict):  # Handling mutually corresponding constraints after mutation
-        for len_i in range(min(len(optrpt_dict[st_key]), len(strpt_dict[st_key]))):
-            ini = optrpt_dict[st_key][len_i].stargs
-            st = strpt_dict[st_key][len_i].stargs
-            bytes_flag, bytes_infer = inferFixedOrChanged(ini[0], ini[1], st[0], st[1])  # Determining the type of variables
-            type_infer_list = detectCmpType(bytes_flag, strpt_dict[st_key][len_i])  # Speculative change type
-            ret_seed, locmapdet_dict = exeTypeStrategy(opt_seed, seed, st_loc, type_infer_list, bytes_infer, sch)
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, locmapdet_dict)
+        # Get the first comparison and determine the parameter type.
+        if optrpt_dict[st_key][0].stvalue[0] in (TRACENUMCMPSET | HOOKSTRCMPSET):
+            # Double operand type comparison
+            for len_i in range(min(len(optrpt_dict[st_key]), len(strpt_dict[st_key]))):
+                ini = optrpt_dict[st_key][len_i].stargs
+                st = strpt_dict[st_key][len_i].stargs
+                # Determining the type of variables
+                bytes_flag, bytes_infer = inferFixedOrChanged(ini[0], ini[1], st[0], st[1])
+                # Speculative change type
+                type_infer_list = detectCmpType(bytes_flag, strpt_dict[st_key][len_i])
+                ret_seed, locmapdet_dict = exeTypeStrategy(opt_seed, seed, st_loc, type_infer_list, bytes_infer, sch)
 
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, bytes_infer, ini[0], ini[1], st[0], st[1])
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, locmapdet_dict)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, bytes_infer, ini[0], ini[1], st[0], st[1])
+        elif optrpt_dict[st_key][0].stvalue[0] == COV_SWITCH:
+            pass
 
     elif (st_key in optrpt_dict) and (st_key not in strpt_dict):
         pass

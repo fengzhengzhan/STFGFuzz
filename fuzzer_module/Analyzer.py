@@ -81,7 +81,9 @@ class Analyzer:
             if exist_z and each_line == '':
                 continue
             # Handling normal lines.
-            elif each_line[0] in FLAG_DICT and each_line[1] == ' ' and each_line[-2] == ' ' and each_line[-1] == END_EACH_FLAG:
+            elif each_line[0] in FLAG_DICT \
+                    and each_line[1] == ' ' and each_line[-2] == ' ' \
+                    and each_line[-1] == END_EACH_FLAG:
                 combine_line = ""
                 combine_line = each_line
             # Handling discontinuous lines.
@@ -121,7 +123,7 @@ class Analyzer:
         # Iterate through the trace report to get the corresponding information
         cmprpt_dict: 'dict[cmpid:[StructCmpIns]]' = {}  # According cmp instruction to genetator dict.
         cmpid_list = []
-        content_list = []
+        flagid_list = []
         args_list = []
         pre_guard_num = USE_INITNUM  # before
         end_guard_num = USE_ENDNUM
@@ -141,51 +143,64 @@ class Analyzer:
                 guard_num = int(each[1], 16)
                 for i, oneid in enumerate(cmpid_list):
                     if oneid not in cmprpt_dict:
-                        cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, guard_num, content_list[i], args_list[i]), ]
+                        cmprpt_dict[oneid] = [
+                            StructCmpIns(oneid, pre_guard_num, guard_num, flagid_list[i], args_list[i]),
+                        ]
                     else:
-                        cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, guard_num, content_list[i], args_list[i]))
+                        cmprpt_dict[oneid].append(
+                            StructCmpIns(oneid, pre_guard_num, guard_num, flagid_list[i], args_list[i])
+                        )
                 pre_guard_num = guard_num
                 cmpid_list = []
-                content_list = []
+                flagid_list = []
                 args_list = []
             elif typeflag == PROGRAM_END:
                 end = True
                 for i, oneid in enumerate(cmpid_list):
                     if oneid not in cmprpt_dict:
-                        cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[i], args_list[i]), ]
+                        cmprpt_dict[oneid] = [
+                            StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i]),
+                        ]
                     else:
-                        cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[i], args_list[i]))
+                        cmprpt_dict[oneid].append(
+                            StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i])
+                        )
                 cmpid_list = []
-                content_list = []
+                flagid_list = []
                 args_list = []
 
             elif typeflag in TRACENUMCMPSET:
                 # type, func_pc, caller_pc, arg1, arg2, arg_len
                 cmpid_list.append(cmpid)
-                content_list.append([typeflag, each[1], each[2], each[5]])
+                flagid_list.append([typeflag, each[1], each[2], each[5]])
                 args_list.append([each[3], each[4]])
             elif typeflag == COV_SWITCH:
                 # type, func_pc, caller_pc, num_case, size_val
                 cmpid_list.append(cmpid)
-                content_list.append([typeflag, each[1], each[2], int(each[3]), each[4]])
+                flagid_list.append([typeflag, each[1], each[2], int(each[3]), each[4]])
                 temp_args = []
+                temp_args.append(each[5])
                 for i in range(int(each[3])):
-                    temp_args.append(each[i + 5])
+                    temp_args.append(each[i + 6])
                 args_list.append(temp_args)
             elif typeflag == COV_DIV4 or typeflag == COV_DIV8 or typeflag == COV_GEP:
                 pass
             elif typeflag in HOOKSTRCMPSET:
                 # type, func_pc, caller_pc, s1, s2, size_n, result
                 cmpid_list.append(cmpid)
-                content_list.append([typeflag, each[1], each[2], int(each[5]), int(each[6])])
+                flagid_list.append([typeflag, each[1], each[2], int(each[5]), int(each[6])])
                 args_list.append([each[3], each[4]])
 
         if len(cmpid_list) > 0:
             for i, oneid in enumerate(cmpid_list):
                 if oneid not in cmprpt_dict:
-                    cmprpt_dict[oneid] = [StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[i], args_list[i]), ]
+                    cmprpt_dict[oneid] = [
+                        StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i]),
+                    ]
                 else:
-                    cmprpt_dict[oneid].append(StructCmpIns(oneid, pre_guard_num, end_guard_num, content_list[i], args_list[i]))
+                    cmprpt_dict[oneid].append(
+                        StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i])
+                    )
 
         LOG(LOG_DEBUG, LOG_FUNCINFO(), cmprpt_dict)
         cmprpt_set: 'cmpid' = set(cmprpt_dict)
@@ -195,26 +210,26 @@ class Analyzer:
     Tracking Comparison Module.
     '''
 
-    def compareRptToLoc(self, seed: StructSeed, initrpt_dict: 'dict[str:StructCmpIns]', initrpt_set: set, mutrpt_dict,
-                        mutrpt_set):
-        interset = initrpt_set & mutrpt_set  # Intersection
+    def compareRptToLoc(self, seed: StructSeed,
+                        initrpt_dict: 'dict[str:StructCmpIns]', initrpt_set: set, mutrpt_dict, mutrpt_set):
+        interset = initrpt_set & mutrpt_set  # Intersection set
         symdiffset = initrpt_set ^ mutrpt_set  # Symmetric Difference set
         cmpmaploc_rptdict = {}
         LOG(LOG_DEBUG, LOG_FUNCINFO(), seed.location, interset, symdiffset)
 
         if len(interset) > 0:
             # compare whether the parameters of the same constraint are different
-            for key in interset:
-                if len(initrpt_dict[key]) != len(mutrpt_dict[key]):
-                    cmpmaploc_rptdict[key] = seed.location
+            for key_i in interset:
+                if len(initrpt_dict[key_i]) != len(mutrpt_dict[key_i]):
+                    cmpmaploc_rptdict[key_i] = seed.location
                 else:
-                    for l in range(len(initrpt_dict[key])):
-                        for larg in range(len(initrpt_dict[key][l].stargs)):
-                            if initrpt_dict[key][l].stargs[larg] != mutrpt_dict[key][l].stargs[larg]:
-                                cmpmaploc_rptdict[key] = seed.location
+                    for l_j in range(len(initrpt_dict[key_i])):
+                        for larg_k in range(len(initrpt_dict[key_i][l_j].stargs)):
+                            if initrpt_dict[key_i][l_j].stargs[larg_k] != mutrpt_dict[key_i][l_j].stargs[larg_k]:
+                                cmpmaploc_rptdict[key_i] = seed.location
         if len(symdiffset) > 0:
-            for key in symdiffset:
-                cmpmaploc_rptdict[key] = set(seed.location)
+            for key_i in symdiffset:
+                cmpmaploc_rptdict[key_i] = set(seed.location)
 
         return cmpmaploc_rptdict
 

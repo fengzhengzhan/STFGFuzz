@@ -45,6 +45,8 @@ COV_DIV4 = 'j'
 COV_DIV8 = 'k'
 COV_GEP = 'l'
 
+
+
 # weak hook
 HOOK_MEMCMP = 'm'  # (call_pc, <s1"  "1s>, <s2"  "2s>, size_n, result)
 HOOK_STRNCMP = 'n'
@@ -142,7 +144,8 @@ BUI_EDGE_END = "head"
 BUI_EDGE_START_IDX = 0  # tail -> head
 BUI_EDGE_END_IDX = 1
 BUI_INIT_WEIGHT = 0
-BUI_GUARD_RE = "@__sanitizer_cov_trace_pc_guard\(i32\* inttoptr \(i64 add \(i64\\\\l... ptrtoint \(\[15 x i32\]\* @__sancov_gen_.2 to i64\), i64 (.*)\) to i32\*\)\)"
+BUI_GUARD_RE = "@__sanitizer_cov_trace_pc_guard\(i32\* inttoptr \(i64 add \(i64\\\\l... " \
+               "ptrtoint \(\[15 x i32\]\* @__sancov_gen_.2 to i64\), i64 (.*)\) to i32\*\)\)"
 BUI_LOC_INTERVAL = 4
 BUI_NODE_ST = "nodest"
 
@@ -243,7 +246,7 @@ VIS_Q = 113
 VIS_S = 115
 VIS_SEED_LINE = 16
 
-VIS_MAX_LINE = 25
+VIS_MAX_LINE = 125
 
 VIS_MAX_OUT = 10
 VIS_MAX_ERR = 10

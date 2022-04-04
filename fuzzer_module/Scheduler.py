@@ -1,3 +1,4 @@
+import csv
 from queue import Queue
 
 from fuzzer_module.Fuzzconfig import *
@@ -15,6 +16,7 @@ class Scheduler:
         self.slid_window: int = SCH_SLID_WINDOW
         self.freeze_bytes: set = set()
         self.freezeid_rpt = set()
+        self.solved_cmpset = set()
 
         self.mutlocnums = 0
 
@@ -66,6 +68,13 @@ class Scheduler:
             temp_one = self.deleteq.get()
             if SCH_SAVEASFILE:
                 os.remove(temp_one.filename)
+
+    def saveCrash(self):
+        """
+        To facilitate analysis, save all the crash seed information in a csv file
+        @return:
+        """
+        pass
 
     def quitFuzz(self):
         self.deleteSeeds()

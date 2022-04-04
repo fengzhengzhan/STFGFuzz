@@ -16,6 +16,9 @@ class Visualizer:
         # sudo apt reinstall ncurses-base
         self.terminal_switch = VIS_TERMINAL
         self.showgraph_switch = VIS_SHOWGRAPH
+        self.start_time = time.time()
+        self.loop = 0
+        self.total = 0
 
         if self.terminal_switch:
             self.stdscr = curses.initscr()
@@ -44,19 +47,14 @@ class Visualizer:
         except Exception as e:
             pass
 
-    def display(self, seed: StructSeed, input_loc: set, stdout, stderr, start_time, loop: int, total: int) -> int:
+    def display(self, seed: StructSeed, input_loc: set, stdout, stderr) -> int:
         """
         This function use to show state during fuzzing on the terminal.
-        @param start_time:
-        @param seed:
-        @param input_loc:
-        @param loop:
-        @param total:
         @return:
         """
         if self.terminal_switch:
             xnum = ">" * (int(time.time()) % 5)
-            last_time = time.time()-start_time
+            last_time = time.time() - self.start_time
             runtime = time.strftime("%H:%M:%S", time.gmtime(last_time))
 
 
@@ -79,9 +77,9 @@ class Visualizer:
             self.terminal_status.addstr(1, 1, "Runtime: {}".format(runtime))
             self.terminal_status.addstr(2, 1, "    CPU: {}%".format(psutil.cpu_percent()))
             self.terminal_status.addstr(3, 1, "    Mem: {}%".format(psutil.virtual_memory()[2]))
-            self.terminal_status.addstr(1, 21, " Loop Number: {}".format(loop))
-            self.terminal_status.addstr(2, 21, "Total Number: {}".format(total))
-            self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(total/last_time)))
+            self.terminal_status.addstr(1, 21, " Loop Number: {}".format(self.loop))
+            self.terminal_status.addstr(2, 21, "Total Number: {}".format(self.total))
+            self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total/last_time)))
             self.terminal_status.hline(4, 1, curses.ACS_HLINE, 76)
             self.terminal_status.vline(1, 20, curses.ACS_VLINE, 3)
             self.terminal_status.addstr(ter_high-1, 2, "Q", curses.color_pair(VIS_MAGENTA))
@@ -144,7 +142,9 @@ class Visualizer:
 
             self.terminal_outs.addstr(out_high+1, 0, "E", curses.color_pair(VIS_YELLOW))
             for x_i in range(0, err_high):
-                self.terminal_outs.addstr(out_high+x_i+1, 2, "{}".format(stderr[(curse_len-2)*x_i: (curse_len-2)*(x_i+1)]))
+                self.terminal_outs.addstr(
+                    out_high+x_i+1, 2, "{}".format(stderr[(curse_len-2)*x_i: (curse_len-2)*(x_i+1)])
+                )
 
             self.terminal_outs.addstr(output_high - 1, 2, "O", curses.color_pair(VIS_YELLOW))
             self.terminal_outs.addstr(output_high - 1, 3, "utput")

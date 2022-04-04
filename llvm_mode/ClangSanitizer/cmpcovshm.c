@@ -198,6 +198,9 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
 
+    sprintf(buf, ",\"%lu\"", Val);
+    strcpy(data + interlen, buf);
+    interlen += strlen(buf);
     for (int i = 0; i < Cases[0]; i ++) {
         // printf(" %lu", Cases[2 + i]);
         sprintf(buf, ",\"%lu\"", Cases[2 + i]);

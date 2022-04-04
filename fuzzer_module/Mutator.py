@@ -19,7 +19,7 @@ def getFillStr(length: int) -> str:
                             fill_str += chr(i) * (4 - cent) + chr(j) * cent
     return fill_str
 
-def mutateSeeds(seedcont: str, filepath: str, label: str) -> 'list[StructSeed]':
+def mutSeeds(seedcont: str, filepath: str, label: str) -> 'list[StructSeed]':
     """
     Replace and add strings for variant input according to the sliding window.
     @param seedcont:
@@ -55,7 +55,7 @@ def mutateSeeds(seedcont: str, filepath: str, label: str) -> 'list[StructSeed]':
     return mutate_listq
 
 
-def mutateSelectChar(seedcont: str, filepath: str, label: str, mutloc_list: list) -> StructSeed:
+def mutSelectChar(seedcont: str, filepath: str, label: str, mutloc_list: list) -> StructSeed:
     """
     Mutate one character at a time.
     @return:
@@ -68,7 +68,7 @@ def mutateSelectChar(seedcont: str, filepath: str, label: str, mutloc_list: list
     temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), str(seedcont), MUT_TYPE_SUB, set(mutloc_list))
     return temp_one
 
-def mutateOneChar(seedcont: str, filepath: str, label: str, loc_list) -> StructSeed:
+def mutOneChar(seedcont: str, filepath: str, label: str, loc_list) -> StructSeed:
     """
     @param seedcont:
     @param filepath:
@@ -88,13 +88,18 @@ def mutateOneChar(seedcont: str, filepath: str, label: str, loc_list) -> StructS
     temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), str(seedcont), MUT_TYPE_SUB, set(loc_list))
     return temp_one
 
-def mutateLocFromMap(seedcont: str, filepath: str, label: str, locmapdet_dict: 'dict[int:str]') -> StructSeed:
+def mutLocFromMap(seedcont: str, filepath: str, label: str, locmapdet_dict: 'dict[int:str]') -> StructSeed:
     if locmapdet_dict:
         seedloc_list = list(seedcont)
         for lockey, chgval in locmapdet_dict.items():
             seedloc_list[lockey] = chgval
         seedcont = ''.join(seedloc_list)
-        temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), str(seedcont), MUT_TYPE_SUB, set(locmapdet_dict))
+        temp_one: StructSeed = StructSeed(
+            filepath + getMutfilename(label),
+            str(seedcont),
+            MUT_TYPE_SUB,
+            set(locmapdet_dict)
+        )
     else:
         temp_one = None
     return temp_one
@@ -103,7 +108,7 @@ def mutateLocFromMap(seedcont: str, filepath: str, label: str, locmapdet_dict: '
 if __name__ == "__main__":
     # mutate_seed_list = mutateSeeds("12345678123456789", "", "1")
     # print(mutate_seed_list)
-    mutate_seed_list = mutateOneChar("1245678123456789", "", "", set([1]))
+    mutate_seed_list = mutOneChar("1245678123456789", "", "", set([1]))
     print(mutate_seed_list.content)
 
 
