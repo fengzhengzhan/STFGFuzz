@@ -21,6 +21,7 @@ def mainFuzzer():
     path_crashseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSCRASH + os.sep
     path_graph = PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH + os.sep
     path_codeIR = PROGRAMS + os.sep + program_name + os.sep + CODEIR + os.sep
+    file_crash_csv = path_crashseeds + CRASH_CSVFILENAME
     LOG(LOG_DEBUG, LOG_FUNCINFO(), path_initseeds, path_mutseeds, path_crashseeds)
 
     '''Fuzzing test procedure.'''
@@ -38,7 +39,7 @@ def mainFuzzer():
     # Init seed lists  # todo if == null
     temp_listq = []
     for each in init_seeds_list:
-        temp_listq.append(StructSeed(path_mutseeds+each, "", INIT, {USE_INITNUM}))
+        temp_listq.append(StructSeed(path_mutseeds + each, "", SEED_INIT, {USE_INITNUM}))
     sch.addSeeds(SCH_LOOP_SEED, temp_listq)
 
     '''Fuzzing test cycle'''
@@ -47,6 +48,7 @@ def mainFuzzer():
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
+        sch.saveCrash(file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr)
         cmpcovcont_list, content = ana.gainTraceRpt(init_stdout)
         initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt)
 
@@ -73,6 +75,7 @@ def mainFuzzer():
             mutseed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, COARSE_STR + str(vis.loop), stloc_list)
             execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
             mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+            sch.saveCrash(file_crash_csv, path_crashseeds, execute_seed, mut_stdout, mut_stderr)
 
             # 2 cmp instruction
             # Track execution information of mutate seeds.
@@ -119,6 +122,7 @@ def mainFuzzer():
                 mutseed = Mutator.mutOneChar(init_seed.content, path_mutseeds, FINE_STR + str(vis.loop), stloc_list)
                 execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
                 mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+                sch.saveCrash(file_crash_csv, path_crashseeds, execute_seed, mut_stdout, mut_stderr)
 
                 # 2 cmp instruction
                 # Track execution information of mutate seeds.
@@ -150,7 +154,7 @@ def mainFuzzer():
                 vis.total += 1
                 execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
                 st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
-
+                sch.saveCrash(file_crash_csv, path_crashseeds, execute_seed, st_stdout, st_stderr)
 
                 # 2 cmp instruction
                 # Generate analysis reports.

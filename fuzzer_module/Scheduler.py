@@ -1,4 +1,3 @@
-import csv
 from queue import Queue
 
 from fuzzer_module.Fuzzconfig import *
@@ -70,12 +69,16 @@ class Scheduler:
             if SCH_SAVEASFILE:
                 os.remove(temp_one.filename)
 
-    def saveCrash(self):
+    def saveCrash(self, file_crash_csv, path_crashseeds, seed: StructSeed, stdout, stderr):
         """
         To facilitate analysis, save all the crash seed information in a csv file
         @return:
         """
-        pass
+        path, name = os.path.split(seed.filename)
+        if not os.path.exists(path_crashseeds + name) and len(stderr) != 0:
+            with open(file_crash_csv, "a+", encoding="utf-8") as cf:
+                linestr = name + "," + seed.content + "," + str(stdout) + "," + str(stderr) + "\n"
+                cf.write(linestr)
 
     def quitFuzz(self):
         self.deleteSeeds()

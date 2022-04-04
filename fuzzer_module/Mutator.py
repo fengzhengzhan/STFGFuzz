@@ -34,22 +34,22 @@ def mutSeeds(seedcont: str, filepath: str, label: str) -> 'list[StructSeed]':
     for i in range(0, seed_len-endnum, MUT_STEP):
         mutate_listq.append(StructSeed(filepath + getMutfilename(label),
                                        str(seedcont[0:i] + MUT_STR + seedcont[i + len(MUT_STR):seed_len]),
-                                       MUT_TYPE_SUB,
+                                       MUT_SEED_SUB,
                                        set([idx for idx in range(i, i + len(MUT_STR)+1)])))
     mutate_listq.append(StructSeed(filepath + getMutfilename(label),
                                    str(seedcont[0:seed_len - endnum] + MUT_STR[0:endnum]),
-                                   MUT_TYPE_SUB,
+                                   MUT_SEED_SUB,
                                    set([idx for idx in range(seed_len - endnum, seed_len+1)])))
 
     # Insert byte for seed variation
     for i in range(0, seed_len, MUT_STEP):
         mutate_listq.append(StructSeed(filepath + getMutfilename(label),
                                        str(seedcont[0:i] + MUT_STR + seedcont[i:seed_len]),
-                                       MUT_TYPE_INSERT,
+                                       MUT_SEED_INSERT,
                                        set([idx for idx in range(i, i + len(MUT_STR)+1)])))
     mutate_listq.append(StructSeed(filepath + getMutfilename(label),
                                    str(seedcont + MUT_STR),
-                                   MUT_TYPE_INSERT,
+                                   MUT_SEED_INSERT,
                                    set([idx for idx in range(seed_len, seed_len + len(MUT_STR)+1)])))
     # print(mutate_listq)
     return mutate_listq
@@ -65,7 +65,7 @@ def mutSelectChar(seedcont: str, filepath: str, label: str, mutloc_list: list) -
     for i, loci in enumerate(mutloc_list):
         seedloc_list[loci] = mut_str[i]
     seedcont = ''.join(seedloc_list)
-    temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), str(seedcont), MUT_TYPE_SUB, set(mutloc_list))
+    temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), str(seedcont), MUT_SEED_SUB, set(mutloc_list))
     return temp_one
 
 def mutOneChar(seedcont: str, filepath: str, label: str, loc_list) -> StructSeed:
@@ -85,7 +85,7 @@ def mutOneChar(seedcont: str, filepath: str, label: str, loc_list) -> StructSeed
                 break
         # seedloc_list[loci] = chr(255 - ord(seedloc_list[loci]))
     seedcont = ''.join(seedloc_list)
-    temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), str(seedcont), MUT_TYPE_SUB, set(loc_list))
+    temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), str(seedcont), MUT_SEED_SUB, set(loc_list))
     return temp_one
 
 def mutLocFromMap(seedcont: str, filepath: str, label: str, locmapdet_dict: 'dict[int:str]') -> StructSeed:
@@ -97,7 +97,7 @@ def mutLocFromMap(seedcont: str, filepath: str, label: str, locmapdet_dict: 'dic
         temp_one: StructSeed = StructSeed(
             filepath + getMutfilename(label),
             str(seedcont),
-            MUT_TYPE_SUB,
+            MUT_SEED_SUB,
             set(locmapdet_dict)
         )
     else:

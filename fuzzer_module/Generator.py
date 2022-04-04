@@ -5,7 +5,7 @@ from shutil import copy
 from fuzzer_module.Fuzzconfig import *
 
 
-def __createDir(path: str) -> None:
+def createDir(path: str) -> None:
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -65,19 +65,25 @@ def prepareEnv(program_name: str) -> list:
     # ---- seeds_crash
 
     # Create Programs.
-    __createDir(PROGRAMS)
-    __createDir(PROGRAMS + os.sep + program_name)
-    __createDir(PROGRAMS + os.sep + program_name + os.sep + CODESOURCES)
-    __createDir(PROGRAMS + os.sep + program_name + os.sep + CODEIR)
-    __createDir(PROGRAMS + os.sep + program_name + os.sep + CODEBIN)
-    __createDir(PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH)
-    __createDir(PROGRAMS + os.sep + program_name + os.sep + DATAPATCHLOC)
+    createDir(PROGRAMS)
+    createDir(PROGRAMS + os.sep + program_name)
+    createDir(PROGRAMS + os.sep + program_name + os.sep + CODESOURCES)
+    createDir(PROGRAMS + os.sep + program_name + os.sep + CODEIR)
+    createDir(PROGRAMS + os.sep + program_name + os.sep + CODEBIN)
+    createDir(PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH)
+    createDir(PROGRAMS + os.sep + program_name + os.sep + DATAPATCHLOC)
     temp_seedsinit = PROGRAMS + os.sep + program_name + os.sep + SEEDSINIT
-    __createDir(temp_seedsinit)
+    createDir(temp_seedsinit)
     temp_seedsmutate = PROGRAMS + os.sep + program_name + os.sep + SEEDSMUTATE
-    __createDir(temp_seedsmutate)
+    createDir(temp_seedsmutate)
+    temp_seedscrash = PROGRAMS + os.sep + program_name + os.sep + SEEDSCRASH
+    createDir(temp_seedscrash)
 
-    __createDir(PROGRAMS + os.sep + program_name + os.sep + SEEDSCRASH)
+    if not os.path.exists(temp_seedscrash + os.sep + CRASH_CSVFILENAME):
+        with open(temp_seedscrash + os.sep + CRASH_CSVFILENAME, "a+", encoding="utf-8") as f:
+            f.write("filename,content,stdout,stderr\n")
+
+
 
 
     # Copy all seed files from init_seeds to mutate_seeds
