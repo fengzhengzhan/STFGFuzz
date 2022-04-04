@@ -1,30 +1,6 @@
+import random
+
 from fuzzer_module.Fuzzconfig import *
-
-
-'''
-Tracking Comparison Module.
-'''
-def compareRptToLoc(seed: StructSeed, initrpt_dict: 'dict[str:StructCmpIns]', initrpt_set: set, mutrpt_dict, mutrpt_set):
-    interset = initrpt_set & mutrpt_set  # Intersection
-    symdiffset = initrpt_set ^ mutrpt_set  # Symmetric Difference set
-    cmpmaploc_rptdict = {}
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), seed.location, interset, symdiffset)
-
-    if len(interset) > 0:
-        # compare whether the parameters of the same constraint are different
-        for key in interset:
-            if len(initrpt_dict[key]) != len(mutrpt_dict[key]):
-                cmpmaploc_rptdict[key] = seed.location
-            else:
-                for l in range(len(initrpt_dict[key])):
-                    for larg in range(len(initrpt_dict[key][l].stargs)):
-                        if initrpt_dict[key][l].stargs[larg] != mutrpt_dict[key][l].stargs[larg]:
-                            cmpmaploc_rptdict[key] = seed.location
-    if len(symdiffset) > 0:
-        for key in symdiffset:
-            cmpmaploc_rptdict[key] = set(seed.location)
-
-    return cmpmaploc_rptdict
 
 
 '''
@@ -43,9 +19,10 @@ def handleStrMagic(seed_loc, bytes_infer) -> dict:
 
 def strConverUnival(value):
     unique_val = USE_INITNUM
-    if isinstance(value, int):
-        unique_val = value
-    elif isinstance(value, str):
+    if isinstance(value, int):  # Type of int converse hex characters to compare distance.
+        value = str(hex(value)[2:])
+
+    if isinstance(value, str):
         u = 0
         for str_i in range(0, len(value)):
             u = u * PAR_CONVER_BIT
@@ -57,16 +34,18 @@ def handleDistanceNum(opt_seed, mut_seed, st_loc, bytes_infer, sch) -> dict:
     ret_seed = mut_seed
     change_inputmap = {}
 
-    val00 = strConverUnival(bytes_infer.var0_cont[0])
-    val01 = strConverUnival(bytes_infer.var0_cont[1])
-    val10 = strConverUnival(bytes_infer.var1_cont[0])
-    val11 = strConverUnival(bytes_infer.var1_cont[1])
+    val00 = strConverUnival(int(bytes_infer.var0_cont[0]))
+    val01 = strConverUnival(int(bytes_infer.var0_cont[1]))
+    val10 = strConverUnival(int(bytes_infer.var1_cont[0]))
+    val11 = strConverUnival(int(bytes_infer.var1_cont[1]))
     LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, mut_seed.content)
     # According distance to return which seed.
-    if abs(val00-val10) >= abs(val01-val11):  # Distance difference in a constraint.
+    if abs(val00-val10) > abs(val01-val11):  # Distance difference in a constraint.
         ret_seed = mut_seed
     elif abs(val00-val10) < abs(val01-val11):
         ret_seed = opt_seed
+    elif abs(val00-val10) == abs(val01-val11):
+        ret_seed = mut_seed if random.randint(0, 1) == 1 else opt_seed
 
     # According bytes location to mutation seed location.
     if sch.mutlocnums < len(st_loc) * 16:
@@ -76,7 +55,37 @@ def handleDistanceNum(opt_seed, mut_seed, st_loc, bytes_infer, sch) -> dict:
         c = abs(ord(ret_seed.content[st_loc[chari]]) + MUT_BIT_LIST[charb]) % 256
         c = chr(c)
         change_inputmap[st_loc[chari]] = c
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, change_inputmap)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), chari, charb, st_loc, opt_seed.content, mut_seed.content, change_inputmap)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), val00, val01, val10, val11, abs(val00-val10), abs(val01-val11), ret_seed.content)
+    return ret_seed, change_inputmap
+
+def handleDistanceStr(opt_seed, mut_seed, st_loc, bytes_infer, sch) -> dict:
+    ret_seed = mut_seed
+    change_inputmap = {}
+
+    val00 = strConverUnival(bytes_infer.var0_cont[0])
+    val01 = strConverUnival(bytes_infer.var0_cont[1])
+    val10 = strConverUnival(bytes_infer.var1_cont[0])
+    val11 = strConverUnival(bytes_infer.var1_cont[1])
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, mut_seed.content)
+    # According distance to return which seed.
+    if abs(val00-val10) > abs(val01-val11):  # Distance difference in a constraint.
+        ret_seed = mut_seed
+    elif abs(val00-val10) < abs(val01-val11):
+        ret_seed = opt_seed
+    elif abs(val00-val10) == abs(val01-val11):
+        ret_seed = mut_seed if random.randint(0, 1) == 1 else opt_seed
+
+    # According bytes location to mutation seed location.
+    if sch.mutlocnums < len(st_loc) * 16:
+        chari = sch.mutlocnums // 16
+        charb = sch.mutlocnums % 16
+        sch.mutlocnums += 1
+        c = abs(ord(ret_seed.content[st_loc[chari]]) + MUT_BIT_LIST[charb]) % 256
+        c = chr(c)
+        change_inputmap[st_loc[chari]] = c
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), chari, charb, st_loc, opt_seed.content, mut_seed.content, change_inputmap, print_mode=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), val00, val01, val10, val11, abs(val00-val10), abs(val01-val11), ret_seed.content, print_mode=True)
     return ret_seed, change_inputmap
 
 def handleChecksums():

@@ -191,6 +191,32 @@ class Analyzer:
         cmprpt_set: 'cmpid' = set(cmprpt_dict)
         return cmprpt_dict, cmprpt_set
 
+    '''
+    Tracking Comparison Module.
+    '''
+
+    def compareRptToLoc(self, seed: StructSeed, initrpt_dict: 'dict[str:StructCmpIns]', initrpt_set: set, mutrpt_dict,
+                        mutrpt_set):
+        interset = initrpt_set & mutrpt_set  # Intersection
+        symdiffset = initrpt_set ^ mutrpt_set  # Symmetric Difference set
+        cmpmaploc_rptdict = {}
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), seed.location, interset, symdiffset)
+
+        if len(interset) > 0:
+            # compare whether the parameters of the same constraint are different
+            for key in interset:
+                if len(initrpt_dict[key]) != len(mutrpt_dict[key]):
+                    cmpmaploc_rptdict[key] = seed.location
+                else:
+                    for l in range(len(initrpt_dict[key])):
+                        for larg in range(len(initrpt_dict[key][l].stargs)):
+                            if initrpt_dict[key][l].stargs[larg] != mutrpt_dict[key][l].stargs[larg]:
+                                cmpmaploc_rptdict[key] = seed.location
+        if len(symdiffset) > 0:
+            for key in symdiffset:
+                cmpmaploc_rptdict[key] = set(seed.location)
+
+        return cmpmaploc_rptdict
 
     def getNumOfPcguard(self):
         if self.num_pcguard == -1:

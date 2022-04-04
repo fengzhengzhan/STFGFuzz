@@ -88,7 +88,7 @@ def mainFuzzer():
             cmpcovcont_list, content = ana.gainTraceRpt(mut_stdout)  # report
             mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt)
             # Gain changed cmp instruction through compare.
-            cmpmaploc_rptdict = Parser.compareRptToLoc(execute_seed, initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
+            cmpmaploc_rptdict = ana.compareRptToLoc(execute_seed, initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
 
             for cmpid_key, cmploc_val in cmpmaploc_rptdict.items():  # Determine if the dictionary is empty.
                 if cmpid_key not in solved_cmpset:
@@ -130,7 +130,7 @@ def mainFuzzer():
                 # Track execution information of mutate seeds.
                 cmpcovcont_list, content = ana.gainTraceRpt(mut_stdout)  # report
                 mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt)
-                cmpmaploc_rptdict = Parser.compareRptToLoc(execute_seed, initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
+                cmpmaploc_rptdict = ana.compareRptToLoc(execute_seed, initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
                 if st_key in cmpmaploc_rptdict:
                     fineloc_list.extend(stloc_list)
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptdict)
@@ -159,12 +159,10 @@ def mainFuzzer():
                 # Return cmp type and mutate strategy according to typeDetect
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, execute_seed.content)
                 ret_seed, type_infer_set, locmapdet_dict = Parser.typeDetect(opt_seed, execute_seed, fineloc_list, st_key, optrpt_dict, strpt_dict, sch)
-                if ret_seed == opt_seed:
-                    optrpt_dict = optrpt_dict
-                elif ret_seed == execute_seed:
-                    optrpt_dict = strpt_dict
+                optrpt_dict = optrpt_dict if ret_seed == opt_seed else strpt_dict
                 opt_seed = ret_seed
 
+                # if st_key == "4fc2594fc83a":
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), execute_seed.location, ret_seed.content, type_infer_set, locmapdet_dict)
 
                 if TYPE_SOLVED in type_infer_set:
