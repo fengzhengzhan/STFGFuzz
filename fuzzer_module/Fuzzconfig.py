@@ -182,7 +182,7 @@ GEN_DOTJSON = "dot -Tdot_json "
 GEN_OVERLAY = " > "
 GEN_APPEND = " >> "
 GEN_TRACEBC_SUFFIX = "_trace.bc"
-
+GEN_CSV_HEADERS = "filename,content,stdout,stderr\n"
 
 
 '''Mutator'''

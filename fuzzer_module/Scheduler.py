@@ -1,3 +1,4 @@
+import re
 from queue import Queue
 
 from fuzzer_module.Fuzzconfig import *
@@ -19,6 +20,8 @@ class Scheduler:
 
         self.mutlocnums = 0
         self.switchnums = 1
+
+        self.unique_crash = set()
 
     def initEachloop(self):
         self.loc_coarse_list = []
@@ -76,9 +79,17 @@ class Scheduler:
         """
         path, name = os.path.split(seed.filename)
         if not os.path.exists(path_crashseeds + name) and len(stderr) != 0:
-            with open(file_crash_csv, "a+", encoding="utf-8") as cf:
-                linestr = name + "," + seed.content + "," + str(stdout) + "," + str(stderr) + "\n"
-                cf.write(linestr)
+            re_str = "#0 (.*?) in"
+            crashid = re.search(re_str, str(stderr)).group(1)
+            if crashid not in self.unique_crash:
+                self.unique_crash.add(crashid)
+                # write csv
+                with open(file_crash_csv, "a+", encoding="utf-8") as cf:
+                    linestr = str(name) + "," + str(seed.content.encode("utf-8")) + "," + str(stdout) + "," + str(stderr) + "\n"
+                    cf.write(linestr)
+                # write seed
+                with open(path_crashseeds + name, "w", encoding="utf-8") as sf:
+                    sf.write(seed.content)
 
     def quitFuzz(self):
         self.deleteSeeds()

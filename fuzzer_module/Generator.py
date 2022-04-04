@@ -55,14 +55,14 @@ def prepareEnv(program_name: str) -> list:
     """
     # Programs
     # -- program_name
-    # ---- code_sources
     # ---- code_Bin
     # ---- code_IR
+    # ---- code_sources
     # ---- data_graph
-    # ---- data_crashloc
+    # ---- data_patchloc
+    # ---- seeds_crash
     # ---- seeds_init
     # ---- seeds_mutate
-    # ---- seeds_crash
 
     # Create Programs.
     createDir(PROGRAMS)
@@ -81,10 +81,7 @@ def prepareEnv(program_name: str) -> list:
 
     if not os.path.exists(temp_seedscrash + os.sep + CRASH_CSVFILENAME):
         with open(temp_seedscrash + os.sep + CRASH_CSVFILENAME, "a+", encoding="utf-8") as f:
-            f.write("filename,content,stdout,stderr\n")
-
-
-
+            f.write(GEN_CSV_HEADERS)
 
     # Copy all seed files from init_seeds to mutate_seeds
     # as the starting seeds from mutation.
