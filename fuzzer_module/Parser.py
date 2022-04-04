@@ -85,9 +85,9 @@ def handleDistanceStr(opt_seed, mut_seed, st_loc, bytes_infer, sch) -> dict:
         c = chr(c)
         change_inputmap[st_loc[chari]] = c
         LOG(LOG_DEBUG, LOG_FUNCINFO(), chari, charb, st_loc,
-            opt_seed.content, mut_seed.content, change_inputmap, print_mode=True)
+            opt_seed.content, mut_seed.content, change_inputmap, showlog=True)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), val00, val01, val10, val11,
-            abs(val00-val10), abs(val01-val11), ret_seed.content, print_mode=True)
+            abs(val00-val10), abs(val01-val11), ret_seed.content, showlog=True)
     return ret_seed, change_inputmap
 
 def handleChecksums():
@@ -121,18 +121,30 @@ def inferFixedOrChanged(ori0, ori1, st0, st1) -> (int, StructCmpInfer):
     return temp_bytesflag, temp_infer
 
 # Detect bytes type from bytes status and bytes contents.
-def detectCmpType(bytes_type, cmpins: StructCmpIns) -> list:
+def detectCmpType(bytes_type, bytes_infer, cmpins: StructCmpIns) -> list:
     type_infer = []
     if bytes_type == PAR_SOLVED:
         type_infer.append(TYPE_SOLVED)
     elif bytes_type == PAR_FIXAFIX:
         if cmpins.stvalue[0] in TRACENUMCMPSET:
             type_infer.append(TYPE_MAGICNUMS)
+        elif cmpins.stvalue[0] == COV_SWITCH:
+            if bytes_infer.var0_isdigit and bytes_infer.var1_isdigit:
+                type_infer.append(TYPE_MAGICNUMS)
+            else:
+                type_infer.append(TYPE_MAGICSTR)
+
     elif bytes_type == PAR_FIXACHG or bytes_type == PAR_CHGAFIX:
         if cmpins.stvalue[0] in HOOKSTRCMPSET:
             type_infer.append(TYPE_MAGICSTR)
         elif cmpins.stvalue[0] in TRACENUMCMPSET:
             type_infer.append(TYPE_MAGICNUMS)
+        elif cmpins.stvalue[0] == COV_SWITCH:
+            if bytes_infer.var0_isdigit and bytes_infer.var1_isdigit:
+                type_infer.append(TYPE_MAGICNUMS)
+            else:
+                type_infer.append(TYPE_MAGICSTR)
+
     elif bytes_type == PAR_CHGACHG:
         type_infer.append(TYPE_UNDEFINED)
 
@@ -178,13 +190,22 @@ def typeDetect(opt_seed, seed: 'StructSeed', st_loc, st_key: 'cmpid',
                 # Determining the type of variables
                 bytes_flag, bytes_infer = inferFixedOrChanged(ini[0], ini[1], st[0], st[1])
                 # Speculative change type
-                type_infer_list = detectCmpType(bytes_flag, strpt_dict[st_key][len_i])
+                type_infer_list = detectCmpType(bytes_flag, bytes_infer, strpt_dict[st_key][len_i])
                 ret_seed, locmapdet_dict = exeTypeStrategy(opt_seed, seed, st_loc, type_infer_list, bytes_infer, sch)
 
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, locmapdet_dict)
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, bytes_infer, ini[0], ini[1], st[0], st[1])
         elif optrpt_dict[st_key][0].stvalue[0] == COV_SWITCH:
-            pass
+            for len_i in range(min(len(optrpt_dict[st_key]), len(strpt_dict[st_key]))):
+                ini = optrpt_dict[st_key][len_i].stargs
+                st = strpt_dict[st_key][len_i].stargs
+                # Determining the type of variables
+                bytes_flag, bytes_infer = inferFixedOrChanged(ini[0], ini[sch.switchnums], st[0], st[sch.switchnums])
+                # Speculative change type
+                type_infer_list = detectCmpType(bytes_flag, bytes_infer, strpt_dict[st_key][len_i])
+                ret_seed, locmapdet_dict = exeTypeStrategy(opt_seed, seed, st_loc, type_infer_list, bytes_infer, sch)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, bytes_infer,
+                    ini[0], ini[sch.switchnums], st[0], st[sch.switchnums])
 
     elif (st_key in optrpt_dict) and (st_key not in strpt_dict):
         pass

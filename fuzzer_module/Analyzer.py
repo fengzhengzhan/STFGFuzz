@@ -7,11 +7,13 @@ from fuzzer_module.Fuzzconfig import *
 
 class Analyzer:
     def __init__(self):
-        self.num_pcguard: int = -1
+        self.num_pcguard: int = USE_INITNUM
+        self.shm_key = USE_INITNUM
         try:
             self.rt = CDLL('librt.so')
         except:
             self.rt = CDLL('librt.so.1')
+
 
     def gainTraceRpt(self, out_info: str):
         """
@@ -25,9 +27,12 @@ class Analyzer:
             return self.terminalTrace(out_info)  # Not recommended
 
     def memoryTrace(self, out_info: str):
-        re_str = SHMID_FLAG + "(.*?)" + END_EACH_FLAG
-        shm_key = int(re.search(re_str, str(out_info)).group(1))
-        # print(shm_key)
+        try:
+            re_str = SHMID_FLAG + "(.*?)" + END_EACH_FLAG
+            self.shm_key = int(re.search(re_str, str(out_info)).group(1))
+            # print(self.shm_key)
+        except Exception as e:
+            pass
 
         shmget = self.rt.shmget
         shmget.argtypes = [c_int, c_size_t, c_int]
@@ -37,7 +42,7 @@ class Analyzer:
         shmat.argtypes = [c_int, POINTER(c_void_p), c_int]
         shmat.restype = c_void_p
 
-        shmid = shmget(shm_key, 512 * 1024 * 1024, 0o666)
+        shmid = shmget(self.shm_key, 512 * 1024 * 1024, 0o666)
         if shmid < 0:
             raise Exception("Error System not infected.")
 

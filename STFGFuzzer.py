@@ -46,7 +46,7 @@ def mainFuzzer():
         vis.loop += 1
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
-        init_retcode, init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
+        init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         cmpcovcont_list, content = ana.gainTraceRpt(init_stdout)
         initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt)
 
@@ -72,7 +72,7 @@ def mainFuzzer():
             coarse_head += sch.slid_window // 2
             mutseed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, COARSE_STR + str(vis.loop), stloc_list)
             execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
-            mut_retcode, mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+            mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
 
             # 2 cmp instruction
             # Track execution information of mutate seeds.
@@ -118,7 +118,7 @@ def mainFuzzer():
                 find_head += 1
                 mutseed = Mutator.mutOneChar(init_seed.content, path_mutseeds, FINE_STR + str(vis.loop), stloc_list)
                 execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
-                mut_retcode, mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+                mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
 
                 # 2 cmp instruction
                 # Track execution information of mutate seeds.
@@ -149,7 +149,8 @@ def mainFuzzer():
             while not sch.isEmpty(SCH_MUT_SEED):
                 vis.total += 1
                 execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
-                st_retcode, st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+                st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+
 
                 # 2 cmp instruction
                 # Generate analysis reports.

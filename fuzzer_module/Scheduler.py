@@ -19,6 +19,7 @@ class Scheduler:
         self.solved_cmpset = set()
 
         self.mutlocnums = 0
+        self.switchnums = 1
 
     def initEachloop(self):
         self.loc_coarse_list = []

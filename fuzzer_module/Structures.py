@@ -59,5 +59,7 @@ class StructCmpInfer:
     def __init__(self, var0_type: int, var0_cont: list, var1_type: int, var1_cont: list):
         self.var0_type = var0_type
         self.var0_cont = var0_cont
+        self.var0_isdigit: bool = True if var0_cont[0].isdigit() and var0_cont[1].isdigit() else False
         self.var1_type = var1_type
         self.var1_cont = var1_cont
+        self.var1_isdigit: bool = True if var1_cont[0].isdigit() and var1_cont[1].isdigit() else False

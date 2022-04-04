@@ -22,4 +22,4 @@ def run(cmd: str) -> (int, str, str):
     LOG(LOG_DEBUG, LOG_FUNCINFO(), std_out, std_err)
     ret_code = 128 - process.returncode
     # print(ret_code, std_out, std_err)
-    return ret_code, std_out, std_err
+    return std_out, std_err

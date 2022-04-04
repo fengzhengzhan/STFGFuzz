@@ -15,8 +15,8 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-# VIS_TERMINAL = False
-VIS_TERMINAL = True
+VIS_TERMINAL = False
+# VIS_TERMINAL = True
 VIS_SHOWGRAPH = True
 
 COARSE_STR = "coarse"
@@ -246,7 +246,7 @@ VIS_Q = 113
 VIS_S = 115
 VIS_SEED_LINE = 16
 
-VIS_MAX_LINE = 125
+VIS_MAX_LINE = 64
 
 VIS_MAX_OUT = 10
 VIS_MAX_ERR = 10
@@ -274,11 +274,11 @@ LOG_WARNING = 253
 LOG_ERROR = 254
 LOG_CRITICAL = 255
 
-def LOG(loggingtype: str, funcinfo, *args, print_mode=False) -> None:
+def LOG(loggingtype: str, funcinfo, *args, showlog=False) -> None:
     logstr = "{}-> ".format(funcinfo)
     for content in args:
         logstr += "{} || ".format(content)
-    if print_mode:
+    if showlog:
         print("\n\n"+logstr, end="")
         with open(PROGRAMS + os.sep + FUZZPRINTLOG, "a+") as f:
             f.write("\n\n"+logstr)
