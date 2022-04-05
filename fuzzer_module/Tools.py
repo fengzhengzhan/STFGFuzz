@@ -1,5 +1,6 @@
 import datetime
 import subprocess
+import time
 
 
 def saveAsFile(content: str, filename: str):
@@ -27,6 +28,9 @@ def getFileList(filepathname: str) -> list:
         file_list = f.readlines()
     return file_list
 
+def getTimeStr():
+    t = str(time.strftime("%Y%m%d%H%M%S", time.localtime(time.time())))
+    return t
 
 def getFileContent(filepathname: str) -> str:
     """
@@ -56,6 +60,7 @@ def runothercmd(cmd: str) -> (int, str, str):
     ret_code = 128 - process.returncode
     # print(ret_code, std_out, std_err)
     return std_out, std_err
+
 
 
 

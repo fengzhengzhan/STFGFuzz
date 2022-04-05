@@ -45,7 +45,6 @@ class Scheduler:
         self.addDeleteq(temp_one)
         return temp_one
 
-
     def addSeeds(self, mode: int, structseed_list: 'list[StructSeed]'):
         for each in structseed_list:
             if mode == SCH_LOOP_SEED:

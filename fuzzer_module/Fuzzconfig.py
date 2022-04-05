@@ -18,6 +18,9 @@ QUIT_FUZZ = 11
 VIS_TERMINAL = True
 VIS_SHOWGRAPH = True
 
+AUTO_SEED = "auto.seed"
+EXPAND_SEED = "expand.seed"
+
 COARSE_STR = "coarse"
 FINE_STR = "fine"
 ST_STR = "st"
@@ -247,7 +250,7 @@ VIS_Q = 113
 VIS_S = 115
 VIS_SEED_LINE = 16
 
-VIS_MAX_LINE = 64
+VIS_MAX_LINE = 20
 
 VIS_MAX_OUT = 10
 VIS_MAX_ERR = 10

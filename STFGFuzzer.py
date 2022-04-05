@@ -11,7 +11,6 @@ def mainFuzzer():
     """
     # Receive command line parameters.
     program_name, patchtype, fuzz_command = Generator.genTerminal()
-
     if fuzz_command == "" or program_name == "" or patchtype not in COM_PATCHSET:
         print("python {}.py -h".format(FUZZNAME))
         raise Exception("Error parameters.")
@@ -33,14 +32,19 @@ def mainFuzzer():
     cfggraph_dict, map_guardTocfgname = Builder.getCFG(cfglist)
     # vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
 
-    input_map: dict[list] = {}
-    init_seeds_list = Generator.prepareEnv(program_name)
+    # Init Loop Variables
+    before_coverage = len(sch.coveragepath)
 
     # Init seed lists  # todo if == null
-    temp_listq = []
-    for each in init_seeds_list:
-        temp_listq.append(StructSeed(path_mutseeds + each, "", SEED_INIT, {USE_INITNUM}))
-    sch.addSeeds(SCH_LOOP_SEED, temp_listq)
+    init_seeds_list = Generator.prepareEnv(program_name)
+    if len(init_seeds_list) > 0:
+        temp_listq = []
+        for each in init_seeds_list:
+            temp_listq.append(StructSeed(path_mutseeds + each, "", SEED_INIT, set()))
+        sch.addSeeds(SCH_LOOP_SEED, temp_listq)
+    else:
+        sch.addSeeds(SCH_LOOP_SEED,
+                     [StructSeed(path_mutseeds + AUTO_SEED, Mutator.getFillStr(64), SEED_INIT, set()), ])
 
     '''Fuzzing test cycle'''
     while not sch.isEmpty(SCH_LOOP_SEED):
@@ -97,7 +101,8 @@ def mainFuzzer():
             LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptdict)
 
             # 5 visualize
-            res = vis.display(execute_seed, set(stloc_list), mut_stdout, mut_stderr, "Coarse-Grained", len(sch.coveragepath))
+            res = vis.display(execute_seed, set(stloc_list), mut_stdout, mut_stderr,
+                              "Coarse-Grained", len(sch.coveragepath))
             if res == QUIT_FUZZ:
                 sch.quitFuzz()
         LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_coarse_dict)
@@ -138,7 +143,8 @@ def mainFuzzer():
 
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptdict)
                 # 5 visualize
-                res = vis.display(execute_seed, set(stloc_list), mut_stdout, mut_stderr, "Fine-Grained", len(sch.coveragepath))
+                res = vis.display(execute_seed, set(stloc_list), mut_stdout, mut_stderr,
+                                  "Fine-Grained", len(sch.coveragepath))
                 if res == QUIT_FUZZ:
                     sch.quitFuzz()
             LOG(LOG_DEBUG, LOG_FUNCINFO(), st_key, st_coarseval, fineloc_list)
@@ -192,6 +198,14 @@ def mainFuzzer():
                 if res == QUIT_FUZZ:
                     sch.quitFuzz()
 
+        # Increase the input length when the number of constraints does not change in the program
+        if before_coverage == len(sch.coveragepath):
+            sch.addSeeds(SCH_LOOP_SEED, [
+                StructSeed(path_mutseeds + getTimeStr() + EXPAND_SEED, init_seed.content + init_seed.content,
+                           MUT_SEED_INSERT, set())
+            ])
+        before_coverage = len(sch.coveragepath)
+
         # Endless fuzzing
         if sch.isEmpty(SCH_LOOP_SEED):
             sch.addSeeds(SCH_LOOP_SEED, [init_seed, ])
@@ -203,7 +217,10 @@ def mainFuzzer():
 
 
 
+
 if __name__ == "__main__":
+    # python3.7 STFGFuzzer.py -n demo -- ./Programs/demo/code_Bin/demo -f @@
+    # python3.7 STFGFuzzer.py -n base64 -- ./Programs/base64/code_Bin/base64 -d @@
     mainFuzzer()
 
 
