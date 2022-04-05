@@ -149,6 +149,10 @@ def mainFuzzer():
                     sch.quitFuzz()
             LOG(LOG_DEBUG, LOG_FUNCINFO(), st_key, st_coarseval, fineloc_list)
 
+            # False positive comparison if all input bytes are covered
+            if len(fineloc_list) == len(init_seed.content):
+                continue
+
             '''Type detect and Mutation strategy'''
             fineloc_list.sort()
             st_seed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, ST_STR + str(vis.loop), fineloc_list)
@@ -179,7 +183,7 @@ def mainFuzzer():
                 optrpt_dict = optrpt_dict if ret_seed == opt_seed else strpt_dict
                 opt_seed = ret_seed
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), locmapdet_dict, content, st_key, fineloc_list)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), locmapdet_dict, cmpcovcont_list, content, st_key, fineloc_list)
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), execute_seed.location, ret_seed.content, type_infer_set)
 
                 if TYPE_SOLVED in type_infer_set:
@@ -213,8 +217,6 @@ def mainFuzzer():
         # Mutual mapping relationship
         # Key: cmpid  Value: branch_order cmp_type input_bytes branches
         # 4 branches
-
-
 
 
 
