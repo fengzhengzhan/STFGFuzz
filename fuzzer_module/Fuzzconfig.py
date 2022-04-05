@@ -7,15 +7,15 @@ from fuzzer_module.Structures import *
 # Program information.
 '''Main Fuzzer'''
 FUZZNAME = "STFGFuzzer"
-FUZZPRINTLOG = FUZZNAME + "_print.log"
+FUZZPRINTLOG = FUZZNAME + "_show.log"
 FILEREPLACE = "@@"
 USE_INITNUM = -1
 USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-# VIS_TERMINAL = False
-VIS_TERMINAL = True
+VIS_TERMINAL = False
+# VIS_TERMINAL = True
 VIS_SHOWGRAPH = True
 
 COARSE_STR = "coarse"

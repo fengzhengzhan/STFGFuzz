@@ -30,6 +30,7 @@ def strConverUnival(value):
         unique_val = u
     return unique_val
 
+# todo 将单字节变异变成对总长度的+1 -1 运算
 def handleDistanceNum(opt_seed, mut_seed, st_loc, bytes_infer, sch) -> dict:
     ret_seed = mut_seed
     change_inputmap = {}

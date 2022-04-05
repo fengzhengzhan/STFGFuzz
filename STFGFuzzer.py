@@ -84,8 +84,8 @@ def mainFuzzer():
             # Gain changed cmp instruction through compare.
             cmpmaploc_rptdict = ana.compareRptToLoc(execute_seed, initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
 
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovcont_list, content)
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_rptdict)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovcont_list, content, showlog=True)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_rptdict, showlog=True)
 
             for cmpid_key, cmploc_val in cmpmaploc_rptdict.items():  # Determine if the dictionary is empty.
                 if cmpid_key not in sch.solved_cmpset:
@@ -196,7 +196,10 @@ def mainFuzzer():
         if sch.isEmpty(SCH_LOOP_SEED):
             sch.addSeeds(SCH_LOOP_SEED, [init_seed, ])
 
+        # Mutual mapping relationship
+        # Key: cmpid  Value: branch_order cmp_type input_bytes branches
         # 4 branches
+
 
 
 
