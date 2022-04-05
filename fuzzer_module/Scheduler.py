@@ -22,6 +22,7 @@ class Scheduler:
 
         self.mutlocnums = 0
         self.switchnums = 1
+        self.expandnums = 0
 
         self.unique_crash = set()
 

@@ -159,6 +159,7 @@ def mainFuzzer():
             sch.addSeeds(SCH_MUT_SEED, [st_seed, ])
             optrpt_dict = initrpt_dict
             opt_seed = init_seed
+            before_locmapdet_dict = {}
             # Type Detection and Breaking the Constraint Cycle (At lease 2 loops)
             while not sch.isEmpty(SCH_MUT_SEED):
                 vis.total += 1
@@ -182,15 +183,19 @@ def mainFuzzer():
                 # Comparison of global optimal values to achieve updated parameters
                 optrpt_dict = optrpt_dict if ret_seed == opt_seed else strpt_dict
                 opt_seed = ret_seed
+                if before_locmapdet_dict == locmapdet_dict and not before_locmapdet_dict and not locmapdet_dict:
+                    break
+                before_locmapdet_dict = locmapdet_dict
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), locmapdet_dict, cmpcovcont_list, content, st_key, fineloc_list)
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), execute_seed.location, ret_seed.content, type_infer_set)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), locmapdet_dict, content, st_key, fineloc_list, showlog=True)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovcont_list, execute_seed.location, ret_seed.content, type_infer_set)
 
                 if TYPE_SOLVED in type_infer_set:
                     sch.solved_cmpset.add(st_key)
                     sch.freeze_bytes = sch.freeze_bytes | set(fineloc_list)
                     sch.freezeid_rpt.add(st_key)
                     sch.addSeeds(SCH_LOOP_SEED, [ret_seed, ])
+
                 # Passing the constraint based on the number of cycles and the distance between comparisons.
                 st_seed = Mutator.mutLocFromMap(ret_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict)
 
@@ -203,7 +208,8 @@ def mainFuzzer():
                     sch.quitFuzz()
 
         # Increase the input length when the number of constraints does not change in the program
-        if before_coverage == len(sch.coveragepath):
+        if before_coverage == len(sch.coveragepath) and sch.expandnums < SCH_EXPAND_MAX:
+            sch.expandnums += 1
             sch.addSeeds(SCH_LOOP_SEED, [
                 StructSeed(path_mutseeds + getTimeStr() + EXPAND_SEED, init_seed.content + init_seed.content,
                            MUT_SEED_INSERT, set())

@@ -226,6 +226,8 @@ SCH_THIS_SEED = 223
 
 SCH_SAVEASFILE = True
 
+SCH_EXPAND_MAX = 16
+
 SCH_SLID_WINDOW = 8
 
 '''Visualizer'''
