@@ -25,24 +25,13 @@ class StructSeed:
         self.location = location  # -1 as the init seed
 
 
-# The structure stores information about trace report.
-class StructTraceReport:
-    def __init__(self, startguard: int, endguard: int,
-                 constraint: 'list[str]', stvalue: 'list[list[str, str]]', programcontent: 'list[str]'):
-        self.startguard = startguard
-        self.endguard = endguard
-        self.constraint = constraint
-        self.stvalue = stvalue
-        self.progcontent = programcontent
-
 class StructCmpIns:
     def __init__(self, stcmpid, startguard, endguard, stvalue:list, stargs):
-        self.stcmpid = stcmpid
+        self.cmpid = stcmpid
         self.startguard = startguard
         self.endguard = endguard
         self.stvalue = stvalue  # type, func_pc, caller_pc ...
         self.stargs = stargs  # arg1, arg2, arg3 ...
-
 
 class StructCmpInfo:
     def __init__(self, cmptype, inputmap: list, ansvalue, startguard, endguardtrue, endguardfalse):
@@ -53,7 +42,6 @@ class StructCmpInfo:
         self.endguardtrue = endguardtrue
         self.endguardfalse = endguardfalse
 
-
 # Identification of the type of comparison instruction.
 class StructCmpInfer:
     def __init__(self, var0_type: int, var0_cont: list, var1_type: int, var1_cont: list):
@@ -63,3 +51,34 @@ class StructCmpInfer:
         self.var1_type = var1_type
         self.var1_cont = var1_cont
         self.var1_isdigit: bool = True if var1_cont[0].isdigit() and var1_cont[1].isdigit() else False
+
+
+# Key: cmpid  Value: branch_order cmp_type input_bytes branches
+class StructMapCmpid:
+    def __init__(self, cmpid, cmp_branch_order, cmptype: set, inputmapval: 'dict[loc:value]',
+                 branch_true: set, branch_false: set):
+        self.cmpid = cmpid
+        self.cmporder = cmp_branch_order
+        self.cmptype = cmptype
+        self.inputmapval = inputmapval
+        self.branch_true = branch_true
+        self.branch_false = branch_false
+
+class StructMapInpus:
+    def __init__(self, inputloc, valuerange: set,
+                 cmpset, cmpval: 'dict[cmpid:valuerangeset]',
+                 branchset, branchval: 'dict[branchid:valuerangeset]'):
+        self.inputloc = inputloc
+        self.valuerange = valuerange
+        self.cmpset = cmpset
+        self.cmpval = cmpval
+        self.branchset = branchset
+        self.branchval = branchval
+
+class StructMapBranches:
+    def __init__(self, branchid, cmplist, inputmap):
+        self.branchid = branchid
+        self.cmplist = cmplist
+        self.inputmap = inputmap
+
+

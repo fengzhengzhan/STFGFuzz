@@ -19,6 +19,7 @@ class Visualizer:
         self.start_time = time.time()
         self.loop = 0
         self.total = 0
+        self.num_pcguard = USE_INITNUM
 
         if self.terminal_switch:
             self.stdscr = curses.initscr()
@@ -47,7 +48,7 @@ class Visualizer:
         except Exception as e:
             pass
 
-    def display(self, seed: StructSeed, input_loc: set, stdout, stderr) -> int:
+    def display(self, seed: StructSeed, input_loc: set, stdout, stderr, stagestr, covernum) -> int:
         """
         This function use to show state during fuzzing on the terminal.
         @return:
@@ -72,16 +73,25 @@ class Visualizer:
             self.terminal_status.box()
             self.terminal_status.erase()
             self.terminal_status.border()
-            self.terminal_status.addstr(0, 1, "Status")  # (y ->, x |V)
 
+            # Status
+            self.terminal_status.addstr(0, 3, "Status", curses.color_pair(VIS_CYAN))  # (y ->, x |V)
             self.terminal_status.addstr(1, 1, "Runtime: {}".format(runtime))
             self.terminal_status.addstr(2, 1, "    CPU: {}%".format(psutil.cpu_percent()))
             self.terminal_status.addstr(3, 1, "    Mem: {}%".format(psutil.virtual_memory()[2]))
+
+            #
+            self.terminal_status.vline(1, 20, curses.ACS_VLINE, 3)
             self.terminal_status.addstr(1, 21, " Loop Number: {}".format(self.loop))
             self.terminal_status.addstr(2, 21, "Total Number: {}".format(self.total))
             self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total/last_time)))
             self.terminal_status.hline(4, 1, curses.ACS_HLINE, 76)
-            self.terminal_status.vline(1, 20, curses.ACS_VLINE, 3)
+
+            #
+            self.terminal_status.addstr(4, 3, "Info", curses.color_pair(VIS_CYAN))
+            self.terminal_status.addstr(5, 1, "   Stage: {}".format(stagestr))
+            self.terminal_status.addstr(6, 1, "Coverage: {} / {}".format(covernum, self.num_pcguard))
+
             self.terminal_status.addstr(ter_high-1, 2, "Q", curses.color_pair(VIS_MAGENTA))
             self.terminal_status.addstr(ter_high-1, 3, "uit")
             self.terminal_status.addstr(ter_high-1, 8, "S", curses.color_pair(VIS_MAGENTA))
@@ -101,7 +111,7 @@ class Visualizer:
             self.terminal_seeds.box()
             self.terminal_seeds.erase()
             self.terminal_seeds.border()
-            self.terminal_seeds.addstr(0, 1, "Hex")  # (y ->, x |V)
+            self.terminal_seeds.addstr(0, 3, "Hex", curses.color_pair(VIS_CYAN))  # (y ->, x |V)
 
             for i in range(0, high):
                 self.terminal_seeds.addstr(i + 1, 1, "{:0>3d}0: ".format(i))
@@ -134,7 +144,7 @@ class Visualizer:
             self.terminal_outs.box()
             self.terminal_outs.erase()
             self.terminal_outs.border()
-            self.terminal_outs.addstr(0, 1, "Output")  # (y ->, x |V)
+            self.terminal_outs.addstr(0, 3, "Output", curses.color_pair(VIS_CYAN))  # (y ->, x |V)
 
             self.terminal_outs.addstr(1, 0, "O", curses.color_pair(VIS_YELLOW))
             for x_i in range(0, out_high):

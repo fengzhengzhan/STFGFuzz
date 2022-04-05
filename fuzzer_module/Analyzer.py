@@ -124,7 +124,7 @@ class Analyzer:
 
         return cmpcovcont_list, content
 
-    def traceAyalysis(self, cmpcovcont_list, cmpcov_content, freezeid_rpt):
+    def traceAyalysis(self, cmpcovcont_list, cmpcov_content, freezeid_rpt, sch: 'Scheduler'):
         # Iterate through the trace report to get the corresponding information
         cmprpt_dict: 'dict[cmpid:[StructCmpIns]]' = {}  # According cmp instruction to genetator dict.
         cmpid_list = []
@@ -146,6 +146,7 @@ class Analyzer:
             elif typeflag == EACH_PC_GUARD:
                 type = typeflag
                 guard_num = int(each[1], 16)
+                sch.coveragepath.add(guard_num)
                 for i, oneid in enumerate(cmpid_list):
                     if oneid not in cmprpt_dict:
                         cmprpt_dict[oneid] = [

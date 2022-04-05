@@ -50,9 +50,9 @@ def mainFuzzer():
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         sch.saveCrash(file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr)
         cmpcovcont_list, content = ana.gainTraceRpt(init_stdout)
-        initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt)
+        initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
 
-        num_pcguard = ana.getNumOfPcguard()
+        vis.num_pcguard = ana.getNumOfPcguard()
 
         # Select the location to be mutated and add it to the location queue.
         sch.initEachloop()
@@ -80,12 +80,12 @@ def mainFuzzer():
             # 2 cmp instruction
             # Track execution information of mutate seeds.
             cmpcovcont_list, content = ana.gainTraceRpt(mut_stdout)  # report
-            mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt)
+            mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
             # Gain changed cmp instruction through compare.
             cmpmaploc_rptdict = ana.compareRptToLoc(execute_seed, initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
 
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovcont_list, content, showlog=True)
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_rptdict, showlog=True)
+            # LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovcont_list, content, showlog=True)
+            # LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_rptdict, showlog=True)
 
             for cmpid_key, cmploc_val in cmpmaploc_rptdict.items():  # Determine if the dictionary is empty.
                 if cmpid_key not in sch.solved_cmpset:
@@ -97,7 +97,7 @@ def mainFuzzer():
             LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptdict)
 
             # 5 visualize
-            res = vis.display(execute_seed, set(stloc_list), mut_stdout, mut_stderr)
+            res = vis.display(execute_seed, set(stloc_list), mut_stdout, mut_stderr, "Coarse-Grained", len(sch.coveragepath))
             if res == QUIT_FUZZ:
                 sch.quitFuzz()
         LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_coarse_dict)
@@ -127,7 +127,7 @@ def mainFuzzer():
                 # 2 cmp instruction
                 # Track execution information of mutate seeds.
                 cmpcovcont_list, content = ana.gainTraceRpt(mut_stdout)  # report
-                mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt)
+                mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
                 cmpmaploc_rptdict = ana.compareRptToLoc(
                     execute_seed,
                     initrpt_dict, initrpt_set,
@@ -138,7 +138,7 @@ def mainFuzzer():
 
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptdict)
                 # 5 visualize
-                res = vis.display(execute_seed, set(stloc_list), mut_stdout, mut_stderr)
+                res = vis.display(execute_seed, set(stloc_list), mut_stdout, mut_stderr, "Fine-Grained", len(sch.coveragepath))
                 if res == QUIT_FUZZ:
                     sch.quitFuzz()
             LOG(LOG_DEBUG, LOG_FUNCINFO(), st_key, st_coarseval, fineloc_list)
@@ -159,7 +159,7 @@ def mainFuzzer():
                 # 2 cmp instruction
                 # Generate analysis reports.
                 cmpcovcont_list, content = ana.gainTraceRpt(st_stdout)
-                strpt_dict, strpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt)  # report
+                strpt_dict, strpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)  # report
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, execute_seed.content)
 
                 # 3 cmp type
@@ -188,7 +188,7 @@ def mainFuzzer():
                     sch.addSeeds(SCH_MUT_SEED, [st_seed, ])
 
                 # 5 visualize
-                res = vis.display(ret_seed, set(fineloc_list), st_stdout, st_stderr)
+                res = vis.display(ret_seed, set(fineloc_list), st_stdout, st_stderr, "Strategy", len(sch.coveragepath))
                 if res == QUIT_FUZZ:
                     sch.quitFuzz()
 

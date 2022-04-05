@@ -91,6 +91,7 @@ then
 				echo -e "Error Parameters."
 			fi
 		fi
+		echo "\n"
 	fi	
 else
 	echo "Usage: ./build.sh [-n <program_name> <runseeds>] [-rm] [-rma]"

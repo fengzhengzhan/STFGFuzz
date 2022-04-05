@@ -18,6 +18,8 @@ class Scheduler:
         self.freezeid_rpt = set()
         self.solved_cmpset = set()
 
+        self.coveragepath = set()
+
         self.mutlocnums = 0
         self.switchnums = 1
 
@@ -79,8 +81,11 @@ class Scheduler:
         """
         path, name = os.path.split(seed.filename)
         if not os.path.exists(path_crashseeds + name) and len(stderr) != 0:
-            re_str = "#0 (.*?) in"
-            crashid = re.search(re_str, str(stderr)).group(1)
+            try:
+                re_str = "#0 (.*?) in"
+                crashid = re.search(re_str, str(stderr)).group(1)
+            except Exception as e:
+                crashid = str(stderr)[-16:-3]  #
             if crashid not in self.unique_crash:
                 self.unique_crash.add(crashid)
                 # write csv
