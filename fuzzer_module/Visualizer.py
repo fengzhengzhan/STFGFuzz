@@ -20,6 +20,8 @@ class Visualizer:
         self.loop = 0
         self.total = 0
         self.num_pcguard = USE_INITNUM
+        self.seedline = 0
+        self.retflag = USE_INITNUM
 
         if self.terminal_switch:
             self.stdscr = curses.initscr()
@@ -36,6 +38,7 @@ class Visualizer:
             curses.init_pair(6, curses.COLOR_RED, -1)
             curses.init_pair(7, curses.COLOR_WHITE, -1)
             curses.init_pair(8, curses.COLOR_YELLOW, -1)
+
 
         if self.showgraph_switch:
             pass
@@ -63,6 +66,7 @@ class Visualizer:
             self.stdscr.erase()
             self.stdscr.noutrefresh()
             self.stdscr.addstr(0, 0, " {} {}".format(FUZZNAME, xnum), curses.color_pair(VIS_BLUE))
+
             # self.stdscr.refresh()
 
             curse_len = 76
@@ -85,6 +89,7 @@ class Visualizer:
             self.terminal_status.addstr(1, 21, " Loop Number: {}".format(self.loop))
             self.terminal_status.addstr(2, 21, "Total Number: {}".format(self.total))
             self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total/last_time)))
+            self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total/last_time)))
             self.terminal_status.hline(4, 1, curses.ACS_HLINE, 76)
 
             #
@@ -106,30 +111,31 @@ class Visualizer:
             layout_x = seed_len // VIS_SEED_LINE + 1  # The end line not full.
             layout_y = seed_len % VIS_SEED_LINE
 
-            high = min(layout_x, VIS_MAX_LINE)
+            high = min(layout_x-self.seedline, VIS_MAX_LINE)
             self.terminal_seeds = curses.newwin(high+2, curse_len+2, ter_high+1, 0)
             self.terminal_seeds.box()
             self.terminal_seeds.erase()
             self.terminal_seeds.border()
             self.terminal_seeds.addstr(0, 3, "Hex", curses.color_pair(VIS_CYAN))  # (y ->, x |V)
 
-            for i in range(0, high):
-                self.terminal_seeds.addstr(i + 1, 1, "{:0>3d}0: ".format(i))
-                if i < layout_x-1 or layout_x-1 > VIS_MAX_LINE:
+            for line_i, seed_i in enumerate(range(self.seedline, high+self.seedline)):
+                self.terminal_seeds.addstr(line_i + 1, 1, "{:0>3}0: ".format(hex(seed_i)[2:].upper()))
+                # if seed_i < layout_x-1 or layout_x-1 > VIS_MAX_LINE:
+                if seed_i < layout_x-1:
                     j_len = VIS_SEED_LINE
                 else:
                     j_len = layout_y
 
                 for j in range(0, j_len):
-                    seed_index = i*16+j
+                    seed_index = seed_i*16+j
                     show_char = seed.content[seed_index]
                     color_pair = curses.color_pair(VIS_WHITE)
                     if seed_index in seed.location:
                         color_pair = curses.color_pair(VIS_YELLOW)
                     if seed_index in input_loc:
                         color_pair = curses.color_pair(VIS_RED)
-                    self.terminal_seeds.addstr(i+1, j*3+int(j/4)+7, "{} ".format(hex(ord(show_char)))[2:], color_pair)
-                    self.terminal_seeds.addstr(i+1, j+int(j/4)+58, "{}".format(show_char), color_pair)
+                    self.terminal_seeds.addstr(line_i+1, j*3+int(j/4)+7, "{} ".format(hex(ord(show_char)))[2:], color_pair)
+                    self.terminal_seeds.addstr(line_i+1, j+int(j/4)+58, "{}".format(show_char), color_pair)
 
             self.terminal_seeds.noutrefresh()
 
@@ -162,14 +168,21 @@ class Visualizer:
             self.terminal_outs.addstr(output_high - 1, 11, "rror")
             self.terminal_outs.noutrefresh()
 
-            if self.stdscr.getch() == VIS_Q:
-                return QUIT_FUZZ
-            elif self.stdscr.getch() == VIS_S:
-                self.showgraph_switch = True
-            elif self.stdscr.getch() == VIS_N:
-                self.showgraph_switch = False
+            self.charoperation(self.stdscr.getch(), layout_x)
 
-        return USE_INITNUM
+        return self.retflag
+
+    def charoperation(self, char, layout_x):
+        if char == VIS_X:
+            self.seedline = self.seedline + 1 if self.seedline < layout_x else self.seedline
+        elif char == VIS_Z:
+            self.seedline = self.seedline - 1 if self.seedline > 0 else 0
+        elif char == VIS_S:
+            self.showgraph_switch = True
+        elif char == VIS_N:
+            self.showgraph_switch = False
+        elif char == VIS_Q:
+            self.retflag = VIS_Q
 
     def showGraph(self, filepath_graph: str, cggraph: 'Graph', cfggraph: 'Graph'):
         if self.showgraph_switch:

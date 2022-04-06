@@ -69,11 +69,13 @@
 //// Maximum length memory/string buffer for strcmp(), strncmp() and memcmp() functions.
 //const uint8_t maxCmpLen = 32;
 
+#define SHMGET_SIZE 4294967296  // 4*1024*1024*1024  4GB
 int id = 0;
 char* data = NULL;
 int savelen = 15;
 int interlen = 16;
 char buf[1024*1024];
+
 
 // The end of analysis.
 static void saveCovOnEnd() {
@@ -229,13 +231,13 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     
     //memory share
     key_t id_shm = 124816;
-    id = shmget(id_shm, 512 * 1024 * 1024, IPC_CREAT | 0777);
+    id = shmget(id_shm, SHMGET_SIZE, IPC_CREAT | 0777);
     // srand((unsigned)time(NULL));
     // id_shm = rand();
     while (id < 0 ) {
         // srand(id_shm);
         id_shm = rand();
-        id = shmget(id_shm, 512 * 1024 * 1024, IPC_CREAT | 0777);
+        id = shmget(id_shm, SHMGET_SIZE, IPC_CREAT | 0777);
     }
 
     data = (char *)shmat(id, NULL, 0);

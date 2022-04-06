@@ -103,7 +103,7 @@ def mainFuzzer():
             # 5 visualize
             res = vis.display(execute_seed, set(stloc_list), mut_stdout, mut_stderr,
                               "Coarse-Grained", len(sch.coveragepath))
-            if res == QUIT_FUZZ:
+            if res == VIS_Q:
                 sch.quitFuzz()
         LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_coarse_dict)
 
@@ -145,7 +145,7 @@ def mainFuzzer():
                 # 5 visualize
                 res = vis.display(execute_seed, set(stloc_list), mut_stdout, mut_stderr,
                                   "Fine-Grained", len(sch.coveragepath))
-                if res == QUIT_FUZZ:
+                if res == VIS_Q:
                     sch.quitFuzz()
             LOG(LOG_DEBUG, LOG_FUNCINFO(), st_key, st_coarseval, fineloc_list)
 
@@ -183,11 +183,13 @@ def mainFuzzer():
                 # Comparison of global optimal values to achieve updated parameters
                 optrpt_dict = optrpt_dict if ret_seed == opt_seed else strpt_dict
                 opt_seed = ret_seed
-                if before_locmapdet_dict == locmapdet_dict and not before_locmapdet_dict and not locmapdet_dict:
+                # if before_locmapdet_dict == locmapdet_dict and not before_locmapdet_dict and not locmapdet_dict:
+                #     break
+                if before_locmapdet_dict == locmapdet_dict and not before_locmapdet_dict:
                     break
                 before_locmapdet_dict = locmapdet_dict
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), locmapdet_dict, content, st_key, fineloc_list, showlog=True)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), locmapdet_dict, content, st_key, fineloc_list)
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovcont_list, execute_seed.location, ret_seed.content, type_infer_set)
 
                 if TYPE_SOLVED in type_infer_set:
@@ -204,11 +206,11 @@ def mainFuzzer():
 
                 # 5 visualize
                 res = vis.display(ret_seed, set(fineloc_list), st_stdout, st_stderr, "Strategy", len(sch.coveragepath))
-                if res == QUIT_FUZZ:
+                if res == VIS_Q:
                     sch.quitFuzz()
 
         # Increase the input length when the number of constraints does not change in the program
-        if before_coverage == len(sch.coveragepath) and sch.expandnums < SCH_EXPAND_MAX:
+        if before_coverage == len(sch.coveragepath) and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
             sch.expandnums += 1
             sch.addSeeds(SCH_LOOP_SEED, [
                 StructSeed(path_mutseeds + getTimeStr() + EXPAND_SEED, init_seed.content + init_seed.content,

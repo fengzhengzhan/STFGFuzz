@@ -12,7 +12,6 @@ class StructTarget:
         self.tfunc: str = tfunc
         self.tline: int = tline
 
-
 # The structure stores information about the seed file.
 class StructSeed:
     def __init__(self, filename: str, content: str, seedtype: int, location: set):

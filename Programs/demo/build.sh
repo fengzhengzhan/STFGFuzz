@@ -90,7 +90,7 @@ then
 				echo -e "Error Parameters."
 			fi
 		fi
-		echo "\n"
+		echo -e "\n"
 		
 	fi
 

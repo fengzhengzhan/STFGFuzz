@@ -42,9 +42,9 @@ class Analyzer:
         shmat.argtypes = [c_int, POINTER(c_void_p), c_int]
         shmat.restype = c_void_p
 
-        shmid = shmget(self.shm_key, 512 * 1024 * 1024, 0o666)
+        shmid = shmget(self.shm_key, 4294967296, 0o777)  # 4*1024*1024*1024 4GB
         if shmid < 0:
-            raise Exception("Error System not infected.")
+            raise Exception("Error System not shared.")
 
         addr = shmat(shmid, None, 0)
         # Get the length of cmpcovshm contents.
@@ -62,7 +62,9 @@ class Analyzer:
         # fixme .decode("utf-8", "ignore")
         cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * pieces, over).decode("utf-8")
         cmpcovshm_str = cmpcovshm_str[16:-1]
+
         self.rt.shmctl(shmid, 0, 0)
+
 
         # Content to json
         cmpcovshm_str = '{"' + ANA_CMPCOVSHM_NAME + '":[' + cmpcovshm_str + ']}'

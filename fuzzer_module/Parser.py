@@ -18,16 +18,15 @@ def handleStrMagic(seed_loc, bytes_infer) -> dict:
     return change_inputmap
 
 def strConverUnival(value):
-    unique_val = USE_INITNUM
-    if isinstance(value, int):  # Type of int converse hex characters to compare distance.
-        value = str(hex(value)[2:])
-
     if isinstance(value, str):
+        unique_val = USE_INITNUM
         u = 0
         for str_i in range(0, len(value)):
             u = u * PAR_CONVER_BIT
             u += ord(value[str_i])
         unique_val = u
+    else:
+        raise Exception("Error ConverUnical Type")
     return unique_val
 
 # todo 将单字节变异变成对总长度的+1 -1 运算
@@ -35,10 +34,11 @@ def handleDistanceNum(opt_seed, mut_seed, st_loc, bytes_infer, sch) -> dict:
     ret_seed = mut_seed
     change_inputmap = {}
 
-    val00 = strConverUnival(int(bytes_infer.var0_cont[0]))
-    val01 = strConverUnival(int(bytes_infer.var0_cont[1]))
-    val10 = strConverUnival(int(bytes_infer.var1_cont[0]))
-    val11 = strConverUnival(int(bytes_infer.var1_cont[1]))
+    # Type of int converse hex characters to compare distance.
+    val00 = strConverUnival(str(hex(int(bytes_infer.var0_cont[0]))[2:]))
+    val01 = strConverUnival(str(hex(int(bytes_infer.var0_cont[1]))[2:]))
+    val10 = strConverUnival(str(hex(int(bytes_infer.var1_cont[0]))[2:]))
+    val11 = strConverUnival(str(hex(int(bytes_infer.var1_cont[1]))[2:]))
     LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, mut_seed.content)
     # According distance to return which seed.
     if abs(val00-val10) > abs(val01-val11):  # Distance difference in a constraint.
