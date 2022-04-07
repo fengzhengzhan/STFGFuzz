@@ -97,11 +97,11 @@ class Visualizer:
             self.terminal_status.addstr(5, 1, "   Stage: {}".format(stagestr))
             self.terminal_status.addstr(6, 1, "Coverage: {} / {}".format(covernum, self.num_pcguard))
 
-            self.terminal_status.addstr(ter_high-1, 2, "Q", curses.color_pair(VIS_MAGENTA))
+            self.terminal_status.addstr(ter_high-1, 2, "Q", curses.color_pair(VIS_YELLOW))
             self.terminal_status.addstr(ter_high-1, 3, "uit")
-            self.terminal_status.addstr(ter_high-1, 8, "S", curses.color_pair(VIS_MAGENTA))
+            self.terminal_status.addstr(ter_high-1, 8, "S", curses.color_pair(VIS_YELLOW))
             self.terminal_status.addstr(ter_high-1, 9, "how_graph")
-            self.terminal_status.addstr(ter_high-1, 20, "N", curses.color_pair(VIS_MAGENTA))
+            self.terminal_status.addstr(ter_high-1, 20, "N", curses.color_pair(VIS_YELLOW))
             self.terminal_status.addstr(ter_high-1, 21, "ot_show")
 
             self.terminal_status.noutrefresh()
@@ -137,6 +137,13 @@ class Visualizer:
                     self.terminal_seeds.addstr(line_i+1, j*3+int(j/4)+7, "{} ".format(hex(ord(show_char)))[2:], color_pair)
                     self.terminal_seeds.addstr(line_i+1, j+int(j/4)+58, "{}".format(show_char), color_pair)
 
+            self.terminal_seeds.addstr(high + 2 - 1, 2, "Z", curses.color_pair(VIS_YELLOW))
+            self.terminal_seeds.addstr(high + 2 - 1, 3, "up")
+            self.terminal_seeds.addstr(high + 2 - 1, 7, "X", curses.color_pair(VIS_YELLOW))
+            self.terminal_seeds.addstr(high + 2 - 1, 8, "down")
+
+            self.terminal_seeds.addstr(high+2 - 1, 65, "Lines:")
+            self.terminal_seeds.addstr(high+2 - 1, 65+7, "{}".format(layout_x), curses.color_pair(VIS_YELLOW))
             self.terminal_seeds.noutrefresh()
 
             # Show the program output

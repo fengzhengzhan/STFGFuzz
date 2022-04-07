@@ -1,3 +1,4 @@
+import queue
 import time
 
 from fuzzer_module import *
@@ -41,10 +42,10 @@ def mainFuzzer():
         temp_listq = []
         for each in init_seeds_list:
             temp_listq.append(StructSeed(path_mutseeds + each, "", SEED_INIT, set()))
-        sch.addSeeds(SCH_LOOP_SEED, temp_listq)
+        sch.addq(SCH_LOOP_SEED, temp_listq)
     else:
-        sch.addSeeds(SCH_LOOP_SEED,
-                     [StructSeed(path_mutseeds + AUTO_SEED, Mutator.getFillStr(64), SEED_INIT, set()), ])
+        sch.addq(SCH_LOOP_SEED,
+                 [StructSeed(path_mutseeds + AUTO_SEED, Mutator.getFillStr(64), SEED_INIT, set()), ])
 
     '''Fuzzing test cycle'''
     while not sch.isEmpty(SCH_LOOP_SEED):
@@ -156,63 +157,66 @@ def mainFuzzer():
             '''Type detect and Mutation strategy'''
             fineloc_list.sort()
             st_seed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, ST_STR + str(vis.loop), fineloc_list)
-            sch.addSeeds(SCH_MUT_SEED, [st_seed, ])
+            sch.addq(SCH_MUT_SEED, [st_seed, ])
             optrpt_dict = initrpt_dict
             opt_seed = init_seed
             before_locmapdet_dict = {}
+            sch.strategyq.put(StructMutStrategy(TYPE_DEFAULT, 0, len(fineloc_list), 0, 2))
             # Type Detection and Breaking the Constraint Cycle (At lease 2 loops)
-            while not sch.isEmpty(SCH_MUT_SEED):
-                vis.total += 1
-                execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
-                st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
-                sch.saveCrash(file_crash_csv, path_crashseeds, execute_seed, st_stdout, st_stderr)
+            while not sch.strategyq.empty():
+                strategy = sch.strategyq.get()
+                while not sch.isEmpty(SCH_MUT_SEED):
+                    vis.total += 1
+                    execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
+                    st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+                    sch.saveCrash(file_crash_csv, path_crashseeds, execute_seed, st_stdout, st_stderr)
 
-                # 2 cmp instruction
-                # Generate analysis reports.
-                cmpcovcont_list, content = ana.gainTraceRpt(st_stdout)
-                strpt_dict, strpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)  # report
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, execute_seed.content)
+                    # 2 cmp instruction
+                    # Generate analysis reports.
+                    cmpcovcont_list, content = ana.gainTraceRpt(st_stdout)
+                    strpt_dict, strpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)  # report
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, execute_seed.content)
 
-                # 3 cmp type
-                # Return cmp type and mutate strategy according to typeDetect
-                ret_seed, type_infer_set, locmapdet_dict = Parser.typeDetect(
-                    opt_seed, execute_seed, fineloc_list, st_key,
-                    optrpt_dict, strpt_dict, sch
-                )
+                    # 3 cmp type
+                    # Return cmp type and mutate strategy according to typeDetect
+                    ret_seed, type_infer_set, locmapdet_dict = Parser.typeDetect(
+                        opt_seed, execute_seed, fineloc_list, st_key,
+                        optrpt_dict, strpt_dict, strategy, sch
+                    )
 
-                # Comparison of global optimal values to achieve updated parameters
-                optrpt_dict = optrpt_dict if ret_seed == opt_seed else strpt_dict
-                opt_seed = ret_seed
-                # if before_locmapdet_dict == locmapdet_dict and not before_locmapdet_dict and not locmapdet_dict:
-                #     break
-                if before_locmapdet_dict == locmapdet_dict and not before_locmapdet_dict:
-                    break
-                before_locmapdet_dict = locmapdet_dict
+                    # Comparison of global optimal values to achieve updated parameters
+                    optrpt_dict = optrpt_dict if ret_seed == opt_seed else strpt_dict
+                    opt_seed = ret_seed
+                    # if before_locmapdet_dict == locmapdet_dict and not before_locmapdet_dict and not locmapdet_dict:
+                    #     break
+                    if before_locmapdet_dict == locmapdet_dict and not before_locmapdet_dict:
+                        break
+                    before_locmapdet_dict = locmapdet_dict
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), locmapdet_dict, content, st_key, fineloc_list)
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovcont_list, execute_seed.location, ret_seed.content, type_infer_set)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), locmapdet_dict, content, st_key, fineloc_list)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovcont_list, execute_seed.location, ret_seed.content, type_infer_set)
 
-                if TYPE_SOLVED in type_infer_set:
-                    sch.solved_cmpset.add(st_key)
-                    sch.freeze_bytes = sch.freeze_bytes | set(fineloc_list)
-                    sch.freezeid_rpt.add(st_key)
-                    sch.addSeeds(SCH_LOOP_SEED, [ret_seed, ])
+                    if TYPE_SOLVED in type_infer_set:
+                        sch.solved_cmpset.add(st_key)
+                        sch.freeze_bytes = sch.freeze_bytes | set(fineloc_list)
+                        sch.freezeid_rpt.add(st_key)
+                        sch.addq(SCH_LOOP_SEED, [ret_seed, ])
 
-                # Passing the constraint based on the number of cycles and the distance between comparisons.
-                st_seed = Mutator.mutLocFromMap(ret_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict)
+                    # Passing the constraint based on the number of cycles and the distance between comparisons.
+                    st_seed = Mutator.mutLocFromMap(ret_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict)
 
-                if st_seed is not None:
-                    sch.addSeeds(SCH_MUT_SEED, [st_seed, ])
+                    if st_seed is not None:
+                        sch.addq(SCH_MUT_SEED, [st_seed, ])
 
-                # 5 visualize
-                res = vis.display(ret_seed, set(fineloc_list), st_stdout, st_stderr, "Strategy", len(sch.coveragepath))
-                if res == VIS_Q:
-                    sch.quitFuzz()
+                    # 5 visualize
+                    res = vis.display(ret_seed, set(fineloc_list), st_stdout, st_stderr, "Strategy", len(sch.coveragepath))
+                    if res == VIS_Q:
+                        sch.quitFuzz()
 
         # Increase the input length when the number of constraints does not change in the program
         if before_coverage == len(sch.coveragepath) and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
             sch.expandnums += 1
-            sch.addSeeds(SCH_LOOP_SEED, [
+            sch.addq(SCH_LOOP_SEED, [
                 StructSeed(path_mutseeds + getTimeStr() + EXPAND_SEED, init_seed.content + init_seed.content,
                            MUT_SEED_INSERT, set())
             ])
@@ -220,7 +224,7 @@ def mainFuzzer():
 
         # Endless fuzzing
         if sch.isEmpty(SCH_LOOP_SEED):
-            sch.addSeeds(SCH_LOOP_SEED, [init_seed, ])
+            sch.addq(SCH_LOOP_SEED, [init_seed, ])
 
         # Mutual mapping relationship
         # Key: cmpid  Value: branch_order cmp_type input_bytes branches

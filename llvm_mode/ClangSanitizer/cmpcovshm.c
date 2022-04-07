@@ -69,7 +69,7 @@
 //// Maximum length memory/string buffer for strcmp(), strncmp() and memcmp() functions.
 //const uint8_t maxCmpLen = 32;
 
-#define SHMGET_SIZE 4294967296  // 4*1024*1024*1024  4GB
+#define SHMGET_SIZE 2147483648  // 2*1024*1024*1024  2GB
 int id = 0;
 char* data = NULL;
 int savelen = 15;

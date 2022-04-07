@@ -92,14 +92,14 @@ int main(int argc, char *argv[]) {
     uint16_t z = strtouq(s3, NULL, 16);
     // printf("%d %d\n", z, 0xBEEF);
     switch (z) {
-    case 0xBEEF:
-        break;
-    
     case 0xFEEB:
         return 1;
     
     case 0xEFBE:
         return 1;
+    
+    case 0xBEEF:
+        break;
 
     default:
         return 1;

@@ -42,7 +42,7 @@ class Analyzer:
         shmat.argtypes = [c_int, POINTER(c_void_p), c_int]
         shmat.restype = c_void_p
 
-        shmid = shmget(self.shm_key, 4294967296, 0o777)  # 4*1024*1024*1024 4GB
+        shmid = shmget(self.shm_key, 2147483648, 0o777)  # 2*1024*1024*1024 2GB
         if shmid < 0:
             raise Exception("Error System not shared.")
 

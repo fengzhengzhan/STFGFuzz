@@ -10,6 +10,7 @@ class Scheduler:
         self.mutateq: Queue[StructSeed] = Queue(maxsize=0)
         self.importantq: Queue[StructSeed] = Queue(maxsize=0)
         self.deleteq: Queue[StructSeed] = Queue(maxsize=0)
+        self.strategyq: Queue[StructMutStrategy] = Queue(maxsize=0)
 
         self.loc_coarse_list: 'list[int]' = []
         self.loc_fine_list: 'list[int]' = []
@@ -19,12 +20,9 @@ class Scheduler:
         self.solved_cmpset = set()
 
         self.coveragepath = set()
-
-        self.mutlocnums = 0
-        self.switchnums = 1
-        self.expandnums = 0
-
         self.unique_crash = set()
+
+        self.expandnums = 0
 
     def initEachloop(self):
         self.loc_coarse_list = []
@@ -33,21 +31,23 @@ class Scheduler:
         self.mutlocnums = 0
 
     def selectOneSeed(self, mode: int, mutseed=None) -> StructSeed:
+        temp_one = None
         if mode == SCH_LOOP_SEED:
-            temp_one = self.seedq.get()
+            temp_one = self.seedq.get() if not self.seedq.empty() else temp_one
         elif mode == SCH_MUT_SEED:
-            temp_one = self.mutateq.get()
+            temp_one = self.mutateq.get() if not self.mutateq.empty() else temp_one
         elif mode == SCH_THIS_SEED:
             temp_one = mutseed
-        else:
+
+        if temp_one == None:
             raise Exception("Error: mode type.")
         if SCH_SAVEASFILE:
             saveAsFile(temp_one.content, temp_one.filename)
         self.addDeleteq(temp_one)
         return temp_one
 
-    def addSeeds(self, mode: int, structseed_list: 'list[StructSeed]'):
-        for each in structseed_list:
+    def addq(self, mode: int, struct_list: 'list[StructSeed]'):
+        for each in struct_list:
             if mode == SCH_LOOP_SEED:
                 self.seedq.put(each)
             elif mode == SCH_MUT_SEED:

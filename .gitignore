@@ -37,4 +37,5 @@ Programs/base64/data_patchloc/
 Programs/base64/data_graph/
 Programs/STFGFuzzer.log
 Programs/STFGFuzzer_print.log
+Programs/STFGFuzzer_show.log
 fuzzer_module/__pycache__/
