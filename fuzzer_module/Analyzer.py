@@ -139,8 +139,8 @@ class Analyzer:
             typeflag = each[0]
             if typeflag in CMPSET:
                 cmpid = str(each[1][2:]+each[2][2:])
-                if cmpid in freezeid_rpt:
-                    continue
+                # if cmpid in freezeid_rpt:
+                #     continue
             if typeflag == INIT_PC_GUARD:
                 pass
             elif typeflag == NUM_PC_GUARD:

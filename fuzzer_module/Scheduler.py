@@ -40,7 +40,7 @@ class Scheduler:
             temp_one = mutseed
 
         if temp_one == None:
-            raise Exception("Error: mode type.")
+            raise Exception("Error: seed None.")
         if SCH_SAVEASFILE:
             saveAsFile(temp_one.content, temp_one.filename)
         self.addDeleteq(temp_one)

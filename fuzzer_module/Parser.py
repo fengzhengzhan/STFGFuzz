@@ -205,6 +205,7 @@ def typeDetect(opt_seed, seed: 'StructSeed', st_loc, st_key: 'cmpid',
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, locmapdet_dict)
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, cont_list, ini[0], ini[1], st[0], st[1])
             elif optrpt_dict[st_key][0].stvalue[0] == COV_SWITCH:
+                strategy.endloop = optrpt_dict[st_key][0].stvalue[3]
                 for len_i in range(min(len(optrpt_dict[st_key]), len(strpt_dict[st_key]))):
                     ini = optrpt_dict[st_key][len_i].stargs
                     st = strpt_dict[st_key][len_i].stargs
@@ -215,7 +216,7 @@ def typeDetect(opt_seed, seed: 'StructSeed', st_loc, st_key: 'cmpid',
                     type_infer_list = detectCmpType(bytes_flag, cont_list, strpt_dict[st_key][len_i])
                     ret_seed, locmapdet_dict = exeTypeStrategy(opt_seed, seed, st_loc,
                                                                type_infer_list, bytes_flag, cont_list, strategy)
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, cont_list)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, cont_list, strategy.curloop, ini)
 
     elif (st_key in optrpt_dict) and (st_key not in strpt_dict):
         pass

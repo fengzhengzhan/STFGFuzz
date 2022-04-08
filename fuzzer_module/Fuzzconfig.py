@@ -227,7 +227,7 @@ SCH_THIS_SEED = 223
 
 SCH_SAVEASFILE = True
 
-SCH_EXPAND_MAXSIZE = 128 * 1024  # 128KB
+SCH_EXPAND_MAXSIZE = 64 * 1024  # 128KB
 
 SCH_SLID_WINDOW = 8
 
@@ -288,9 +288,9 @@ def LOG(loggingtype: str, funcinfo, *args, showlog=False) -> None:
     for content in args:
         logstr += "{} || ".format(content)
     if showlog:
-        print("\n\n"+logstr, end="")
+        print("\n"+logstr+"\n", end="")
         with open(PROGRAMS + os.sep + FUZZPRINTLOG, "a+") as f:
-            f.write("\n\n"+logstr)
+            f.write("\n"+logstr+"\n")
 
     # logging
     if loggingtype == LOG_DEBUG:

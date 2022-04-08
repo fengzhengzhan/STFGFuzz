@@ -28,7 +28,7 @@ def mainFuzzer():
     vis = Visualizer.Visualizer()
     sch = Scheduler.Scheduler()
     ana = Analyzer.Analyzer()
-    cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR+program_name+GEN_TRACEBC_SUFFIX)
+    cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
     cggraph, map_funcTocgname = Builder.getCG(cglist)
     cfggraph_dict, map_guardTocfgname = Builder.getCFG(cfglist)
     # vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
@@ -156,15 +156,20 @@ def mainFuzzer():
 
             '''Type detect and Mutation strategy'''
             fineloc_list.sort()
-            st_seed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, ST_STR + str(vis.loop), fineloc_list)
-            sch.addq(SCH_MUT_SEED, [st_seed, ])
+            ststart_seed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, ST_STR + str(vis.loop), fineloc_list)
+            # sch.addq(SCH_MUT_SEED, [st_seed, ])
             optrpt_dict = initrpt_dict
             opt_seed = init_seed
             before_locmapdet_dict = {}
             sch.strategyq.put(StructMutStrategy(TYPE_DEFAULT, 0, len(fineloc_list), 0, 2))
+            strategy = sch.strategyq.get()
             # Type Detection and Breaking the Constraint Cycle (At lease 2 loops)
-            while not sch.strategyq.empty():
-                strategy = sch.strategyq.get()
+            while strategy.curloop < strategy.endloop or not sch.strategyq.empty():
+                # print(strategy.curloop)
+                strategy.curloop += 1
+                strategy.curnum = 0
+                sch.addq(SCH_MUT_SEED, [ststart_seed, ])
+
                 while not sch.isEmpty(SCH_MUT_SEED):
                     vis.total += 1
                     execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
@@ -194,33 +199,38 @@ def mainFuzzer():
                     before_locmapdet_dict = locmapdet_dict
 
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), locmapdet_dict, content, st_key, fineloc_list)
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovcont_list, execute_seed.location, ret_seed.content, type_infer_set)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curloop, locmapdet_dict, ret_seed.content, type_infer_set)
+
+                    # 5 visualize
+                    res = vis.display(
+                        ret_seed, set(fineloc_list), st_stdout, st_stderr, "Strategy", len(sch.coveragepath)
+                    )
+                    if res == VIS_Q:
+                        sch.quitFuzz()
 
                     if TYPE_SOLVED in type_infer_set:
                         sch.solved_cmpset.add(st_key)
                         sch.freeze_bytes = sch.freeze_bytes | set(fineloc_list)
                         sch.freezeid_rpt.add(st_key)
                         sch.addq(SCH_LOOP_SEED, [ret_seed, ])
+                        break
 
                     # Passing the constraint based on the number of cycles and the distance between comparisons.
-                    st_seed = Mutator.mutLocFromMap(ret_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict)
-
+                    st_seed = Mutator.mutLocFromMap(
+                        ret_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict
+                    )
                     if st_seed is not None:
                         sch.addq(SCH_MUT_SEED, [st_seed, ])
 
-                    # 5 visualize
-                    res = vis.display(ret_seed, set(fineloc_list), st_stdout, st_stderr, "Strategy", len(sch.coveragepath))
-                    if res == VIS_Q:
-                        sch.quitFuzz()
-
-        # Increase the input length when the number of constraints does not change in the program
-        if before_coverage == len(sch.coveragepath) and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
-            sch.expandnums += 1
-            sch.addq(SCH_LOOP_SEED, [
-                StructSeed(path_mutseeds + getTimeStr() + EXPAND_SEED, init_seed.content + init_seed.content,
-                           MUT_SEED_INSERT, set())
-            ])
-        before_coverage = len(sch.coveragepath)
+        # Increase the input length when the number of constraints does not change in the program.
+        # If there is a change in the increase length then increase the length.
+        # if before_coverage == len(sch.coveragepath) and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
+        #     sch.expandnums += 1
+        #     sch.addq(SCH_LOOP_SEED, [
+        #         StructSeed(path_mutseeds + getTimeStr() + EXPAND_SEED, init_seed.content + init_seed.content,
+        #                    MUT_SEED_INSERT, set())
+        #     ])
+        # before_coverage = len(sch.coveragepath)
 
         # Endless fuzzing
         if sch.isEmpty(SCH_LOOP_SEED):
@@ -231,10 +241,7 @@ def mainFuzzer():
         # 4 branches
 
 
-
 if __name__ == "__main__":
     # python3.7 STFGFuzzer.py -n demo -- ./Programs/demo/code_Bin/demo -f @@
     # python3.7 STFGFuzzer.py -n base64 -- ./Programs/base64/code_Bin/base64 -d @@
     mainFuzzer()
-
-
