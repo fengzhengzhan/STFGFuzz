@@ -145,7 +145,6 @@ def mainFuzzer():
         # Compare instruction type speculation based on input mapping,
         # then try to pass the corresponding constraint (1-2 rounds).
         for st_key, st_loclist in cmpmaploc_dict.items():
-
             # False positive comparison if all input bytes are covered
             if len(st_loclist) == len(init_seed.content):
                 continue
@@ -193,8 +192,8 @@ def mainFuzzer():
                         break
                     before_locmapdet_dict = locmapdet_dict
 
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), locmapdet_dict, content, st_key, st_loclist)
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curloop, locmapdet_dict, ret_seed.content, type_infer_set)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), locmapdet_dict, content, st_key, st_loclist, ret_seed.content, showlog=True)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curloop, locmapdet_dict, type_infer_set)
 
                     # 5 visualize
                     res = vis.display(
