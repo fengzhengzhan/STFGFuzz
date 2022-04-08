@@ -13,7 +13,6 @@ class Scheduler:
         self.strategyq: Queue[StructMutStrategy] = Queue(maxsize=0)
 
         self.loc_coarse_list: 'list[int]' = []
-        self.loc_fine_list: 'list[int]' = []
         self.slid_window: int = SCH_SLID_WINDOW
         self.freeze_bytes: set = set()
         self.freezeid_rpt = set()
@@ -26,7 +25,6 @@ class Scheduler:
 
     def initEachloop(self):
         self.loc_coarse_list = []
-        self.loc_fine_list = []
         self.slid_window = SCH_SLID_WINDOW
         self.mutlocnums = 0
 

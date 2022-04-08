@@ -218,28 +218,29 @@ class Analyzer:
     Tracking Comparison Module.
     '''
 
-    def compareRptToLoc(self, seed: StructSeed,
-                        initrpt_dict: 'dict[str:StructCmpIns]', initrpt_set: set, mutrpt_dict, mutrpt_set):
+    def compareRptToLoc(self, initrpt_dict: 'dict[str:StructCmpIns]', initrpt_set: set, mutrpt_dict, mutrpt_set):
         interset = initrpt_set & mutrpt_set  # Intersection set
         symdiffset = initrpt_set ^ mutrpt_set  # Symmetric Difference set
-        cmpmaploc_rptdict = {}
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), seed.location, interset, symdiffset)
+        cmpmaploc_rptset = set()
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), interset, symdiffset)
 
+        # Intersection set
         if len(interset) > 0:
             # compare whether the parameters of the same constraint are different
             for key_i in interset:
                 if len(initrpt_dict[key_i]) != len(mutrpt_dict[key_i]):
-                    cmpmaploc_rptdict[key_i] = seed.location
+                    cmpmaploc_rptset.add(key_i)
                 else:
                     for l_j in range(len(initrpt_dict[key_i])):
                         for larg_k in range(len(initrpt_dict[key_i][l_j].stargs)):
                             if initrpt_dict[key_i][l_j].stargs[larg_k] != mutrpt_dict[key_i][l_j].stargs[larg_k]:
-                                cmpmaploc_rptdict[key_i] = seed.location
+                                cmpmaploc_rptset.add(key_i)
+        # Symmetric Difference set
         if len(symdiffset) > 0:
             for key_i in symdiffset:
-                cmpmaploc_rptdict[key_i] = set(seed.location)
+                cmpmaploc_rptset.add(key_i)
 
-        return cmpmaploc_rptdict
+        return cmpmaploc_rptset
 
     def getNumOfPcguard(self):
         if self.num_pcguard == -1:
