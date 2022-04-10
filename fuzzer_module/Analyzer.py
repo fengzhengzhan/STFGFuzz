@@ -69,7 +69,7 @@ class Analyzer:
         # Content to json
         cmpcovshm_str = '{"' + ANA_CMPCOVSHM_NAME + '":[' + cmpcovshm_str + ']}'
         # print(cmpcovshm_str)
-        cmpcovshm_json = json.loads(cmpcovshm_str)
+        cmpcovshm_json = json.loads(cmpcovshm_str, strict=False)
         cmpcovshm_list = cmpcovshm_json[ANA_CMPCOVSHM_NAME]
         # print(type(cmpcovshm_json[ANA_CMPCOVSHM_NAME]), cmpcovshm_json[ANA_CMPCOVSHM_NAME])
         LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovshm_list)

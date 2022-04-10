@@ -103,7 +103,7 @@ def mainFuzzer():
             if res == VIS_Q:
                 sch.quitFuzz()
             LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptset)
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), need_fine_list)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), need_fine_list, showlog=True)
 
         '''Fine-Grained O(m)'''
         # Mutate seeds to find where to change. Then perform to a directed mutate.

@@ -14,8 +14,8 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-VIS_TERMINAL = False
-# VIS_TERMINAL = True
+# VIS_TERMINAL = False
+VIS_TERMINAL = True
 VIS_SHOWGRAPH = True
 
 AUTO_SEED = "auto.seed"
@@ -287,7 +287,7 @@ def LOG(loggingtype: str, funcinfo, *args, showlog=False) -> None:
     logstr = "{}-> ".format(funcinfo)
     for content in args:
         logstr += "{} || ".format(content)
-    if showlog:
+    if showlog and not VIS_TERMINAL:
         print("\n"+logstr+"\n", end="")
         with open(PROGRAMS + os.sep + FUZZPRINTLOG, "a+") as f:
             f.write("\n"+logstr+"\n")
