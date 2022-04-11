@@ -48,7 +48,6 @@ COV_DIV8 = 'k'
 COV_GEP = 'l'
 
 
-
 # weak hook
 HOOK_MEMCMP = 'm'  # (call_pc, <s1"  "1s>, <s2"  "2s>, size_n, result)
 HOOK_STRNCMP = 'n'
@@ -153,9 +152,9 @@ BUI_LOC_INTERVAL = 4
 BUI_NODE_ST = "nodest"
 
 '''Comparator'''
-COM_PATCH = 'patch'
-COM_SANITIZER = 'sanitizer'
-COM_MANUAL = 'manual'
+COM_PATCH = '.patch'
+COM_SANITIZER = '.sanitizer'
+COM_MANUAL = '.manual'
 COM_PATCHSET = {USE_INITNUM, COM_PATCH, COM_SANITIZER, COM_MANUAL}
 
 COM_PATCH_FILE = 'errors_patch.info'

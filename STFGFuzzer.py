@@ -1,6 +1,3 @@
-import queue
-import time
-
 from fuzzer_module import *
 from fuzzer_module.Fuzzconfig import *
 
