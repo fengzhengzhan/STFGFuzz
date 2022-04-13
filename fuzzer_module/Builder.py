@@ -16,7 +16,7 @@ class Graph:
         self.dg.add_weighted_edges_from(edges_list)
 
 
-def getPatchInfo(program_name: str) -> 'dict[str:dict[int:dict[str:str]]]':
+def getBinaryInfo(program_name: str) -> 'dict[str:dict[int:dict[str:str]]]':
     """
     From data_patchloc/binaryline.info file parses strings into dictionaries.
     @return:
@@ -28,13 +28,13 @@ def getPatchInfo(program_name: str) -> 'dict[str:dict[int:dict[str:str]]]':
     patchline_sub = re.sub(pattern, ' ', patchline_info)
 
     # print(patchline_info)
-    patchline_dict = ast.literal_eval(patchline_sub)
-    # print(patchline_dict['main'])
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), patchline_info, patchline_sub, patchline_dict)
-    return patchline_dict
+    binline_dict = ast.literal_eval(patchline_sub)
+    # print(binline_dict['main'])
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), patchline_info, patchline_sub, binline_dict)
+    return binline_dict
 
 
-def getCG(cglist) -> (Graph, dict):
+def getCG(cglist):
     """
     Get the function Call Graph, the most important graph usually has only one.
     @param cglist:
@@ -46,7 +46,7 @@ def getCG(cglist) -> (Graph, dict):
         # for k, v in data.items():
         #     print(k,"->", v)
         # Constructing directed graph.
-        map_funcTocgname = {}
+        map_funcTocgnode = {}
         # Nodes
         nodes_list = []
         for node in data[BUI_NODES]:
@@ -54,7 +54,7 @@ def getCG(cglist) -> (Graph, dict):
                                {BUI_NODE_NUM: node[BUI_NODE_NUM],
                                 BUI_NODE_NAME: node[BUI_NODE_NAME],
                                 BUI_NODE_LABEL: node[BUI_NODE_LABEL]}))
-            map_funcTocgname[node[BUI_NODE_LABEL][1:-1]] = node[BUI_NODE_NAME]
+            map_funcTocgnode[node[BUI_NODE_LABEL][1:-1]] = node[BUI_NODE_NAME]
         # Edges
         edges_list = []
         for edge in data[BUI_EDGES]:
@@ -65,16 +65,17 @@ def getCG(cglist) -> (Graph, dict):
         LOG(LOG_DEBUG, LOG_FUNCINFO(), nodes_list, edges_list)
         cggraph = Graph(data[BUI_NAME].split(" ")[-1], nodes_list, edges_list)
 
-    return cggraph, map_funcTocgname
+    return cggraph, map_funcTocgnode
 
 
-def getCFG(cfglist) -> 'dict[str:Graph]':
+def getCFG(cfglist, funcToasm_dict):
     """
     Get the
     @param cfglist:
     @return:
     """
-    map_guardTocfgname: dict[str:str] = {}
+    map_guardTocfgnode: 'dict[guardnum:node]' = {}
+    map_funcTotargetnode: 'dict[funcname:node]' = {}
     cfggraph_dict = {}
     for jsonfile in cfglist:
         # funcname = jsonfile.split(os.sep)[-1][1:-9]
@@ -91,12 +92,14 @@ def getCFG(cfglist) -> 'dict[str:Graph]':
             nodes_list = []
             for node in data[BUI_NODES]:
                 pattern = re.compile(BUI_GUARD_RE)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), jsonfile, node[BUI_NODE_NAME], node[BUI_NODE_LABEL])
+
                 results = pattern.findall(node[BUI_NODE_LABEL])
                 temp_intlist = []
                 for one in results:
                     temp_guardnum = int(int(one, 10) / BUI_LOC_INTERVAL)
                     temp_intlist.append(temp_guardnum)
-                    map_guardTocfgname[temp_guardnum] = node[BUI_NODE_NAME]
+                    map_guardTocfgnode[temp_guardnum] = node[BUI_NODE_NAME]
 
                 nodes_list.append((node[BUI_NODE_NUM],
                                    {BUI_NODE_NUM: node[BUI_NODE_NUM],
@@ -115,7 +118,7 @@ def getCFG(cfglist) -> 'dict[str:Graph]':
             cfggraph = Graph(temp_graphname, nodes_list, edges_list)
             cfggraph_dict[temp_graphname] = cfggraph
 
-    return cfggraph_dict, map_guardTocfgname
+    return cfggraph_dict, map_guardTocfgnode, map_funcTotargetnode
 
 
 def buildConstraint(start_node, end_node, st_list):
@@ -127,9 +130,4 @@ def buildConstraint(start_node, end_node, st_list):
     @return:
     """
 
-
-
-
-if __name__ == "__main__":
-    getPatchInfo("demo")
 

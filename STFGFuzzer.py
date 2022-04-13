@@ -25,9 +25,19 @@ def mainFuzzer():
     vis = Visualizer.Visualizer()
     sch = Scheduler.Scheduler()
     ana = Analyzer.Analyzer()
+    # Directed Location
+    binline_dict = Builder.getBinaryInfo(program_name)
+    target_dict = Comparator.getTarget(program_name)
+    funcToasm_dict = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
+    # Graph Information
     cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
-    cggraph, map_funcTocgname = Builder.getCG(cglist)
-    cfggraph_dict, map_guardTocfgname = Builder.getCFG(cfglist)
+    cggraph, map_funcTocgnode = Builder.getCG(cglist)
+    cfggraph_dict, map_guardTocfgnode = Builder.getCFG(cfglist, funcToasm_dict)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode)
+
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), target_dict, binline_dict)
+
+    raise Exception()
     # vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
 
     # Init Loop Variables
@@ -189,7 +199,8 @@ def mainFuzzer():
                         break
                     before_locmapdet_dict = locmapdet_dict
 
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), locmapdet_dict, content, st_key, st_loclist, ret_seed.content, showlog=True)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(),
+                        locmapdet_dict, content, st_key, st_loclist, ret_seed.content, showlog=True)
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curloop, locmapdet_dict, type_infer_set)
 
                     # 5 visualize

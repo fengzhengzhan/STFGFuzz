@@ -1,4 +1,5 @@
 import datetime
+import re
 import subprocess
 import time
 
@@ -44,6 +45,12 @@ def getFileContent(filepathname: str) -> str:
         file_cont += each
     return file_cont
 
+def delBrackets(source_str: str) -> str:
+    restr = r"\(.*?\)"
+    replace_str = re.sub(restr, "", source_str)
+    return str(replace_str)
+
+
 def runothercmd(cmd: str) -> (int, str, str):
     """
     run cmd to get information from executable files or other tools
@@ -62,6 +69,7 @@ def runothercmd(cmd: str) -> (int, str, str):
     return std_out, std_err
 
 
-
+if __name__ == "__main__":
+    print(delPunctuation("bug"))
 
 

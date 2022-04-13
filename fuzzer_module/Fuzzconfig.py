@@ -14,8 +14,8 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-# VIS_TERMINAL = False
-VIS_TERMINAL = True
+VIS_TERMINAL = False
+# VIS_TERMINAL = True
 VIS_SHOWGRAPH = True
 
 AUTO_SEED = "auto.seed"
@@ -160,6 +160,12 @@ COM_PATCHSET = {USE_INITNUM, COM_PATCH, COM_SANITIZER, COM_MANUAL}
 COM_PATCH_FILE = 'errors_patch.info'
 COM_SANITIZER_FILE = 'errors_sanitizer.info'
 COM_MANUAL_FILE = "errors_manual.info"
+
+COM_BININ = "I"
+COM_BINFUNC = "F"
+COM_BINCOL = "C"
+COM_BINFILE = "N"
+COM_BINDIR = "D"
 
 '''Generator'''
 PROGRAMS = "Programs"

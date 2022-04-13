@@ -2,7 +2,7 @@ import re
 from fuzzer_module.Fuzzconfig import *
 
 
-def getDirectedLocation(program_name: str):
+def getTarget(program_name: str):
     """
     Get the required number of lines of directed functions corresponding to the binary block position.
     There are three types: git patch, sanitizer, manual.
@@ -28,10 +28,8 @@ def getDirectedLocation(program_name: str):
                 if re_cont is not None:
                     cont_groups = re_cont.groups()
                     # print(cont_groups)
-                    target_dict[target_num].additem(int(cont_groups[0]), cont_groups[1], int(cont_groups[2]))
+                    target_dict[target_num].additem(int(cont_groups[0]), delBrackets(cont_groups[1]), int(cont_groups[2]))
             target_num += 1
-
-
 
         if ext == COM_MANUAL:  # manual design
             # target:stack:funcname:line
@@ -45,18 +43,46 @@ def getDirectedLocation(program_name: str):
                     continue
                 numid = int(line[0])
                 if numid not in nums:
-                    nums[numid] = StructTarget([int(line[1])], [line[2]], [int(line[3])])
+                    nums[numid] = StructTarget([int(line[1])], [delBrackets(line[2])], [int(line[3])])
                 else:
-                    nums[numid].additem(int(line[1]), line[2], int(line[3]))
+                    nums[numid].additem(int(line[1]), delBrackets(line[2]), int(line[3]))
 
             for man_k, man_v in nums.items():
                 target_dict[target_num] = man_v
                 target_num += 1
 
-    print(target_dict, target_dict[2].ttrace, target_dict[2].tfunc, target_dict[2].tline)
+    # print(target_dict, target_dict[2].ttrace, target_dict[2].tfunc, target_dict[2].tline)
     return target_dict
 
-def reuseHistorySTFG():
+def getDirectedNodeLoc(binline_dict: dict, target_dict: 'dict[target_num:StructTarget]'):
+    funcToasm_dict: 'dict[funcname:list[asm, asm]]' = {}
+    for tar_k, tar_v in target_dict.items():
+        # print(tar_v.ttrace, tar_v.tfunc, tar_v.tline)
+        ttrace, tfunc, tline = tar_v.ttrace, tar_v.tfunc, tar_v.tline
+        for idx in range(len(ttrace)):
+            # Find the real key in CG Symbols.
+            temp_binkey = []
+            for bin_kj in binline_dict.keys():
+                findres = bin_kj.find(tfunc[idx])
+                if findres != -1:
+                    temp_binkey.append(bin_kj)
+                # print(bin_kj, tfunc[idx], findres)
+            # Get the asm instruction.
+            for tempbin_kj in temp_binkey:
+                if tempbin_kj in binline_dict and tline[idx] in binline_dict[tempbin_kj]:
+                    # {'I': '', 'F': '_Z3bugv', 'C': '7', 'N': '', 'D': ''}
+                    print(binline_dict[tempbin_kj][tline[idx]])
+                    tempfunc = binline_dict[tempbin_kj][tline[idx]][COM_BINFUNC]
+                    tempin = binline_dict[tempbin_kj][tline[idx]][COM_BININ]
+                    if tempfunc not in funcToasm_dict:
+                        funcToasm_dict[tempfunc] = [tempin]
+                    elif tempfunc in funcToasm_dict:
+                        funcToasm_dict[tempfunc].append(tempin)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), funcToasm_dict)
+    return funcToasm_dict
+
+
+def reeHistorySTFG():
     """
     Compare functions and reuse the constraint flow graphs used in the history.
     @return:
