@@ -2,6 +2,7 @@ import datetime
 import re
 import subprocess
 import time
+import os
 
 
 def saveAsFile(content: str, filename: str):
@@ -56,6 +57,10 @@ def getTimestampStr(days, seconds):
     s = seconds - h * 3600 - m * 60
     timestr = "{}:{}:{}:{}".format(days, h, m, s)
     return timestr
+
+def getProjectPath():
+    project_path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    return project_path
 
 def runothercmd(cmd: str) -> (int, str, str):
     """

@@ -276,7 +276,7 @@ VIS_DPI = 300
 # LOG(LOG_DEBUG, LOG_FUNCINFO(), arg1, arg2, arg3)
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 try:
-    logging.basicConfig(filename='Programs/{}.log'.format(FUZZNAME), level=logging.WARNING, format=LOG_FORMAT)
+    logging.basicConfig(filename=getProjectPath()+'/Programs/{}.log'.format(FUZZNAME), level=logging.WARNING, format=LOG_FORMAT)
 except:
     logging.basicConfig(filename='{}.log'.format(FUZZNAME), level=logging.WARNING, format=LOG_FORMAT)
 logging.debug("{} -------------------------".format(FUZZNAME))

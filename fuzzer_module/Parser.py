@@ -34,7 +34,8 @@ def univalConverStr(intvalue, strlen):
     for l_i in range(0, strlen):
         rest = intvalue % 256
         intvalue = (intvalue-rest) // 256
-        cont += chr(rest)
+        # print(rest, intvalue, chr(rest))
+        cont = chr(rest) + cont
 
     return cont
 
@@ -100,7 +101,7 @@ def handleDistanceStr(opt_seed, mut_seed, st_loc, cont_list, strategy) -> dict:
     return ret_seed, change_inputmap
 
 # Turn single-byte variants into +1 -1 operations on the total length
-def handleDistanceCheckSum(opt_seed, mut_seed, st_loc, cont_list, strategy):
+def handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy):
     ret_seed = opt_seed
     change_inputmap = {}
 
@@ -126,7 +127,9 @@ def handleDistanceCheckSum(opt_seed, mut_seed, st_loc, cont_list, strategy):
         for loc_i in st_loc:
             cont += ret_seed.content[loc_i]
         cont_num = strConverUnival(cont)
-        cont_num = cont_num + ((-1) ** (strategy.curnum%2)) * (2 ** (bit_len - (strategy.curnum)//2))
+        addnum = ((-1) ** (strategy.curnum%2)) * (2 ** (bit_len - (strategy.curnum)//2))
+        cont_num = cont_num + addnum
+        # print(addnum, cont_num)
         cont = univalConverStr(cont_num, st_len)
         for loc_idx, loc_i in enumerate(st_loc):
             change_inputmap[loc_i] = cont[loc_idx]
@@ -213,7 +216,7 @@ def exeTypeStrategy(opt_seed, seed, st_loc, type_infer_list, bytes_flag, cont_li
             ret_seed, change_inputmap = handleDistanceNum(opt_seed, seed, st_loc, cont_list, strategy)
             locmapdet_dict.update(change_inputmap)
         elif inf_i == TYPE_CHECKCUMS:
-            ret_seed, change_inputmap = handleDistanceCheckSum(opt_seed, seed, st_loc, cont_list, strategy)
+            ret_seed, change_inputmap = handleDistanceCheckSums(opt_seed, seed, st_loc, cont_list, strategy)
             locmapdet_dict.update(change_inputmap)
     LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content)
     return ret_seed, locmapdet_dict
@@ -271,3 +274,12 @@ def typeDetect(opt_seed, seed: 'StructSeed', st_loc, st_key: 'cmpid',
     return ret_seed, set(type_infer_list), locmapdet_dict
 
 
+if __name__ == "__main__":
+    opt_seed = StructSeed("path", "AAAC", MUT_SEED_SUB, set([0,1]))
+    mut_seed = StructSeed("path", "AAAD", MUT_SEED_SUB, set([0,1]))
+    st_loc = [1,2,3]
+    cont_list = ["AAAC", "BEBF", "AAAD", "BEBF"]
+    for i in range(0, 100):
+        strategy = StructMutStrategy(TYPE_DEFAULT, i, 3, 0, 2)
+        ret_seed, change_inputmap = handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy)
+        print(ret_seed.content, change_inputmap)
