@@ -72,7 +72,7 @@ class Scheduler:
             if SCH_SAVEASFILE:
                 os.remove(temp_one.filename)
 
-    def saveCrash(self, file_crash_csv, path_crashseeds, seed: StructSeed, stdout, stderr):
+    def saveCrash(self, file_crash_csv, path_crashseeds, seed: StructSeed, stdout, stderr, start_time, last_time):
         """
         To facilitate analysis, save all the crash seed information in a csv file
         @return:
@@ -88,7 +88,10 @@ class Scheduler:
                 self.unique_crash.add(crashid)
                 # write csv
                 with open(file_crash_csv, "a+", encoding="utf-8") as cf:
-                    linestr = str(name) + "," + str(seed.content.encode("utf-8")) + "," + str(stdout) + "," + str(stderr) + "\n"
+                    # GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
+                    linestr = str(name) + "," \
+                              + datetime.datetime.strftime(start_time, "%Y-%m-%d_%H:%M:%S") + "," + last_time + "," \
+                              + str(seed.content.encode("utf-8")) + "," + str(stdout) + "," + str(stderr) + "\n"
                     cf.write(linestr)
                 # write seed
                 with open(path_crashseeds + name, "w", encoding="utf-8") as sf:

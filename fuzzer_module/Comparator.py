@@ -55,9 +55,10 @@ def getTarget(program_name: str):
     return target_dict
 
 def getDirectedNodeLoc(binline_dict: dict, target_dict: 'dict[target_num:StructTarget]'):
-    funcToasm_dict: 'dict[funcname:list[asm, asm]]' = {}
+    map_numTofuncasm: 'dict[targetnum:dict[funcname:list[asm, asm]]]' = {}
     for tar_k, tar_v in target_dict.items():
         # print(tar_v.ttrace, tar_v.tfunc, tar_v.tline)
+        funcToasm = {}
         ttrace, tfunc, tline = tar_v.ttrace, tar_v.tfunc, tar_v.tline
         for idx in range(len(ttrace)):
             # Find the real key in CG Symbols.
@@ -71,15 +72,15 @@ def getDirectedNodeLoc(binline_dict: dict, target_dict: 'dict[target_num:StructT
             for tempbin_kj in temp_binkey:
                 if tempbin_kj in binline_dict and tline[idx] in binline_dict[tempbin_kj]:
                     # {'I': '', 'F': '_Z3bugv', 'C': '7', 'N': '', 'D': ''}
-                    print(binline_dict[tempbin_kj][tline[idx]])
                     tempfunc = binline_dict[tempbin_kj][tline[idx]][COM_BINFUNC]
                     tempin = binline_dict[tempbin_kj][tline[idx]][COM_BININ]
-                    if tempfunc not in funcToasm_dict:
-                        funcToasm_dict[tempfunc] = [tempin]
-                    elif tempfunc in funcToasm_dict:
-                        funcToasm_dict[tempfunc].append(tempin)
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), funcToasm_dict)
-    return funcToasm_dict
+                    if tempfunc not in funcToasm:
+                        funcToasm[tempfunc] = [tempin]
+                    elif tempfunc in funcToasm:
+                        funcToasm[tempfunc].append(tempin)
+        map_numTofuncasm[tar_k] = funcToasm
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm)
+    return map_numTofuncasm
 
 
 def reeHistorySTFG():

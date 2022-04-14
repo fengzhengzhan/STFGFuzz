@@ -68,20 +68,21 @@ def getCG(cglist):
     return cggraph, map_funcTocgnode
 
 
-def getCFG(cfglist, funcToasm_dict):
+def getCFG(cfglist, map_numTofuncasm):
     """
     Get the
     @param cfglist:
     @return:
     """
-    map_guardTocfgnode: 'dict[guardnum:node]' = {}
-    map_funcTotargetnode: 'dict[funcname:node]' = {}
+    map_guardTocfgnode: 'dict[guardnum:node_j]' = {}
+    map_numfuncTotargetnode: 'dict[funcname:node_j]' = {}
     cfggraph_dict = {}
-    for jsonfile in cfglist:
-        # funcname = jsonfile.split(os.sep)[-1][1:-9]
-        with open(jsonfile, 'r') as f:
+    for jsonfile_i in cfglist:
+        # funcname = jsonfile_i.split(os.sep)[-1][1:-9]
+        with open(jsonfile_i, 'r') as f:
             data = json.load(f)
-            # Excluding the single node case.
+            graphname = data[BUI_NAME].split(" ")[-2][1:-1]  # That also is the function name.
+            # Excluding the single node_j case.
             if BUI_EDGES not in data:
                 continue
             # for k, v in data.items():
@@ -90,35 +91,47 @@ def getCFG(cfglist, funcToasm_dict):
             # Constructing directed graph.
             # Nodes
             nodes_list = []
-            for node in data[BUI_NODES]:
-                pattern = re.compile(BUI_GUARD_RE)
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), jsonfile, node[BUI_NODE_NAME], node[BUI_NODE_LABEL])
+            for node_j in data[BUI_NODES]:
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_NAME], node_j[BUI_NODE_LABEL])
+                # Find target
+                for tarnum_k in map_numTofuncasm:
+                    for target_l in map_numTofuncasm[tarnum_k].get(graphname):
+                        res = node_j[BUI_NODE_LABEL].find(target_l)
+                        if res != -1:
+                            if tarnum_k not in map_numfuncTotargetnode:
+                                map_numfuncTotargetnode[tarnum_k] = {}
+                            if graphname not in map_numfuncTotargetnode[tarnum_k]:
+                                map_numfuncTotargetnode[tarnum_k][graphname] = [node_j[BUI_NODE_NAME]]
+                            else:
+                                map_numfuncTotargetnode[tarnum_k][graphname].append(node_j[BUI_NODE_NAME])
 
-                results = pattern.findall(node[BUI_NODE_LABEL])
+                # Find Guard num node_j
+                pattern = re.compile(BUI_GUARD_RE)
+                gurad_res = pattern.findall(node_j[BUI_NODE_LABEL])
                 temp_intlist = []
-                for one in results:
+                for one in gurad_res:
                     temp_guardnum = int(int(one, 10) / BUI_LOC_INTERVAL)
                     temp_intlist.append(temp_guardnum)
-                    map_guardTocfgnode[temp_guardnum] = node[BUI_NODE_NAME]
+                    map_guardTocfgnode[temp_guardnum] = node_j[BUI_NODE_NAME]
 
-                nodes_list.append((node[BUI_NODE_NUM],
-                                   {BUI_NODE_NUM: node[BUI_NODE_NUM],
-                                    BUI_NODE_NAME: node[BUI_NODE_NAME],
+                nodes_list.append((node_j[BUI_NODE_NUM],
+                                   {BUI_NODE_NUM: node_j[BUI_NODE_NUM],
+                                    BUI_NODE_NAME: node_j[BUI_NODE_NAME],
                                     BUI_NODE_LABEL: temp_intlist,
                                     BUI_NODE_ST: []}))
             # Edges
             edges_list = []
-            for edge in data[BUI_EDGES]:
-                edges_list.append((edge[BUI_EDGE_START],
-                                   edge[BUI_EDGE_END],
+            for edge_j in data[BUI_EDGES]:
+                edges_list.append((edge_j[BUI_EDGE_START],
+                                   edge_j[BUI_EDGE_END],
                                    BUI_INIT_WEIGHT))
             # print(nodes_list, edges_list)
             LOG(LOG_DEBUG, LOG_FUNCINFO(), nodes_list, edges_list)
-            temp_graphname = data[BUI_NAME].split(" ")[-2][1:-1]
-            cfggraph = Graph(temp_graphname, nodes_list, edges_list)
-            cfggraph_dict[temp_graphname] = cfggraph
 
-    return cfggraph_dict, map_guardTocfgnode, map_funcTotargetnode
+            cfggraph = Graph(graphname, nodes_list, edges_list)
+            cfggraph_dict[graphname] = cfggraph
+
+    return cfggraph_dict, map_guardTocfgnode, map_numfuncTotargetnode
 
 
 def buildConstraint(start_node, end_node, st_list):

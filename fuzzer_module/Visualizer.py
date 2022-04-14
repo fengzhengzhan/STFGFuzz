@@ -16,7 +16,8 @@ class Visualizer:
         # sudo apt reinstall ncurses-base
         self.terminal_switch = VIS_TERMINAL
         self.showgraph_switch = VIS_SHOWGRAPH
-        self.start_time = time.time()
+        self.start_time = datetime.datetime.now()
+        self.last_time: str = "0:0:0:0"
         self.loop = 0
         self.total = 0
         self.num_pcguard = USE_INITNUM
@@ -39,11 +40,6 @@ class Visualizer:
             curses.init_pair(7, curses.COLOR_WHITE, -1)
             curses.init_pair(8, curses.COLOR_YELLOW, -1)
 
-
-        if self.showgraph_switch:
-            pass
-            # plt.ion()
-
     def __del__(self):
         try:
             if self.stdscr is not None:
@@ -51,16 +47,31 @@ class Visualizer:
         except Exception as e:
             pass
 
-    def display(self, seed: StructSeed, input_loc: set, stdout, stderr, stagestr, covernum) -> int:
+    def charoperation(self, char, layout_x):
+        if char == VIS_X:
+            self.seedline = self.seedline + 1 if self.seedline < layout_x else self.seedline
+        elif char == VIS_Z:
+            self.seedline = self.seedline - 1 if self.seedline > 0 else 0
+        elif char == VIS_S:
+            self.showgraph_switch = True
+        elif char == VIS_N:
+            self.showgraph_switch = False
+        elif char == VIS_Q:
+            self.retflag = VIS_Q
+
+    def display(self, seed: StructSeed, input_loc: set, stdout, stderr, stagestr, covernum, filepath_graph, cggraph, cfggraph) -> int:
         """
         This function use to show state during fuzzing on the terminal.
         @return:
         """
+        run_time = datetime.datetime.now() - self.start_time
+        run_second = run_time.seconds + run_time.days * 86400
+        if run_second == 0:
+            run_second = 1
+        self.last_time = getTimestampStr(run_time.days, run_time.seconds)
+
         if self.terminal_switch:
             xnum = ">" * (int(time.time()) % 5)
-            last_time = time.time() - self.start_time
-            runtime = time.strftime("%H:%M:%S", time.gmtime(last_time))
-
 
             # Title.
             self.stdscr.erase()
@@ -80,7 +91,7 @@ class Visualizer:
 
             # Status
             self.terminal_status.addstr(0, 3, "Status", curses.color_pair(VIS_CYAN))  # (y ->, x |V)
-            self.terminal_status.addstr(1, 1, "Runtime: {}".format(runtime))
+            self.terminal_status.addstr(1, 1, "Runtime: {}".format(self.last_time))
             self.terminal_status.addstr(2, 1, "    CPU: {}%".format(psutil.cpu_percent()))
             self.terminal_status.addstr(3, 1, "    Mem: {}%".format(psutil.virtual_memory()[2]))
 
@@ -88,8 +99,8 @@ class Visualizer:
             self.terminal_status.vline(1, 20, curses.ACS_VLINE, 3)
             self.terminal_status.addstr(1, 21, " Loop Number: {}".format(self.loop))
             self.terminal_status.addstr(2, 21, "Total Number: {}".format(self.total))
-            self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total/last_time)))
-            self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total/last_time)))
+            self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total/run_second)))
+            self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total/run_second)))
             self.terminal_status.hline(4, 1, curses.ACS_HLINE, 76)
 
             #
@@ -176,82 +187,73 @@ class Visualizer:
             self.terminal_outs.noutrefresh()
 
             self.charoperation(self.stdscr.getch(), layout_x)
+            if self.showgraph_switch:
+                self.showGraph(filepath_graph, cggraph, cfggraph)
 
         return self.retflag
 
-    def charoperation(self, char, layout_x):
-        if char == VIS_X:
-            self.seedline = self.seedline + 1 if self.seedline < layout_x else self.seedline
-        elif char == VIS_Z:
-            self.seedline = self.seedline - 1 if self.seedline > 0 else 0
-        elif char == VIS_S:
-            self.showgraph_switch = True
-        elif char == VIS_N:
-            self.showgraph_switch = False
-        elif char == VIS_Q:
-            self.retflag = VIS_Q
-
     def showGraph(self, filepath_graph: str, cggraph: 'Graph', cfggraph: 'Graph'):
-        if self.showgraph_switch:
-            # Call Graph
-            dotcg = graphviz.Digraph(comment="Call Graoh")
-            for one in cggraph.dg.nodes:
-                # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
-                dotcg.node(str(one), str(cggraph.dg.nodes[one][BUI_NODE_LABEL]))
+        # Call Graph
+        dotcg = graphviz.Digraph(comment="Call Graoh")
+        for one in cggraph.dg.nodes:
+            # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
+            dotcg.node(str(one), str(cggraph.dg.nodes[one][BUI_NODE_LABEL]))
 
-            for one in cggraph.dg.edges:
-                # print(one)
-                dotcg.edge(str(one[0]), str(one[1]), "")
+        for one in cggraph.dg.edges:
+            # print(one)
+            dotcg.edge(str(one[0]), str(one[1]), "")
 
-            cgpath = dotcg.render(directory=filepath_graph, filename=VIS_CG_NAME, format='png')
+        cgpath = dotcg.render(directory=filepath_graph, filename=VIS_CG_NAME, format='png')
 
-            # Control Flow Graph
-            dotcfg = graphviz.Digraph(comment="Control Flow Graph")
-            for one in cfggraph.dg.nodes:
-                # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
-                node_cont = ""
-                if len(cfggraph.dg.nodes[one][BUI_NODE_LABEL]) > 0:
-                    node_cont = cfggraph.dg.nodes[one][BUI_NODE_LABEL]
-                    node_cont = str(node_cont)[1:-1]
-                if len(cfggraph.dg.nodes[one][BUI_NODE_ST]) > 0:
-                    for nodest in cfggraph.dg.nodes[one][BUI_NODE_ST]:
-                        node_cont += "\n"
-                        for each in nodest:
-                            node_cont += str(each) + " "
+        # Control Flow Graph
+        dotcfg = graphviz.Digraph(comment="Control Flow Graph")
+        for one in cfggraph.dg.nodes:
+            # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
+            node_cont = ""
+            if len(cfggraph.dg.nodes[one][BUI_NODE_LABEL]) > 0:
+                node_cont = cfggraph.dg.nodes[one][BUI_NODE_LABEL]
+                node_cont = str(node_cont)[1:-1]
+            if len(cfggraph.dg.nodes[one][BUI_NODE_ST]) > 0:
+                for nodest in cfggraph.dg.nodes[one][BUI_NODE_ST]:
+                    node_cont += "\n"
+                    for each in nodest:
+                        node_cont += str(each) + " "
 
-                dotcfg.node(str(one), node_cont)
+            dotcfg.node(str(one), node_cont)
 
-            for one in cfggraph.dg.edges:
-                # edge_cont = ""
-                # if len(cfggraph.dg.edges[one][BUI_GRAPH_ST]) > 0:
-                #     edge_cont = cfggraph.dg.edges[one][BUI_GRAPH_ST]
-                # dotcfg.edge(str(one[0]), str(one[1]), str(edge_cont))
-                dotcfg.edge(str(one[0]), str(one[1]), "")
+        for one in cfggraph.dg.edges:
+            # edge_cont = ""
+            # if len(cfggraph.dg.edges[one][BUI_GRAPH_ST]) > 0:
+            #     edge_cont = cfggraph.dg.edges[one][BUI_GRAPH_ST]
+            # dotcfg.edge(str(one[0]), str(one[1]), str(edge_cont))
+            dotcfg.edge(str(one[0]), str(one[1]), "")
 
-            cfgpath = dotcfg.render(directory=filepath_graph, filename=VIS_CFG_NAME, format='png')
+        cfgpath = dotcfg.render(directory=filepath_graph, filename=VIS_CFG_NAME, format='png')
 
-            # print(path)
-            # Show graph
-            cg = Image.open(cgpath)
-            # round() function, rounding five into two, that is, 4 rounding 6 into 5 to make even.
-            plt.figure(num='CG', figsize=(round(cg.size[0]/VIS_DPI, 1), round(cg.size[1]/VIS_DPI,1)),)
-            # plt.title('CG')
-            plt.imshow(cg)  # show picture
-            plt.axis('off')  # not show axis
-            plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
-            plt.show()
-            plt.draw()
-            plt.pause(0.01)
+        # print(path)
+        # Show graph
+        cg = Image.open(cgpath)
+        # round() function, rounding five into two, that is, 4 rounding 6 into 5 to make even.
+        plt.figure(num='CG', figsize=(round(cg.size[0]/VIS_DPI, 1), round(cg.size[1]/VIS_DPI,1)),)
+        # plt.title('CG')
+        plt.imshow(cg)  # show picture
+        plt.axis('off')  # not show axis
+        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
+        plt.show()
+        plt.draw()
+        plt.pause(0.01)
+        plt.ion()
 
-            cfg = Image.open(cfgpath)
-            plt.figure(num='CFG', figsize=(round(cfg.size[0]/VIS_DPI, 1), round(cfg.size[1]/VIS_DPI, 1)),)
-            # plt.title('CFG')
-            plt.imshow(cfg)  # show picture
-            plt.axis('off')  # not show axis
-            plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
-            plt.show()
-            plt.draw()
-            plt.pause(0.01)
+        cfg = Image.open(cfgpath)
+        plt.figure(num='CFG', figsize=(round(cfg.size[0]/VIS_DPI, 1), round(cfg.size[1]/VIS_DPI, 1)),)
+        # plt.title('CFG')
+        plt.imshow(cfg)  # show picture
+        plt.axis('off')  # not show axis
+        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
+        plt.show()
+        plt.draw()
+        plt.pause(0.01)
+        plt.ion()
 
 
 if __name__ == "__main__":
@@ -268,9 +270,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
     # os.system("clear")
-    # xnum = ">" * (int(time.time()) % 4)
-    # runtime = time.strftime("%d:%H:%M:%S", time.localtime(time.time()-start_time))
-    #
-    # print("  {} {}".format(BTFUZZ, xnum))
-    # print("+----------------------------------------------+------------------------------+")
-    # print("| Runtime:  {}".format(runtime))
+

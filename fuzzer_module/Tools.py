@@ -50,6 +50,12 @@ def delBrackets(source_str: str) -> str:
     replace_str = re.sub(restr, "", source_str)
     return str(replace_str)
 
+def getTimestampStr(days, seconds):
+    h = seconds // 3600
+    m = (seconds - h * 3600) // 60
+    s = seconds - h * 3600 - m * 60
+    timestr = "{}:{}:{}:{}".format(days, h, m, s)
+    return timestr
 
 def runothercmd(cmd: str) -> (int, str, str):
     """
@@ -70,6 +76,6 @@ def runothercmd(cmd: str) -> (int, str, str):
 
 
 if __name__ == "__main__":
-    print(delPunctuation("bug"))
+    print(delBrackets("bug"))
 
 

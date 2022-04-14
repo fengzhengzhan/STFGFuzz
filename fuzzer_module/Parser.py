@@ -17,17 +17,26 @@ def handleStrMagic(seed_loc, bytes_flag, cont_list) -> dict:
     return change_inputmap
 
 # Convert a string to a corresponding PAR_CONVER_BIT-bit integer
-def strConverUnival(value):
-    if isinstance(value, str):
-        unique_val = USE_INITNUM
+def strConverUnival(strvalue):
+    # unique_val = USE_INITNUM
+    if isinstance(strvalue, str):
         u = 0
-        for str_i in range(0, len(value)):
+        for str_i in range(0, len(strvalue)):
             u = u * PAR_CONVER_BIT
-            u += ord(value[str_i])
+            u += ord(strvalue[str_i])
         unique_val = u
     else:
         raise Exception("Error ConverUnical Type")
     return unique_val
+
+def univalConverStr(intvalue, strlen):
+    cont = ""
+    for l_i in range(0, strlen):
+        rest = intvalue % 256
+        intvalue = (intvalue-rest) // 256
+        cont += chr(rest)
+
+    return cont
 
 def handleDistanceNum(opt_seed, mut_seed, st_loc, cont_list, strategy) -> dict:
     ret_seed = opt_seed
@@ -91,8 +100,39 @@ def handleDistanceStr(opt_seed, mut_seed, st_loc, cont_list, strategy) -> dict:
     return ret_seed, change_inputmap
 
 # Turn single-byte variants into +1 -1 operations on the total length
-def handleDistanceCheckSum():
-    pass
+def handleDistanceCheckSum(opt_seed, mut_seed, st_loc, cont_list, strategy):
+    ret_seed = opt_seed
+    change_inputmap = {}
+
+    opt0 = strConverUnival(cont_list[0])
+    opt1 = strConverUnival(cont_list[1])
+    mut0 = strConverUnival(cont_list[2])
+    mut1 = strConverUnival(cont_list[3])
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, mut_seed.content)
+    # According distance to return which seed.
+    if abs(opt0 - opt1) > abs(mut0 - mut1):  # Distance difference in a constraint.
+        ret_seed = mut_seed
+    elif abs(opt0 - opt1) < abs(mut0 - mut1):
+        ret_seed = opt_seed
+    elif abs(opt0 - opt1) == abs(mut0 - mut1):
+        ret_seed = mut_seed if random.randint(0, 1) == 1 else opt_seed
+
+    # According bytes location to mutation seed location.
+    if strategy.curnum < strategy.endlen * 16:
+        st_len = len(st_loc)
+        bit_len = st_len * 8 - 1
+        # Return full string.
+        cont = ""
+        for loc_i in st_loc:
+            cont += ret_seed.content[loc_i]
+        cont_num = strConverUnival(cont)
+        cont_num = cont_num + ((-1) ** (strategy.curnum%2)) * (2 ** (bit_len - (strategy.curnum)//2))
+        cont = univalConverStr(cont_num, st_len)
+        for loc_idx, loc_i in enumerate(st_loc):
+            change_inputmap[loc_i] = cont[loc_idx]
+        strategy.curnum += 1
+
+    return ret_seed, change_inputmap
 
 def handleChecksums():
     pass
@@ -152,7 +192,7 @@ def detectCmpType(bytes_type, cont_list, cmpins: StructCmpIns) -> list:
                 type_infer.append(TYPE_MAGICSTR)
 
     elif bytes_type == PAR_CHGACHG:
-        type_infer.append(TYPE_UNDEFINED)
+        type_infer.append(TYPE_CHECKCUMS)
 
     return type_infer
 
@@ -171,6 +211,9 @@ def exeTypeStrategy(opt_seed, seed, st_loc, type_infer_list, bytes_flag, cont_li
             locmapdet_dict.update(change_inputmap)
         elif inf_i == TYPE_MAGICNUMS:
             ret_seed, change_inputmap = handleDistanceNum(opt_seed, seed, st_loc, cont_list, strategy)
+            locmapdet_dict.update(change_inputmap)
+        elif inf_i == TYPE_CHECKCUMS:
+            ret_seed, change_inputmap = handleDistanceCheckSum(opt_seed, seed, st_loc, cont_list, strategy)
             locmapdet_dict.update(change_inputmap)
     LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content)
     return ret_seed, locmapdet_dict

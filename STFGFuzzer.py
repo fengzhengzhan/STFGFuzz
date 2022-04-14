@@ -28,16 +28,14 @@ def mainFuzzer():
     # Directed Location
     binline_dict = Builder.getBinaryInfo(program_name)
     target_dict = Comparator.getTarget(program_name)
-    funcToasm_dict = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
+    map_numTofuncasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
     # Graph Information
     cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
     cggraph, map_funcTocgnode = Builder.getCG(cglist)
-    cfggraph_dict, map_guardTocfgnode = Builder.getCFG(cfglist, funcToasm_dict)
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode)
+    cfggraph_dict, map_guardTocfgnode, map_numfuncTotargetnode = Builder.getCFG(cfglist, map_numTofuncasm)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(),
+        cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode, map_numfuncTotargetnode, showlog=True)
 
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), target_dict, binline_dict)
-
-    raise Exception()
     # vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
 
     # Init Loop Variables
@@ -60,7 +58,10 @@ def mainFuzzer():
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
-        sch.saveCrash(file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr)
+        sch.saveCrash(
+            file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr,
+            vis.start_time, vis.last_time
+        )
         cmpcovcont_list, content = ana.gainTraceRpt(init_stdout)
         initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
 
@@ -86,7 +87,10 @@ def mainFuzzer():
             mutseed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, COARSE_STR + str(vis.loop), stloc_list)
             execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
             mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
-            sch.saveCrash(file_crash_csv, path_crashseeds, execute_seed, mut_stdout, mut_stderr)
+            sch.saveCrash(
+                file_crash_csv, path_crashseeds, execute_seed, mut_stdout, mut_stderr,
+                vis.start_time, vis.last_time
+            )
 
             # 2 cmp instruction
             # Track execution information of mutate seeds.
@@ -105,8 +109,11 @@ def mainFuzzer():
             before_stloc_list = stloc_list
 
             # 5 visualize
-            res = vis.display(execute_seed, set(stloc_list), mut_stdout, mut_stderr,
-                              "Coarse-Grained", len(sch.coveragepath))
+            res = vis.display(
+                execute_seed, set(stloc_list), mut_stdout, mut_stderr,
+                "Coarse-Grained", len(sch.coveragepath),
+                path_graph, cggraph, cfggraph_dict['main']
+            )
             if res == VIS_Q:
                 sch.quitFuzz()
             LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptset)
@@ -125,7 +132,10 @@ def mainFuzzer():
             mutseed = Mutator.mutOneChar(init_seed.content, path_mutseeds, FINE_STR + str(vis.loop), stloc_list)
             execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
             mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
-            sch.saveCrash(file_crash_csv, path_crashseeds, execute_seed, mut_stdout, mut_stderr)
+            sch.saveCrash(
+                file_crash_csv, path_crashseeds, execute_seed, mut_stdout, mut_stderr,
+                vis.start_time, vis.last_time
+            )
 
             # 2 cmp instruction
             # Track execution information of mutate seeds.
@@ -141,8 +151,11 @@ def mainFuzzer():
                         cmpmaploc_dict[cmpid_key].append(one_loc)
 
             # 5 visualize
-            res = vis.display(execute_seed, set(stloc_list), mut_stdout, mut_stderr,
-                              "Fine-Grained", len(sch.coveragepath))
+            res = vis.display(
+                execute_seed, set(stloc_list), mut_stdout, mut_stderr,
+                "Fine-Grained", len(sch.coveragepath),
+                path_graph, cggraph, cfggraph_dict['main']
+            )
             if res == VIS_Q:
                 sch.quitFuzz()
 
@@ -175,7 +188,10 @@ def mainFuzzer():
                     vis.total += 1
                     execute_seed = sch.selectOneSeed(SCH_MUT_SEED)
                     st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
-                    sch.saveCrash(file_crash_csv, path_crashseeds, execute_seed, st_stdout, st_stderr)
+                    sch.saveCrash(
+                        file_crash_csv, path_crashseeds, execute_seed, st_stdout, st_stderr,
+                        vis.start_time, vis.last_time
+                    )
 
                     # 2 cmp instruction
                     # Generate analysis reports.
@@ -205,7 +221,9 @@ def mainFuzzer():
 
                     # 5 visualize
                     res = vis.display(
-                        ret_seed, set(st_loclist), st_stdout, st_stderr, "Strategy", len(sch.coveragepath)
+                        ret_seed, set(st_loclist), st_stdout, st_stderr,
+                        "Strategy", len(sch.coveragepath),
+                        path_graph, cggraph, cfggraph_dict['main']
                     )
                     if res == VIS_Q:
                         sch.quitFuzz()
