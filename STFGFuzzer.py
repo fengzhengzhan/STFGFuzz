@@ -34,7 +34,7 @@ def mainFuzzer():
     cggraph, map_funcTocgnode = Builder.getCG(cglist)
     cfggraph_dict, map_guardTocfgnode, map_numfuncTotargetnode = Builder.getCFG(cfglist, map_numTofuncasm)
     LOG(LOG_DEBUG, LOG_FUNCINFO(),
-        cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode, map_numfuncTotargetnode, showlog=True)
+        cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode, map_numfuncTotargetnode)
 
     # vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
 
@@ -69,6 +69,7 @@ def mainFuzzer():
 
         # Select the location to be mutated and add it to the location queue.
         sch.initEachloop()
+        vis.cmpnum, vis.cmptotal = 0, 0
         for loci in range(0, len(init_seed.content)):
             if loci not in sch.freeze_bytes:
                 sch.loc_coarse_list.append(loci)
@@ -117,7 +118,7 @@ def mainFuzzer():
             if res == VIS_Q:
                 sch.quitFuzz()
             LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptset)
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), need_fine_list, showlog=True)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), need_fine_list)
 
         '''Fine-Grained O(m)'''
         # Mutate seeds to find where to change. Then perform to a directed mutate.
@@ -159,13 +160,15 @@ def mainFuzzer():
             if res == VIS_Q:
                 sch.quitFuzz()
 
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict, showlog=True)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict)
 
         '''3 cmp type'''
         # Compare instruction type speculation based on input mapping,
         # then try to pass the corresponding constraint (1-2 rounds).
+        vis.cmptotal = len(cmpmaploc_dict)
         for st_key, st_loclist in cmpmaploc_dict.items():
             # False positive comparison if all input bytes are covered
+            vis.cmpnum += 1
             if len(st_loclist) == len(init_seed.content):
                 continue
 
@@ -175,7 +178,7 @@ def mainFuzzer():
             optrpt_dict = initrpt_dict
             opt_seed = init_seed
             before_locmapdet_dict = {}
-            sch.strategyq.put(StructMutStrategy(TYPE_DEFAULT, 0, len(st_loclist), 0, 2))
+            sch.strategyq.put(StructMutStrategy(TYPE_DEFAULT, 0, len(st_loclist), 0, 1))
             strategy = sch.strategyq.get()
             # Type Detection and Breaking the Constraint Cycle (At lease 2 loops)
             while strategy.curloop < strategy.endloop or not sch.strategyq.empty():
@@ -215,7 +218,7 @@ def mainFuzzer():
                         break
                     before_locmapdet_dict = locmapdet_dict
 
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(),
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), vis.cmpnum, st_stderr,
                         locmapdet_dict, content, st_key, st_loclist, ret_seed.content, showlog=True)
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curloop, locmapdet_dict, type_infer_set)
 

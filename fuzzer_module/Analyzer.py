@@ -63,7 +63,8 @@ class Analyzer:
         cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * pieces, over).decode("utf-8")
         cmpcovshm_str = cmpcovshm_str[16:-1]
 
-        self.rt.shmctl(shmid, 0, 0)
+        # Make the fuzz loop block.
+        # self.rt.shmctl(shmid, 0, 0)
 
 
         # Content to json

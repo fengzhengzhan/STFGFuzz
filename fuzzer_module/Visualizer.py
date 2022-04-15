@@ -23,6 +23,8 @@ class Visualizer:
         self.num_pcguard = USE_INITNUM
         self.seedline = 0
         self.retflag = USE_INITNUM
+        self.cmpnum = USE_INITNUM
+        self.cmptotal = USE_INITNUM
 
         if self.terminal_switch:
             self.stdscr = curses.initscr()
@@ -107,6 +109,7 @@ class Visualizer:
             self.terminal_status.addstr(4, 3, "Info", curses.color_pair(VIS_CYAN))
             self.terminal_status.addstr(5, 1, "   Stage: {}".format(stagestr))
             self.terminal_status.addstr(6, 1, "Coverage: {} / {}".format(covernum, self.num_pcguard))
+            self.terminal_status.addstr(7, 1, "Cmp Nums: {} / {}".format(self.cmpnum, self.cmptotal))
 
             self.terminal_status.addstr(ter_high-1, 2, "Q", curses.color_pair(VIS_YELLOW))
             self.terminal_status.addstr(ter_high-1, 3, "uit")
