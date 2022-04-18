@@ -24,6 +24,7 @@ EXPAND_SEED = "expand.seed"
 COARSE_STR = "coarse"
 FINE_STR = "fine"
 ST_STR = "st"
+LENGTH_STR = "length"
 
 
 # The fisrt character represent the type of compare instruction.

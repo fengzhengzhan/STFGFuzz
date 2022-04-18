@@ -39,7 +39,7 @@ def mainFuzzer():
     # vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
 
     # Init Loop Variables
-    before_coverage = len(sch.coveragepath)
+    before_coverage = sch.coveragepath
 
     # Init seed lists  # todo if == null
     init_seeds_list = Generator.prepareEnv(program_name)
@@ -247,13 +247,22 @@ def mainFuzzer():
 
         # Increase the input length when the number of constraints does not change in the program.
         # If there is a change in the increase length then increase the length.
-        # if before_coverage == len(sch.coveragepath) and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
-        #     sch.expandnums += 1
-        #     sch.addq(SCH_LOOP_SEED, [
-        #         StructSeed(path_mutseeds + getTimeStr() + EXPAND_SEED, init_seed.content + init_seed.content,
-        #                    MUT_SEED_INSERT, set())
-        #     ])
-        # before_coverage = len(sch.coveragepath)
+        if before_coverage == sch.coveragepath and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
+            sch.expandnums += 1
+            mutseed = Mutator.mutAddLength(init_seed.content, path_mutseeds, LENGTH_STR, 2)
+            execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
+            stdout, stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+            sch.saveCrash(
+                file_crash_csv, path_crashseeds, execute_seed, stdout, stderr,
+                vis.start_time, vis.last_time
+            )
+            cmpcovcont_list, content = ana.gainTraceRpt(stdout)  # report
+            rpt_dict, rpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
+            cmpmaploc_rptset = ana.compareRptToLoc(initrpt_dict, initrpt_set, rpt_dict, rpt_set)
+            before_coverage = sch.coveragepath
+
+            if cmpmaploc_rptset:
+                sch.addq(SCH_LOOP_SEED, [execute_seed])
 
         # Endless fuzzing
         if sch.isEmpty(SCH_LOOP_SEED):
