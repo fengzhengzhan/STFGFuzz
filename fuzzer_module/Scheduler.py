@@ -16,6 +16,7 @@ class Scheduler:
         self.slid_window: int = SCH_SLID_WINDOW
         self.freeze_bytes: set = set()
         self.freezeid_rpt = set()
+        self.ignore_cmpset = set()
         self.solved_cmpset = set()
 
         self.coveragepath = set()
@@ -31,9 +32,11 @@ class Scheduler:
     def selectOneSeed(self, mode: int, mutseed=None) -> StructSeed:
         temp_one = None
         if mode == SCH_LOOP_SEED:
-            temp_one = self.seedq.get() if not self.seedq.empty() else temp_one
+            if not self.seedq.empty():
+                temp_one = self.seedq.get()
         elif mode == SCH_MUT_SEED:
-            temp_one = self.mutateq.get() if not self.mutateq.empty() else temp_one
+            if not self.mutateq.empty():
+                temp_one = self.mutateq.get()
         elif mode == SCH_THIS_SEED:
             temp_one = mutseed
 
@@ -91,7 +94,7 @@ class Scheduler:
                     # GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
                     linestr = str(name) + "," \
                               + datetime.datetime.strftime(start_time, "%Y-%m-%d_%H:%M:%S") + "," + last_time + "," \
-                              + str(seed.content.encode("utf-8")) + "," + str(stdout) + "," + str(stderr) + "\n"
+                              + str(seed.content.encode("utf-8")) + "," + str(stderr) + "," + str(stdout) + "\n"
                     cf.write(linestr)
                 # write seed
                 with open(path_crashseeds + name, "w", encoding="utf-8") as sf:

@@ -14,8 +14,8 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-# VIS_TERMINAL = False
-VIS_TERMINAL = True
+VIS_TERMINAL = False
+# VIS_TERMINAL = True
 VIS_SHOWGRAPH = False
 
 AUTO_SEED = "auto.seed"
@@ -192,7 +192,7 @@ GEN_DOTJSON = "dot -Tdot_json "
 GEN_OVERLAY = " > "
 GEN_APPEND = " >> "
 GEN_TRACEBC_SUFFIX = "_trace.bc"
-GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
+GEN_CSV_HEADERS = "filename,time,duration,content,stderr,stdout\n"
 
 
 '''Mutator'''

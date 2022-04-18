@@ -117,7 +117,7 @@ def mainFuzzer():
             )
             if res == VIS_Q:
                 sch.quitFuzz()
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptset)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptset, showlog=True)
             LOG(LOG_DEBUG, LOG_FUNCINFO(), need_fine_list)
 
         '''Fine-Grained O(m)'''
