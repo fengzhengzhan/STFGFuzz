@@ -153,7 +153,7 @@ class Visualizer:
                         self.terminal_seeds.addstr(
                             line_i+1, j*3+int(j/4)+7, "{:0>2} ".format(hex(ord(show_char))[2:]), color_pair
                         )
-                        self.terminal_seeds.addstr(line_i+1, j+int(j/4)+58, "{}".format(show_char[-1]), color_pair)
+                        self.terminal_seeds.addstr(line_i+1, j+int(j/4)+58, "{:0>1}".format(show_char[0]), color_pair)
                     except Exception as e:  # show_char == 0  null
                         self.terminal_seeds.addstr(line_i + 1, j * 3 + int(j / 4) + 7, "{} ".format("xx"), color_pair)
                         self.terminal_seeds.addstr(line_i + 1, j + int(j / 4) + 58, "{}".format(" "), color_pair)
