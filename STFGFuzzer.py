@@ -103,7 +103,7 @@ def mainFuzzer():
             # Gain changed cmp instruction through compare.
             cmpmaploc_rptset = ana.compareRptToLoc(initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
 
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovcont_list, content)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), mutseed.content, showlog=True)
             LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_rptset)
             if cmpmaploc_rptset:
                 if len(need_fine_list) == 0:
@@ -163,7 +163,7 @@ def mainFuzzer():
             if res == VIS_Q:
                 sch.quitFuzz()
 
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), mutseed.content, showlog=True)
 
         '''3 cmp type'''
         # Compare instruction type speculation based on input mapping,
@@ -223,7 +223,7 @@ def mainFuzzer():
 
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), vis.cmpnum, st_stderr,
                         locmapdet_dict, content, st_key, st_loclist, ret_seed.content)  # todo , showlog=True
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curloop, locmapdet_dict, type_infer_set)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, showlog=True)
 
                     # 5 visualize
                     res = vis.display(
@@ -250,26 +250,48 @@ def mainFuzzer():
 
         # Increase the input length when the number of constraints does not change in the program.
         # If there is a change in the increase length then increase the length.
-        if before_coverage == sch.coveragepath and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
+        before_lenseed = init_seed
+        beforerpt_dict = initrpt_dict
+        beforerpt_set = initrpt_set
+        while len(before_lenseed.content) < SCH_EXPAND_MAXSIZE:
+        # if before_coverage == sch.coveragepath and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
+            vis.total += 1
             sch.expandnums += 1
-            mutseed = Mutator.mutAddLength(init_seed.content, path_mutseeds, LENGTH_STR, 2)
-            execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
-            stdout, stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+            len_seed = Mutator.mutAddLength(before_lenseed.content, path_mutseeds, LENGTH_STR, 2)
+            execute_seed = sch.selectOneSeed(SCH_THIS_SEED, len_seed)
+            len_stdout, len_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
             sch.saveCrash(
-                file_crash_csv, path_crashseeds, execute_seed, stdout, stderr,
+                file_crash_csv, path_crashseeds, execute_seed, len_stdout, len_stderr,
                 vis.start_time, vis.last_time
             )
-            cmpcovcont_list, content = ana.gainTraceRpt(stdout)  # report
+            cmpcovcont_list, content = ana.gainTraceRpt(len_stdout)  # report
             rpt_dict, rpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
-            cmpmaploc_rptset = ana.compareRptToLoc(initrpt_dict, initrpt_set, rpt_dict, rpt_set)
-            before_coverage = sch.coveragepath
+            cmpmaploc_rptset = ana.compareRptToLoc(beforerpt_dict, beforerpt_set, rpt_dict, rpt_set)
+            # before_coverage = sch.coveragepath
+            res = vis.display(
+                execute_seed, set(), len_stdout, len_stderr,
+                "Length", len(sch.coveragepath),
+                path_graph, cggraph, cfggraph_dict['main']
+            )
+            if res == VIS_Q:
+                sch.quitFuzz()
 
             if cmpmaploc_rptset:
-                sch.addq(SCH_LOOP_SEED, [execute_seed])
+                before_lenseed = len_seed
+                beforerpt_dict = rpt_dict
+                beforerpt_set = rpt_set
+            else:
+                break
+
+
+        # Endless fuzzing, add the length seed.
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), before_lenseed.content, showlog=True)
+        if sch.isEmpty(SCH_LOOP_SEED) or init_seed.content != before_lenseed.content:
+            sch.addq(SCH_LOOP_SEED, [before_lenseed, ])
 
         # Endless fuzzing
-        if sch.isEmpty(SCH_LOOP_SEED):
-            sch.addq(SCH_LOOP_SEED, [init_seed, ])
+        # if sch.isEmpty(SCH_LOOP_SEED):
+        #     sch.addq(SCH_LOOP_SEED, [init_seed, ])
 
         # Mutual mapping relationship
         # Key: cmpid  Value: branch_order cmp_type input_bytes branches

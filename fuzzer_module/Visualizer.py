@@ -111,6 +111,7 @@ class Visualizer:
             self.terminal_status.addstr(6, 1, "Coverage: {} / {}".format(covernum, self.num_pcguard))
             self.terminal_status.addstr(7, 1, "Cmp Nums: {} / {}".format(self.cmpnum, self.cmptotal))
 
+
             self.terminal_status.addstr(ter_high-1, 2, "Q", curses.color_pair(VIS_YELLOW))
             self.terminal_status.addstr(ter_high-1, 3, "uit")
             self.terminal_status.addstr(ter_high-1, 8, "S", curses.color_pair(VIS_YELLOW))
@@ -155,10 +156,10 @@ class Visualizer:
                             line_i+1, j*3+int(j/4)+7, "{:0>2} ".format(hex(ord(show_char))[2:]), color_pair
                         )
                     except Exception as e:  # show_char == 0  null
-                        self.terminal_seeds.addstr(line_i + 1, j * 3 + int(j / 4) + 7, "{} ".format("xx"), color_pair)
+                        self.terminal_seeds.addstr(line_i + 1, j * 3 + int(j / 4) + 7, "{} ".format("XX"), color_pair)
                     # The part of characters.
                     try:
-                        self.terminal_seeds.addstr(line_i+1, j+int(j/4)+58, "{:0>1}".format(show_char[0]), color_pair)
+                        self.terminal_seeds.addstr(line_i+1, j+int(j/4)+58, "{:0>1}".format(show_char), color_pair)
                     except Exception as e:
                         self.terminal_seeds.addstr(line_i + 1, j + int(j / 4) + 58, "{}".format(" "), color_pair)
 
