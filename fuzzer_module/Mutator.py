@@ -101,7 +101,7 @@ def mutLocFromMap(seedcont: str, filepath: str, label: str, locmapdet_dict: 'dic
 
 
 def mutAddLength(seedcont: str, filepath: str, label: str, multiple):
-    multicont = seedcont * multiple
+    multicont = seedcont + getFillStr(len(seedcont)) * (multiple - 1)
     loc_set = set([i for i in range(len(seedcont), len(multicont))])
     temp_one = StructSeed(filepath + getTimeStr() + EXPAND_SEED, multicont, MUT_SEED_INSERT, loc_set)
     return temp_one

@@ -14,8 +14,8 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-VIS_TERMINAL = False
-# VIS_TERMINAL = True
+# VIS_TERMINAL = False
+VIS_TERMINAL = True
 VIS_SHOWGRAPH = False
 
 AUTO_SEED = "auto.seed"
@@ -276,39 +276,53 @@ VIS_DPI = 300
 # Logging the information during the fuzzing.
 # LOG(LOG_DEBUG, LOG_FUNCINFO(), arg1, arg2, arg3)
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+
+LOG_DEBUG = logging.DEBUG
+LOG_INFO = logging.INFO
+LOG_WARNING = logging.WARNING
+LOG_ERROR = logging.ERROR
+LOG_CRITICAL = logging.CRITICAL
+
+LOG_LEVEL = LOG_WARNING
+
 try:
-    logging.basicConfig(filename=getProjectPath()+'/Programs/{}.log'.format(FUZZNAME), level=logging.WARNING, format=LOG_FORMAT)
+    logging.basicConfig(filename=getProjectPath()+'/Programs/{}.log'.format(FUZZNAME), level=LOG_LEVEL, format=LOG_FORMAT)
 except:
-    logging.basicConfig(filename='{}.log'.format(FUZZNAME), level=logging.WARNING, format=LOG_FORMAT)
+    logging.basicConfig(filename='{}.log'.format(FUZZNAME), level=LOG_LEVEL, format=LOG_FORMAT)
 logging.debug("{} -------------------------".format(FUZZNAME))
 
 LOG_FUNCINFO = lambda : str(sys._getframe(1).f_code.co_name) + ":" + str(sys._getframe(1).f_lineno)
 
-LOG_DEBUG = 251
-LOG_INFO = 252
-LOG_WARNING = 253
-LOG_ERROR = 254
-LOG_CRITICAL = 255
-
-def LOG(loggingtype: str, funcinfo, *args, showlog=False) -> None:
-    logstr = "{}-> ".format(funcinfo)
+def retLogStr(funcinfo, *args):
+    logstr = "|>>| {}-> ".format(funcinfo)
     for content in args:
         logstr += "{} || ".format(content)
-    if showlog and not VIS_TERMINAL:
-        print("\n"+logstr+"\n", end="")
+    logstr += "|<<|"
+    return logstr
+
+def LOG(loggingtype: str, funcinfo, *args, showlog=False) -> None:
+    if showlog:
+        logstr = retLogStr(funcinfo, *args)
         with open(PROGRAMS + os.sep + FUZZPRINTLOG, "a+") as f:
             f.write("\n"+logstr+"\n")
+        if not VIS_TERMINAL:
+            print("\n"+logstr+"\n", end="")
 
     # logging
-    if loggingtype == LOG_DEBUG:
+    if LOG_LEVEL == LOG_DEBUG and loggingtype == LOG_DEBUG:
+        logstr = retLogStr(funcinfo, *args)
         logging.debug(logstr)
     elif loggingtype == LOG_INFO:
+        logstr = retLogStr(funcinfo, *args)
         logging.info(logstr)
     elif loggingtype == LOG_WARNING:
+        logstr = retLogStr(funcinfo, *args)
         logging.warning(logstr)
     elif loggingtype == LOG_ERROR:
+        logstr = retLogStr(funcinfo, *args)
         logging.error(logstr)
     elif loggingtype == LOG_CRITICAL:
+        logstr = retLogStr(funcinfo, *args)
         logging.critical(logstr)
     else:
         raise Exception("Error logging.")

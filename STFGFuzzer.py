@@ -117,7 +117,7 @@ def mainFuzzer():
             )
             if res == VIS_Q:
                 sch.quitFuzz()
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptset, showlog=True)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptset)  # todo , showlog=True
             LOG(LOG_DEBUG, LOG_FUNCINFO(), need_fine_list)
 
         '''Fine-Grained O(m)'''
@@ -180,7 +180,7 @@ def mainFuzzer():
             before_locmapdet_dict = {}
             sch.strategyq.put(StructMutStrategy(TYPE_DEFAULT, 0, len(st_loclist), 0, 1))
             strategy = sch.strategyq.get()
-            # Type Detection and Breaking the Constraint Cycle (At lease 2 loops)
+            # Type Detection and Breaking the Constraint Cycle (At lease 1 loops)
             while strategy.curloop < strategy.endloop or not sch.strategyq.empty():
                 # print(strategy.curloop)
                 strategy.curloop += 1
@@ -219,7 +219,7 @@ def mainFuzzer():
                     before_locmapdet_dict = locmapdet_dict
 
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), vis.cmpnum, st_stderr,
-                        locmapdet_dict, content, st_key, st_loclist, ret_seed.content, showlog=True)
+                        locmapdet_dict, content, st_key, st_loclist, ret_seed.content)  # todo , showlog=True
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curloop, locmapdet_dict, type_infer_set)
 
                     # 5 visualize
