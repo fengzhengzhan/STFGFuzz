@@ -4,6 +4,17 @@ from ctypes import *
 
 from fuzzer_module.Fuzzconfig import *
 
+# The operation of Memory Shared.
+# 1. Find the memory share id
+# ipcs -lm
+# ipcs -m
+# ipcs -m | grep shmid
+# 2. Delete memory share.
+# ipcrm -m shmid
+
+# Change the number of SHMMAX (8GB)
+# echo "8589934592" > /proc/sys/kernel/shmmax  OR  sysctl -w kernel.shmmax=2147483648
+# echo "kernel.shmmax=8589934592" >> /etc/sysctl.conf
 
 class Analyzer:
     def __init__(self):
@@ -42,7 +53,7 @@ class Analyzer:
         shmat.argtypes = [c_int, POINTER(c_void_p), c_int]
         shmat.restype = c_void_p
 
-        shmid = shmget(self.shm_key, 2147483648, 0o777)  # 2*1024*1024*1024 2GB
+        shmid = shmget(self.shm_key, 2147483648, 0o666)  # 2*1024*1024*1024 2GB
         if shmid < 0:
             raise Exception("Error System not shared.")
 

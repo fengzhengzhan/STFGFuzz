@@ -231,16 +231,21 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     
     //memory share
     key_t id_shm = 124816;
-    id = shmget(id_shm, SHMGET_SIZE, IPC_CREAT | 0777);
+    id = shmget(id_shm, SHMGET_SIZE, IPC_CREAT | 0666);
     // srand((unsigned)time(NULL));
     // id_shm = rand();
     while (id < 0 ) {
         // srand(id_shm);
         id_shm = rand();
-        id = shmget(id_shm, SHMGET_SIZE, IPC_CREAT | 0777);
+        id = shmget(id_shm, SHMGET_SIZE, IPC_CREAT | 0666);
     }
 
-    data = (char *)shmat(id, NULL, 0);
+    if (data == NULL)
+    {
+        //data = (char *)shmat(id, NULL, 0);
+        data = shmat(id, data, 0666);
+    }
+
     if (data == NULL)
     {
         printf("Error Shmat failed.\n");

@@ -1,3 +1,6 @@
+import faulthandler
+faulthandler.enable()
+
 from fuzzer_module import *
 from fuzzer_module.Fuzzconfig import *
 
@@ -276,4 +279,8 @@ def mainFuzzer():
 if __name__ == "__main__":
     # python3.7 STFGFuzzer.py -n demo -- ./Programs/demo/code_Bin/demo -f @@
     # python3.7 STFGFuzzer.py -n base64 -- ./Programs/base64/code_Bin/base64 -d @@
+
+    # Handle Segmentation fault.  Generator the core files.
+    # ulimit -c unlimited
+    # python3 -X faulthandler my.py
     mainFuzzer()
