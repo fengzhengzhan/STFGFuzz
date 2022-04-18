@@ -300,7 +300,7 @@ def retLogStr(funcinfo, *args):
     logstr += "|<<|"
     return logstr
 
-def LOG(loggingtype: str, funcinfo, *args, showlog=False) -> None:
+def LOG(loggingtype, funcinfo, *args, showlog=False) -> None:
     if showlog:
         logstr = retLogStr(funcinfo, *args)
         with open(PROGRAMS + os.sep + FUZZPRINTLOG, "a+") as f:
@@ -324,7 +324,5 @@ def LOG(loggingtype: str, funcinfo, *args, showlog=False) -> None:
     elif loggingtype == LOG_CRITICAL:
         logstr = retLogStr(funcinfo, *args)
         logging.critical(logstr)
-    else:
-        raise Exception("Error logging.")
 
 
