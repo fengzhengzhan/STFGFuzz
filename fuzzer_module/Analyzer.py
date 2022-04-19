@@ -1,3 +1,4 @@
+import ast
 import re
 import json
 from ctypes import *
@@ -67,24 +68,24 @@ class Analyzer:
         pieces = interlen // ANA_SHM_INTERVAL
         over = interlen % ANA_SHM_INTERVAL
 
-        cmpcovshm_str = ""
-        for each in range(0, pieces):
-            cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * each, ANA_SHM_INTERVAL).decode("utf-8")
-        # fixme .decode("utf-8", "ignore")
-        cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * pieces, over).decode("utf-8")
-        cmpcovshm_str = cmpcovshm_str[16:-1]
+        cmpcovshm_str = "["
+        if pieces > 0:
+            cmpcovshm_str += string_at(addr + ANA_INTERLEN_SIZE, ANA_SHM_INTERVAL-ANA_INTERLEN_SIZE).decode("utf-8")
+            for each in range(1, pieces):
+                cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * each, ANA_SHM_INTERVAL).decode("utf-8")
+            # fixme .decode("utf-8", "ignore")
+            cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * pieces, over).decode("utf-8")
+        else:
+            cmpcovshm_str += string_at(addr + ANA_INTERLEN_SIZE, over-ANA_INTERLEN_SIZE).decode("utf-8")
+        cmpcovshm_str += "]"
 
         # Make the fuzz loop block.
         # self.rt.shmctl(shmid, 0, 0)
 
-
         # Content to json
-        cmpcovshm_str = '{"' + ANA_CMPCOVSHM_NAME + '":[' + cmpcovshm_str + ']}'
-        # print(cmpcovshm_str)
-        cmpcovshm_json = json.loads(cmpcovshm_str, strict=False)
-        cmpcovshm_list = cmpcovshm_json[ANA_CMPCOVSHM_NAME]
-        # print(type(cmpcovshm_json[ANA_CMPCOVSHM_NAME]), cmpcovshm_json[ANA_CMPCOVSHM_NAME])
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovshm_list)
+        cmpcovshm_list = ast.literal_eval(cmpcovshm_str)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovshm_str, cmpcovshm_list)
+        del cmpcovshm_str
         return cmpcovshm_list, out_info
 
     def terminalTrace(self, out_info: str):
@@ -258,3 +259,7 @@ class Analyzer:
             raise Exception("Error: Number of tracks not acquired.")
         return self.num_pcguard
 
+
+if __name__ == "__main__":
+    vis = Analyzer()
+    vis.gainTraceRpt("D124816Z\n")

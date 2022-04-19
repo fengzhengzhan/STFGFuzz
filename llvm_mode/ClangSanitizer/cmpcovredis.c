@@ -84,7 +84,7 @@ redisReply *reply;
 // The end of analysis.
 static void saveCovOnEnd() {
 
-    sprintf(buf, "rpush %p E",GET_FUNC_PC);
+    sprintf(buf, "RPUSH %p E",GET_FUNC_PC);
     reply = (redisReply*)redisCommand(conn, buf);
     freeReplyObject(reply);
 
@@ -93,51 +93,49 @@ static void saveCovOnEnd() {
 
 static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
     // uintptr_t PC = reinterpret_cast<uintptr_t>(GET_FUNC_PC);
-    sprintf(buf, "rpush %p%p %c %lu %lu %d",GET_FUNC_PC, GET_CALLER_PC, funcinfo, arg1, arg2, arg_len);
+    sprintf(buf, "RPUSH %p%p %c %lu %lu %d",GET_FUNC_PC, GET_CALLER_PC, funcinfo, arg1, arg2, arg_len);
     reply = (redisReply*)redisCommand(conn, buf);
     freeReplyObject(reply);
 } 
 
 static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char funcinfo) {
     // The length of each string.
-    int n1;
-    int n2;
-    if (n == 0) {
-        n1 = strlen(s1);
-        n2 = strlen(s2);
-    } else if (n != 0)
-    {
-        n1 = n;
-        n2 = n;
-    }
-    
-    sprintf(buf, "rpush %p%p %c \"",GET_FUNC_PC, GET_CALLER_PC, funcinfo);
-    int i = 0;
+    // int n1;
+    // int n2;
+    // if (n == 0) {
+    //     n1 = strlen(s1);
+    //     n2 = strlen(s2);
+    // } else if (n != 0)
+    // {
+    //     n1 = n;
+    //     n2 = n;
+    // }
 
-    for (i = 0; i < n1; i ++) {
-        // printf("%c", s1[i]);
-        if (s1[i] == '"' || s1[i] == '\\') {
-            sprintf(buf, "\\%c", s1[i]);
-        } else {
-            sprintf(buf, "%c", s1[i]);
-        }
-    }
-    // printf("\"1s> <s2\"");
-    sprintf(buf, "\" \"");
+    // int i = 0;
 
-    for (i = 0; i < n2; i ++) {
-        // printf("%c", s2[i]);
-        if (s2[i] == '"' || s2[i] == '\\') {
-            sprintf(buf, "\\%c", s2[i]);
-        } else {
-            sprintf(buf, "%c", s2[i]);
-        }               
-    }
-    sprintf(buf, "\"");
-    
-    sprintf(buf, " %d %d", n, result); 
+    // for (i = 0; i < n1; i ++) {
+    //     // printf("%c", s1[i]);
+    //     if (s1[i] == '"' || s1[i] == '\\') {
+    //         sprintf(buf + strlen(buf), "\\%c", s1[i]);
+    //     } else {
+    //         sprintf(buf + strlen(buf), "%c", s1[i]);
+    //     }
+    // }
+    // // printf("\"1s> <s2\"");
+    // sprintf(buf + strlen(buf), "\" \"");
+    // for (i = 0; i < n2; i ++) {
+    //     // printf("%c", s2[i]);
+    //     if (s2[i] == '"' || s2[i] == '\\') {
+    //         sprintf(buf + strlen(buf), "\\%c", s2[i]);
+    //     } else {
+    //         sprintf(buf + strlen(buf), "%c", s2[i]);
+    //     }               
+    // }
+
+    sprintf(buf, "RPUSH %p%p %c s1%s s2%s %d %d", GET_FUNC_PC, GET_CALLER_PC, funcinfo, s1, s2, n, result);
     reply = (redisReply*)redisCommand(conn, buf);
     freeReplyObject(reply);
+    
 }
 
 
@@ -152,11 +150,11 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     }
 
     // printf("\n%c %p %lu %lu", COV_TRACE_SWITCH, GET_FUNC_PC, Cases[0], Cases[1]);
-    sprintf(buf, "rpush %p%p %c %lu %lu %lu",GET_FUNC_PC, GET_CALLER_PC, COV_TRACE_SWITCH, Cases[0], Cases[1], Val);
+    sprintf(buf, "RPUSH %p%p %c %lu %lu %lu", GET_FUNC_PC, GET_CALLER_PC, COV_TRACE_SWITCH, Cases[0], Cases[1], Val);
 
     for (int i = 0; i < Cases[0]; i ++) {
         // printf(" %lu", Cases[2 + i]);
-        sprintf(buf, " %lu", Cases[2 + i]);
+        sprintf(buf + strlen(buf), " %lu", Cases[2 + i]);
     }
     reply = (redisReply*)redisCommand(conn, buf);
     freeReplyObject(reply);
@@ -172,6 +170,7 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
 // once per DSO and may be called multiple times with the same parameters.
 void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     // Redis
+    // clang++ -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive -L/usr/local/lib/ -lhiredis ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
     conn = redisConnect("127.0.0.1", 6379);
     if(conn != NULL && conn->err)
     {
@@ -185,18 +184,15 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     
     // char PcDescr[10240];
     // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
-
-    sprintf(buf, "rpush %p I %p %p",GET_FUNC_PC, start, stop);
-    reply = (redisReply*)redisCommand(conn, buf);
-    freeReplyObject(reply);
-
     for (uint32_t *x = start; x < stop; x++)
     {
         *x = ++N;
     }
-    sprintf(buf, "rpush %p S %lu", GET_FUNC_PC, N);
+    sprintf(buf, "RPUSH %p I %lu %p %p",GET_FUNC_PC, N, start, stop);
     reply = (redisReply*)redisCommand(conn, buf);
     freeReplyObject(reply);
+
+    
 
     atexit(saveCovOnEnd);
     // if(value != 0) {

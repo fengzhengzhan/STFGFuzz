@@ -42,7 +42,8 @@ bool GetLine::runOnFunction(Function &F){
                 
         }
     }
-    outs() << "},";    
+    outs() << "},";
+    return true;
 }
 
 char GetLine::ID = 0;
