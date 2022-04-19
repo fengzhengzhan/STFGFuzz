@@ -155,8 +155,6 @@ class Analyzer:
                 # if cmpid in freezeid_rpt:
                 #     continue
             if typeflag == INIT_PC_GUARD:
-                pass
-            elif typeflag == NUM_PC_GUARD:
                 self.num_pcguard = int(each[2])
             elif typeflag == EACH_PC_GUARD:
                 type = typeflag

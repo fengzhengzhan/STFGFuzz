@@ -14,8 +14,8 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-# VIS_TERMINAL = False
-VIS_TERMINAL = True
+# VIS_TERM = False
+VIS_TERM = True
 VIS_SHOWGRAPH = False
 
 AUTO_SEED = "auto.seed"
@@ -66,8 +66,7 @@ SHMID_FLAG = "D"  # Content show from stdout, that represent the memory share id
 INTERLEN_FLAG = "L"  # The length of array.
 INTERLEN_VALUE = 16  # The space bytes in the start of content represents interlen values.
 END_EACH_FLAG = "Z"  # End of each line.
-INIT_PC_GUARD = "I"  # (call_pc, start, end)
-NUM_PC_GUARD = "S"  # (call_pc, nums) Numbers of pc guard, from 1 to number.
+INIT_PC_GUARD = "I"  # (call_pc, nums, start, end) Numbers of pc guard, from 1 to number.
 EACH_PC_GUARD = "G"  # (call_pc, guard_addr, guard_num)
 
 PROGRAM_END = "E"  # end
@@ -93,7 +92,6 @@ FLAG_DICT = {
     'q': "WEAK_HOOK_STRCASECMP",
     'Z': "END_EACH_FLAG",
     'I': "INIT_PC_GUARD",
-    'S': "NUM_PC_GUARD",
     'G': "EACH_PC_GUARD",
     'E': "PROGRAM_END",
 }
@@ -305,7 +303,7 @@ def LOG(loggingtype, funcinfo, *args, showlog=False) -> None:
         logstr = retLogStr(funcinfo, *args)
         with open(PROGRAMS + os.sep + FUZZPRINTLOG, "a+") as f:
             f.write("\n"+logstr+"\n")
-        if not VIS_TERMINAL:
+        if not VIS_TERM:
             print("\n"+logstr+"\n", end="")
 
     # logging

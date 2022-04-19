@@ -78,6 +78,47 @@ def mainFuzzer():
                 sch.loc_coarse_list.append(loci)
 
         '''Find correspondence: seed inputs -> cmp instruction -> cmp type (access method) -> braches'''
+
+        '''Increase seed length'''
+        # Increase the input length when the number of constraints does not change in the program.
+        # If there is a change in the increase length then increase the length.
+        before_lenseed = init_seed
+        beforerpt_dict = initrpt_dict
+        beforerpt_set = initrpt_set
+        while len(before_lenseed.content) < SCH_EXPAND_MAXSIZE:
+            # if before_coverage == sch.coveragepath and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
+            vis.total += 1
+            sch.expandnums += 1
+            len_seed = Mutator.mutAddLength(before_lenseed.content, path_mutseeds, LENGTH_STR, 256)
+            execute_seed = sch.selectOneSeed(SCH_THIS_SEED, len_seed)
+            len_stdout, len_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+            sch.saveCrash(
+                file_crash_csv, path_crashseeds, execute_seed, len_stdout, len_stderr,
+                vis.start_time, vis.last_time
+            )
+            cmpcovcont_list, content = ana.gainTraceRpt(len_stdout)  # report
+            rpt_dict, rpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
+            cmpmaploc_rptset = ana.compareRptToLoc(beforerpt_dict, beforerpt_set, rpt_dict, rpt_set)
+            # before_coverage = sch.coveragepath
+            res = vis.display(
+                execute_seed, set(), len_stdout, len_stderr,
+                "Length", len(sch.coveragepath),
+                path_graph, cggraph, cfggraph_dict['main']
+            )
+            if res == VIS_Q:
+                sch.quitFuzz()
+
+            if cmpmaploc_rptset:
+                before_lenseed = len_seed
+                beforerpt_dict = rpt_dict
+                beforerpt_set = rpt_set
+            else:
+                break
+
+        init_seed = before_lenseed
+        initrpt_dict = beforerpt_dict
+        initrpt_set = beforerpt_set
+
         '''Coarse-Grained  O(n/step)'''  # todo multiprocessing
         # Get a report on changes to comparison instructions.
         before_stloc_list = []
@@ -248,50 +289,13 @@ def mainFuzzer():
                     if st_seed is not None:
                         sch.addq(SCH_MUT_SEED, [st_seed, ])
 
-        # Increase the input length when the number of constraints does not change in the program.
-        # If there is a change in the increase length then increase the length.
-        before_lenseed = init_seed
-        beforerpt_dict = initrpt_dict
-        beforerpt_set = initrpt_set
-        while len(before_lenseed.content) < SCH_EXPAND_MAXSIZE:
-        # if before_coverage == sch.coveragepath and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
-            vis.total += 1
-            sch.expandnums += 1
-            len_seed = Mutator.mutAddLength(before_lenseed.content, path_mutseeds, LENGTH_STR, 2)
-            execute_seed = sch.selectOneSeed(SCH_THIS_SEED, len_seed)
-            len_stdout, len_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
-            sch.saveCrash(
-                file_crash_csv, path_crashseeds, execute_seed, len_stdout, len_stderr,
-                vis.start_time, vis.last_time
-            )
-            cmpcovcont_list, content = ana.gainTraceRpt(len_stdout)  # report
-            rpt_dict, rpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
-            cmpmaploc_rptset = ana.compareRptToLoc(beforerpt_dict, beforerpt_set, rpt_dict, rpt_set)
-            # before_coverage = sch.coveragepath
-            res = vis.display(
-                execute_seed, set(), len_stdout, len_stderr,
-                "Length", len(sch.coveragepath),
-                path_graph, cggraph, cfggraph_dict['main']
-            )
-            if res == VIS_Q:
-                sch.quitFuzz()
-
-            if cmpmaploc_rptset:
-                before_lenseed = len_seed
-                beforerpt_dict = rpt_dict
-                beforerpt_set = rpt_set
-            else:
-                break
-
 
         # Endless fuzzing, add the length seed.
         LOG(LOG_DEBUG, LOG_FUNCINFO(), before_lenseed.content, showlog=True)
-        if sch.isEmpty(SCH_LOOP_SEED) or init_seed.content != before_lenseed.content:
-            sch.addq(SCH_LOOP_SEED, [before_lenseed, ])
+        # if sch.isEmpty(SCH_LOOP_SEED) or init_seed.content != before_lenseed.content:
+        if sch.isEmpty(SCH_LOOP_SEED):
+            sch.addq(SCH_LOOP_SEED, [init_seed, ])
 
-        # Endless fuzzing
-        # if sch.isEmpty(SCH_LOOP_SEED):
-        #     sch.addq(SCH_LOOP_SEED, [init_seed, ])
 
         # Mutual mapping relationship
         # Key: cmpid  Value: branch_order cmp_type input_bytes branches

@@ -14,7 +14,7 @@ from fuzzer_module.Fuzzconfig import *
 class Visualizer:
     def __init__(self):
         # sudo apt reinstall ncurses-base
-        self.terminal_switch = VIS_TERMINAL
+        self.terminal_switch = VIS_TERM
         self.showgraph_switch = VIS_SHOWGRAPH
         self.start_time = datetime.datetime.now()
         self.last_time: str = "0:0:0:0"

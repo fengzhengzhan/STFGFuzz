@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <hiredis/hiredis.h>
 #include <sanitizer/dfsan_interface.h>
 #include <assert.h>
 #include <string.h>
@@ -75,39 +76,26 @@ char* data = NULL;
 int savelen = 15;
 int interlen = 16;
 char buf[1024*1024];
+redisContext *conn;
+redisReply *reply;
+// freeReplyObject(reply);
 
 
 // The end of analysis.
 static void saveCovOnEnd() {
-    // printf("\nE %p Z\n", GET_FUNC_PC);
-    // Add dataflow analysis information.
-    sprintf(buf, "[\"E\",\"%p\"],", GET_FUNC_PC);
-    strcpy(data + interlen, buf);
-    interlen += strlen(buf);
-    // Update interlen
-    sprintf(buf, "L%dZ", interlen);
-    strcpy(data, buf);
-    
-    // Separating shared memory from the current process.
-    if (shmdt(data) == -1)
-    {
-        printf("Error Shmdt failed.\n");
-        exit(1);
-    }
-    // shmctl(id, IPC_RMID, 0);
+
+    sprintf(buf, "rpush %p E",GET_FUNC_PC);
+    reply = (redisReply*)redisCommand(conn, buf);
+    freeReplyObject(reply);
+
+    redisFree(conn);
 }
 
 static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
     // uintptr_t PC = reinterpret_cast<uintptr_t>(GET_FUNC_PC);
-
-    // printf("\n%c %p %lu %lu %d Z\n", funcinfo, GET_FUNC_PC, arg1, arg2, arg_len);
-    // Add dataflow analysis information.
-    sprintf(buf, "[\"%c\",\"%p\",\"%p\",\"%lu\",\"%lu\",\"%d\"],", funcinfo, GET_FUNC_PC, GET_CALLER_PC, arg1, arg2, arg_len);
-    strcpy(data + interlen, buf);
-    interlen += strlen(buf);
-    // Update interlen
-    sprintf(buf, "L%dZ", interlen);
-    strcpy(data, buf);
+    sprintf(buf, "rpush %p%p %c %lu %lu %d",GET_FUNC_PC, GET_CALLER_PC, funcinfo, arg1, arg2, arg_len);
+    reply = (redisReply*)redisCommand(conn, buf);
+    freeReplyObject(reply);
 } 
 
 static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char funcinfo) {
@@ -123,65 +111,33 @@ static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int
         n2 = n;
     }
     
-    // printf("\n%c %x ", funcinfo, *(int *)called_pc);
-    sprintf(buf, "[\"%c\",\"%p\",\"%p\"", funcinfo, GET_FUNC_PC, GET_CALLER_PC);
-    strcpy(data + interlen, buf);
-    interlen += strlen(buf);
-
-    // uint64_t traceflag =  reinterpret_cast<uint64_t>(called_pc) |
-    //     (reinterpret_cast<uint64_t>(s1) << 48) |
-    //     (reinterpret_cast<uint64_t>(s2) << 60);
-    // printf("%lx ", traceflag);
-    
-    // printf("<s1\"%s\"1s> <s2\"%s\"2s> ", s1, s2);
-
+    sprintf(buf, "rpush %p%p %c \"",GET_FUNC_PC, GET_CALLER_PC, funcinfo);
     int i = 0;
-    // printf("<s1\"");
-    sprintf(buf, ",\"");
-    strcpy(data + interlen, buf);
-    interlen += strlen(buf);
 
     for (i = 0; i < n1; i ++) {
         // printf("%c", s1[i]);
         if (s1[i] == '"' || s1[i] == '\\') {
             sprintf(buf, "\\%c", s1[i]);
-            strcpy(data + interlen, buf);
-            interlen += strlen(buf);
         } else {
             sprintf(buf, "%c", s1[i]);
-            strcpy(data + interlen, buf);
-            interlen += strlen(buf);
         }
     }
     // printf("\"1s> <s2\"");
-    sprintf(buf, "\",\"");
-    strcpy(data + interlen, buf);
-    interlen += strlen(buf);
+    sprintf(buf, "\" \"");
 
     for (i = 0; i < n2; i ++) {
         // printf("%c", s2[i]);
         if (s2[i] == '"' || s2[i] == '\\') {
             sprintf(buf, "\\%c", s2[i]);
-            strcpy(data + interlen, buf);
-            interlen += strlen(buf);
         } else {
             sprintf(buf, "%c", s2[i]);
-            strcpy(data + interlen, buf);
-            interlen += strlen(buf);
         }               
     }
-    // printf("\"2s> ");
     sprintf(buf, "\"");
-    strcpy(data + interlen, buf);
-    interlen += strlen(buf);
     
-    // printf("%d %d Z\n", n, result);
-    sprintf(buf, ",\"%d\",\"%d\"],", n, result);
-    strcpy(data + interlen, buf);
-    interlen += strlen(buf);
-    // Update interlen
-    sprintf(buf, "L%dZ", interlen);
-    strcpy(data, buf);
+    sprintf(buf, " %d %d", n, result); 
+    reply = (redisReply*)redisCommand(conn, buf);
+    freeReplyObject(reply);
 }
 
 
@@ -196,27 +152,14 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     }
 
     // printf("\n%c %p %lu %lu", COV_TRACE_SWITCH, GET_FUNC_PC, Cases[0], Cases[1]);
-    sprintf(buf, "[\"%c\",\"%p\",\"%p\",\"%lu\",\"%lu\"", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, Cases[0], Cases[1]);
-    strcpy(data + interlen, buf);
-    interlen += strlen(buf);
+    sprintf(buf, "rpush %p%p %c %lu %lu %lu",GET_FUNC_PC, GET_CALLER_PC, COV_TRACE_SWITCH, Cases[0], Cases[1], Val);
 
-    sprintf(buf, ",\"%lu\"", Val);
-    strcpy(data + interlen, buf);
-    interlen += strlen(buf);
     for (int i = 0; i < Cases[0]; i ++) {
         // printf(" %lu", Cases[2 + i]);
-        sprintf(buf, ",\"%lu\"", Cases[2 + i]);
-        strcpy(data + interlen, buf);
-        interlen += strlen(buf);
+        sprintf(buf, " %lu", Cases[2 + i]);
     }
-    // printf(" Z\n");
-    // Add dataflow analysis information.
-    sprintf(buf, "],");
-    strcpy(data + interlen, buf);
-    interlen += strlen(buf);
-    // Update interlen
-    sprintf(buf, "L%dZ", interlen);
-    strcpy(data, buf);
+    reply = (redisReply*)redisCommand(conn, buf);
+    freeReplyObject(reply);
 }
 
 
@@ -228,32 +171,13 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
 // binary (executable or DSO). The callback will be called at least
 // once per DSO and may be called multiple times with the same parameters.
 void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
-    
-    //memory share
-    key_t id_shm = 124816;
-    id = shmget(id_shm, SHMGET_SIZE, IPC_CREAT | 0666);
-    // srand((unsigned)time(NULL));
-    // id_shm = rand();
-    while (id < 0 ) {
-        // srand(id_shm);
-        id_shm = rand();
-        id = shmget(id_shm, SHMGET_SIZE, IPC_CREAT | 0666);
-    }
-
-    if (data == NULL)
+    // Redis
+    conn = redisConnect("127.0.0.1", 6379);
+    if(conn != NULL && conn->err)
     {
-        //data = (char *)shmat(id, NULL, 0);
-        data = shmat(id, data, 0666);
-    }
-
-    if (data == NULL)
-    {
-        printf("Error Shmat failed.\n");
+        printf("Error Redis connection: %s\n", conn->errstr);
         exit(1);
     }
-    printf("D%dZ\n", id_shm);  // Printf memory share id towards to terminal.
-
-    // strcpy(data, "CMPCOVSHM");
 
     static uint64_t N;  // Counter for the guards.
     if (start == stop || *start) return;  // Initialize only once.
@@ -262,60 +186,28 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     // char PcDescr[10240];
     // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
 
-    // printf("\nI %p %p %p Z\n", GET_FUNC_PC, start, stop);
-    // Add dataflow analysis information.
+    sprintf(buf, "rpush %p I %p %p",GET_FUNC_PC, start, stop);
+    reply = (redisReply*)redisCommand(conn, buf);
+    freeReplyObject(reply);
+
     for (uint32_t *x = start; x < stop; x++)
     {
         *x = ++N;
     }
-    sprintf(buf, "[\"I\",\"%p\",\"%lu\",\"%p\",\"%p\"],", GET_FUNC_PC, N, start, stop);
-    strcpy(data + interlen, buf);
-    interlen += strlen(buf);
-    // Update interlen
-    sprintf(buf, "L%dZ", interlen);
-    strcpy(data, buf);
+    sprintf(buf, "rpush %p S %lu", GET_FUNC_PC, N);
+    reply = (redisReply*)redisCommand(conn, buf);
+    freeReplyObject(reply);
 
-    // printf("\nS %p %lu Z\n", GET_FUNC_PC, N);  // Guards should start from 1.
-    // Add dataflow analysis information.
-
-    int value;
-    value = atexit(saveCovOnEnd);
+    atexit(saveCovOnEnd);
     // if(value != 0) {
     //     cout << "atexit() function registration failed!";
     //     exit(1);
     // }
 }
 
-// This callback is inserted by the compiler on every edge in the
-// control flow (some optimizations apply).
-// Typically, the compiler will emit the code like this:
-//    if(*guard)
-//      __sanitizer_cov_trace_pc_guard(guard);
-// But for large functions it will emit a simple call:
-//    __sanitizer_cov_trace_pc_guard(guard);
-void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
-    if (!*guard) return;  // Duplicate the guard check.
-    // If you set *guard to 0 this code will not be called again for this edge.
-    // Now you can get the PC and do whatever you want:
-    //   store it somewhere or symbolize it and print right away.
-    // The values of `*guard` are as you set them in
-    // __sanitizer_cov_trace_pc_guard_init and so you can make them consecutive
-    // and use them to dereference an array or a bit vector.
 
-    // This function is a part of the sanitizer run-time.
-    // To use it, link with AddressSanitizer or other sanitizer.
-    // char PcDescr[10240];
-    // __sanitizer_symbolize_pc(PC, "%p_%F_%L", PcDescr, sizeof(PcDescr));
-    // printf("\nG %p %x %s\n", guard, *guard, PcDescr);
-    // printf("\nG %p %p %p %x Z\n", GET_FUNC_PC, GET_CALLER_PC, guard, *guard);
-    // Add dataflow analysis information.
-    // sprintf(buf, "[\"G\",\"%p\",\"%p\",\"%p\",\"%x\"],", GET_FUNC_PC, GET_CALLER_PC, guard, *guard);
-    sprintf(buf, "[\"G\",\"%x\"],", *guard);
-    strcpy(data + interlen, buf);
-    interlen += strlen(buf);
-    // Update interlen
-    sprintf(buf, "L%dZ", interlen);
-    strcpy(data, buf);
+void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
+
 }
 
 void __sanitizer_cov_trace_cmp1(uint8_t Arg1, uint8_t Arg2) { 
