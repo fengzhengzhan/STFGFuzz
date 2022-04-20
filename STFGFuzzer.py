@@ -65,8 +65,9 @@ def mainFuzzer():
             file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr,
             vis.start_time, vis.last_time
         )
-        cmpcovcont_list, content = ana.gainTraceRpt(init_stdout)
-        initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
+        init_interlen, addr = ana.getInterlen(init_stdout)
+        cmpcovcont_list = ana.getRpt(init_interlen, addr)
+        initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch)
 
         vis.num_pcguard = ana.getNumOfPcguard()
 
@@ -96,7 +97,7 @@ def mainFuzzer():
                 file_crash_csv, path_crashseeds, execute_seed, len_stdout, len_stderr,
                 vis.start_time, vis.last_time
             )
-            cmpcovcont_list, content = ana.gainTraceRpt(len_stdout)  # report
+            cmpcovcont_list, content = ana.getRpt(len_stdout)  # report
             rpt_dict, rpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
             cmpmaploc_rptset = ana.compareRptToLoc(beforerpt_dict, beforerpt_set, rpt_dict, rpt_set)
             # before_coverage = sch.coveragepath
@@ -139,7 +140,7 @@ def mainFuzzer():
 
             # 2 cmp instruction
             # Track execution information of mutate seeds.
-            cmpcovcont_list, content = ana.gainTraceRpt(mut_stdout)  # report
+            cmpcovcont_list, content = ana.getRpt(mut_stdout)  # report
             mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
             # Gain changed cmp instruction through compare.
             cmpmaploc_rptset = ana.compareRptToLoc(initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
@@ -184,7 +185,7 @@ def mainFuzzer():
 
             # 2 cmp instruction
             # Track execution information of mutate seeds.
-            cmpcovcont_list, content = ana.gainTraceRpt(mut_stdout)  # report
+            cmpcovcont_list, content = ana.getRpt(mut_stdout)  # report
             mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
             cmpmaploc_rptset = ana.compareRptToLoc(initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
 
@@ -242,7 +243,7 @@ def mainFuzzer():
 
                     # 2 cmp instruction
                     # Generate analysis reports.
-                    cmpcovcont_list, content = ana.gainTraceRpt(st_stdout)
+                    cmpcovcont_list, content = ana.getRpt(st_stdout)
                     strpt_dict, strpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)  # report
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, execute_seed.content)
 
