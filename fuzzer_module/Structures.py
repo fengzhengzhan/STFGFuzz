@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 from fuzzer_module.Tools import *
 
 '''Key Structure'''

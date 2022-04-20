@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import faulthandler
 
 faulthandler.enable()
@@ -96,6 +98,7 @@ def mainFuzzer():
                 vis.start_time, vis.last_time
             )
 
+            # 1 seed inputs
             ld_addr = ana.getAddr(ld_stdout[0:16])
             ld_interlen = ana.getInterlen(ld_addr)
             LOG(LOG_DEBUG, LOG_FUNCINFO(), len(ld_seed.content), b4ld_interlen, ld_interlen)
@@ -132,7 +135,7 @@ def mainFuzzer():
         init_addr = ana.getAddr(init_stdout[0:16])
         init_interlen = ana.getInterlen(init_addr)
         init_cmpcov_list = ana.getRpt(init_interlen, init_addr)
-        init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.freezeid_rpt, FLAG_DICT)
+        init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset, FLAG_DICT)
 
         for loci in range(0, len(init_seed.content)):
             if loci not in sch.freeze_bytes:
@@ -156,13 +159,7 @@ def mainFuzzer():
                 vis.start_time, vis.last_time
             )
 
-            # 2 cmp instruction
-            # Track execution information of mutate seeds.
-            # cmpcovcont_list, content = ana.getRpt(sd_stdout)  # report
-            # mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
-            # # Gain changed cmp instruction through compare.
-            # cmpmaploc_rptset = ana.compareLdCmp(initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
-
+            # 1 seed inputs
             sd_addr = ana.getAddr(sd_stdout[0:16])
             sd_interlen = ana.getInterlen(sd_addr)
             sd_diff = False
@@ -215,11 +212,11 @@ def mainFuzzer():
             bd_interlen = ana.getInterlen(bd_addr)
             bd_cmpcov_list = ana.getRpt(bd_interlen, bd_addr)  # report
 
-            bd_cmp_dict = ana.traceAyalysis(bd_cmpcov_list, sch.freezeid_rpt, FLAG_DICT)
-            cmpmaploc_rptset = ana.compareRptToLoc(init_cmp_dict, bd_cmp_dict)
+            bd_cmp_dict = ana.traceAyalysis(bd_cmpcov_list, sch.skip_cmpidset, FLAG_DICT)
+            bd_diffcmp_set = ana.compareRptToLoc(init_cmp_dict, bd_cmp_dict)
 
-            for cmpid_key in cmpmaploc_rptset:  # Determine if the dictionary is empty.
-                if cmpid_key not in sch.solved_cmpset:
+            for cmpid_key in bd_diffcmp_set:  # Determine if the dictionary is empty.
+                if cmpid_key not in sch.skip_cmpidset:
                     if cmpid_key not in cmpmaploc_dict:
                         cmpmaploc_dict[cmpid_key] = [one_loc, ]
                     else:
@@ -230,9 +227,8 @@ def mainFuzzer():
             vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), bd_seed.content, showlog=True)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), one_loc, bd_diffcmp_set, cmpmaploc_dict, showlog=True)
         '''bd <-'''
-        raise Exception()
 
         '''3 cmp type'''
         '''st -> Constraints Analysis'''
@@ -272,7 +268,7 @@ def mainFuzzer():
                     # 2 cmp instruction
                     # Generate analysis reports.
                     cmpcovcont_list, content = ana.getRpt(st_stdout)
-                    strpt_dict, strpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)  # report
+                    strpt_dict, strpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.skip_cmpidset, sch)  # report
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, execute_seed.content)
 
                     # 3 cmp type
@@ -305,9 +301,9 @@ def mainFuzzer():
                         sch.quitFuzz()
 
                     if TYPE_SOLVED in type_infer_set:
-                        sch.solved_cmpset.add(st_key)
+                        sch.skip_cmpidset.add(st_key)
                         sch.freeze_bytes = sch.freeze_bytes | set(st_loclist)
-                        sch.freezeid_rpt.add(st_key)
+                        sch.recsol_cmpset.add(st_key)
                         sch.addq(SCH_LOOP_SEED, [ret_seed, ])
                         break
 

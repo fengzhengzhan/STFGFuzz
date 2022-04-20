@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import re
 from queue import Queue
 
@@ -14,16 +16,16 @@ class Scheduler:
 
         self.loc_coarse_list: 'list[int]' = []
         self.slid_window: int = SCH_SLID_WINDOW
-        self.freeze_bytes: set = set()
-        self.freezeid_rpt = set()  # freeze or ignore
-        self.ignore_cmpset = set()
-        self.solved_cmpset = set()
+        self.freeze_bytes = set()
+        self.skip_cmpidset = set()  # freeze or ignore
 
         self.coveragepath = set()
-        self.unique_crash = set()
 
         self.expandnums = 0
         self.expand_size = SCH_EXPAND_SIZE
+
+        self.recunique_crash = set()
+        self.recsol_cmpset = set()  # Record data, do not use
 
     def initEachloop(self, vis):
         self.loc_coarse_list = []
@@ -89,8 +91,8 @@ class Scheduler:
                 crashid = re.search(re_str, str(stderr)).group(1)
             except Exception as e:
                 crashid = str(stderr)[-16:-3]  #
-            if crashid not in self.unique_crash:
-                self.unique_crash.add(crashid)
+            if crashid not in self.recunique_crash:
+                self.recunique_crash.add(crashid)
                 # write csv
                 with open(file_crash_csv, "a+", encoding="utf-8") as cf:
                     # GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
