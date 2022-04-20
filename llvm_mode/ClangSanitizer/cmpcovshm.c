@@ -81,7 +81,7 @@ char buf[1024*1024];
 static void saveCovOnEnd() {
     // printf("\nE %p Z\n", GET_FUNC_PC);
     // Add dataflow analysis information.
-    sprintf(buf, "['E','%p'],", GET_FUNC_PC);
+    sprintf(buf, "['E'],");
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
     // Update interlen

@@ -65,9 +65,10 @@ def mainFuzzer():
             file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr,
             vis.start_time, vis.last_time
         )
-        addr = ana.getAddr(init_stdout)
+        addr = ana.getAddr(init_stdout[0:16])
         init_interlen = ana.getInterlen(addr)
         cmpcov_list = ana.getRpt(init_interlen, addr)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_stdout, init_stderr, cmpcov_list, showlog=True)
         # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch) todo
 
         # vis.num_pcguard = ana.getNumOfPcguard() todo
@@ -98,10 +99,12 @@ def mainFuzzer():
                 vis.start_time, vis.last_time
             )
 
-            ld_addr = ana.getAddr(ld_stdout)
+            ld_addr = ana.getAddr(ld_stdout[0:16])
             ld_interlen = ana.getInterlen(ld_addr)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), len(ld_seed.content) // VIS_SEED_LINE, ld_interlen, b4ld_interlen, showlog=True)
             if ld_interlen != b4ld_interlen:
                 b4ld_seed = ld_seed
+                b4ld_interlen = ld_interlen
             elif ld_interlen == b4ld_interlen:
                 # Current seed.
                 ld_cmpcov_list = ana.getRpt(ld_interlen, ld_addr)  # report
@@ -109,6 +112,7 @@ def mainFuzzer():
                 b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace('@@', b4ld_seed.filename))
                 b4ld_addr = ana.getAddr(b4ld_stdout)
                 b4ld_cmpcov_list = ana.getRpt(ld_interlen, b4ld_addr)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), b4ld_cmpcov_list, ld_cmpcov_list, showlog=True)
                 if ld_cmpcov_list != b4ld_cmpcov_list:
                     b4ld_seed = ld_seed
                 else:
@@ -119,6 +123,7 @@ def mainFuzzer():
             if res == VIS_Q:
                 sch.quitFuzz()
 
+        raise Exception()
         # Reset the init_seed
         init_seed = b4ld_seed
         # initrpt_dict = b4rpt_dict

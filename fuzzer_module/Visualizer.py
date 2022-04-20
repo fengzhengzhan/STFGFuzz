@@ -123,7 +123,7 @@ class Visualizer:
 
             # Initual terminal seeds.
             seed_len = len(seed.content)
-            layout_x = seed_len // VIS_SEED_LINE + 1  # The end line not full.
+            layout_x = (seed_len // VIS_SEED_LINE) + 1  # The end line not full.
             layout_y = seed_len % VIS_SEED_LINE
 
             high = min(layout_x-self.seedline, VIS_MAX_LINE)
