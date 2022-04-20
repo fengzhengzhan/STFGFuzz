@@ -75,7 +75,7 @@ def getCFG(cfglist, map_numTofuncasm):
     @return:
     """
     map_guardTocfgnode: 'dict[guardnum:node_j]' = {}
-    map_numfuncTotargetnode: 'dict[funcname:node_j]' = {}
+    map_numfuncTotgtnode: 'dict[funcname:node_j]' = {}
     cfggraph_dict = {}
     for jsonfile_i in cfglist:
         # funcname = jsonfile_i.split(os.sep)[-1][1:-9]
@@ -98,12 +98,12 @@ def getCFG(cfglist, map_numTofuncasm):
                     for target_l in map_numTofuncasm[tarnum_k].get(graphname):
                         res = node_j[BUI_NODE_LABEL].find(target_l)
                         if res != -1:
-                            if tarnum_k not in map_numfuncTotargetnode:
-                                map_numfuncTotargetnode[tarnum_k] = {}
-                            if graphname not in map_numfuncTotargetnode[tarnum_k]:
-                                map_numfuncTotargetnode[tarnum_k][graphname] = [node_j[BUI_NODE_NAME]]
+                            if tarnum_k not in map_numfuncTotgtnode:
+                                map_numfuncTotgtnode[tarnum_k] = {}
+                            if graphname not in map_numfuncTotgtnode[tarnum_k]:
+                                map_numfuncTotgtnode[tarnum_k][graphname] = [node_j[BUI_NODE_NAME]]
                             else:
-                                map_numfuncTotargetnode[tarnum_k][graphname].append(node_j[BUI_NODE_NAME])
+                                map_numfuncTotgtnode[tarnum_k][graphname].append(node_j[BUI_NODE_NAME])
 
                 # Find Guard num node_j
                 pattern = re.compile(BUI_GUARD_RE)
@@ -131,7 +131,7 @@ def getCFG(cfglist, map_numTofuncasm):
             cfggraph = Graph(graphname, nodes_list, edges_list)
             cfggraph_dict[graphname] = cfggraph
 
-    return cfggraph_dict, map_guardTocfgnode, map_numfuncTotargetnode
+    return cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode
 
 
 def buildConstraint(start_node, end_node, st_list):

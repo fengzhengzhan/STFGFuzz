@@ -77,11 +77,12 @@ int interlen = 16;
 char buf[1024*1024];
 
 
+
 // The end of analysis.
 static void saveCovOnEnd() {
     // printf("\nE %p Z\n", GET_FUNC_PC);
     // Add dataflow analysis information.
-    sprintf(buf, "['E'],");
+    sprintf(buf, "['E','end'],");
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
     // Update interlen
@@ -171,7 +172,7 @@ static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int
 
 void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     // Called before a switch statement.
-    // Val is the switch operand.
+    // Val is the switch value.
     // Cases[0] is the number of case constants.
     // Cases[1] is the size of Val in bits.
     // Cases[2:] are the case constants.
@@ -180,7 +181,7 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     }
 
     // printf("\n%c %p %lu %lu", COV_TRACE_SWITCH, GET_FUNC_PC, Cases[0], Cases[1]);
-    sprintf(buf, "['%c','%p','%p',%lu,%lu,%lu", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, Cases[0], Cases[1], Val);
+    sprintf(buf, "['%c','%p%p',%lu,%lu,%lu", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, Val, Cases[0], Cases[1]);
 
     for (int i = 0; i < Cases[0]; i ++) {
         // printf(" %lu", Cases[2 + i]);
@@ -229,6 +230,11 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
         exit(1);
     }
     printf("D%dZ\n", id_shm);  // Printf memory share id towards to terminal.
+
+    // memory get
+    // key_t get_shm = 168421;
+
+
 
     // strcpy(data, "CMPCOVSHM");
 

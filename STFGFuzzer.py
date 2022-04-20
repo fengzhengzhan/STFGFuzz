@@ -35,9 +35,9 @@ def mainFuzzer():
     # Graph Information
     cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
     cggraph, map_funcTocgnode = Builder.getCG(cglist)
-    cfggraph_dict, map_guardTocfgnode, map_numfuncTotargetnode = Builder.getCFG(cfglist, map_numTofuncasm)
+    cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode = Builder.getCFG(cfglist, map_numTofuncasm)
     LOG(LOG_DEBUG, LOG_FUNCINFO(),
-        cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode, map_numfuncTotargetnode)
+        cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode)
 
     # vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
 
@@ -67,11 +67,13 @@ def mainFuzzer():
         )
         addr = ana.getAddr(init_stdout[0:16])
         init_interlen = ana.getInterlen(addr)
-        cmpcov_list = ana.getRpt(init_interlen, addr)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_stdout, init_stderr, cmpcov_list, showlog=True)
-        # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch) todo
+        init_cmpcov_list = ana.getRpt(init_interlen, addr)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_stdout, init_stderr, init_cmpcov_list)
+        # Get the comparison instructions with the possibility of length comparison.
+        init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.freezeid_rpt, TRACENUMCMPSET)
+        # print(init_cmp_dict)
 
-        # vis.num_pcguard = ana.getNumOfPcguard() todo
+        # vis.num_pcguard = ana.getNumOfPcguard() # todo
 
         # Select the location to be mutated and add it to the location queue.
         sch.initEachloop(vis)
@@ -86,6 +88,7 @@ def mainFuzzer():
         # If there is a change in the increase length then increase the length.
         b4ld_seed = init_seed
         b4ld_interlen = init_interlen
+        b4ld_cmp_dict = init_cmp_dict
         while len(b4ld_seed.content) < SCH_EXPAND_MAXSIZE:
             # if before_coverage == sch.coveragepath and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
             vis.total += 1
@@ -99,24 +102,21 @@ def mainFuzzer():
                 vis.start_time, vis.last_time
             )
 
+            # Current seed.
             ld_addr = ana.getAddr(ld_stdout[0:16])
             ld_interlen = ana.getInterlen(ld_addr)
+            ld_cmpcov_list = ana.getRpt(ld_interlen, ld_addr)  # report
             LOG(LOG_DEBUG, LOG_FUNCINFO(), len(ld_seed.content) // VIS_SEED_LINE, ld_interlen, b4ld_interlen, showlog=True)
-            if ld_interlen != b4ld_interlen:
+            ld_cmp_dict = ana.traceAyalysis(ld_cmpcov_list, sch.freezeid_rpt, TRACENUMCMPSET)
+
+            ld_diff = ana.compareLdCmp(b4ld_cmp_dict, ld_cmp_dict, len(ld_seed.content))
+            if ld_diff:
+                # Before seed.
                 b4ld_seed = ld_seed
                 b4ld_interlen = ld_interlen
-            elif ld_interlen == b4ld_interlen:
-                # Current seed.
-                ld_cmpcov_list = ana.getRpt(ld_interlen, ld_addr)  # report
-                # Before seed.
-                b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace('@@', b4ld_seed.filename))
-                b4ld_addr = ana.getAddr(b4ld_stdout)
-                b4ld_cmpcov_list = ana.getRpt(ld_interlen, b4ld_addr)
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), b4ld_cmpcov_list, ld_cmpcov_list, showlog=True)
-                if ld_cmpcov_list != b4ld_cmpcov_list:
-                    b4ld_seed = ld_seed
-                else:
-                    break
+                b4ld_cmp_dict = ld_cmp_dict
+            else:
+                break
 
             res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, "Length", len(sch.coveragepath))
             vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
@@ -125,12 +125,12 @@ def mainFuzzer():
 
         raise Exception()
         # Reset the init_seed
-        init_seed = b4ld_seed
+        # init_seed = b4ld_seed
         # initrpt_dict = b4rpt_dict
         # initrpt_set = b4rpt_set
 
-        '''sd -> Sliding Window Detection O(n/step)'''  # todo multiprocessing
-        # Get a report on changes to comparison instructions.
+        '''sd -> Sliding Window Detection O(n/step)'''
+        # Get a report on changes to comparison instructions. # todo multiprocessing
         before_stloc_list = []
         coarse_head = 0
         need_fine_list = []
@@ -152,7 +152,7 @@ def mainFuzzer():
             cmpcovcont_list, content = ana.getRpt(mut_stdout)  # report
             mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
             # Gain changed cmp instruction through compare.
-            cmpmaploc_rptset = ana.compareRptToLoc(initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
+            cmpmaploc_rptset = ana.compareLdCmp(initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
 
             LOG(LOG_DEBUG, LOG_FUNCINFO(), mutseed.content, showlog=True)
             LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_rptset)
@@ -196,7 +196,7 @@ def mainFuzzer():
             # Track execution information of mutate seeds.
             cmpcovcont_list, content = ana.getRpt(mut_stdout)  # report
             mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
-            cmpmaploc_rptset = ana.compareRptToLoc(initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
+            cmpmaploc_rptset = ana.compareLdCmp(initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
 
             for cmpid_key in cmpmaploc_rptset:  # Determine if the dictionary is empty.
                 if cmpid_key not in sch.solved_cmpset:

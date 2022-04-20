@@ -28,6 +28,7 @@ class StructSeed:
         self.location = location  # -1 as the init seed
 
 
+
 class StructCmpIns:
     def __init__(self, stcmpid, startguard, endguard, stvalue:list, stargs):
         self.cmpid = stcmpid

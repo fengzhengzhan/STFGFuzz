@@ -92,91 +92,17 @@ class Analyzer:
         del cmpcovshm_str
         return cmpcov_list
 
-    def traceAyalysis(self, cmpcovcont_list, cmpcov_content, freezeid_rpt, sch: 'Scheduler'):
-        # Iterate through the trace report to get the corresponding information
-        cmprpt_dict: 'dict[cmpid:[StructCmpIns]]' = {}  # According cmp instruction to genetator dict.
-        cmpid_list = []
-        flagid_list = []
-        args_list = []
-        pre_guard_num = USE_INITNUM  # before
-        end_guard_num = USE_ENDNUM
-        exception_guard_num = USE_EXCEPTION
-        for each in cmpcovcont_list:
-            typeflag = each[0]
-            if typeflag in CMPSET:
-                cmpid = str(each[1][2:]+each[2][2:])
-                # if cmpid in freezeid_rpt:
-                #     continue
-            if typeflag == INIT_PC_GUARD:
-                self.num_pcguard = int(each[2])
-            elif typeflag == EACH_PC_GUARD:
-                type = typeflag
-                guard_num = int(each[1], 16)
-                sch.coveragepath.add(guard_num)
-                for i, oneid in enumerate(cmpid_list):
-                    if oneid not in cmprpt_dict:
-                        cmprpt_dict[oneid] = [
-                            StructCmpIns(oneid, pre_guard_num, guard_num, flagid_list[i], args_list[i]),
-                        ]
-                    else:
-                        cmprpt_dict[oneid].append(
-                            StructCmpIns(oneid, pre_guard_num, guard_num, flagid_list[i], args_list[i])
-                        )
-                pre_guard_num = guard_num
-                cmpid_list = []
-                flagid_list = []
-                args_list = []
-            elif typeflag == PROGRAM_END:
-                end = True
-                for i, oneid in enumerate(cmpid_list):
-                    if oneid not in cmprpt_dict:
-                        cmprpt_dict[oneid] = [
-                            StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i]),
-                        ]
-                    else:
-                        cmprpt_dict[oneid].append(
-                            StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i])
-                        )
-                cmpid_list = []
-                flagid_list = []
-                args_list = []
-
-            elif typeflag in TRACENUMCMPSET:
-                # type, func_pc, caller_pc, arg1, arg2, arg_len
-                cmpid_list.append(cmpid)
-                flagid_list.append([typeflag, each[1], each[2], each[5]])
-                args_list.append([each[3], each[4]])
-            elif typeflag == COV_SWITCH:
-                # type, func_pc, caller_pc, num_case, size_val
-                cmpid_list.append(cmpid)
-                flagid_list.append([typeflag, each[1], each[2], int(each[3]), each[4]])
-                temp_args = []
-                temp_args.append(each[5])
-                for i in range(int(each[3])):
-                    temp_args.append(each[i + 6])
-                args_list.append(temp_args)
-            elif typeflag == COV_DIV4 or typeflag == COV_DIV8 or typeflag == COV_GEP:
-                pass
-            elif typeflag in HOOKSTRCMPSET:
-                # type, func_pc, caller_pc, s1, s2, size_n, result
-                cmpid_list.append(cmpid)
-                flagid_list.append([typeflag, each[1], each[2], int(each[5]), int(each[6])])
-                args_list.append([each[3], each[4]])
-
-        if len(cmpid_list) > 0:
-            for i, oneid in enumerate(cmpid_list):
-                if oneid not in cmprpt_dict:
-                    cmprpt_dict[oneid] = [
-                        StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i]),
-                    ]
+    def traceAyalysis(self, cmpcov_list, freezeid_rpt, type_info):
+        # Iterate through the trace list to generates the corresponding cmpid dictionary.
+        cmp_dict: 'dict[cmpid:[StructCmpIns]]' = {}  # According cmp instruction to genetator dict.
+        for each_i in cmpcov_list:
+            if each_i[0] in type_info and each_i[1] not in freezeid_rpt:
+                cmpid = each_i[1]
+                if cmpid not in cmp_dict:
+                    cmp_dict[cmpid] = [each_i[2:]]
                 else:
-                    cmprpt_dict[oneid].append(
-                        StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i])
-                    )
-
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), cmprpt_dict)
-        cmprpt_set: 'cmpid' = set(cmprpt_dict)
-        return cmprpt_dict, cmprpt_set
+                    cmp_dict[cmpid].append(each_i[2:])
+        return cmp_dict
 
     def traceGuardAyalysis(self, cmpcovcont_list, cmpcov_content, freezeid_rpt, sch: 'Scheduler'):
         # Iterate through the trace report to get the corresponding information
@@ -267,6 +193,17 @@ class Analyzer:
     '''
     Tracking Comparison Module.
     '''
+    def compareLdCmp(self, b4_cmp_dict, tgt_cmp_dict, ld_len):
+        # The current target is the core of the comparison.
+        ld_diff = False
+        for tgt_ki, tgt_vi in tgt_cmp_dict.items():
+            if tgt_ki in b4_cmp_dict:
+                for j in range(0, min(len(b4_cmp_dict[tgt_ki]), len(tgt_cmp_dict[tgt_ki]))):
+                    for k in range(0, 2):
+                        if ld_len >= tgt_cmp_dict[tgt_ki][j][k] != b4_cmp_dict[tgt_ki][j][k]:
+                            LOG(LOG_DEBUG, LOG_FUNCINFO(), tgt_cmp_dict[tgt_ki][j][k], b4_cmp_dict[tgt_ki][j][k])
+                            ld_diff = True
+        return ld_diff
 
     def compareRptToLoc(self, initrpt_dict: 'dict[str:StructCmpIns]', initrpt_set: set, mutrpt_dict, mutrpt_set):
         interset = initrpt_set & mutrpt_set  # Intersection set

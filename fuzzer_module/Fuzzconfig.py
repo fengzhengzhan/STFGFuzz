@@ -32,7 +32,7 @@ LD_EXPAND = 256
 # In order to save space, using one character as the flag to mark.
 # The meaning of the parameters following the flags is described in the comments.
 # trace
-COV_CMP1 = 'a'  # (call_pc, arg1, arg2, arg_len)
+COV_CMP1 = 'a'  # (info, call_pc, arg1, arg2, arg_len)
 COV_CMP2 = 'b'
 COV_CMP4 = 'c'
 COV_CMP8 = 'd'
