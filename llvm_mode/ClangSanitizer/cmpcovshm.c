@@ -82,11 +82,7 @@ char buf[1024*1024];
 static void saveCovOnEnd() {
     // printf("\nE %p Z\n", GET_FUNC_PC);
     // Add dataflow analysis information.
-<<<<<<< HEAD
-    sprintf(buf, "['E','end'],");
-=======
-    sprintf(buf, "['E','%p'],", GET_FUNC_PC);
->>>>>>> parent of eb5cd29... stdoutopt
+    sprintf(buf, "['E','Eend'],");
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
     // Update interlen
@@ -107,7 +103,7 @@ static void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funci
 
     // printf("\n%c %p %lu %lu %d Z\n", funcinfo, GET_FUNC_PC, arg1, arg2, arg_len);
     // Add dataflow analysis information.
-    sprintf(buf, "['%c','%p%p',%lu,%lu,%d],", funcinfo, GET_FUNC_PC, GET_CALLER_PC, arg1, arg2, arg_len);
+    sprintf(buf, "['%c','%c%p%p',%lu,%lu,%d],", funcinfo, funcinfo, GET_FUNC_PC, GET_CALLER_PC, arg1, arg2, arg_len);
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
     // Update interlen
@@ -129,7 +125,7 @@ static void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int
     }
     
     // printf("\n%c %x ", funcinfo, *(int *)called_pc);
-    sprintf(buf, "['%c','%p%p'", funcinfo, GET_FUNC_PC, GET_CALLER_PC);
+    sprintf(buf, "['%c','%c%p%p'", funcinfo, funcinfo, GET_FUNC_PC, GET_CALLER_PC);
 
     // uint64_t traceflag =  reinterpret_cast<uint64_t>(called_pc) |
     //     (reinterpret_cast<uint64_t>(s1) << 48) |
@@ -185,7 +181,7 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     }
 
     // printf("\n%c %p %lu %lu", COV_TRACE_SWITCH, GET_FUNC_PC, Cases[0], Cases[1]);
-    sprintf(buf, "['%c','%p%p',%lu,%lu,%lu", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, Val, Cases[0], Cases[1]);
+    sprintf(buf, "['%c','%c%p%p',%lu,%lu,%lu", COV_TRACE_SWITCH, COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, Val, Cases[0], Cases[1]);
 
     for (int i = 0; i < Cases[0]; i ++) {
         // printf(" %lu", Cases[2 + i]);
@@ -255,7 +251,7 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     {
         *x = ++N;
     }
-    sprintf(buf, "['I','%p',%lu,'%p','%p'],", GET_FUNC_PC, N, start, stop);
+    sprintf(buf, "['I','I%p',%lu,'%p','%p'],", GET_FUNC_PC, N, start, stop);
     strcpy(data + interlen, buf);
     interlen += strlen(buf);
     // Update interlen

@@ -56,7 +56,7 @@ def mainFuzzer():
         sch.addq(SCH_LOOP_SEED,
                  [StructSeed(path_mutseeds + AUTO_SEED, Mutator.getFillStr(64), SEED_INIT, set()), ])
 
-    '''Fuzzing test cycle'''
+    '''Fuzzing Cycle'''
     while not sch.isEmpty(SCH_LOOP_SEED):
         vis.loop += 1
         # First run to collect information.
@@ -66,9 +66,9 @@ def mainFuzzer():
             file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr,
             vis.start_time, vis.last_time
         )
-        addr = ana.getAddr(init_stdout[0:16])
-        init_interlen = ana.getInterlen(addr)
-        # cmpcov_list = ana.getRpt(init_interlen, addr)
+        init_addr = ana.getAddr(init_stdout[0:16])
+        init_interlen = ana.getInterlen(init_addr)
+        # cmpcov_list = ana.getRpt(init_interlen, init_addr)
         # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch) todo
 
         # vis.num_pcguard = ana.getNumOfPcguard() # todo
@@ -84,9 +84,9 @@ def mainFuzzer():
         b4ld_seed = init_seed
         b4ld_interlen = init_interlen
         while len(b4ld_seed.content) < sch.expand_size:
-            # if before_coverage == sch.coveragepath and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
             vis.total += 1
             sch.expandnums += 1
+            # if before_coverage == sch.coveragepath and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
             # According fixed length to expand the content length of seed.
             ld_seed = Mutator.mutAddLength(b4ld_seed.content, path_mutseeds, LENGTH_STR, LD_EXPAND)
             ld_seed = sch.selectOneSeed(SCH_THIS_SEED, ld_seed)
@@ -108,17 +108,19 @@ def mainFuzzer():
                 # Before seed.
                 b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace('@@', b4ld_seed.filename))
                 b4ld_addr = ana.getAddr(b4ld_stdout[0:16])
-                b4ld_cmpcov_list = ana.getRpt(ld_interlen, b4ld_addr)
+                b4ld_cmpcov_list = ana.getRpt(b4ld_interlen, b4ld_addr)
                 if ld_cmpcov_list != b4ld_cmpcov_list:
                     b4ld_seed = ld_seed
                     b4ld_interlen = ld_interlen
                 else:
                     break
 
-            res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, "Length", len(sch.coveragepath))
+            res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, "LengthDetect", len(sch.coveragepath))
             vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
+        '''ld <-'''
+
 
         # Reset the init_seed
         init_seed = b4ld_seed
@@ -127,9 +129,10 @@ def mainFuzzer():
             file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr,
             vis.start_time, vis.last_time
         )
-        addr = ana.getAddr(init_stdout[0:16])
-        init_interlen = ana.getInterlen(addr)
-        init_cmpcov_list = ana.getRpt(init_interlen, addr)
+        init_addr = ana.getAddr(init_stdout[0:16])
+        init_interlen = ana.getInterlen(init_addr)
+        init_cmpcov_list = ana.getRpt(init_interlen, init_addr)
+        init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.freezeid_rpt, FLAG_DICT)
 
         for loci in range(0, len(init_seed.content)):
             if loci not in sch.freeze_bytes:
@@ -180,12 +183,13 @@ def mainFuzzer():
             before_sdloc_list = sdloc_list
 
             # 5 visualize
-            res = vis.display(sd_seed, set(sdloc_list), sd_stdout, sd_stderr, "Coarse-Grained", len(sch.coveragepath))
+            res = vis.display(sd_seed, set(sdloc_list), sd_stdout, sd_stderr, "SlidingDetect", len(sch.coveragepath))
             vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
         LOG(LOG_DEBUG, LOG_FUNCINFO(), need_fine_list, showlog=True)
-        raise Exception()
+        '''sd <-'''
+
 
         '''bd -> Byte Detection O(m)'''
         # Mutate seeds to find where to change. Then perform to a directed mutate.
@@ -196,20 +200,23 @@ def mainFuzzer():
         for one_loc in need_fine_list:
             vis.total += 1
             # 1 seed inputs
-            stloc_list = [one_loc, ]
-            mutseed = Mutator.mutOneChar(init_seed.content, path_mutseeds, FINE_STR + str(vis.loop), stloc_list)
-            execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
-            mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+            bdloc_list = [one_loc, ]
+            bd_seed = Mutator.mutOneChar(init_seed.content, path_mutseeds, FINE_STR + str(vis.loop), bdloc_list)
+            bd_seed = sch.selectOneSeed(SCH_THIS_SEED, bd_seed)
+            bd_stdout, bd_stderr = Executor.run(fuzz_command.replace('@@', bd_seed.filename))
             sch.saveCrash(
-                file_crash_csv, path_crashseeds, execute_seed, mut_stdout, mut_stderr,
+                file_crash_csv, path_crashseeds, bd_seed, bd_stdout, bd_stderr,
                 vis.start_time, vis.last_time
             )
 
             # 2 cmp instruction
             # Track execution information of mutate seeds.
-            cmpcovcont_list, content = ana.getRpt(mut_stdout)  # report
-            mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
-            cmpmaploc_rptset = ana.compareLdCmp(initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
+            bd_addr = ana.getAddr(bd_stdout[0:16])
+            bd_interlen = ana.getInterlen(bd_addr)
+            bd_cmpcov_list = ana.getRpt(bd_interlen, bd_addr)  # report
+
+            bd_cmp_dict = ana.traceAyalysis(bd_cmpcov_list, sch.freezeid_rpt, FLAG_DICT)
+            cmpmaploc_rptset = ana.compareRptToLoc(init_cmp_dict, bd_cmp_dict)
 
             for cmpid_key in cmpmaploc_rptset:  # Determine if the dictionary is empty.
                 if cmpid_key not in sch.solved_cmpset:
@@ -219,15 +226,13 @@ def mainFuzzer():
                         cmpmaploc_dict[cmpid_key].append(one_loc)
 
             # 5 visualize
-            res = vis.display(
-                execute_seed, set(stloc_list), mut_stdout, mut_stderr,
-                "Fine-Grained", len(sch.coveragepath),
-                path_graph, cggraph, cfggraph_dict['main']
-            )
+            res = vis.display(bd_seed, set(bdloc_list), bd_stdout, bd_stderr, "ByteDetect", len(sch.coveragepath))
+            vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
-
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), mutseed.content, showlog=True)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), bd_seed.content, showlog=True)
+        '''bd <-'''
+        raise Exception()
 
         '''3 cmp type'''
         '''st -> Constraints Analysis'''

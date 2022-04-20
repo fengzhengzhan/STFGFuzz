@@ -15,7 +15,7 @@ class Scheduler:
         self.loc_coarse_list: 'list[int]' = []
         self.slid_window: int = SCH_SLID_WINDOW
         self.freeze_bytes: set = set()
-        self.freezeid_rpt = set()
+        self.freezeid_rpt = set()  # freeze or ignore
         self.ignore_cmpset = set()
         self.solved_cmpset = set()
 

@@ -99,9 +99,9 @@ class Analyzer:
             if each_i[0] in type_info and each_i[1] not in freezeid_rpt:
                 cmpid = each_i[1]
                 if cmpid not in cmp_dict:
-                    cmp_dict[cmpid] = [each_i[2:]]
+                    cmp_dict[cmpid] = [each_i[0] + each_i[2:], ]
                 else:
-                    cmp_dict[cmpid].append(each_i[2:])
+                    cmp_dict[cmpid].append(each_i[0] + each_i[2:])
         return cmp_dict
 
     def traceGuardAyalysis(self, cmpcovcont_list, cmpcov_content, freezeid_rpt, sch: 'Scheduler'):
@@ -205,27 +205,24 @@ class Analyzer:
                             ld_diff = True
         return ld_diff
 
-    def compareRptToLoc(self, initrpt_dict: 'dict[str:StructCmpIns]', initrpt_set: set, mutrpt_dict, mutrpt_set):
-        interset = initrpt_set & mutrpt_set  # Intersection set
-        symdiffset = initrpt_set ^ mutrpt_set  # Symmetric Difference set
+    def compareRptToLoc(self, b4cmp_dict, cmp_dict):
+        b4cmpset = set(b4cmp_dict)
+        cmpset = set(cmp_dict)
+        interset = b4cmpset & cmpset  # Intersection set
+        symdiffset = b4cmpset ^ cmpset  # Symmetric Difference set
         cmpmaploc_rptset = set()
         LOG(LOG_DEBUG, LOG_FUNCINFO(), interset, symdiffset)
 
         # Intersection set
-        if len(interset) > 0:
-            # compare whether the parameters of the same constraint are different
-            for key_i in interset:
-                if len(initrpt_dict[key_i]) != len(mutrpt_dict[key_i]):
-                    cmpmaploc_rptset.add(key_i)
-                else:
-                    for l_j in range(len(initrpt_dict[key_i])):
-                        for larg_k in range(len(initrpt_dict[key_i][l_j].stargs)):
-                            if initrpt_dict[key_i][l_j].stargs[larg_k] != mutrpt_dict[key_i][l_j].stargs[larg_k]:
-                                cmpmaploc_rptset.add(key_i)
-        # Symmetric Difference set
-        if len(symdiffset) > 0:
-            for key_i in symdiffset:
+        # compare whether the parameters of the same constraint are different.
+        # Faster comparisons can be achieved by using arrays instead of structures.
+        for key_i in interset:
+            if b4cmp_dict[key_i] != cmp_dict[key_i]:
                 cmpmaploc_rptset.add(key_i)
+
+        # Symmetric Difference set
+        for key_i in symdiffset:
+            cmpmaploc_rptset.add(key_i)
 
         return cmpmaploc_rptset
 
