@@ -65,13 +65,10 @@ def mainFuzzer():
             file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr,
             vis.start_time, vis.last_time
         )
-        addr = ana.getAddr(init_stdout[0:16])
+        addr = ana.getAddr(init_stdout)
         init_interlen = ana.getInterlen(addr)
-        init_cmpcov_list = ana.getRpt(init_interlen, addr)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_stdout, init_stderr, init_cmpcov_list)
-        # Get the comparison instructions with the possibility of length comparison.
-        init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.freezeid_rpt, TRACENUMCMPSET)
-        # print(init_cmp_dict)
+        # cmpcov_list = ana.getRpt(init_interlen, addr)
+        # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch) todo
 
         # vis.num_pcguard = ana.getNumOfPcguard() # todo
 
@@ -88,8 +85,7 @@ def mainFuzzer():
         # If there is a change in the increase length then increase the length.
         b4ld_seed = init_seed
         b4ld_interlen = init_interlen
-        b4ld_cmp_dict = init_cmp_dict
-        while len(b4ld_seed.content) < SCH_EXPAND_MAXSIZE:
+        while len(b4ld_seed.content) < sch.expand_size:
             # if before_coverage == sch.coveragepath and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
             vis.total += 1
             sch.expandnums += 1
@@ -102,27 +98,27 @@ def mainFuzzer():
                 vis.start_time, vis.last_time
             )
 
-            # Current seed.
+
             ld_addr = ana.getAddr(ld_stdout[0:16])
             ld_interlen = ana.getInterlen(ld_addr)
-            ld_cmpcov_list = ana.getRpt(ld_interlen, ld_addr)  # report
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), len(ld_seed.content) // VIS_SEED_LINE, ld_interlen, b4ld_interlen, showlog=True)
-            ld_cmp_dict = ana.traceAyalysis(ld_cmpcov_list, sch.freezeid_rpt, TRACENUMCMPSET)
-
-            ld_diff = ana.compareLdCmp(b4ld_cmp_dict, ld_cmp_dict, len(ld_seed.content))
-            if ld_diff:
-                # Before seed.
+            if ld_interlen != b4ld_interlen:
                 b4ld_seed = ld_seed
-                b4ld_interlen = ld_interlen
-                b4ld_cmp_dict = ld_cmp_dict
-            else:
-                break
+            elif ld_interlen == b4ld_interlen:
+                # Current seed.
+                ld_cmpcov_list = ana.getRpt(ld_interlen, ld_addr)  # report
+                # Before seed.
+                b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace('@@', b4ld_seed.filename))
+                b4ld_addr = ana.getAddr(b4ld_stdout)
+                b4ld_cmpcov_list = ana.getRpt(ld_interlen, b4ld_addr)
+                if ld_cmpcov_list != b4ld_cmpcov_list:
+                    b4ld_seed = ld_seed
+                else:
+                    break
 
             res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, "Length", len(sch.coveragepath))
             vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
-
         raise Exception()
         # Reset the init_seed
         # init_seed = b4ld_seed

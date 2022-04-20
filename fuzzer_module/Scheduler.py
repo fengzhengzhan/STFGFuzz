@@ -23,6 +23,7 @@ class Scheduler:
         self.unique_crash = set()
 
         self.expandnums = 0
+        self.expand_size = SCH_EXPAND_SIZE
 
     def initEachloop(self, vis):
         self.loc_coarse_list = []
