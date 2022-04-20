@@ -25,9 +25,9 @@ def mainFuzzer():
     LOG(LOG_DEBUG, LOG_FUNCINFO(), path_initseeds, path_mutseeds, path_crashseeds)
 
     '''Fuzzing test procedure.'''
-    vis = Visualizer.Visualizer()
-    sch = Scheduler.Scheduler()
     ana = Analyzer.Analyzer()
+    sch = Scheduler.Scheduler()
+    vis = Visualizer.Visualizer()
     # Directed Location
     binline_dict = Builder.getBinaryInfo(program_name)
     target_dict = Comparator.getTarget(program_name)
@@ -44,7 +44,7 @@ def mainFuzzer():
     # Init Loop Variables
     before_coverage = sch.coveragepath
 
-    # Init seed lists  # todo if == null
+    # Init seed lists
     init_seeds_list = Generator.prepareEnv(program_name)
     if len(init_seeds_list) > 0:
         temp_listq = []
@@ -67,7 +67,7 @@ def mainFuzzer():
         )
         addr = ana.getAddr(init_stdout)
         init_interlen = ana.getInterlen(addr)
-        cmpcovcont_list = ana.getRpt(init_interlen, addr)
+        cmpcov_list = ana.getRpt(init_interlen, addr)
         # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch) todo
 
         # vis.num_pcguard = ana.getNumOfPcguard() todo
@@ -83,42 +83,46 @@ def mainFuzzer():
         '''ld -> Length Detection, Increase seed length'''
         # Increase the input length when the number of constraints does not change in the program.
         # If there is a change in the increase length then increase the length.
-        before_lenseed = init_seed
-        beforerpt_dict = initrpt_dict
-        beforerpt_set = initrpt_set
-        while len(before_lenseed.content) < SCH_EXPAND_MAXSIZE:
+        b4ld_seed = init_seed
+        b4ld_interlen = init_interlen
+        while len(b4ld_seed.content) < SCH_EXPAND_MAXSIZE:
             # if before_coverage == sch.coveragepath and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
             vis.total += 1
             sch.expandnums += 1
-            len_seed = Mutator.mutAddLength(before_lenseed.content, path_mutseeds, LENGTH_STR, 256)
-            execute_seed = sch.selectOneSeed(SCH_THIS_SEED, len_seed)
-            len_stdout, len_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+            # According fixed length to expand the content length of seed.
+            ld_seed = Mutator.mutAddLength(b4ld_seed.content, path_mutseeds, LENGTH_STR, LD_EXPAND)
+            ld_seed = sch.selectOneSeed(SCH_THIS_SEED, ld_seed)
+            ld_stdout, ld_stderr = Executor.run(fuzz_command.replace('@@', ld_seed.filename))
             sch.saveCrash(
-                file_crash_csv, path_crashseeds, execute_seed, len_stdout, len_stderr,
+                file_crash_csv, path_crashseeds, ld_seed, ld_stdout, ld_stderr,
                 vis.start_time, vis.last_time
             )
-            cmpcovcont_list, content = ana.getRpt(len_stdout)  # report
-            rpt_dict, rpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
-            cmpmaploc_rptset = ana.compareRptToLoc(beforerpt_dict, beforerpt_set, rpt_dict, rpt_set)
-            # before_coverage = sch.coveragepath
-            res = vis.display(
-                execute_seed, set(), len_stdout, len_stderr,
-                "Length", len(sch.coveragepath),
-                path_graph, cggraph, cfggraph_dict['main']
-            )
+
+            ld_addr = ana.getAddr(ld_stdout)
+            ld_interlen = ana.getInterlen(ld_addr)
+            if ld_interlen != b4ld_interlen:
+                b4ld_seed = ld_seed
+            elif ld_interlen == b4ld_interlen:
+                # Current seed.
+                ld_cmpcov_list = ana.getRpt(ld_interlen, ld_addr)  # report
+                # Before seed.
+                b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace('@@', b4ld_seed.filename))
+                b4ld_addr = ana.getAddr(b4ld_stdout)
+                b4ld_cmpcov_list = ana.getRpt(ld_interlen, b4ld_addr)
+                if ld_cmpcov_list != b4ld_cmpcov_list:
+                    b4ld_seed = ld_seed
+                else:
+                    break
+
+            res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, "Length", len(sch.coveragepath))
+            vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
 
-            if cmpmaploc_rptset:
-                before_lenseed = len_seed
-                beforerpt_dict = rpt_dict
-                beforerpt_set = rpt_set
-            else:
-                break
-
-        init_seed = before_lenseed
-        initrpt_dict = beforerpt_dict
-        initrpt_set = beforerpt_set
+        # Reset the init_seed
+        init_seed = b4ld_seed
+        # initrpt_dict = b4rpt_dict
+        # initrpt_set = b4rpt_set
 
         '''sd -> Sliding Window Detection O(n/step)'''  # todo multiprocessing
         # Get a report on changes to comparison instructions.
@@ -293,8 +297,8 @@ def mainFuzzer():
 
 
         # Endless fuzzing, add the length seed.
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), before_lenseed.content, showlog=True)
-        # if sch.isEmpty(SCH_LOOP_SEED) or init_seed.content != before_lenseed.content:
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), b4ld_seed.content, showlog=True)
+        # if sch.isEmpty(SCH_LOOP_SEED) or init_seed.content != b4ld_seed.content:
         if sch.isEmpty(SCH_LOOP_SEED):
             sch.addq(SCH_LOOP_SEED, [init_seed, ])
 

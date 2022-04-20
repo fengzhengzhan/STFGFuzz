@@ -87,10 +87,10 @@ class Analyzer:
         # self.rt.shmctl(shmid, 0, 0)
 
         # Content to json
-        cmpcovshm_list = ast.literal_eval(cmpcovshm_str)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovshm_str, cmpcovshm_list)
+        cmpcov_list = ast.literal_eval(cmpcovshm_str)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovshm_str, cmpcov_list)
         del cmpcovshm_str
-        return cmpcovshm_list
+        return cmpcov_list
 
     def traceAyalysis(self, cmpcovcont_list, cmpcov_content, freezeid_rpt, sch: 'Scheduler'):
         # Iterate through the trace report to get the corresponding information

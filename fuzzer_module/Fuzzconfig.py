@@ -25,6 +25,7 @@ COARSE_STR = "coarse"
 FINE_STR = "fine"
 ST_STR = "st"
 LENGTH_STR = "length"
+LD_EXPAND = 256
 
 
 # The fisrt character represent the type of compare instruction.
@@ -232,7 +233,7 @@ SCH_THIS_SEED = 223
 
 SCH_SAVEASFILE = True
 
-SCH_EXPAND_MAXSIZE = 64 * 1024  # 128KB
+SCH_EXPAND_MAXSIZE = 64 * 1024  # 64KB
 
 SCH_SLID_WINDOW = 8
 

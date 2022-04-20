@@ -61,7 +61,7 @@ class Visualizer:
         elif char == VIS_Q:
             self.retflag = VIS_Q
 
-    def display(self, seed: StructSeed, input_loc: set, stdout, stderr, stagestr, covernum, filepath_graph, cggraph, cfggraph) -> int:
+    def display(self, seed: StructSeed, input_loc: set, stdout, stderr, stagestr, covernum) -> int:
         """
         This function use to show state during fuzzing on the terminal.
         @return:
@@ -202,73 +202,72 @@ class Visualizer:
             self.terminal_outs.noutrefresh()
 
             self.charoperation(self.stdscr.getch(), layout_x)
-            if self.showgraph_switch:
-                self.showGraph(filepath_graph, cggraph, cfggraph)
 
         return self.retflag
 
     def showGraph(self, filepath_graph: str, cggraph: 'Graph', cfggraph: 'Graph'):
-        # Call Graph
-        dotcg = graphviz.Digraph(comment="Call Graoh")
-        for one in cggraph.dg.nodes:
-            # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
-            dotcg.node(str(one), str(cggraph.dg.nodes[one][BUI_NODE_LABEL]))
+        if self.showgraph_switch:
+            # Call Graph
+            dotcg = graphviz.Digraph(comment="Call Graoh")
+            for one in cggraph.dg.nodes:
+                # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
+                dotcg.node(str(one), str(cggraph.dg.nodes[one][BUI_NODE_LABEL]))
 
-        for one in cggraph.dg.edges:
-            # print(one)
-            dotcg.edge(str(one[0]), str(one[1]), "")
+            for one in cggraph.dg.edges:
+                # print(one)
+                dotcg.edge(str(one[0]), str(one[1]), "")
 
-        cgpath = dotcg.render(directory=filepath_graph, filename=VIS_CG_NAME, format='png')
+            cgpath = dotcg.render(directory=filepath_graph, filename=VIS_CG_NAME, format='png')
 
-        # Control Flow Graph
-        dotcfg = graphviz.Digraph(comment="Control Flow Graph")
-        for one in cfggraph.dg.nodes:
-            # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
-            node_cont = ""
-            if len(cfggraph.dg.nodes[one][BUI_NODE_LABEL]) > 0:
-                node_cont = cfggraph.dg.nodes[one][BUI_NODE_LABEL]
-                node_cont = str(node_cont)[1:-1]
-            if len(cfggraph.dg.nodes[one][BUI_NODE_ST]) > 0:
-                for nodest in cfggraph.dg.nodes[one][BUI_NODE_ST]:
-                    node_cont += "\n"
-                    for each in nodest:
-                        node_cont += str(each) + " "
+            # Control Flow Graph
+            dotcfg = graphviz.Digraph(comment="Control Flow Graph")
+            for one in cfggraph.dg.nodes:
+                # print(one, cggraph.dg.nodes[one][BUI_NODE_LABEL])
+                node_cont = ""
+                if len(cfggraph.dg.nodes[one][BUI_NODE_LABEL]) > 0:
+                    node_cont = cfggraph.dg.nodes[one][BUI_NODE_LABEL]
+                    node_cont = str(node_cont)[1:-1]
+                if len(cfggraph.dg.nodes[one][BUI_NODE_ST]) > 0:
+                    for nodest in cfggraph.dg.nodes[one][BUI_NODE_ST]:
+                        node_cont += "\n"
+                        for each in nodest:
+                            node_cont += str(each) + " "
 
-            dotcfg.node(str(one), node_cont)
+                dotcfg.node(str(one), node_cont)
 
-        for one in cfggraph.dg.edges:
-            # edge_cont = ""
-            # if len(cfggraph.dg.edges[one][BUI_GRAPH_ST]) > 0:
-            #     edge_cont = cfggraph.dg.edges[one][BUI_GRAPH_ST]
-            # dotcfg.edge(str(one[0]), str(one[1]), str(edge_cont))
-            dotcfg.edge(str(one[0]), str(one[1]), "")
+            for one in cfggraph.dg.edges:
+                # edge_cont = ""
+                # if len(cfggraph.dg.edges[one][BUI_GRAPH_ST]) > 0:
+                #     edge_cont = cfggraph.dg.edges[one][BUI_GRAPH_ST]
+                # dotcfg.edge(str(one[0]), str(one[1]), str(edge_cont))
+                dotcfg.edge(str(one[0]), str(one[1]), "")
 
-        cfgpath = dotcfg.render(directory=filepath_graph, filename=VIS_CFG_NAME, format='png')
+            cfgpath = dotcfg.render(directory=filepath_graph, filename=VIS_CFG_NAME, format='png')
 
-        # print(path)
-        # Show graph
-        cg = Image.open(cgpath)
-        # round() function, rounding five into two, that is, 4 rounding 6 into 5 to make even.
-        plt.figure(num='CG', figsize=(round(cg.size[0]/VIS_DPI, 1), round(cg.size[1]/VIS_DPI,1)),)
-        # plt.title('CG')
-        plt.imshow(cg)  # show picture
-        plt.axis('off')  # not show axis
-        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
-        plt.show()
-        plt.draw()
-        plt.pause(0.01)
-        plt.ion()
+            # print(path)
+            # Show graph
+            cg = Image.open(cgpath)
+            # round() function, rounding five into two, that is, 4 rounding 6 into 5 to make even.
+            plt.figure(num='CG', figsize=(round(cg.size[0]/VIS_DPI, 1), round(cg.size[1]/VIS_DPI,1)),)
+            # plt.title('CG')
+            plt.imshow(cg)  # show picture
+            plt.axis('off')  # not show axis
+            plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
+            plt.show()
+            plt.draw()
+            plt.pause(0.01)
+            plt.ion()
 
-        cfg = Image.open(cfgpath)
-        plt.figure(num='CFG', figsize=(round(cfg.size[0]/VIS_DPI, 1), round(cfg.size[1]/VIS_DPI, 1)),)
-        # plt.title('CFG')
-        plt.imshow(cfg)  # show picture
-        plt.axis('off')  # not show axis
-        plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
-        plt.show()
-        plt.draw()
-        plt.pause(0.01)
-        plt.ion()
+            cfg = Image.open(cfgpath)
+            plt.figure(num='CFG', figsize=(round(cfg.size[0]/VIS_DPI, 1), round(cfg.size[1]/VIS_DPI, 1)),)
+            # plt.title('CFG')
+            plt.imshow(cfg)  # show picture
+            plt.axis('off')  # not show axis
+            plt.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
+            plt.show()
+            plt.draw()
+            plt.pause(0.01)
+            plt.ion()
 
 
 if __name__ == "__main__":
