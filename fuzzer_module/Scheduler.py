@@ -24,10 +24,11 @@ class Scheduler:
 
         self.expandnums = 0
 
-    def initEachloop(self):
+    def initEachloop(self, vis):
         self.loc_coarse_list = []
         self.slid_window = SCH_SLID_WINDOW
         self.mutlocnums = 0
+        vis.cmpnum, vis.cmptotal = 0, 0
 
     def selectOneSeed(self, mode: int, mutseed=None) -> StructSeed:
         temp_one = None

@@ -65,22 +65,22 @@ def mainFuzzer():
             file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr,
             vis.start_time, vis.last_time
         )
-        init_interlen, addr = ana.getInterlen(init_stdout)
+        addr = ana.getAddr(init_stdout)
+        init_interlen = ana.getInterlen(addr)
         cmpcovcont_list = ana.getRpt(init_interlen, addr)
-        initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch)
+        # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch) todo
 
-        vis.num_pcguard = ana.getNumOfPcguard()
+        # vis.num_pcguard = ana.getNumOfPcguard() todo
 
         # Select the location to be mutated and add it to the location queue.
-        sch.initEachloop()
-        vis.cmpnum, vis.cmptotal = 0, 0
+        sch.initEachloop(vis)
         for loci in range(0, len(init_seed.content)):
             if loci not in sch.freeze_bytes:
                 sch.loc_coarse_list.append(loci)
 
         '''Find correspondence: seed inputs -> cmp instruction -> cmp type (access method) -> braches'''
 
-        '''Increase seed length'''
+        '''ld -> Length Detection, Increase seed length'''
         # Increase the input length when the number of constraints does not change in the program.
         # If there is a change in the increase length then increase the length.
         before_lenseed = init_seed
@@ -120,7 +120,7 @@ def mainFuzzer():
         initrpt_dict = beforerpt_dict
         initrpt_set = beforerpt_set
 
-        '''Coarse-Grained  O(n/step)'''  # todo multiprocessing
+        '''sd -> Sliding Window Detection O(n/step)'''  # todo multiprocessing
         # Get a report on changes to comparison instructions.
         before_stloc_list = []
         coarse_head = 0
@@ -165,7 +165,7 @@ def mainFuzzer():
             LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptset)  # todo , showlog=True
             LOG(LOG_DEBUG, LOG_FUNCINFO(), need_fine_list)
 
-        '''Fine-Grained O(m)'''
+        '''bd -> Byte Detection O(m)'''
         # Mutate seeds to find where to change. Then perform to a directed mutate.
         # Mutate only one position at a time. Only the corresponding position is speculated.
         cmpmaploc_dict = {}
@@ -208,6 +208,7 @@ def mainFuzzer():
             LOG(LOG_DEBUG, LOG_FUNCINFO(), mutseed.content, showlog=True)
 
         '''3 cmp type'''
+        '''st -> Constraints Analysis'''
         # Compare instruction type speculation based on input mapping,
         # then try to pass the corresponding constraint (1-2 rounds).
         vis.cmptotal = len(cmpmaploc_dict)

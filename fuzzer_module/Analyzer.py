@@ -178,6 +178,92 @@ class Analyzer:
         cmprpt_set: 'cmpid' = set(cmprpt_dict)
         return cmprpt_dict, cmprpt_set
 
+    def traceGuardAyalysis(self, cmpcovcont_list, cmpcov_content, freezeid_rpt, sch: 'Scheduler'):
+        # Iterate through the trace report to get the corresponding information
+        cmprpt_dict: 'dict[cmpid:[StructCmpIns]]' = {}  # According cmp instruction to genetator dict.
+        cmpid_list = []
+        flagid_list = []
+        args_list = []
+        pre_guard_num = USE_INITNUM  # before
+        end_guard_num = USE_ENDNUM
+        exception_guard_num = USE_EXCEPTION
+        for each in cmpcovcont_list:
+            typeflag = each[0]
+            if typeflag in CMPSET:
+                cmpid = str(each[1][2:]+each[2][2:])
+                # if cmpid in freezeid_rpt:
+                #     continue
+            if typeflag == INIT_PC_GUARD:
+                self.num_pcguard = int(each[2])
+            elif typeflag == EACH_PC_GUARD:
+                type = typeflag
+                guard_num = int(each[1], 16)
+                sch.coveragepath.add(guard_num)
+                for i, oneid in enumerate(cmpid_list):
+                    if oneid not in cmprpt_dict:
+                        cmprpt_dict[oneid] = [
+                            StructCmpIns(oneid, pre_guard_num, guard_num, flagid_list[i], args_list[i]),
+                        ]
+                    else:
+                        cmprpt_dict[oneid].append(
+                            StructCmpIns(oneid, pre_guard_num, guard_num, flagid_list[i], args_list[i])
+                        )
+                pre_guard_num = guard_num
+                cmpid_list = []
+                flagid_list = []
+                args_list = []
+            elif typeflag == PROGRAM_END:
+                end = True
+                for i, oneid in enumerate(cmpid_list):
+                    if oneid not in cmprpt_dict:
+                        cmprpt_dict[oneid] = [
+                            StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i]),
+                        ]
+                    else:
+                        cmprpt_dict[oneid].append(
+                            StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i])
+                        )
+                cmpid_list = []
+                flagid_list = []
+                args_list = []
+
+            elif typeflag in TRACENUMCMPSET:
+                # type, func_pc, caller_pc, arg1, arg2, arg_len
+                cmpid_list.append(cmpid)
+                flagid_list.append([typeflag, each[1], each[2], each[5]])
+                args_list.append([each[3], each[4]])
+            elif typeflag == COV_SWITCH:
+                # type, func_pc, caller_pc, num_case, size_val
+                cmpid_list.append(cmpid)
+                flagid_list.append([typeflag, each[1], each[2], int(each[3]), each[4]])
+                temp_args = []
+                temp_args.append(each[5])
+                for i in range(int(each[3])):
+                    temp_args.append(each[i + 6])
+                args_list.append(temp_args)
+            elif typeflag == COV_DIV4 or typeflag == COV_DIV8 or typeflag == COV_GEP:
+                pass
+            elif typeflag in HOOKSTRCMPSET:
+                # type, func_pc, caller_pc, s1, s2, size_n, result
+                cmpid_list.append(cmpid)
+                flagid_list.append([typeflag, each[1], each[2], int(each[5]), int(each[6])])
+                args_list.append([each[3], each[4]])
+
+        if len(cmpid_list) > 0:
+            for i, oneid in enumerate(cmpid_list):
+                if oneid not in cmprpt_dict:
+                    cmprpt_dict[oneid] = [
+                        StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i]),
+                    ]
+                else:
+                    cmprpt_dict[oneid].append(
+                        StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i])
+                    )
+
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), cmprpt_dict)
+        cmprpt_set: 'cmpid' = set(cmprpt_dict)
+        return cmprpt_dict, cmprpt_set
+
     '''
     Tracking Comparison Module.
     '''
