@@ -1,4 +1,5 @@
 import faulthandler
+
 faulthandler.enable()
 
 from fuzzer_module import *
@@ -74,9 +75,6 @@ def mainFuzzer():
 
         # Select the location to be mutated and add it to the location queue.
         sch.initEachloop(vis)
-        for loci in range(0, len(init_seed.content)):
-            if loci not in sch.freeze_bytes:
-                sch.loc_coarse_list.append(loci)
 
         '''Find correspondence: seed inputs -> cmp instruction -> cmp type (access method) -> braches'''
 
@@ -100,11 +98,11 @@ def mainFuzzer():
 
             ld_addr = ana.getAddr(ld_stdout[0:16])
             ld_interlen = ana.getInterlen(ld_addr)
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), len(ld_seed.content), b4ld_interlen, ld_interlen, showlog=True)
-            if ld_interlen != b4ld_interlen:
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), len(ld_seed.content), b4ld_interlen, ld_interlen)
+            if b4ld_interlen != ld_interlen:
                 b4ld_seed = ld_seed
                 b4ld_interlen = ld_interlen
-            elif ld_interlen == b4ld_interlen:
+            elif b4ld_interlen == ld_interlen:
                 # Current seed.
                 ld_cmpcov_list = ana.getRpt(ld_interlen, ld_addr)  # report
                 # Before seed.
@@ -124,54 +122,70 @@ def mainFuzzer():
 
         # Reset the init_seed
         init_seed = b4ld_seed
-        # initrpt_dict = b4rpt_dict
-        # initrpt_set = b4rpt_set
-        raise Exception()
+        init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
+        sch.saveCrash(
+            file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr,
+            vis.start_time, vis.last_time
+        )
+        addr = ana.getAddr(init_stdout[0:16])
+        init_interlen = ana.getInterlen(addr)
+        init_cmpcov_list = ana.getRpt(init_interlen, addr)
+
+        for loci in range(0, len(init_seed.content)):
+            if loci not in sch.freeze_bytes:
+                sch.loc_coarse_list.append(loci)
 
         '''sd -> Sliding Window Detection O(n/step)'''
         # Get a report on changes to comparison instructions. # todo multiprocessing
-        before_stloc_list = []
+        before_sdloc_list = []
         coarse_head = 0
         need_fine_list = []
         while coarse_head < len(sch.loc_coarse_list):
             vis.total += 1
             # 1 seed inputs
-            stloc_list = sch.loc_coarse_list[coarse_head:coarse_head + sch.slid_window]
+            sdloc_list = sch.loc_coarse_list[coarse_head:coarse_head + sch.slid_window]
             coarse_head += sch.slid_window // 2
-            mutseed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, COARSE_STR + str(vis.loop), stloc_list)
-            execute_seed = sch.selectOneSeed(SCH_THIS_SEED, mutseed)
-            mut_stdout, mut_stderr = Executor.run(fuzz_command.replace('@@', execute_seed.filename))
+            sd_seed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, COARSE_STR + str(vis.loop), sdloc_list)
+            sd_seed = sch.selectOneSeed(SCH_THIS_SEED, sd_seed)
+            sd_stdout, sd_stderr = Executor.run(fuzz_command.replace('@@', sd_seed.filename))
             sch.saveCrash(
-                file_crash_csv, path_crashseeds, execute_seed, mut_stdout, mut_stderr,
+                file_crash_csv, path_crashseeds, sd_seed, sd_stdout, sd_stderr,
                 vis.start_time, vis.last_time
             )
 
             # 2 cmp instruction
             # Track execution information of mutate seeds.
-            cmpcovcont_list, content = ana.getRpt(mut_stdout)  # report
-            mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
-            # Gain changed cmp instruction through compare.
-            cmpmaploc_rptset = ana.compareLdCmp(initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
+            # cmpcovcont_list, content = ana.getRpt(sd_stdout)  # report
+            # mutrpt_dict, mutrpt_set = ana.traceAyalysis(cmpcovcont_list, content, sch.freezeid_rpt, sch)
+            # # Gain changed cmp instruction through compare.
+            # cmpmaploc_rptset = ana.compareLdCmp(initrpt_dict, initrpt_set, mutrpt_dict, mutrpt_set)
 
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), mutseed.content, showlog=True)
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_rptset)
-            if cmpmaploc_rptset:
+            sd_addr = ana.getAddr(sd_stdout[0:16])
+            sd_interlen = ana.getInterlen(sd_addr)
+            sd_diff = False
+            if init_interlen != sd_interlen:
+                sd_diff = True
+            elif init_interlen == sd_interlen:
+                # Current seed.
+                sd_cmpcov_list = ana.getRpt(sd_interlen, sd_addr)  # report
+                if init_cmpcov_list != sd_cmpcov_list:
+                    sd_diff = True
+
+            if sd_diff:
                 if len(need_fine_list) == 0:
-                    need_fine_list = before_stloc_list + stloc_list
+                    need_fine_list = before_sdloc_list + sdloc_list
                 else:
-                    need_fine_list += stloc_list
-            before_stloc_list = stloc_list
+                    need_fine_list += sdloc_list
+
+            before_sdloc_list = sdloc_list
 
             # 5 visualize
-            res = vis.display(
-                execute_seed, set(stloc_list), mut_stdout, mut_stderr,
-                "Coarse-Grained", len(sch.coveragepath),
-                path_graph, cggraph, cfggraph_dict['main']
-            )
+            res = vis.display(sd_seed, set(sdloc_list), sd_stdout, sd_stderr, "Coarse-Grained", len(sch.coveragepath))
+            vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), mutrpt_dict, mutrpt_set, cmpmaploc_rptset)  # todo , showlog=True
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), need_fine_list)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), need_fine_list, showlog=True)
+        raise Exception()
 
         '''bd -> Byte Detection O(m)'''
         # Mutate seeds to find where to change. Then perform to a directed mutate.
@@ -299,13 +313,11 @@ def mainFuzzer():
                     if st_seed is not None:
                         sch.addq(SCH_MUT_SEED, [st_seed, ])
 
-
         # Endless fuzzing, add the length seed.
         LOG(LOG_DEBUG, LOG_FUNCINFO(), b4ld_seed.content, showlog=True)
         # if sch.isEmpty(SCH_LOOP_SEED) or init_seed.content != b4ld_seed.content:
         if sch.isEmpty(SCH_LOOP_SEED):
             sch.addq(SCH_LOOP_SEED, [init_seed, ])
-
 
         # Mutual mapping relationship
         # Key: cmpid  Value: branch_order cmp_type input_bytes branches
