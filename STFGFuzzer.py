@@ -65,7 +65,7 @@ def mainFuzzer():
             file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr,
             vis.start_time, vis.last_time
         )
-        addr = ana.getAddr(init_stdout)
+        addr = ana.getAddr(init_stdout[0:16])
         init_interlen = ana.getInterlen(addr)
         # cmpcov_list = ana.getRpt(init_interlen, addr)
         # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch) todo
@@ -98,20 +98,22 @@ def mainFuzzer():
                 vis.start_time, vis.last_time
             )
 
-
             ld_addr = ana.getAddr(ld_stdout[0:16])
             ld_interlen = ana.getInterlen(ld_addr)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), len(ld_seed.content), b4ld_interlen, ld_interlen, showlog=True)
             if ld_interlen != b4ld_interlen:
                 b4ld_seed = ld_seed
+                b4ld_interlen = ld_interlen
             elif ld_interlen == b4ld_interlen:
                 # Current seed.
                 ld_cmpcov_list = ana.getRpt(ld_interlen, ld_addr)  # report
                 # Before seed.
                 b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace('@@', b4ld_seed.filename))
-                b4ld_addr = ana.getAddr(b4ld_stdout)
+                b4ld_addr = ana.getAddr(b4ld_stdout[0:16])
                 b4ld_cmpcov_list = ana.getRpt(ld_interlen, b4ld_addr)
                 if ld_cmpcov_list != b4ld_cmpcov_list:
                     b4ld_seed = ld_seed
+                    b4ld_interlen = ld_interlen
                 else:
                     break
 
@@ -119,11 +121,12 @@ def mainFuzzer():
             vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
-        raise Exception()
+
         # Reset the init_seed
-        # init_seed = b4ld_seed
+        init_seed = b4ld_seed
         # initrpt_dict = b4rpt_dict
         # initrpt_set = b4rpt_set
+        raise Exception()
 
         '''sd -> Sliding Window Detection O(n/step)'''
         # Get a report on changes to comparison instructions. # todo multiprocessing

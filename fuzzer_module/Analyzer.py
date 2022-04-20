@@ -94,7 +94,7 @@ class Analyzer:
 
     def traceAyalysis(self, cmpcov_list, freezeid_rpt, type_info):
         # Iterate through the trace list to generates the corresponding cmpid dictionary.
-        cmp_dict: 'dict[cmpid:[StructCmpIns]]' = {}  # According cmp instruction to genetator dict.
+        cmp_dict = {}  # According cmp instruction to genetator dict.
         for each_i in cmpcov_list:
             if each_i[0] in type_info and each_i[1] not in freezeid_rpt:
                 cmpid = each_i[1]
