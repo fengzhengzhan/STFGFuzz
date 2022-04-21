@@ -252,11 +252,12 @@ def mainFuzzer():
             sch.strategyq.put(StructMutStrategy(TYPE_DEFAULT, 0, len(stloclist_v), 0, 1))
             strategy = sch.strategyq.get()
             # Type Detection and Breaking the Constraint Cycle (At lease 1 loops)
-            while strategy.curloop <= strategy.endloop or not sch.strategyq.empty():
+            while strategy.curloop < strategy.endloop or not sch.strategyq.empty():
                 # print(strategy.curloop)
                 strategy.curloop += 1
                 strategy.curnum = 0
                 sch.addq(SCH_MUT_SEED, [ststart_seed, ])
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curloop, strategy.endloop)
 
                 while not sch.isEmpty(SCH_MUT_SEED):
                     vis.total += 1
@@ -269,6 +270,7 @@ def mainFuzzer():
 
                     # 2 cmp instruction
                     # Generate analysis reports.
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), st_seed.content, st_stdout[0:16], st_stderr, showlog=True)
                     st_addr = ana.getAddr(st_stdout[0:16])
                     st_interlen = ana.getInterlen(st_addr)
                     st_cmpcov_list = ana.getRpt(st_interlen, st_addr)
@@ -293,7 +295,7 @@ def mainFuzzer():
 
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), vis.cmpnum, st_stderr,
                         locmapdet_dict, st_stdout, stcmpid_k, stloclist_v, ret_seed.content)  # todo , showlog=True
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, showlog=True)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content)
 
                     # 5 visualize
                     res = vis.display(

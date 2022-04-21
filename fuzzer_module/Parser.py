@@ -167,7 +167,7 @@ def inferFixedOrChanged(cont_list) -> int:
 
 def listIsdigit(cont_list):
     for cont_i in cont_list:
-        if not cont_i.isdigit():
+        if isinstance(cont_i, str) and not cont_i.isdigit():
             return False
     return True
 
@@ -265,7 +265,7 @@ def typeDetect(opt_seed, seed: 'StructSeed', st_key: 'cmpid', st_loc,
                 type_infer_list = detectCmpType(bytes_flag, cont_list, st_cmplist[len_i])
                 ret_seed, locmapdet_dict = exeTypeStrategy(opt_seed, seed, st_loc,
                                                            type_infer_list, bytes_flag, cont_list, strategy)
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, cont_list, strategy.curloop)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curloop, cont_list, showlog=True)
 
     elif opt_cmplist is not None and st_cmplist is None:
         pass
