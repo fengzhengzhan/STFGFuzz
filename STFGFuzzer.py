@@ -295,7 +295,7 @@ def mainFuzzer():
 
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), vis.cmpnum, st_stderr,
                         locmapdet_dict, st_stdout, stcmpid_k, stloclist_v, ret_seed.content)  # todo , showlog=True
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, st_cmp_dict, showlog=True)
 
                     # 5 visualize
                     res = vis.display(
@@ -338,4 +338,6 @@ if __name__ == "__main__":
     # Handle Segmentation fault.  Generator the core files.
     # ulimit -c unlimited
     # python3 -X faulthandler my.py
-    mainFuzzer()
+    # mainFuzzer()
+    std_out, std_err = runothercmd("./Programs/base64/code_Bin/base64 -d Programs/base64/seeds_crash/validate_inputs/utmp-fuzzed-222.b64")
+    print(std_out, std_err)

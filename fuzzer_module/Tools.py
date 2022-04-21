@@ -73,13 +73,13 @@ def runothercmd(cmd: str) -> (int, str, str):
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     # timeout kill child process
     try:
-        std_out, std_err = process.communicate()
+        stdout, stderr = process.communicate()
     except Exception as e:
         process.kill()
         raise Exception("Error cmd ")
     ret_code = 128 - process.returncode
-    # print(ret_code, std_out, std_err)
-    return std_out, std_err
+    # print(ret_code, stdout, stderr)
+    return stdout, stderr
 
 
 if __name__ == "__main__":
