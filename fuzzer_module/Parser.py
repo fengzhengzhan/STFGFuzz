@@ -234,10 +234,10 @@ def typeDetect(opt_seed, seed: 'StructSeed', st_key: 'cmpid', st_loc,
     locmapdet_dict = {}
     ret_seed = seed
     # Both parties report the existence of a single binding solution
-    if (st_key in opt_cmp_dict) and (st_key in st_cmp_dict):  # Handling mutually corresponding constraints after mutation
-        # Two-dimensional arrays
-        opt_cmplist = opt_cmp_dict[st_key]
-        st_cmplist = st_cmp_dict[st_key]
+    # Two-dimensional arrays
+    opt_cmplist = opt_cmp_dict.get(st_key)
+    st_cmplist = st_cmp_dict.get(st_key)
+    if opt_cmplist is not None and st_cmplist is not None:  # Handling mutually corresponding constraints after mutation
         # if len(opt_cmplist) == len(st_cmplist):
         # Get the first comparison and determine the parameter type.
         if opt_cmplist[0][0] in (TRACENUMCMPSET | HOOKSTRCMPSET):
@@ -255,22 +255,21 @@ def typeDetect(opt_seed, seed: 'StructSeed', st_key: 'cmpid', st_loc,
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, locmapdet_dict)
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, cont_list)
         elif opt_cmplist[0][0] == COV_SWITCH:
-            strategy.endloop = opt_cmplist[0].stvalue[3]
+            strategy.endloop = opt_cmplist[0][1]
             for len_i in range(min(len(opt_cmplist), len(st_cmplist))):
-                ini = opt_cmplist[len_i].stargs
-                st = st_cmplist[len_i].stargs
-                cont_list = [ini[0], ini[strategy.curloop], st[0], st[strategy.curloop]]
+                cont_list = [opt_cmplist[len_i][3], opt_cmplist[len_i][3+strategy.curloop],
+                             st_cmplist[len_i][3], st_cmplist[len_i][3+strategy.curloop]]
                 # Determining the type of variables
                 bytes_flag = inferFixedOrChanged(cont_list)
                 # Speculative change type
                 type_infer_list = detectCmpType(bytes_flag, cont_list, st_cmplist[len_i])
                 ret_seed, locmapdet_dict = exeTypeStrategy(opt_seed, seed, st_loc,
                                                            type_infer_list, bytes_flag, cont_list, strategy)
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, cont_list, strategy.curloop, ini)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, cont_list, strategy.curloop)
 
-    elif (st_key in opt_cmp_dict) and (st_key not in st_cmp_dict):
+    elif opt_cmplist is not None and st_cmplist is None:
         pass
-    elif (st_key not in opt_cmp_dict) and (st_key in st_cmp_dict):
+    elif opt_cmplist is None and st_cmplist is not None:
         pass
     else:
         handleUndefined()

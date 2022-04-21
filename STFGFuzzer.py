@@ -252,7 +252,7 @@ def mainFuzzer():
             sch.strategyq.put(StructMutStrategy(TYPE_DEFAULT, 0, len(stloclist_v), 0, 1))
             strategy = sch.strategyq.get()
             # Type Detection and Breaking the Constraint Cycle (At lease 1 loops)
-            while strategy.curloop < strategy.endloop or not sch.strategyq.empty():
+            while strategy.curloop <= strategy.endloop or not sch.strategyq.empty():
                 # print(strategy.curloop)
                 strategy.curloop += 1
                 strategy.curnum = 0
