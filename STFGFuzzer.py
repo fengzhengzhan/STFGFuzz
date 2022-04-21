@@ -236,6 +236,7 @@ def mainFuzzer():
         # then try to pass the corresponding constraint (1-2 rounds).
         vis.cmptotal = len(cmpmaploc_dict)
         for st_key, st_loclist in cmpmaploc_dict.items():
+            ana.
             # False positive comparison if all input bytes are covered
             vis.cmpnum += 1
             if len(st_loclist) == len(init_seed.content):

@@ -70,8 +70,11 @@
 //const uint8_t maxCmpLen = 32;
 
 #define SHMGET_SIZE 2147483648  // 2*1024*1024*1024  2GB
+#define SEND_SIZE 32
 int id = 0;
+int sendid = 0;
 char* data = NULL;
+char* senddata = NULL;
 int savelen = 15;
 int interlen = 16;
 char buf[1024*1024];
@@ -218,23 +221,53 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
         id = shmget(id_shm, SHMGET_SIZE, IPC_CREAT | 0666);
     }
 
+    data = (char *)shmat(id, NULL, 0);
+    // if ((int)(data)==-1)
     if (data == NULL)
-    {
-        //data = (char *)shmat(id, NULL, 0);
-        data = shmat(id, data, 0666);
-    }
+    {  
+        printf("Error Data Shmat failed.\n");
+        exit(1); 
+    }  
 
-    if (data == NULL)
-    {
-        printf("Error Shmat failed.\n");
-        exit(1);
-    }
-    printf("D%dZ\n", id_shm);  // Printf memory share id towards to terminal.
+    // if (data == NULL)
+    // {
+    //     data = shmat(id, data, 0666);
+    // }
+
+    // if (data == NULL)
+    // {
+    //     printf("Error Shmat failed.\n");
+    //     exit(1);
+    // }
+
+    // Printf memory share id towards to terminal.
+    printf("D%dZ\n", id_shm);  
 
     // memory get
-    // key_t get_shm = 168421;
+    key_t send_shm = 168421;
+    sendid = shmget(send_shm, SEND_SIZE, IPC_CREAT | 0666);
+    if (sendid < 0 ) {
+        FILE *fp = NULL;
+        char buff[32];
 
+        fp = fopen("/tmp/shmsendkey", "r");
+        fscanf(fp, "%s", buff);
+        int file_shm = atoi(buff);
+        // printf("%d %d\n", buff, sendid);
+        sendid = shmget(file_shm, SEND_SIZE, IPC_CREAT | 0666);
+        if (sendid < 0) {
+            printf("Error Send Shmget failed.\n");
+            exit(1); 
+        }
+    }
 
+    senddata = (char *)shmat(sendid, NULL, 0);
+    // sendcmpid = 
+    // if (senddata == NULL)
+    // {  
+    //     printf("Error Senddata Shmat failed.\n");
+    //     exit(1); 
+    // }
 
     // strcpy(data, "CMPCOVSHM");
 

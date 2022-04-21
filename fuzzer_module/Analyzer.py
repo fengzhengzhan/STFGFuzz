@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import ast
+import random
 import re
 import json
 from ctypes import *
@@ -24,10 +25,23 @@ class Analyzer:
         self.num_pcguard: int = USE_INITNUM
         self.global_shm_key = USE_INITNUM
         self.addr = None
+        self.sendaddr = None
         try:
             self.rt = CDLL('librt.so')
         except:
             self.rt = CDLL('librt.so.1')
+        self.shmget = self.rt.shmget
+        self.shmget.argtypes = [c_int, c_size_t, c_int]
+        self.shmget.restype = c_int
+
+        self.shmat = self.rt.shmat
+        self.shmat.argtypes = [c_int, POINTER(c_void_p), c_int]
+        self.shmat.restype = c_void_p
+
+    def getNumOfPcguard(self):
+        if self.num_pcguard == -1:
+            raise Exception("Error: Number of tracks not acquired.")
+        return self.num_pcguard
 
     # Combination Functions
     # getAddr()
@@ -51,19 +65,12 @@ class Analyzer:
         LOG(LOG_DEBUG, LOG_FUNCINFO(), shm_key, self.global_shm_key)
         if shm_key != self.global_shm_key:
             self.global_shm_key = shm_key
-            shmget = self.rt.shmget
-            shmget.argtypes = [c_int, c_size_t, c_int]
-            shmget.restype = c_int
 
-            shmat = self.rt.shmat
-            shmat.argtypes = [c_int, POINTER(c_void_p), c_int]
-            shmat.restype = c_void_p
-
-            shmid = shmget(shm_key, 2147483648, 0o666)  # 2*1024*1024*1024 2GB
+            shmid = self.shmget(shm_key, ANA_SHM_SIZE, 0o1000 | 0o666)  # 2*1024*1024*1024 2GB
             if shmid < 0:
                 raise Exception("Error System not shared.")
 
-            self.addr = shmat(shmid, None, 0)
+            self.addr = self.shmat(shmid, None, 0)
 
         return self.addr
 
@@ -247,10 +254,23 @@ class Analyzer:
 
         return diffcmp_set
 
-    def getNumOfPcguard(self):
-        if self.num_pcguard == -1:
-            raise Exception("Error: Number of tracks not acquired.")
-        return self.num_pcguard
+
+    def sendCmpid(self, cmpid):
+        """
+        Send cmpid to save the cmpid information.
+        @param cmpid:
+        @return:
+        """
+        if self.sendaddr is None:
+            shmid = self.shmget(ANA_SEND_KEY, ANA_SEND_SIZE, 0o1000 | 0o666)  # IPC_CREAT | Permission
+            while shmid < 0:
+                randkey = random.randint(100000, 999999)
+                shmid = self.shmget(randkey, ANA_SEND_SIZE, 0o1000 | 0o666)  # IPC_CREAT | Permission
+                with open(ANA_SEND_FILE, "w") as f:
+                    f.write(str(randkey))
+            self.sendaddr = self.shmat(shmid, None, 0)
+
+        memmove(self.sendaddr, cmpid.encode(), len(cmpid))
 
 
 if __name__ == "__main__":
