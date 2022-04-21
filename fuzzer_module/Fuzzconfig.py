@@ -34,7 +34,8 @@ LD_EXPAND = 256
 # In order to save space, using one character as the flag to mark.
 # The meaning of the parameters following the flags is described in the comments.
 # trace
-COV_CMP1 = 'a'  # (info, call_pc, arg1, arg2, arg_len)
+# dict has no call_pc(cmpid) to save storage space
+COV_CMP1 = 'a'  # (info, call_pc, arg1, arg2, arg_len)  dict: (info, arg1, arg2, arg_len)
 COV_CMP2 = 'b'
 COV_CMP4 = 'c'
 COV_CMP8 = 'd'
@@ -46,14 +47,14 @@ COV_CONSTCMP8 = 'h'
 
 TRACENUMCMPSET = {COV_CMP1, COV_CMP2, COV_CMP4, COV_CMP8, COV_CONSTCMP1, COV_CONSTCMP2, COV_CONSTCMP4, COV_CONSTCMP8}
 
-COV_SWITCH = 'i'  # (call_pc, num_case, size_val, case_n...)
+COV_SWITCH = 'i'  # (info, call_pc, num_case, size_val, val, case_n...)  dict: (info, num_case, size_val, val, case_n...)
 COV_DIV4 = 'j'
 COV_DIV8 = 'k'
 COV_GEP = 'l'
 
 
 # weak hook
-HOOK_MEMCMP = 'm'  # (call_pc, <s1"  "1s>, <s2"  "2s>, size_n, result)
+HOOK_MEMCMP = 'm'  # (info, call_pc, s1, s2, size_n, result)  dict: (info, s1, s2, size_n, result)
 HOOK_STRNCMP = 'n'
 HOOK_STRCMP = 'o'
 HOOK_STRNCASECMP = 'p'
@@ -69,8 +70,8 @@ SHMID_FLAG = "D"  # Content show from stdout, that represent the memory share id
 INTERLEN_FLAG = "L"  # The length of array.
 INTERLEN_VALUE = 16  # The space bytes in the start of content represents interlen values.
 END_EACH_FLAG = "Z"  # End of each line.
-INIT_PC_GUARD = "I"  # (call_pc, nums, start, end) Numbers of pc guard, from 1 to number.
-EACH_PC_GUARD = "G"  # (call_pc, guard_addr, guard_num)
+INIT_PC_GUARD = "I"  # (info, call_pc, nums, start, end) Numbers of pc guard, from 1 to number.
+EACH_PC_GUARD = "G"  # (info, call_pc, guard_num)  dict: (info, guard_num)
 
 PROGRAM_END = "E"  # end
 

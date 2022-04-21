@@ -31,13 +31,13 @@ class StructSeed:
 
 
 
-class StructCmpIns:
-    def __init__(self, stcmpid, startguard, endguard, stvalue:list, stargs):
-        self.cmpid = stcmpid
-        self.startguard = startguard
-        self.endguard = endguard
-        self.stvalue = stvalue  # type, func_pc, caller_pc ...
-        self.stargs = stargs  # arg1, arg2, arg3 ...
+# class StructCmpIns:
+#     def __init__(self, stcmpid, startguard, endguard, stvalue:list, stargs):
+#         self.cmpid = stcmpid
+#         self.startguard = startguard
+#         self.endguard = endguard
+#         self.stvalue = stvalue  # type, func_pc, caller_pc ...
+#         self.stargs = stargs  # arg1, arg2, arg3 ...
 
 class StructCmpInfo:
     def __init__(self, cmptype, inputmap: list, ansvalue, startguard, endguardtrue, endguardfalse):

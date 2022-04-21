@@ -233,8 +233,7 @@ class Analyzer:
     '''
     Tracking Comparison Module.
     '''
-    def compareRptToLoc(self, b4cmp_dict, cmp_dict):
-        b4cmpset = set(b4cmp_dict)
+    def compareRptToLoc(self, b4cmp_dict, b4cmpset, cmp_dict):
         cmpset = set(cmp_dict)
         interset = b4cmpset & cmpset  # Intersection set
         symdiffset = b4cmpset ^ cmpset  # Symmetric Difference set
