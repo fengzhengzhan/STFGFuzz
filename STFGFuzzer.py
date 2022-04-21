@@ -61,6 +61,7 @@ def mainFuzzer():
     '''Fuzzing Cycle'''
     while not sch.isEmpty(SCH_LOOP_SEED):
         vis.loop += 1
+        ana.sendCmpid("None\0")
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))

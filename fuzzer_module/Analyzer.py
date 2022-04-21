@@ -269,15 +269,21 @@ class Analyzer:
                 with open(ANA_SEND_FILE, "w") as f:
                     f.write(str(randkey))
             self.sendaddr = self.shmat(shmid, None, 0)
-
+        cmpid = str(cmpid) + "\0"
         memmove(self.sendaddr, cmpid.encode(), len(cmpid))
 
 
 if __name__ == "__main__":
-    vis = Analyzer()
-    while True:
-        addr = vis.getAddr("D124816Z\n")
-        interlen = vis.getInterlen(addr)
-        print(interlen)
-        cmpcovshm_list = vis.getRpt(interlen, addr)
+    ana = Analyzer()
+    ana.sendCmpid("o0x4fc4500x49b0e1"+"\0")
+    # ana.sendCmpid("None\0")
+    # while True:
+    #     addr = ana.getAddr("D124816Z\n")
+    #     interlen = ana.getInterlen(addr)
+    #     print(interlen)
+    #     cmpcovshm_list = ana.getRpt(interlen, addr)
+    addr = ana.getAddr("D124816Z\n")
+    interlen = ana.getInterlen(addr)
+    cmpcovshm_list = ana.getRpt(interlen, addr)
+    print(cmpcovshm_list)
     # print(cmpcovshm_list)

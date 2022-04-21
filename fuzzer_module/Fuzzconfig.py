@@ -137,7 +137,7 @@ ANA_CMPCOVSHM_NAME = "cmpcovshm"
 ANA_SHM_SIZE = 2147483648
 
 ANA_SEND_KEY = 168421
-ANA_SEND_SIZE = 32
+ANA_SEND_SIZE = 64
 ANA_SEND_FILE = "/tmp/shmsendkey"
 
 '''Builder'''
@@ -199,7 +199,7 @@ GEN_DOTJSON = "dot -Tdot_json "
 GEN_OVERLAY = " > "
 GEN_APPEND = " >> "
 GEN_TRACEBC_SUFFIX = "_trace.bc"
-GEN_CSV_HEADERS = "filename,time,duration,content,stderr,stdout\n"
+GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
 
 
 '''Mutator'''

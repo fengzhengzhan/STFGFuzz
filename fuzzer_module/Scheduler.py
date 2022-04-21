@@ -98,7 +98,7 @@ class Scheduler:
                     # GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
                     linestr = str(name) + "," \
                               + datetime.datetime.strftime(start_time, "%Y-%m-%d_%H:%M:%S") + "," + last_time + "," \
-                              + str(seed.content.encode("utf-8")) + "," + str(stderr) + "," + str(stdout) + "\n"
+                              + str(seed.content.encode("utf-8")) + "," + str(stdout) + "," + str(stderr) + "\n"
                     cf.write(linestr)
                 # write seed
                 with open(path_crashseeds + name, "w", encoding="utf-8") as sf:
