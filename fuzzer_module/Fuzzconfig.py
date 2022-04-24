@@ -274,10 +274,11 @@ VIS_MAX_LINE = 16
 VIS_MAX_OUT = 10
 VIS_MAX_ERR = 10
 
-
 VIS_CG_NAME = "CG.gv"
 VIS_CFG_NAME = "CFG.gv"
 VIS_DPI = 300
+
+VIS_STDLEN = 64
 
 '''Logging'''
 # Logging the information during the fuzzing.

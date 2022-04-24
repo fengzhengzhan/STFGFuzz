@@ -68,6 +68,8 @@ class Visualizer:
         This function use to show state during fuzzing on the terminal.
         @return:
         """
+        stdout = stdout[0:VIS_STDLEN]
+        stderr = stderr[0:VIS_STDLEN]
         run_time = datetime.datetime.now() - self.start_time
         run_second = run_time.seconds + run_time.days * 86400
         if run_second == 0:

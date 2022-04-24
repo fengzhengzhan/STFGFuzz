@@ -21,6 +21,7 @@ llvm_mode/Programs/otherfunc
 llvm_mode/Programs/dataset
 llvm_mode/.vscode
 otherfunc/
+otherfuzzer/
 dataset/
 EachFuzzer/
 Programs/demo/seeds_crash/
