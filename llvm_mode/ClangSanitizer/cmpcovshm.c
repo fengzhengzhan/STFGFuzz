@@ -175,6 +175,8 @@ void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
 } 
 
 void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char funcinfo) {
+    printf("%p %p %p %p %s\n", called_pc, (int *)called_pc, GET_FUNC_PC, GET_CALLER_PC, s1);
+    // printf("%p", called_pc);  
     sprintf(eachcmpid, "%c%p%p", funcinfo, GET_FUNC_PC, GET_CALLER_PC);
     if (retSame(eachcmpid) >= 0) {
         // The length of each string.
