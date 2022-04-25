@@ -109,9 +109,10 @@ def getCFG(cfglist, map_numTofuncasm):
 
                 # Find Guard num node_j
                 pattern = re.compile(BUI_GUARD_RE)
-                gurad_res = pattern.findall(node_j[BUI_NODE_LABEL])
+                guard_res = pattern.findall(node_j[BUI_NODE_LABEL])
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_LABEL], guard_res, showlog=True)
                 temp_intlist = []
-                for one in gurad_res:
+                for one in guard_res:
                     temp_guardnum = int(int(one, 10) / BUI_LOC_INTERVAL)
                     temp_intlist.append(temp_guardnum)
                     map_guardTocfgnode[temp_guardnum] = node_j[BUI_NODE_NAME]
