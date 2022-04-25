@@ -276,8 +276,9 @@ class Analyzer:
 
 if __name__ == "__main__":
     ana = Analyzer()
-    # ana.sendCmpid("o0x4fc4500x49b0e1"+"\0")
+    # ana.sendCmpid("abcde"+"\0")
     ana.sendCmpid("None\0")
+    # ana.sendCmpid("Guard\0")
     # while True:
     #     addr = ana.getAddr("D124816Z\n")
     #     interlen = ana.getInterlen(addr)

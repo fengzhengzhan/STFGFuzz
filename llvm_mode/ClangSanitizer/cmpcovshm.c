@@ -125,6 +125,7 @@ int retSame(char* each){
             same = 0;
         } 
     }
+    // printf("%d", same);
 
     return same;
 }
@@ -376,6 +377,13 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
         strcpy(data, buf);
         // printf("\nS %p %lu Z\n", GET_FUNC_PC, N);  // Guards should start from 1.
         // Add dataflow analysis information.
+    } else {
+        sprintf(buf, "None");
+        strcpy(data + interlen, buf);
+        interlen += strlen(buf);
+        // Update interlen
+        sprintf(buf, "L%dZ", interlen);
+        strcpy(data, buf);
     }
     
     atexit(saveCovOnEnd);
