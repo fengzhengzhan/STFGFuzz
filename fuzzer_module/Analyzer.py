@@ -288,5 +288,7 @@ if __name__ == "__main__":
     addr = ana.getAddr("D124816Z\n")
     interlen = ana.getInterlen(addr)
     cmpcovshm_list = ana.getRpt(interlen, addr)
+    with open("info", "w") as f:
+        f.write(str(cmpcovshm_list))
     print(cmpcovshm_list)
     # print(cmpcovshm_list)

@@ -3,9 +3,11 @@
 if [ $1 == "-n" ]
 then
 	PROGRAMNAME=$2
+	COMPILER=$3
 	PROGRAMNAME_TRACE="${PROGRAMNAME}_trace"
 	PROGRAMNAME_PASS="${PROGRAMNAME}_pass"
 	
+	# Compile the program
 	PROGRAMS="Programs"
 	SOURCES="code_sources"
 	IR="code_IR"
@@ -19,10 +21,10 @@ then
 	echo "ProgramName: <${PROGRAMNAME}>"
 	
 	# Using clang sanitizer to hook functions.
-	cd ../..  # Return to the root path.
+	cd ..  # Return to the root path.
 	
 	# Clear files.
-	if [ $3 ] && [ $3 == "-rm" ]
+	if [ $4 ] && [ $4 == "-rm" ]
 	then
 		echo "-rm"
 		echo "rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME_TRACE}.${SUFFIX}"
@@ -34,7 +36,7 @@ then
 		rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME}.o
 		rm -f ./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME}
 
-	elif [ $3 ] && [ $3 == "-rma" ]
+	elif [ $4 ] && [ $4 == "-rma" ]
 	then
 		echo "-rma"
 		echo "${SANPATH}  make clean"
@@ -52,7 +54,8 @@ then
 		rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME}.o
 		rm -f ./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME}
 	
-	else
+	elif [ $3 == "clang" ] || [ $3 == "clang++" ]
+	then
 		cd llvm_mode/ClangSanitizer
 		make
 		cd ../..
@@ -66,38 +69,42 @@ then
 
 		# Compile the program
 		cd ${PROGRAMS}/${PROGRAMNAME}
-		clang++ -g -emit-llvm -c ${SOURCES}/${PROGRAMNAME}.cc -o ${IR}/${PROGRAMNAME}.${SUFFIX} # IR
+		# clang -g -emit-llvm -c ${SOURCES}/${PROGRAMNAME}.cc -o ${IR}/${PROGRAMNAME}.${SUFFIX} # IR
 		# -fsanitize-coverage=bb,no-prune,trace-pc-guard  -fsanitize-coverage=edge,trace-pc-guard (default)
-		clang++ -fsanitize-recover=address -fsanitize-coverage=bb,no-prune,trace-pc-guard,trace-cmp -emit-llvm -c ${IR}/${PROGRAMNAME}.${SUFFIX} -o ${IR}/${PROGRAMNAME_TRACE}.${SUFFIX} 
+		${COMPILER} -fsanitize-recover=address -fsanitize-coverage=edge,trace-pc-guard,trace-cmp -emit-llvm -c ${SOURCES}/${PROGRAMNAME}.${SUFFIX} -o ${IR}/${PROGRAMNAME_TRACE}.${SUFFIX} 
 		rm -f ${LINE_SAVE}
 		echo "{" >> ${LINE_SAVE}
 		opt -load ../../${LLVMPASSPATH} -line -S ${IR}/${PROGRAMNAME_TRACE}.${SUFFIX} -o ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} >> ${LINE_SAVE}
 		echo "}" >> ${LINE_SAVE}
 		llc -filetype=obj ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} -o ${IR}/${PROGRAMNAME}.o  # Object file
-		clang++ -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
-		# clang++ -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive -L/usr/local/lib/ -lhiredis ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
+		${COMPILER} -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
+		# clang -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive -L/usr/local/lib/ -lhiredis ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
 		cd ../..
 		
 		# Run
-		if [ $3 ]
+		if [ $5 ]
 		then
 			echo -e "\n------- ${PROGRAMNAME} -------"
-			if [ $3 == "seedinit" ]
+			if [ $5 == "seedrand" ]
 			then
-				./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME} -f "${PROGRAMS}/${PROGRAMNAME}/seeds_init/init.seed"
-			elif [ $3 == "seedfinal" ]
+				./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME} $4 "${PROGRAMS}/${PROGRAMNAME}/seeds_init/rand.seed"
+			elif [ $5 == "seedcrash" ]
 			then
-				./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME} -f "${PROGRAMS}/${PROGRAMNAME}/seeds_crash/final.seed"
+				./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME} $4 "${PROGRAMS}/${PROGRAMNAME}/seeds_crash/crash.seed"
 			else
-				echo -e "Error Parameters."
+				echo "Usage: ./build.sh -n demo clang++ -f seedrand"
+				echo "Usage: ./build.sh -n base64 clang -d seedcrash"
 			fi
 		fi
-		echo -e "\n"
 		
+		echo -e "\n"
+	else
+		echo "Usage: ./build.sh -n demo clang++ -rma"
+		echo "Usage: ./build.sh -n base64 clang -rma"
 	fi
 
 else
-	echo "Usage: ./build.sh [-n <program_name> <runseeds>] [-rm] [-rma]"
+	echo "Usage: ./build.sh [-n <program_name> <clang|clang++> <runseeds>] [-rm] [-rma]"
 fi
 
 
