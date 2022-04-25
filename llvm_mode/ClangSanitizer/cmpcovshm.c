@@ -79,6 +79,7 @@ char buf[1024*1024];
 char sendcmpid[64];
 char eachcmpid[64];
 char* defaultcmpid = "None";
+char* guard = "Guard";
 
 int retSame(char* each){
     int same = -1;
@@ -101,6 +102,17 @@ int retSame(char* each){
         if (judge == 1){
             same = 0;
         }  
+    } else if (sendlen == strlen(guard)) {
+        int judge = 1;
+        for (idx = 0; idx < sendlen; idx ++){
+            if(sendcmpid[idx] != guard[idx]){
+                judge = 0;
+                break;
+            }
+        }
+        if (judge == 1){
+            same = 1;
+        }  
     } else if (sendlen == eachlen) {
         int judge = 1;
         for (idx = 0; idx < sendlen; idx ++){
@@ -113,6 +125,7 @@ int retSame(char* each){
             same = 0;
         } 
     }
+
     return same;
 }
 
@@ -120,7 +133,7 @@ int retSame(char* each){
 void saveCovOnEnd() {
     sprintf(eachcmpid, "Eend");
     // printf("%s %s\n", sendcmpid, eachcmpid);
-    if(retSame(eachcmpid) == 0) {
+    if(retSame(eachcmpid) >= 0) {
         // printf("\nE %p Z\n", GET_FUNC_PC);
         // Add dataflow analysis information.
 
@@ -145,7 +158,7 @@ void saveCovOnEnd() {
 void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
     sprintf(eachcmpid, "%c%p%p", funcinfo, GET_FUNC_PC, GET_CALLER_PC);
     // printf("%s %s\n", sendcmpid, eachcmpid);
-    if(retSame(eachcmpid) == 0) {
+    if(retSame(eachcmpid) >= 0) {
         // uintptr_t PC = reinterpret_cast<uintptr_t>(GET_FUNC_PC);
 
         // printf("\n%c %p %lu %lu %d Z\n", funcinfo, GET_FUNC_PC, arg1, arg2, arg_len);
@@ -162,7 +175,7 @@ void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
 
 void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char funcinfo) {
     sprintf(eachcmpid, "%c%p%p", funcinfo, GET_FUNC_PC, GET_CALLER_PC);
-    if (retSame(eachcmpid) == 0) {
+    if (retSame(eachcmpid) >= 0) {
         // The length of each string.
         int n1;
         int n2;
@@ -234,7 +247,7 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     }
 
     sprintf(eachcmpid, "%c%p%p", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC);
-    if(retSame(eachcmpid) == 0) {
+    if(retSame(eachcmpid) >= 0) {
 
         // printf("\n%c %p %lu %lu", COV_TRACE_SWITCH, GET_FUNC_PC, Cases[0], Cases[1]);
         sprintf(buf, "['%c','%c%p%p',%lu,%lu,%lu", COV_TRACE_SWITCH, COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, Cases[0], Cases[1], Val);
@@ -343,7 +356,7 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     if (start == stop || *start) return;  // Initialize only once.
     
     sprintf(eachcmpid, "I%p", GET_FUNC_PC);
-    if(retSame(eachcmpid) == 0) {
+    if(retSame(eachcmpid) >= 0) {
         // void *PC = __builtin_return_address(0);
         // char PcDescr[10240];
         // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
@@ -368,7 +381,34 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     atexit(saveCovOnEnd);
 }
 
+
+// This callback is inserted by the compiler on every edge in the
+// control flow (some optimizations apply).
+// Typically, the compiler will emit the code like this:
+//    if(*guard)
+//      __sanitizer_cov_trace_pc_guard(guard);
+// But for large functions it will emit a simple call:
+//    __sanitizer_cov_trace_pc_guard(guard);
 void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
+    if (!*guard) return;  // Duplicate the guard check.
+    // If you set *guard to 0 this code will not be called again for this edge.
+    // Now you can get the PC and do whatever you want:
+    //   store it somewhere or symbolize it and print right away.
+    // The values of `*guard` are as you set them in
+    // __sanitizer_cov_trace_pc_guard_init and so you can make them consecutive
+    // and use them to dereference an array or a bit vector.
+
+    // This function is a part of the sanitizer run-time.
+    // To use it, link with AddressSanitizer or other sanitizer.
+    sprintf(eachcmpid, "G%p", GET_FUNC_PC);
+    if (retSame(eachcmpid) == 1) {
+        sprintf(buf, "['G',%d],", *guard);
+        strcpy(data + interlen, buf);
+        interlen += strlen(buf);
+        // Update interlen
+        sprintf(buf, "L%dZ", interlen);
+        strcpy(data, buf);
+    }
 }
 
 void __sanitizer_cov_trace_cmp1(uint8_t Arg1, uint8_t Arg2) { 

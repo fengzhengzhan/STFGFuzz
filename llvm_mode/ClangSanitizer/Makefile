@@ -3,7 +3,6 @@ CXXFLAGS=-O2 -fPIC
 DEPS= 
 # SRCS=cmpcovterm.c
 SRCS=cmpcovshm.c
-# SRCS=cmpcovshmguard.c
 # SRCS=cmpcovredis.c
 OBJS=$(subst .c,.o,$(SRCS))
 LIBA=libcmpcov.a
