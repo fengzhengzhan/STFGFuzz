@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import faulthandler
-
+import faulthandler  # Use to find Segmentation Fault
 faulthandler.enable()
 
 from fuzzer_module import *
 from fuzzer_module.Fuzzconfig import *
 
+# Close Address Space Layout Randomization.
+# echo 0 > /proc/sys/kernel/randomize_va_space
 
 def mainFuzzer():
     """
@@ -102,7 +103,7 @@ def mainFuzzer():
             # 1 seed inputs
             ld_addr = ana.getAddr(ld_stdout[0:16])
             ld_interlen = ana.getInterlen(ld_addr)
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), len(ld_seed.content), b4ld_interlen, ld_interlen)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), len(ld_seed.content), b4ld_interlen, ld_interlen, showlog=True)
             if b4ld_interlen != ld_interlen:
                 b4ld_seed = ld_seed
                 b4ld_interlen = ld_interlen
@@ -113,6 +114,7 @@ def mainFuzzer():
                 b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace('@@', b4ld_seed.filename))
                 b4ld_addr = ana.getAddr(b4ld_stdout[0:16])
                 b4ld_cmpcov_list = ana.getRpt(b4ld_interlen, b4ld_addr)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), b4ld_cmpcov_list, showlog=True)
                 if ld_cmpcov_list != b4ld_cmpcov_list:
                     b4ld_seed = ld_seed
                     b4ld_interlen = ld_interlen
@@ -321,7 +323,7 @@ def mainFuzzer():
                         sch.addq(SCH_MUT_SEED, [st_seed, ])
 
         # Endless fuzzing, add the length seed.
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), b4ld_seed.content, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content, showlog=True)
         # if sch.isEmpty(SCH_LOOP_SEED) or init_seed.content != b4ld_seed.content:
         if sch.isEmpty(SCH_LOOP_SEED):
             sch.addq(SCH_LOOP_SEED, [init_seed, ])
@@ -340,3 +342,5 @@ if __name__ == "__main__":
     # ulimit -c unlimited
     # python3 -X faulthandler my.py
 
+    # std_out, std_err = runothercmd("./Programs/base64/code_Bin/base64 -d Programs/base64/seeds_crash/validate_inputs/utmp-fuzzed-222.b64")
+    # print(std_out, std_err)

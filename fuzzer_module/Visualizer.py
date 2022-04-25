@@ -86,7 +86,7 @@ class Visualizer:
 
             # self.stdscr.refresh()
 
-            curse_len = 76
+            curse_len = VIS_LEN
             ter_high = 15
             # Initual terminal status.
             # height, width, heightloc, widthloc
@@ -107,7 +107,7 @@ class Visualizer:
             self.terminal_status.addstr(2, 21, "Total Number: {}".format(self.total))
             self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total/run_second)))
             self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total/run_second)))
-            self.terminal_status.hline(4, 1, curses.ACS_HLINE, 76)
+            self.terminal_status.hline(4, 1, curses.ACS_HLINE, curse_len)
 
             #
             self.terminal_status.addstr(4, 3, "Info", curses.color_pair(VIS_CYAN))

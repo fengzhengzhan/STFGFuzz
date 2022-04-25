@@ -175,9 +175,8 @@ void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
 } 
 
 void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char funcinfo) {
-    printf("%p %p %p %p %s\n", called_pc, (int *)called_pc, GET_FUNC_PC, GET_CALLER_PC, s1);
-    // printf("%p", called_pc);  
-    sprintf(eachcmpid, "%c%p%p", funcinfo, GET_FUNC_PC, GET_CALLER_PC);
+    // printf("%p", called_pc);  called_pc stored PC (program counter) address of the original call.
+    sprintf(eachcmpid, "%c%p", funcinfo, called_pc);
     if (retSame(eachcmpid) >= 0) {
         // The length of each string.
         int n1;
@@ -192,7 +191,7 @@ void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int
         }
         
         // printf("\n%c %x ", funcinfo, *(int *)called_pc);
-        sprintf(buf, "['%c','%c%p%p'", funcinfo, funcinfo, GET_FUNC_PC, GET_CALLER_PC);
+        sprintf(buf, "['%c','%c%p'", funcinfo, funcinfo, called_pc);
 
         // uint64_t traceflag =  reinterpret_cast<uint64_t>(called_pc) |
         //     (reinterpret_cast<uint64_t>(s1) << 48) |
@@ -380,7 +379,7 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
         // printf("\nS %p %lu Z\n", GET_FUNC_PC, N);  // Guards should start from 1.
         // Add dataflow analysis information.
     } else {
-        sprintf(buf, "None");
+        sprintf(buf, " ");
         strcpy(data + interlen, buf);
         interlen += strlen(buf);
         // Update interlen

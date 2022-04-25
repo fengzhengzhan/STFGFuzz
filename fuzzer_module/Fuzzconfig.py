@@ -16,8 +16,8 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-# VIS_TERM = False
 VIS_TERM = True
+# VIS_TERM = False
 VIS_SHOWGRAPH = False
 
 AUTO_SEED = "auto.seed"
@@ -278,7 +278,8 @@ VIS_CG_NAME = "CG.gv"
 VIS_CFG_NAME = "CFG.gv"
 VIS_DPI = 300
 
-VIS_STDLEN = 64
+VIS_LEN = 76
+VIS_STDLEN = VIS_LEN * 3
 
 '''Logging'''
 # Logging the information during the fuzzing.

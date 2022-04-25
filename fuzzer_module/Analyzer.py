@@ -113,8 +113,8 @@ class Analyzer:
         # self.rt.shmctl(shmid, 0, 0)
 
         # Content to json
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovshm_str, showlog=True)
         cmpcov_list = ast.literal_eval(cmpcovshm_str)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovshm_str, cmpcov_list)
         del cmpcovshm_str
         return cmpcov_list
 
@@ -277,8 +277,9 @@ class Analyzer:
 if __name__ == "__main__":
     ana = Analyzer()
     # ana.sendCmpid("abcde"+"\0")
-    ana.sendCmpid("None\0")
+    # ana.sendCmpid("None\0")
     # ana.sendCmpid("Guard\0")
+    ana.sendCmpid("o0x7ffff7e770a8\0")
     # while True:
     #     addr = ana.getAddr("D124816Z\n")
     #     interlen = ana.getInterlen(addr)
