@@ -53,7 +53,7 @@ def mainFuzzer():
     if len(init_seeds_list) > 0:
         temp_listq = []
         for each in init_seeds_list:
-            temp_listq.append(StructSeed(path_mutseeds + each, "", SEED_INIT, set()))
+            temp_listq.append(StructSeed(path_mutseeds + each, b"", SEED_INIT, set()))
         sch.addq(SCH_LOOP_SEED, temp_listq)
     else:
         sch.addq(SCH_LOOP_SEED,

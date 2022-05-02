@@ -20,12 +20,9 @@ class StructTarget:
 
 # The structure stores information about the seed file.
 class StructSeed:
-    def __init__(self, filename: str, content: str, seedtype: int, location: set):
+    def __init__(self, filename: str, content: bytes, seedtype: int, location: set):
         self.filename = filename
-        if content == "":
-            self.content = getFileContent(filename)
-        else:
-            self.content = content
+        self.content = content
         self.seedtype = seedtype  # INIT MUT_TYPE_SUB MUT_TYPE_INSERT
         self.location = location  # -1 as the init seed
 

@@ -4,11 +4,11 @@ import random
 
 from fuzzer_module.Fuzzconfig import *
 
-def getFillStr(length: int) -> str:
+def getFillStr(length: int) -> bytes:
     fill_str = ""
     # 64 characters
     if length <= 64:
-        default_str = "AAABAAACAAADAAAEAAAFAAAGAAAHAAAIAAAJAAAKAAALAAAMAAANAAAOAAAPAAAQ"
+        default_str = b"AAABAAACAAADAAAEAAAFAAAGAAAHAAAIAAAJAAAKAAALAAAMAAANAAAOAAAPAAAQ"
         fill_str = default_str[0:length]
     else:
         while len(fill_str) <= length:
@@ -18,7 +18,7 @@ def getFillStr(length: int) -> str:
                         return fill_str[0:length]
                     for j in range(65, 91):
                         if i != j:
-                            fill_str += chr(i) * (4 - cent) + chr(j) * cent
+                            fill_str += bytes(i) * (4 - cent) + bytes(j) * cent
     return fill_str
 
 def mutSeeds(seedcont: str, filepath: str, label: str) -> 'list[StructSeed]':

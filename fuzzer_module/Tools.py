@@ -7,16 +7,39 @@ import time
 import os
 
 
-def saveAsFile(content: str, filename: str):
+def saveAsFile(content: bytes, filename: str):
     """
     Store mutated strings as files for easy reading by test programs.
     @param content:
     @param filename:
     @return:
     """
-    with open(filename, "w") as f:
+    with open(filename, "wb") as f:
         f.write(content)
 
+def readContent(filename: str) -> str:
+    """
+    Get the content of the file.
+    @param filepathname:
+    @return:
+    """
+    cont = None
+    with open(filename, "rb") as f:
+        cont = f.read()
+    return cont
+
+
+def getFileContent(filepathname: str) -> str:
+    """
+    Get the content of the file.
+    @param filepathname:
+    @return:
+    """
+    file_cont = ""
+    file_list = getFileList(filepathname)
+    for each in file_list:
+        file_cont += each
+    return file_cont
 
 def getMutfilename(label: str) -> str:
     return str(datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')) + "_" + str(label) + ".seed"
@@ -36,17 +59,6 @@ def getTimeStr():
     t = str(time.strftime("%Y%m%d%H%M%S", time.localtime(time.time())))
     return t
 
-def getFileContent(filepathname: str) -> str:
-    """
-    Get the content of the file.
-    @param filepathname:
-    @return:
-    """
-    file_cont = ""
-    file_list = getFileList(filepathname)
-    for each in file_list:
-        file_cont += each
-    return file_cont
 
 def delBrackets(source_str: str) -> str:
     restr = r"\(.*?\)"
