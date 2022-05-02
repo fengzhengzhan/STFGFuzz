@@ -338,6 +338,8 @@ if __name__ == "__main__":
     # python3.7 STFGFuzzer.py -n demo -- ./Programs/demo/code_Bin/demo -f @@
     # python3.7 STFGFuzzer.py -n base64 -- ./Programs/base64/code_Bin/base64 -d @@
 
+    # dot -Tpng CG.gv -o output.png
+
     # Handle Segmentation fault.  Generator the core files.
     # ulimit -c unlimited
     # python3 -X faulthandler my.py

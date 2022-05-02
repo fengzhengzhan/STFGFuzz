@@ -21,7 +21,7 @@ cd lava_corpus/LAVA-M/base64/coreutils-8.24-lava-safe
 # wllvm-sanity-checker
 export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
-CC=wllvm CFLAGS="-g -O0" LIBS="-lacl" ./configure --prefix=`pwd`/lava-install
+CC=wllvm CFLAGS="-g -O0" LIBS="-lacl" ./configure --disable-shared --prefix=`pwd`/lava-install
 make -j6  # -j Depends on the number of computer processes.
 make install
 cd lava-install/bin/

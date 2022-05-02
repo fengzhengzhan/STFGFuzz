@@ -16,10 +16,10 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-# VIS_TERM = True
-VIS_TERM = False
-VIS_SHOWGRAPH = True
-# VIS_SHOWGRAPH = False
+VIS_TERM = True
+# VIS_TERM = False
+# VIS_SHOWGRAPH = True
+VIS_SHOWGRAPH = False
 
 AUTO_SEED = "auto.seed"
 EXPAND_SEED = "expand.seed"
