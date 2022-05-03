@@ -153,7 +153,7 @@ class Visualizer:
                         color_pair = curses.color_pair(VIS_YELLOW)
                     if seed_index in input_loc:
                         color_pair = curses.color_pair(VIS_RED)
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), show_char, ord(show_char), hex(ord(show_char)))
+                    # LOG(LOG_DEBUG, LOG_FUNCINFO(), show_char, ord(show_char), hex(ord(show_char)))
                     # The part of hex numbers.
                     try:
                         self.terminal_seeds.addstr(
