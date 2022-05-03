@@ -90,7 +90,7 @@ class Visualizer:
             ter_high = 15
             # Initual terminal status.
             # height, width, heightloc, widthloc
-            self.terminal_status = curses.newwin(ter_high, curse_len+2, 1, 0)
+            self.terminal_status = curses.newwin(ter_high, curse_len + 2, 1, 0)
             self.terminal_status.box()
             self.terminal_status.erase()
             self.terminal_status.border()
@@ -105,8 +105,8 @@ class Visualizer:
             self.terminal_status.vline(1, 20, curses.ACS_VLINE, 3)
             self.terminal_status.addstr(1, 21, " Loop Number: {}".format(self.loop))
             self.terminal_status.addstr(2, 21, "Total Number: {}".format(self.total))
-            self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total/run_second)))
-            self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total/run_second)))
+            self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total / run_second)))
+            self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total / run_second)))
             self.terminal_status.hline(4, 1, curses.ACS_HLINE, curse_len)
 
             #
@@ -115,39 +115,39 @@ class Visualizer:
             self.terminal_status.addstr(6, 1, "Coverage: {} / {}".format(covernum, self.num_pcguard))
             self.terminal_status.addstr(7, 1, "Cmp Nums: {} / {}".format(self.cmpnum, self.cmptotal))
 
-
-            self.terminal_status.addstr(ter_high-1, 2, "Q", curses.color_pair(VIS_YELLOW))
-            self.terminal_status.addstr(ter_high-1, 3, "uit")
-            self.terminal_status.addstr(ter_high-1, 8, "S", curses.color_pair(VIS_YELLOW))
-            self.terminal_status.addstr(ter_high-1, 9, "how_graph")
-            self.terminal_status.addstr(ter_high-1, 20, "N", curses.color_pair(VIS_YELLOW))
-            self.terminal_status.addstr(ter_high-1, 21, "ot_show")
+            self.terminal_status.addstr(ter_high - 1, 2, "Q", curses.color_pair(VIS_YELLOW))
+            self.terminal_status.addstr(ter_high - 1, 3, "uit")
+            self.terminal_status.addstr(ter_high - 1, 8, "S", curses.color_pair(VIS_YELLOW))
+            self.terminal_status.addstr(ter_high - 1, 9, "how_graph")
+            self.terminal_status.addstr(ter_high - 1, 20, "N", curses.color_pair(VIS_YELLOW))
+            self.terminal_status.addstr(ter_high - 1, 21, "ot_show")
 
             self.terminal_status.noutrefresh()
 
             # Initual terminal seeds.
             seed_len = len(seed.content)
+            seed_cont = str(seed.content, encoding="utf-8")
             layout_x = seed_len // VIS_SEED_LINE + 1  # The end line not full.
             layout_y = seed_len % VIS_SEED_LINE
 
-            high = min(layout_x-self.seedline, VIS_MAX_LINE)
-            self.terminal_seeds = curses.newwin(high+2, curse_len+2, ter_high+1, 0)
+            high = min(layout_x - self.seedline, VIS_MAX_LINE)
+            self.terminal_seeds = curses.newwin(high + 2, curse_len + 2, ter_high + 1, 0)
             self.terminal_seeds.box()
             self.terminal_seeds.erase()
             self.terminal_seeds.border()
             self.terminal_seeds.addstr(0, 3, "Hex", curses.color_pair(VIS_CYAN))  # (y ->, x |V)
 
-            for line_i, seed_i in enumerate(range(self.seedline, high+self.seedline)):
+            for line_i, seed_i in enumerate(range(self.seedline, high + self.seedline)):
                 self.terminal_seeds.addstr(line_i + 1, 1, "{:0>3}0: ".format(hex(seed_i)[2:].upper()))
                 # if seed_i < layout_x-1 or layout_x-1 > VIS_MAX_LINE:
-                if seed_i < layout_x-1:
+                if seed_i < layout_x - 1:
                     j_len = VIS_SEED_LINE
                 else:
                     j_len = layout_y
 
                 for j in range(0, j_len):
-                    seed_index = seed_i*16+j
-                    show_char = seed.content[seed_index]
+                    seed_index = seed_i * 16 + j
+                    show_char = seed_cont[seed_index]
                     color_pair = curses.color_pair(VIS_WHITE)
                     if seed_index in seed.location:
                         color_pair = curses.color_pair(VIS_YELLOW)
@@ -157,13 +157,14 @@ class Visualizer:
                     # The part of hex numbers.
                     try:
                         self.terminal_seeds.addstr(
-                            line_i+1, j*3+int(j/4)+7, "{:0>2} ".format(hex(ord(show_char))[2:]), color_pair
+                            line_i + 1, j * 3 + int(j / 4) + 7, "{:0>2} ".format(hex(ord(show_char))[2:]), color_pair
                         )
                     except Exception as e:  # show_char == 0  null
                         self.terminal_seeds.addstr(line_i + 1, j * 3 + int(j / 4) + 7, "{} ".format("XX"), color_pair)
                     # The part of characters.
                     try:
-                        self.terminal_seeds.addstr(line_i+1, j+int(j/4)+58, "{:0>1}".format(show_char), color_pair)
+                        self.terminal_seeds.addstr(line_i + 1, j + int(j / 4) + 58, "{:0>1}".format(show_char),
+                                                   color_pair)
                     except Exception as e:
                         self.terminal_seeds.addstr(line_i + 1, j + int(j / 4) + 58, "{}".format(" "), color_pair)
 
@@ -172,8 +173,8 @@ class Visualizer:
             self.terminal_seeds.addstr(high + 2 - 1, 7, "X", curses.color_pair(VIS_YELLOW))
             self.terminal_seeds.addstr(high + 2 - 1, 8, "down")
 
-            self.terminal_seeds.addstr(high+2 - 1, 65, "Lines:")
-            self.terminal_seeds.addstr(high+2 - 1, 65+7, "{}".format(layout_x), curses.color_pair(VIS_YELLOW))
+            self.terminal_seeds.addstr(high + 2 - 1, 65, "Lines:")
+            self.terminal_seeds.addstr(high + 2 - 1, 65 + 7, "{}".format(layout_x), curses.color_pair(VIS_YELLOW))
             self.terminal_seeds.noutrefresh()
 
             # Show the program output
@@ -182,8 +183,8 @@ class Visualizer:
             LOG(LOG_DEBUG, LOG_FUNCINFO(), stdout, len(stdout))
             out_high = min(len(stdout) // (curse_len - 2) + 1, VIS_MAX_OUT)
             err_high = min(len(stderr) // (curse_len - 2) + 1, VIS_MAX_ERR)
-            output_high = out_high+err_high+2
-            self.terminal_outs = curses.newwin(output_high, curse_len+2, ter_high+1+high+2, 0)
+            output_high = out_high + err_high + 2
+            self.terminal_outs = curses.newwin(output_high, curse_len + 2, ter_high + 1 + high + 2, 0)
             self.terminal_outs.box()
             self.terminal_outs.erase()
             self.terminal_outs.border()
@@ -191,12 +192,13 @@ class Visualizer:
 
             self.terminal_outs.addstr(1, 0, "O", curses.color_pair(VIS_YELLOW))
             for x_i in range(0, out_high):
-                self.terminal_outs.addstr(x_i+1, 2, "{}".format(stdout[(curse_len-2)*x_i: (curse_len-2)*(x_i+1)]))
+                self.terminal_outs.addstr(x_i + 1, 2,
+                                          "{}".format(stdout[(curse_len - 2) * x_i: (curse_len - 2) * (x_i + 1)]))
 
-            self.terminal_outs.addstr(out_high+1, 0, "E", curses.color_pair(VIS_YELLOW))
+            self.terminal_outs.addstr(out_high + 1, 0, "E", curses.color_pair(VIS_YELLOW))
             for x_i in range(0, err_high):
                 self.terminal_outs.addstr(
-                    out_high+x_i+1, 2, "{}".format(stderr[(curse_len-2)*x_i: (curse_len-2)*(x_i+1)])
+                    out_high + x_i + 1, 2, "{}".format(stderr[(curse_len - 2) * x_i: (curse_len - 2) * (x_i + 1)])
                 )
 
             self.terminal_outs.addstr(output_high - 1, 2, "O", curses.color_pair(VIS_YELLOW))
@@ -252,7 +254,7 @@ class Visualizer:
             # Show graph
             cg = Image.open(cgpath)
             # round() function, rounding five into two, that is, 4 rounding 6 into 5 to make even.
-            plt.figure(num='CG', figsize=(round(cg.size[0]/VIS_DPI, 1), round(cg.size[1]/VIS_DPI,1)),)
+            plt.figure(num='CG', figsize=(round(cg.size[0] / VIS_DPI, 1), round(cg.size[1] / VIS_DPI, 1)), )
             # plt.title('CG')
             plt.imshow(cg)  # show picture
             plt.axis('off')  # not show axis
@@ -263,7 +265,7 @@ class Visualizer:
             plt.ion()
 
             cfg = Image.open(cfgpath)
-            plt.figure(num='CFG', figsize=(round(cfg.size[0]/VIS_DPI, 1), round(cfg.size[1]/VIS_DPI, 1)),)
+            plt.figure(num='CFG', figsize=(round(cfg.size[0] / VIS_DPI, 1), round(cfg.size[1] / VIS_DPI, 1)), )
             # plt.title('CFG')
             plt.imshow(cfg)  # show picture
             plt.axis('off')  # not show axis
@@ -288,4 +290,3 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
     # os.system("clear")
-

@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import faulthandler  # Use to find Segmentation Fault
+
 faulthandler.enable()
 
 from fuzzer_module import *
 from fuzzer_module.Fuzzconfig import *
 
+
 # Close Address Space Layout Randomization.
 # echo 0 > /proc/sys/kernel/randomize_va_space
+
+# python3.7 STFGFuzzer.py -n demo -- ./Programs/demo/code_Bin/demo -f @@
+# python3.7 STFGFuzzer.py -n base64 -- ./Programs/base64/code_Bin/base64 -d @@
 
 def mainFuzzer():
     """
@@ -53,7 +58,7 @@ def mainFuzzer():
     if len(init_seeds_list) > 0:
         temp_listq = []
         for each in init_seeds_list:
-            temp_listq.append(StructSeed(path_mutseeds + each, b"", SEED_INIT, set()))
+            temp_listq.append(StructSeed(path_mutseeds + each, readContent(path_mutseeds + each), SEED_INIT, set()))
         sch.addq(SCH_LOOP_SEED, temp_listq)
     else:
         sch.addq(SCH_LOOP_SEED,
@@ -87,6 +92,7 @@ def mainFuzzer():
         # If there is a change in the increase length then increase the length.
         b4ld_seed = init_seed
         b4ld_interlen = init_interlen
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content, ana.getRpt(init_interlen, init_addr), showlog=True)
         while len(b4ld_seed.content) < sch.expand_size:
             vis.total += 1
             sch.expandnums += 1
@@ -104,6 +110,7 @@ def mainFuzzer():
             ld_addr = ana.getAddr(ld_stdout[0:16])
             ld_interlen = ana.getInterlen(ld_addr)
             LOG(LOG_DEBUG, LOG_FUNCINFO(), len(ld_seed.content), b4ld_interlen, ld_interlen, showlog=True)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), ana.getRpt(ld_interlen, ld_addr), showlog=True)
             if b4ld_interlen != ld_interlen:
                 b4ld_seed = ld_seed
                 b4ld_interlen = ld_interlen
@@ -126,7 +133,6 @@ def mainFuzzer():
             if res == VIS_Q:
                 sch.quitFuzz()
         '''ld <-'''
-
 
         # Reset the init_seed
         init_seed = b4ld_seed
@@ -187,7 +193,6 @@ def mainFuzzer():
                 sch.quitFuzz()
         LOG(LOG_DEBUG, LOG_FUNCINFO(), need_fine_list, showlog=True)
         '''sd <-'''
-
 
         '''bd -> Byte Detection O(m)'''
         # Mutate seeds to find where to change. Then perform to a directed mutate.

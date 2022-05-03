@@ -17,13 +17,12 @@ def saveAsFile(content: bytes, filename: str):
     with open(filename, "wb") as f:
         f.write(content)
 
-def readContent(filename: str) -> str:
+def readContent(filename: str) -> bytes:
     """
     Get the content of the file.
     @param filepathname:
     @return:
     """
-    cont = None
     with open(filename, "rb") as f:
         cont = f.read()
     return cont

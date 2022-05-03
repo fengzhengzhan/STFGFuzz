@@ -101,8 +101,8 @@ def mutLocFromMap(seedcont: str, filepath: str, label: str, locmapdet_dict: 'dic
     return temp_one
 
 
-def mutAddLength(seedcont: bytes, filepath: str, label: str, expand):
-    multicont = seedcont + getFillStr(expand)
+def mutAddLength(seedcont: bytes, filepath: str, label: str, expand_len):
+    multicont = seedcont + getFillStr(expand_len)
     loc_set = set([i for i in range(len(seedcont), len(multicont))])
     temp_one = StructSeed(filepath + getTimeStr() + EXPAND_SEED, multicont, MUT_SEED_INSERT, loc_set)
     return temp_one
@@ -117,4 +117,4 @@ if __name__ == "__main__":
     # print(mutate_seed_list)
     # mutate_seed_list = mutOneChar("1245678123456789", "", "", set([1]))
     # print(mutate_seed_list.content)
-    # print(getFillStr(1024))
+    print(getFillStr(1024))

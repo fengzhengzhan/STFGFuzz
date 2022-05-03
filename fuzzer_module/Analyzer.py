@@ -8,6 +8,7 @@ from ctypes import *
 
 from fuzzer_module.Fuzzconfig import *
 
+
 # The operation of Memory Shared.
 # 1. Find the memory share id
 # ipcs -lm
@@ -100,13 +101,14 @@ class Analyzer:
 
         cmpcovshm_str = "["
         if pieces > 0:
-            cmpcovshm_str += string_at(addr + ANA_INTERLEN_SIZE, ANA_SHM_INTERVAL-ANA_INTERLEN_SIZE).decode("utf-8")
+            cmpcovshm_str += string_at(addr + ANA_INTERLEN_SIZE, ANA_SHM_INTERVAL - ANA_INTERLEN_SIZE).decode("utf-8",
+                                                                                                              "ignore")
             for each in range(1, pieces):
-                cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * each, ANA_SHM_INTERVAL).decode("utf-8")
+                cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * each, ANA_SHM_INTERVAL).decode("utf-8", "ignore")
             # fixme .decode("utf-8", "ignore")
-            cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * pieces, over).decode("utf-8")
+            cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * pieces, over).decode("utf-8", "ignore")
         else:
-            cmpcovshm_str += string_at(addr + ANA_INTERLEN_SIZE, over-ANA_INTERLEN_SIZE).decode("utf-8")
+            cmpcovshm_str += string_at(addr + ANA_INTERLEN_SIZE, over - ANA_INTERLEN_SIZE).decode("utf-8", "ignore")
         cmpcovshm_str += "]"
 
         # Make the fuzz loop block.
@@ -129,12 +131,12 @@ class Analyzer:
         """
         cmp_dict = {}  # According cmp instruction to genetator dict.
         for each_i in cmpcov_list:
-            if each_i[0] in type_info and each_i[1] not in freezeid_rpt:
-                cmpid = each_i[1]
+            if each_i[IDX_CMPTYPE] in type_info and each_i[IDX_CMPID] not in freezeid_rpt:
+                cmpid = each_i[IDX_CMPID]
                 if cmpid not in cmp_dict:
-                    cmp_dict[cmpid] = [each_i[0:1] + each_i[2:]]
+                    cmp_dict[cmpid] = [each_i[0:IDX_CMPID] + each_i[IDX_CMPID+1:]]
                 else:
-                    cmp_dict[cmpid].append(each_i[0:1] + each_i[2:])
+                    cmp_dict[cmpid].append(each_i[0:IDX_CMPID] + each_i[IDX_CMPID+1:])
         return cmp_dict
 
     # def traceGuardAyalysis(self, cmpcovcont_list, cmpcov_content, freezeid_rpt, sch: 'Scheduler'):
@@ -234,6 +236,7 @@ class Analyzer:
     '''
     Tracking Comparison Module.
     '''
+
     def compareRptToLoc(self, b4cmp_dict, b4cmpset, cmp_dict):
         cmpset = set(cmp_dict)
         interset = b4cmpset & cmpset  # Intersection set
@@ -253,7 +256,6 @@ class Analyzer:
             diffcmp_set.add(key_i)
 
         return diffcmp_set
-
 
     def sendCmpid(self, cmpid):
         """
@@ -278,7 +280,7 @@ if __name__ == "__main__":
     ana = Analyzer()
     # ana.sendCmpid("abcde"+"\0")
     # ana.sendCmpid("None\0")
-    ana.sendCmpid("Guard\0")
+    ana.sendCmpid("None\0")
     # ana.sendCmpid("o0x7ffff7e770a8\0")
     # while True:
     #     addr = ana.getAddr("D124816Z\n")
@@ -288,7 +290,7 @@ if __name__ == "__main__":
     addr = ana.getAddr("D124816Z\n")
     interlen = ana.getInterlen(addr)
     cmpcovshm_list = ana.getRpt(interlen, addr)
-    with open("info", "w") as f:
+    with open("../Programs/TrackCrash/crashinfo/info", "w") as f:
         f.write(str(cmpcovshm_list))
     print(cmpcovshm_list)
     # print(cmpcovshm_list)

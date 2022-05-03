@@ -140,7 +140,7 @@ void saveCovOnEnd() {
         // printf("\nE %p Z\n", GET_FUNC_PC);
         // Add dataflow analysis information.
 
-        sprintf(buf, "['E','Eend','%d_%d'],",blocknum, blockcmpcount);
+        sprintf(buf, "['E','%d_%d','Eend'],",blocknum, blockcmpcount);
         blockcmpcount++;
         strcpy(data + interlen, buf);
         interlen += strlen(buf);
@@ -168,7 +168,7 @@ void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
         // printf("\n%c %p %lu %lu %d Z\n", funcinfo, GET_FUNC_PC, arg1, arg2, arg_len);
         // Add dataflow analysis information.
 
-        sprintf(buf, "['%c','%c%p%p','%d_%d',%lu,%lu,%d],", funcinfo, funcinfo, GET_FUNC_PC, GET_CALLER_PC, blocknum, blockcmpcount, arg1, arg2, arg_len);
+        sprintf(buf, "['%c','%d_%d','%c%p%p',%lu,%lu,%d],", funcinfo, blocknum, blockcmpcount, funcinfo, GET_FUNC_PC, GET_CALLER_PC,arg1, arg2, arg_len);
         blockcmpcount++;
         strcpy(data + interlen, buf);
         interlen += strlen(buf);
@@ -195,7 +195,7 @@ void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int
         }
         
         // printf("\n%c %x ", funcinfo, *(int *)called_pc);
-        sprintf(buf, "['%c','%c%p','%d_%d'", funcinfo, funcinfo, called_pc, blocknum, blockcmpcount);
+        sprintf(buf, "['%c','%d_%d','%c%p'", funcinfo, blocknum, blockcmpcount, funcinfo, called_pc);
         blockcmpcount++;
         // uint64_t traceflag =  reinterpret_cast<uint64_t>(called_pc) |
         //     (reinterpret_cast<uint64_t>(s1) << 48) |
@@ -256,7 +256,7 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     if(retSame(eachcmpid) >= 0) {
 
         // printf("\n%c %p %lu %lu", COV_TRACE_SWITCH, GET_FUNC_PC, Cases[0], Cases[1]);
-        sprintf(buf, "['%c','%c%p%p','%d_%d',%lu,%lu,%lu", COV_TRACE_SWITCH, COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, blocknum, blockcmpcount, Cases[0], Cases[1], Val);
+        sprintf(buf, "['%c','%d_%d','%c%p%p',%lu,%lu,%lu", COV_TRACE_SWITCH, blocknum, blockcmpcount, COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, Cases[0], Cases[1], Val);
         blockcmpcount++;
 
         for (int i = 0; i < Cases[0]; i ++) {
@@ -375,7 +375,7 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
             *x = ++N;
         }
 
-        sprintf(buf, "['I','I%p','%d_%d',%lu,'%p','%p'],", GET_FUNC_PC, blocknum, blockcmpcount, N, start, stop);
+        sprintf(buf, "['I','%d_%d','I%p',%lu,'%p','%p'],", blocknum, blockcmpcount, GET_FUNC_PC, N, start, stop);
         blockcmpcount++;
         strcpy(data + interlen, buf);
         interlen += strlen(buf);
