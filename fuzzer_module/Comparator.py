@@ -30,7 +30,8 @@ def getTarget(program_name: str):
                 if re_cont is not None:
                     cont_groups = re_cont.groups()
                     # print(cont_groups)
-                    target_dict[target_num].additem(int(cont_groups[0]), delBrackets(cont_groups[1]), int(cont_groups[2]))
+                    target_dict[target_num].additem(int(cont_groups[0]), delBrackets(cont_groups[1]),
+                                                    int(cont_groups[2]))
             target_num += 1
 
         if ext == COM_MANUAL:  # manual design
@@ -55,6 +56,7 @@ def getTarget(program_name: str):
 
     # print(target_dict, target_dict[2].ttrace, target_dict[2].tfunc, target_dict[2].tline)
     return target_dict
+
 
 def getDirectedNodeLoc(binline_dict: dict, target_dict: 'dict[target_num:StructTarget]'):
     map_numTofuncasm: 'dict[targetnum:dict[funcname:list[asm, asm]]]' = {}

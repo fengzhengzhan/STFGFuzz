@@ -32,6 +32,7 @@ class Scheduler:
         self.slid_window = SCH_SLID_WINDOW
         self.mutlocnums = 0
         vis.cmpnum, vis.cmptotal = 0, 0
+        self.expand_size *= SCH_EXPAND_MULTI
 
     def selectOneSeed(self, mode: int, mutseed=None) -> StructSeed:
         temp_one = None
@@ -98,11 +99,10 @@ class Scheduler:
                     # GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
                     linestr = str(name) + "," \
                               + datetime.datetime.strftime(start_time, "%Y-%m-%d_%H:%M:%S") + "," + last_time + "," \
-                              + str(seed.content.encode("utf-8")) + "," + str(stdout) + "," + str(stderr) + "\n"
+                              + str(seed.content) + "," + str(stdout) + "," + str(stderr) + "\n"
                     cf.write(linestr)
                 # write seed
-                with open(path_crashseeds + name, "w", encoding="utf-8") as sf:
-                    sf.write(seed.content)
+                saveAsFile(seed.content, path_crashseeds + name)
 
     def quitFuzz(self):
         self.deleteSeeds()

@@ -17,6 +17,7 @@ def saveAsFile(content: bytes, filename: str):
     with open(filename, "wb") as f:
         f.write(content)
 
+
 def readContent(filename: str) -> bytes:
     """
     Get the content of the file.
@@ -40,6 +41,7 @@ def getFileContent(filepathname: str) -> str:
         file_cont += each
     return file_cont
 
+
 def getMutfilename(label: str) -> str:
     return str(datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')) + "_" + str(label) + ".seed"
 
@@ -54,6 +56,7 @@ def getFileList(filepathname: str) -> list:
         file_list = f.readlines()
     return file_list
 
+
 def getTimeStr():
     t = str(time.strftime("%Y%m%d%H%M%S", time.localtime(time.time())))
     return t
@@ -64,6 +67,7 @@ def delBrackets(source_str: str) -> str:
     replace_str = re.sub(restr, "", source_str)
     return str(replace_str)
 
+
 def getTimestampStr(days, seconds):
     h = seconds // 3600
     m = (seconds - h * 3600) // 60
@@ -71,9 +75,11 @@ def getTimestampStr(days, seconds):
     timestr = "{}:{}:{}:{}".format(days, h, m, s)
     return timestr
 
+
 def getProjectPath():
     project_path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     return project_path
+
 
 def runothercmd(cmd: str) -> (int, str, str):
     """
@@ -97,5 +103,3 @@ if __name__ == "__main__":
     print(delBrackets("bug"))
     # std_out, std_err = runothercmd("./Programs/base64/code_Bin/base64 -d Programs/base64/seeds_crash/validate_inputs/utmp-fuzzed-222.b64")
     # print(std_out, std_err)
-
-

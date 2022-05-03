@@ -7,8 +7,10 @@ from fuzzer_module.Tools import *
 # map_guardTofuncname
 
 '''Struct'''
+
+
 class StructTarget:
-    def __init__(self, ttrace:list, tfunc:list, tline:list):
+    def __init__(self, ttrace: list, tfunc: list, tline: list):
         self.ttrace: list = ttrace
         self.tfunc: list = tfunc
         self.tline: list = tline
@@ -18,6 +20,7 @@ class StructTarget:
         self.tfunc.append(tfunc)
         self.tline.append(tline)
 
+
 # The structure stores information about the seed file.
 class StructSeed:
     def __init__(self, filename: str, content: bytes, seedtype: int, location: set):
@@ -25,7 +28,6 @@ class StructSeed:
         self.content = content
         self.seedtype = seedtype  # INIT MUT_TYPE_SUB MUT_TYPE_INSERT
         self.location = location  # -1 as the init seed
-
 
 
 # class StructCmpIns:
@@ -45,6 +47,7 @@ class StructCmpInfo:
         self.endguardtrue = endguardtrue
         self.endguardfalse = endguardfalse
 
+
 class StructMutStrategy:
     def __init__(self, type, curnum, endlen, curloop, endloop):
         self.type = type
@@ -52,6 +55,7 @@ class StructMutStrategy:
         self.endlen = endlen
         self.curloop = curloop
         self.endloop = endloop
+
 
 # Key: cmpid  Value: branch_order cmp_type input_bytes branches
 class StructMapCmpid:
@@ -64,6 +68,7 @@ class StructMapCmpid:
         self.branch_true = branch_true
         self.branch_false = branch_false
 
+
 class StructMapInpus:
     def __init__(self, inputloc, valuerange: set,
                  cmpset, cmpval: 'dict[cmpid:valuerangeset]',
@@ -75,10 +80,9 @@ class StructMapInpus:
         self.branchset = branchset
         self.branchval = branchval
 
+
 class StructMapBranches:
     def __init__(self, branchid, cmplist, inputmap):
         self.branchid = branchid
         self.cmplist = cmplist
         self.inputmap = inputmap
-
-

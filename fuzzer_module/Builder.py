@@ -5,7 +5,6 @@ import re
 import json
 import networkx as nx
 
-
 from fuzzer_module.Fuzzconfig import *
 
 
@@ -145,5 +144,3 @@ def buildConstraint(start_node, end_node, st_list):
     Use color labels for key nodes.
     @return:
     """
-
-

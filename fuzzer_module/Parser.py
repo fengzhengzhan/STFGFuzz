@@ -4,10 +4,11 @@ import random
 
 from fuzzer_module.Fuzzconfig import *
 
-
 '''
 Multiple comparison type handling functions
 '''
+
+
 def handleStrMagic(seed_loc, bytes_flag, cont_list) -> dict:
     change_inputmap = {}
     fixed_cont = cont_list[0]
@@ -17,6 +18,7 @@ def handleStrMagic(seed_loc, bytes_flag, cont_list) -> dict:
     for fix_i in range(len(fixed_cont)):
         change_inputmap[seed_loc[fix_i]] = bytes(fixed_cont[fix_i], encoding="utf-8")
     return change_inputmap
+
 
 # Convert a string to a corresponding PAR_CONVER_BIT-bit integer
 def strConverUnival(strvalue):
@@ -31,15 +33,17 @@ def strConverUnival(strvalue):
         raise Exception("Error ConverUnical Type")
     return unique_val
 
+
 def univalConverStr(intvalue, strlen):
-    cont = ""
+    cont = b""
     for l_i in range(0, strlen):
         rest = intvalue % 256
-        intvalue = (intvalue-rest) // 256
+        intvalue = (intvalue - rest) // 256
         # print(rest, intvalue, chr(rest))
-        cont = chr(rest) + cont
+        cont = BYTES_ASCII[rest] + cont
 
     return cont
+
 
 def handleDistanceNum(opt_seed, mut_seed, st_loc, cont_list, strategy) -> dict:
     ret_seed = opt_seed
@@ -52,11 +56,11 @@ def handleDistanceNum(opt_seed, mut_seed, st_loc, cont_list, strategy) -> dict:
     mut1 = strConverUnival(str(hex(int(cont_list[3]))[2:]))
     LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, mut_seed.content)
     # According distance to return which seed.
-    if abs(opt0-opt1) > abs(mut0-mut1):  # Distance difference in a constraint.
+    if abs(opt0 - opt1) > abs(mut0 - mut1):  # Distance difference in a constraint.
         ret_seed = mut_seed
-    elif abs(opt0-opt1) < abs(mut0-mut1):
+    elif abs(opt0 - opt1) < abs(mut0 - mut1):
         ret_seed = opt_seed
-    elif abs(opt0-opt1) == abs(mut0-mut1):
+    elif abs(opt0 - opt1) == abs(mut0 - mut1):
         ret_seed = mut_seed if random.randint(0, 1) == 1 else opt_seed
 
     # According bytes location to mutation seed location.
@@ -68,8 +72,9 @@ def handleDistanceNum(opt_seed, mut_seed, st_loc, cont_list, strategy) -> dict:
         c = BYTES_ASCII[c]
         change_inputmap[st_loc[chari]] = c
         LOG(LOG_DEBUG, LOG_FUNCINFO(), chari, charb, st_loc, opt_seed.content, mut_seed.content, change_inputmap)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, mut0, opt1, mut1, abs(opt0-opt1), abs(mut0-mut1), ret_seed.content)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, mut0, opt1, mut1, abs(opt0 - opt1), abs(mut0 - mut1), ret_seed.content)
     return ret_seed, change_inputmap
+
 
 def handleDistanceStr(opt_seed, mut_seed, st_loc, cont_list, strategy) -> dict:
     ret_seed = opt_seed
@@ -81,11 +86,11 @@ def handleDistanceStr(opt_seed, mut_seed, st_loc, cont_list, strategy) -> dict:
     mut1 = strConverUnival(cont_list[3])
     LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, mut_seed.content)
     # According distance to return which seed.
-    if abs(opt0-opt1) > abs(mut0-mut1):  # Distance difference in a constraint.
+    if abs(opt0 - opt1) > abs(mut0 - mut1):  # Distance difference in a constraint.
         ret_seed = mut_seed
-    elif abs(opt0-opt1) < abs(mut0-mut1):
+    elif abs(opt0 - opt1) < abs(mut0 - mut1):
         ret_seed = opt_seed
-    elif abs(opt0-opt1) == abs(mut0-mut1):
+    elif abs(opt0 - opt1) == abs(mut0 - mut1):
         ret_seed = mut_seed if random.randint(0, 1) == 1 else opt_seed
 
     # According bytes location to mutation seed location.
@@ -93,14 +98,15 @@ def handleDistanceStr(opt_seed, mut_seed, st_loc, cont_list, strategy) -> dict:
         chari = strategy.curnum // 16
         charb = strategy.curnum % 16
         strategy.curnum += 1
-        c = abs(ord(ret_seed.content[st_loc[chari]]) + MUT_BIT_LIST[charb]) % 256
-        c = chr(c)
+        c = abs(ret_seed.content[st_loc[chari]] + MUT_BIT_LIST[charb]) % 256
+        c = BYTES_ASCII[c]
         change_inputmap[st_loc[chari]] = c
         LOG(LOG_DEBUG, LOG_FUNCINFO(), chari, charb, st_loc,
             opt_seed.content, mut_seed.content, change_inputmap, showlog=True)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, mut0, opt1, mut1,
-            abs(opt0-opt1), abs(mut0-mut1), ret_seed.content, showlog=True)
+            abs(opt0 - opt1), abs(mut0 - mut1), ret_seed.content, showlog=True)
     return ret_seed, change_inputmap
+
 
 # Turn single-byte variants into +1 -1 operations on the total length
 def handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy):
@@ -129,18 +135,20 @@ def handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy):
         for loc_i in st_loc:
             cont += ret_seed.content[loc_i]
         cont_num = strConverUnival(cont)
-        addnum = ((-1) ** (strategy.curnum%2)) * (2 ** (bit_len - (strategy.curnum)//2))
+        addnum = ((-1) ** (strategy.curnum % 2)) * (2 ** (bit_len - (strategy.curnum) // 2))
         cont_num = cont_num + addnum
         # print(addnum, cont_num)
         cont = univalConverStr(cont_num, st_len)
         for loc_idx, loc_i in enumerate(st_loc):
-            change_inputmap[loc_i] = cont[loc_idx]
+            change_inputmap[loc_i] = cont[loc_idx:loc_idx + 1]
         strategy.curnum += 1
 
     return ret_seed, change_inputmap
 
+
 def handleChecksums():
     pass
+
 
 def handleUndefined():
     pass
@@ -149,6 +157,8 @@ def handleUndefined():
 '''
 Type Inference Module.
 '''
+
+
 # Infer bytes status according bytes change.
 def inferFixedOrChanged(cont_list) -> int:
     # Original group <-> Control group
@@ -165,11 +175,13 @@ def inferFixedOrChanged(cont_list) -> int:
         bytesflag = PAR_CHGACHG
     return bytesflag
 
+
 def listIsdigit(cont_list):
     for cont_i in cont_list:
         if isinstance(cont_i, str) and not cont_i.isdigit():
             return False
     return True
+
 
 # Detect bytes type from bytes status and bytes contents.
 def detectCmpType(bytes_type, cont_list, onecmp: list) -> list:
@@ -201,6 +213,7 @@ def detectCmpType(bytes_type, cont_list, onecmp: list) -> list:
 
     return type_infer
 
+
 # According type flag to determine which one strategy will be executed.
 def exeTypeStrategy(opt_seed, seed, st_loc, type_infer_list, bytes_flag, cont_list, strategy):
     ret_seed = seed
@@ -222,6 +235,7 @@ def exeTypeStrategy(opt_seed, seed, st_loc, type_infer_list, bytes_flag, cont_li
             locmapdet_dict.update(change_inputmap)
     LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content)
     return ret_seed, locmapdet_dict
+
 
 def typeDetect(opt_seed, seed: 'StructSeed', st_key: 'cmpid', st_loc,
                opt_cmp_dict: 'dict[cmpid:list[list[int,str]]]', st_cmp_dict, strategy: 'StructMutStrategy', sch):
@@ -255,11 +269,11 @@ def typeDetect(opt_seed, seed: 'StructSeed', st_key: 'cmpid', st_loc,
 
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, locmapdet_dict)
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, cont_list)
-        elif opt_cmplist[0][0] == COV_SWITCH:
-            strategy.endloop = opt_cmplist[0][1]
+        elif opt_cmplist[0][IDX_CMPTYPE] == COV_SWITCH:
+            strategy.endloop = opt_cmplist[0][2]
             for len_i in range(min(len(opt_cmplist), len(st_cmplist))):
-                cont_list = [opt_cmplist[len_i][3], opt_cmplist[len_i][3+strategy.curloop],
-                             st_cmplist[len_i][3], st_cmplist[len_i][3+strategy.curloop]]
+                cont_list = [opt_cmplist[len_i][4], opt_cmplist[len_i][4 + strategy.curloop],
+                             st_cmplist[len_i][4], st_cmplist[len_i][4 + strategy.curloop]]
                 # Determining the type of variables
                 bytes_flag = inferFixedOrChanged(cont_list)
                 # Speculative change type
@@ -279,9 +293,9 @@ def typeDetect(opt_seed, seed: 'StructSeed', st_key: 'cmpid', st_loc,
 
 
 if __name__ == "__main__":
-    opt_seed = StructSeed("path", "AAAC", MUT_SEED_SUB, set([0,1]))
-    mut_seed = StructSeed("path", "AAAD", MUT_SEED_SUB, set([0,1]))
-    st_loc = [1,2,3]
+    opt_seed = StructSeed("path", "AAAC", MUT_SEED_SUB, set([0, 1]))
+    mut_seed = StructSeed("path", "AAAD", MUT_SEED_SUB, set([0, 1]))
+    st_loc = [1, 2, 3]
     cont_list = ["AAAC", "BEBF", "AAAD", "BEBF"]
     for i in range(0, 100):
         strategy = StructMutStrategy(TYPE_DEFAULT, i, 3, 0, 2)

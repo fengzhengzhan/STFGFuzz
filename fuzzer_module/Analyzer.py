@@ -134,9 +134,9 @@ class Analyzer:
             if each_i[IDX_CMPTYPE] in type_info and each_i[IDX_CMPID] not in freezeid_rpt:
                 cmpid = each_i[IDX_CMPID]
                 if cmpid not in cmp_dict:
-                    cmp_dict[cmpid] = [each_i[0:IDX_CMPID] + each_i[IDX_CMPID+1:]]
+                    cmp_dict[cmpid] = [each_i[0:IDX_CMPID] + each_i[IDX_CMPID + 1:]]
                 else:
-                    cmp_dict[cmpid].append(each_i[0:IDX_CMPID] + each_i[IDX_CMPID+1:])
+                    cmp_dict[cmpid].append(each_i[0:IDX_CMPID] + each_i[IDX_CMPID + 1:])
         return cmp_dict
 
     # def traceGuardAyalysis(self, cmpcovcont_list, cmpcov_content, freezeid_rpt, sch: 'Scheduler'):

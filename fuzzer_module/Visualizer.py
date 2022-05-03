@@ -125,8 +125,8 @@ class Visualizer:
             self.terminal_status.noutrefresh()
 
             # Initual terminal seeds.
-            seed_len = len(seed.content)
-            seed_cont = str(seed.content, encoding="utf-8")
+            seed_cont = str(seed.content, encoding="utf-8", errors="ignore")
+            seed_len = len(seed_cont)
             layout_x = seed_len // VIS_SEED_LINE + 1  # The end line not full.
             layout_y = seed_len % VIS_SEED_LINE
 

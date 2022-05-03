@@ -11,6 +11,7 @@ def createDir(path: str) -> None:
     if not os.path.exists(path):
         os.makedirs(path)
 
+
 def genTerminal():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hn:t:")
