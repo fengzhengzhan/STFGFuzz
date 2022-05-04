@@ -44,12 +44,12 @@ class Visualizer:
             curses.init_pair(7, curses.COLOR_WHITE, -1)
             curses.init_pair(8, curses.COLOR_YELLOW, -1)
 
-    def __del__(self):
-        try:
-            if self.stdscr is not None:
-                curses.endwin()
-        except Exception as e:
-            pass
+    # def __del__(self):
+    #     try:
+    #         if self.stdscr is not None:
+    #             curses.endwin()
+    #     except Exception as e:
+    #         pass
 
     def charoperation(self, char, layout_x):
         if char == VIS_X:
@@ -173,6 +173,8 @@ class Visualizer:
             self.terminal_seeds.addstr(high + 2 - 1, 7, "X", curses.color_pair(VIS_YELLOW))
             self.terminal_seeds.addstr(high + 2 - 1, 8, "down")
 
+            self.terminal_seeds.addstr(high + 2 - 1, 54, "Len:")
+            self.terminal_seeds.addstr(high + 2 - 1, 54 + 5, "{}".format(seed_len), curses.color_pair(VIS_YELLOW))
             self.terminal_seeds.addstr(high + 2 - 1, 65, "Lines:")
             self.terminal_seeds.addstr(high + 2 - 1, 65 + 7, "{}".format(layout_x), curses.color_pair(VIS_YELLOW))
             self.terminal_seeds.noutrefresh()

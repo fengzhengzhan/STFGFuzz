@@ -67,9 +67,9 @@ def mainFuzzer():
     '''Fuzzing Cycle'''
     while not sch.isEmpty(SCH_LOOP_SEED):
         vis.loop += 1
-        ana.sendCmpid("None\0")
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
+        ana.sendCmpid("Guard\0")
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         sch.saveCrash(
             file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr,
@@ -77,10 +77,19 @@ def mainFuzzer():
         )
         init_addr = ana.getAddr(init_stdout[0:16])
         init_interlen = ana.getInterlen(init_addr)
+        init_guardcov_list = ana.getRpt(init_interlen, init_addr)
+        guard_set, guard_total = ana.traceGuardAnalysis(init_guardcov_list)
+        sch.coveragepath = guard_set
+        vis.num_pcguard = guard_total
+
+        ana.sendCmpid("None\0")
+        init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
+
+        init_addr = ana.getAddr(init_stdout[0:16])
+        init_interlen = ana.getInterlen(init_addr)
         # cmpcov_list = ana.getRpt(init_interlen, init_addr)
         # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch) todo
 
-        # vis.num_pcguard = ana.getNumOfPcguard() # todo
 
         # Select the location to be mutated and add it to the location queue.
         sch.initEachloop(vis)
@@ -220,6 +229,7 @@ def mainFuzzer():
 
             bd_cmp_dict = ana.traceAyalysis(bd_cmpcov_list, sch.skip_cmpidset, FLAG_DICT)
             bd_diffcmp_set = ana.compareRptToLoc(init_cmp_dict, init_cmpset, bd_cmp_dict)
+            # LOG(LOG_DEBUG, LOG_FUNCINFO(), bd_seed.content, init_cmp_dict['g0x4f98aa0x4faa2b'], bd_cmp_dict['g0x4f98aa0x4faa2b'], showlog=True)
 
             for cmpid_key in bd_diffcmp_set:  # Determine if the dictionary is empty.
                 if cmpid_key not in sch.skip_cmpidset:
@@ -233,7 +243,9 @@ def mainFuzzer():
             vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), one_loc, bd_diffcmp_set, cmpmaploc_dict, showlog=True)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), one_loc, bd_diffcmp_set, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict, showlog=True)
+        # raise Exception()
         '''bd <-'''
 
         '''3 cmp type'''

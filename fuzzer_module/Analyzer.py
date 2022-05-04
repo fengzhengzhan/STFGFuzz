@@ -23,7 +23,6 @@ from fuzzer_module.Fuzzconfig import *
 
 class Analyzer:
     def __init__(self):
-        self.num_pcguard: int = USE_INITNUM
         self.global_shm_key = USE_INITNUM
         self.addr = None
         self.sendaddr = None
@@ -39,16 +38,30 @@ class Analyzer:
         self.shmat.argtypes = [c_int, POINTER(c_void_p), c_int]
         self.shmat.restype = c_void_p
 
-    def getNumOfPcguard(self):
-        if self.num_pcguard == -1:
-            raise Exception("Error: Number of tracks not acquired.")
-        return self.num_pcguard
 
     # Combination Functions
     # getAddr()
     # getInterlen()
     # getRpt()
     # traceAyalysis()
+
+    def sendCmpid(self, cmpid):
+        """
+        Send cmpid to save the cmpid information.
+        @param cmpid:
+        @return:
+        """
+        if self.sendaddr is None:
+            shmid = self.shmget(ANA_SEND_KEY, ANA_SEND_SIZE, 0o1000 | 0o666)  # IPC_CREAT | Permission
+            while shmid < 0:
+                randkey = random.randint(100000, 999999)
+                shmid = self.shmget(randkey, ANA_SEND_SIZE, 0o1000 | 0o666)  # IPC_CREAT | Permission
+                with open(ANA_SEND_FILE, "w") as f:
+                    f.write(str(randkey))
+            self.sendaddr = self.shmat(shmid, None, 0)
+
+        cmpid = str(cmpid) + "\0"
+        memmove(self.sendaddr, cmpid.encode(), len(cmpid))
 
     def getAddr(self, out_info: str):
         """
@@ -139,104 +152,23 @@ class Analyzer:
                     cmp_dict[cmpid].append(each_i[0:IDX_CMPID] + each_i[IDX_CMPID + 1:])
         return cmp_dict
 
-    # def traceGuardAyalysis(self, cmpcovcont_list, cmpcov_content, freezeid_rpt, sch: 'Scheduler'):
-    #     """
-    #     Perform a trace of the compare instruction execution path if necessary.
-    #     @param cmpcovcont_list:
-    #     @param cmpcov_content:
-    #     @param freezeid_rpt:
-    #     @param sch:
-    #     @return:
-    #     """
-    #     # Iterate through the trace report to get the corresponding information
-    #     cmprpt_dict: 'dict[cmpid:[StructCmpIns]]' = {}  # According cmp instruction to genetator dict.
-    #     cmpid_list = []
-    #     flagid_list = []
-    #     args_list = []
-    #     pre_guard_num = USE_INITNUM  # before
-    #     end_guard_num = USE_ENDNUM
-    #     exception_guard_num = USE_EXCEPTION
-    #     for each in cmpcovcont_list:
-    #         typeflag = each[0]
-    #         if typeflag in CMPSET:
-    #             cmpid = str(each[1][2:]+each[2][2:])
-    #             # if cmpid in freezeid_rpt:
-    #             #     continue
-    #         if typeflag == INIT_PC_GUARD:
-    #             self.num_pcguard = int(each[2])
-    #         elif typeflag == EACH_PC_GUARD:
-    #             type = typeflag
-    #             guard_num = int(each[1], 16)
-    #             sch.coveragepath.add(guard_num)
-    #             for i, oneid in enumerate(cmpid_list):
-    #                 if oneid not in cmprpt_dict:
-    #                     cmprpt_dict[oneid] = [
-    #                         StructCmpIns(oneid, pre_guard_num, guard_num, flagid_list[i], args_list[i]),
-    #                     ]
-    #                 else:
-    #                     cmprpt_dict[oneid].append(
-    #                         StructCmpIns(oneid, pre_guard_num, guard_num, flagid_list[i], args_list[i])
-    #                     )
-    #             pre_guard_num = guard_num
-    #             cmpid_list = []
-    #             flagid_list = []
-    #             args_list = []
-    #         elif typeflag == PROGRAM_END:
-    #             end = True
-    #             for i, oneid in enumerate(cmpid_list):
-    #                 if oneid not in cmprpt_dict:
-    #                     cmprpt_dict[oneid] = [
-    #                         StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i]),
-    #                     ]
-    #                 else:
-    #                     cmprpt_dict[oneid].append(
-    #                         StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i])
-    #                     )
-    #             cmpid_list = []
-    #             flagid_list = []
-    #             args_list = []
-    #
-    #         elif typeflag in TRACENUMCMPSET:
-    #             # type, func_pc, caller_pc, arg1, arg2, arg_len
-    #             cmpid_list.append(cmpid)
-    #             flagid_list.append([typeflag, each[1], each[2], each[5]])
-    #             args_list.append([each[3], each[4]])
-    #         elif typeflag == COV_SWITCH:
-    #             # type, func_pc, caller_pc, num_case, size_val
-    #             cmpid_list.append(cmpid)
-    #             flagid_list.append([typeflag, each[1], each[2], int(each[3]), each[4]])
-    #             temp_args = []
-    #             temp_args.append(each[5])
-    #             for i in range(int(each[3])):
-    #                 temp_args.append(each[i + 6])
-    #             args_list.append(temp_args)
-    #         elif typeflag == COV_DIV4 or typeflag == COV_DIV8 or typeflag == COV_GEP:
-    #             pass
-    #         elif typeflag in HOOKSTRCMPSET:
-    #             # type, func_pc, caller_pc, s1, s2, size_n, result
-    #             cmpid_list.append(cmpid)
-    #             flagid_list.append([typeflag, each[1], each[2], int(each[5]), int(each[6])])
-    #             args_list.append([each[3], each[4]])
-    #
-    #     if len(cmpid_list) > 0:
-    #         for i, oneid in enumerate(cmpid_list):
-    #             if oneid not in cmprpt_dict:
-    #                 cmprpt_dict[oneid] = [
-    #                     StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i]),
-    #                 ]
-    #             else:
-    #                 cmprpt_dict[oneid].append(
-    #                     StructCmpIns(oneid, pre_guard_num, end_guard_num, flagid_list[i], args_list[i])
-    #                 )
-    #
-    #     LOG(LOG_DEBUG, LOG_FUNCINFO(), cmprpt_dict)
-    #     cmprpt_set: 'cmpid' = set(cmprpt_dict)
-    #     return cmprpt_dict, cmprpt_set
+    def traceGuardAnalysis(self, guardcov_list):
+        """
+        Perform a trace of the compare instruction execution path if necessary.
+        """
+        # Iterate through the trace report to get the corresponding information
+        guard_set = set()
+        guard_total = USE_INITNUM
+        for trace_i in guardcov_list:
+            if trace_i[IDX_CMPTYPE] == EACH_PC_GUARD:
+                guard_set.add(trace_i[1])
+            elif trace_i[IDX_CMPTYPE] == INIT_PC_GUARD:
+                guard_total = trace_i[3]
+        return guard_set, guard_total
 
     '''
     Tracking Comparison Module.
     '''
-
     def compareRptToLoc(self, b4cmp_dict, b4cmpset, cmp_dict):
         cmpset = set(cmp_dict)
         interset = b4cmpset & cmpset  # Intersection set
@@ -257,30 +189,13 @@ class Analyzer:
 
         return diffcmp_set
 
-    def sendCmpid(self, cmpid):
-        """
-        Send cmpid to save the cmpid information.
-        @param cmpid:
-        @return:
-        """
-        if self.sendaddr is None:
-            shmid = self.shmget(ANA_SEND_KEY, ANA_SEND_SIZE, 0o1000 | 0o666)  # IPC_CREAT | Permission
-            while shmid < 0:
-                randkey = random.randint(100000, 999999)
-                shmid = self.shmget(randkey, ANA_SEND_SIZE, 0o1000 | 0o666)  # IPC_CREAT | Permission
-                with open(ANA_SEND_FILE, "w") as f:
-                    f.write(str(randkey))
-            self.sendaddr = self.shmat(shmid, None, 0)
-
-        cmpid = str(cmpid) + "\0"
-        memmove(self.sendaddr, cmpid.encode(), len(cmpid))
 
 
 if __name__ == "__main__":
     ana = Analyzer()
     # ana.sendCmpid("abcde"+"\0")
     # ana.sendCmpid("None\0")
-    ana.sendCmpid("None\0")
+    ana.sendCmpid("Guard\0")
     # ana.sendCmpid("o0x7ffff7e770a8\0")
     # while True:
     #     addr = ana.getAddr("D124816Z\n")
