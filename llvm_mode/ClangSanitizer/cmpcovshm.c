@@ -59,7 +59,7 @@
 // 2: returns the return address of the caller of the current function caller.
 // ......
 #define GET_FUNC_PC __builtin_return_address(0)
-#define GET_CALLER_PC __builtin_return_address(1)
+#define GET_CALLER_PC __builtin_return_address(2)
 
 //// The first 8 bytes magic numbers of *.sancov files.
 //// From: https://clang.llvm.org/docs/SanitizerCoverage.html#id13
@@ -160,7 +160,7 @@ void saveCovOnEnd() {
 }
 
 void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
-    sprintf(eachcmpid, "%c%p%p", funcinfo, GET_FUNC_PC, GET_CALLER_PC);
+    sprintf(eachcmpid, "%c%p", funcinfo, GET_CALLER_PC);
     // printf("%s %s\n", sendcmpid, eachcmpid);
     if(retSame(eachcmpid) >= 0) {
         // uintptr_t PC = reinterpret_cast<uintptr_t>(GET_FUNC_PC);
@@ -168,7 +168,7 @@ void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
         // printf("\n%c %p %lu %lu %d Z\n", funcinfo, GET_FUNC_PC, arg1, arg2, arg_len);
         // Add dataflow analysis information.
 
-        sprintf(buf, "['%c','%d_%d','%c%p%p',%lu,%lu,%d],", funcinfo, blocknum, blockcmpcount, funcinfo, GET_FUNC_PC, GET_CALLER_PC,arg1, arg2, arg_len);
+        sprintf(buf, "['%c','%d_%d','%c%p',%lu,%lu,%d],", funcinfo, blocknum, blockcmpcount, funcinfo, GET_CALLER_PC, arg1, arg2, arg_len);
         blockcmpcount++;
         strcpy(data + interlen, buf);
         interlen += strlen(buf);
@@ -252,11 +252,11 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
         return ;
     }
 
-    sprintf(eachcmpid, "%c%p%p", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC);
+    sprintf(eachcmpid, "%c%p", COV_TRACE_SWITCH, GET_CALLER_PC);
     if(retSame(eachcmpid) >= 0) {
 
         // printf("\n%c %p %lu %lu", COV_TRACE_SWITCH, GET_FUNC_PC, Cases[0], Cases[1]);
-        sprintf(buf, "['%c','%d_%d','%c%p%p',%lu,%lu,%lu", COV_TRACE_SWITCH, blocknum, blockcmpcount, COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, Cases[0], Cases[1], Val);
+        sprintf(buf, "['%c','%d_%d','%c%p',%lu,%lu,%lu", COV_TRACE_SWITCH, blocknum, blockcmpcount, COV_TRACE_SWITCH, GET_CALLER_PC, Cases[0], Cases[1], Val);
         blockcmpcount++;
 
         for (int i = 0; i < Cases[0]; i ++) {

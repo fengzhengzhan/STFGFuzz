@@ -2,7 +2,7 @@ import ast
 import os
 
 filename = "crashinfo/" + "info"
-outfilename = "crashinfo/" + "rand" + "_format"
+outfilename = "crashinfo/" + "info" + "_format"
 
 with open(filename, "r") as f:
     cont = f.read()
