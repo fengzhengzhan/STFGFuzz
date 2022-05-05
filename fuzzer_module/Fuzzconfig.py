@@ -16,8 +16,8 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-VIS_TERM = True
-# VIS_TERM = False
+# VIS_TERM = True
+VIS_TERM = False
 # VIS_SHOWGRAPH = True
 VIS_SHOWGRAPH = False
 
@@ -65,14 +65,15 @@ CMPSET = {COV_CMP1, COV_CMP2, COV_CMP4, COV_CMP8, COV_CONSTCMP1, COV_CONSTCMP2, 
           HOOK_MEMCMP, HOOK_STRNCMP, HOOK_STRCMP, HOOK_STRNCASECMP, HOOK_STRCASECMP,
           COV_SWITCH, COV_DIV4, COV_DIV8, COV_GEP}
 
-SHMID_FLAG = "D"  # Content show from stdout, that represent the memory share id.
-INTERLEN_FLAG = "L"  # The length of array.
+SHMID_FLAG = 'D'  # Content show from stdout, that represent the memory share id.
+INTERLEN_FLAG = 'L'  # The length of array.
 INTERLEN_VALUE = 16  # The space bytes in the start of content represents interlen values.
-END_EACH_FLAG = "Z"  # End of each line.
-INIT_PC_GUARD = "I"  # (info, call_pc, nums, start, end) Numbers of pc guard, from 1 to number.
-EACH_PC_GUARD = "G"  # (info, call_pc, guard_num)  dict.pop(cmpid)
+END_EACH_FLAG = 'Z'  # End of each line.
+INIT_PC_GUARD = 'I'  # (info, call_pc, nums, start, end) Numbers of pc guard, from 1 to number.
+COVERAGE_NUM = 'C'  # Get rough code coverage.
+EACH_PC_GUARD = 'G'  # (info, call_pc, guard_num)  dict.pop(cmpid)
 
-PROGRAM_END = "E"  # end
+PROGRAM_END = 'E'  # end
 
 # Reverse Correspondence
 FLAG_DICT = {
@@ -143,6 +144,8 @@ IDX_ARG2 = 3
 ANA_ENDPROG_IDX = -2
 ANA_MEMSHM_MODE = True
 ANA_INTERLEN_SIZE = 16
+ANA_COVERNUM_SIZE = 16
+ANA_START_SIZE = ANA_INTERLEN_SIZE + ANA_COVERNUM_SIZE
 ANA_SHM_INTERVAL = 1024 * 1024
 ANA_CMPCOVSHM_NAME = "cmpcovshm"
 ANA_SHM_SIZE = 2147483648
@@ -180,11 +183,11 @@ COM_PATCH_FILE = 'errors_patch.info'
 COM_SANITIZER_FILE = 'errors_sanitizer.info'
 COM_MANUAL_FILE = "errors_manual.info"
 
-COM_BININ = "I"
-COM_BINFUNC = "F"
-COM_BINCOL = "C"
-COM_BINFILE = "N"
-COM_BINDIR = "D"
+COM_BININ = 'I'
+COM_BINFUNC = 'F'
+COM_BINCOL = 'C'
+COM_BINFILE = 'N'
+COM_BINDIR = 'D'
 
 '''Generator'''
 PROGRAMS = "Programs"

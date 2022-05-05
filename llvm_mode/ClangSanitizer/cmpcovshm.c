@@ -74,8 +74,8 @@
 #define SEND_SIZE 64
 char* data = NULL;
 char* senddata = NULL;
-int savelen = 15;
-int interlen = 16;
+int savelen = 16;
+int interlen = 32;
 char buf[1024*1024];
 char sendcmpid[64];
 char eachcmpid[64];
@@ -83,6 +83,8 @@ char* defaultcmpid = "None";
 char* guard = "Guard";
 int blocknum = -1;
 int blockcmpcount = 0;
+char *cover;
+int covernum = 0;
 
 int retSame(char* each){
     int same = -1;
@@ -284,6 +286,8 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
 // binary (executable or DSO). The callback will be called at least
 // once per DSO and may be called multiple times with the same parameters.
 void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
+
+    if (start == stop || *start) return;  // Initialize only once.
     
     //memory share
     key_t id_shm = 124816;
@@ -360,21 +364,22 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
 
     // strcpy(data, "CMPCOVSHM");
 
-    
-    if (start == stop || *start) return;  // Initialize only once.
-    
+
+    // void *PC = __builtin_return_address(0);
+    // char PcDescr[10240];
+    // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
+    static uint64_t N;  // Counter for the guards.
+    // printf("\nI %p %p %p Z\n", GET_FUNC_PC, start, stop);
+    // Add dataflow analysis information.
+    for (uint32_t *x = start; x < stop; x++)
+    {
+        *x = ++N;
+    }
+
+    cover = (char *)malloc(N*sizeof(char));
+
     sprintf(eachcmpid, "I%p", GET_FUNC_PC);
     if(retSame(eachcmpid) >= 0) {
-        // void *PC = __builtin_return_address(0);
-        // char PcDescr[10240];
-        // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
-        static uint64_t N;  // Counter for the guards.
-        // printf("\nI %p %p %p Z\n", GET_FUNC_PC, start, stop);
-        // Add dataflow analysis information.
-        for (uint32_t *x = start; x < stop; x++)
-        {
-            *x = ++N;
-        }
 
         sprintf(buf, "['I','%d_%d','I%p',%lu,'%p','%p'],", blocknum, blockcmpcount, GET_FUNC_PC, N, start, stop);
         blockcmpcount++;
@@ -393,6 +398,10 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
         sprintf(buf, "L%dZ", interlen);
         strcpy(data, buf);
     }
+
+    // covernum
+    sprintf(buf, "C%dZ", covernum);
+    strcpy(data + savelen, buf);
     
     atexit(saveCovOnEnd);
 }
@@ -427,6 +436,13 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
     }
     blocknum = *guard;
     blockcmpcount = 0;
+
+    if (cover[blocknum] != 'C') {
+        cover[blocknum] = 'C';
+        covernum += 1;
+        sprintf(buf, "C%dZ", covernum);
+        strcpy(data + savelen, buf);
+    }
 }
 
 void __sanitizer_cov_trace_cmp1(uint8_t Arg1, uint8_t Arg2) { 

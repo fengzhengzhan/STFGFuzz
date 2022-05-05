@@ -99,7 +99,12 @@ class Analyzer:
         interlen_str = string_at(addr, ANA_INTERLEN_SIZE).decode("utf-8")
         re_str = INTERLEN_FLAG + "(.*?)" + END_EACH_FLAG
         interlen = int(re.search(re_str, interlen_str).group(1))
-        return interlen
+
+        covernum_str = string_at(addr+ANA_INTERLEN_SIZE, ANA_COVERNUM_SIZE).decode("utf-8")
+        re_str = COVERAGE_NUM + "(.*?)" + END_EACH_FLAG
+        covernum = int(re.search(re_str, covernum_str).group(1))
+
+        return interlen, covernum
 
     def getRpt(self, interlen, addr):
         """
@@ -114,14 +119,14 @@ class Analyzer:
 
         cmpcovshm_str = "["
         if pieces > 0:
-            cmpcovshm_str += string_at(addr + ANA_INTERLEN_SIZE, ANA_SHM_INTERVAL - ANA_INTERLEN_SIZE).decode("utf-8",
+            cmpcovshm_str += string_at(addr + ANA_START_SIZE, ANA_SHM_INTERVAL - ANA_START_SIZE).decode("utf-8",
                                                                                                               "ignore")
             for each in range(1, pieces):
                 cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * each, ANA_SHM_INTERVAL).decode("utf-8", "ignore")
             # fixme .decode("utf-8", "ignore")
             cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * pieces, over).decode("utf-8", "ignore")
         else:
-            cmpcovshm_str += string_at(addr + ANA_INTERLEN_SIZE, over - ANA_INTERLEN_SIZE).decode("utf-8", "ignore")
+            cmpcovshm_str += string_at(addr + ANA_START_SIZE, over - ANA_START_SIZE).decode("utf-8", "ignore")
         cmpcovshm_str += "]"
 
         # Make the fuzz loop block.
@@ -195,17 +200,18 @@ if __name__ == "__main__":
     ana = Analyzer()
     # ana.sendCmpid("abcde"+"\0")
     # ana.sendCmpid("None\0")
-    ana.sendCmpid("Guard\0")
-    # ana.sendCmpid("o0x7ffff7e770a8\0")
+    # ana.sendCmpid("Guard\0")
+    ana.sendCmpid("m0x49e329\0")
     # while True:
     #     addr = ana.getAddr("D124816Z\n")
     #     interlen = ana.getInterlen(addr)
     #     print(interlen)
     #     cmpcovshm_list = ana.getRpt(interlen, addr)
     addr = ana.getAddr("D124816Z\n")
-    interlen = ana.getInterlen(addr)
+    interlen, covernum = ana.getInterlen(addr)
     cmpcovshm_list = ana.getRpt(interlen, addr)
     with open("../Programs/TrackCrash/crashinfo/info", "w") as f:
         f.write(str(cmpcovshm_list))
     print(cmpcovshm_list)
+    print(interlen, covernum)
     # print(cmpcovshm_list)

@@ -78,7 +78,10 @@ class Scheduler:
         while not self.deleteq.empty():
             temp_one = self.deleteq.get()
             if SCH_SAVEASFILE:
-                os.remove(temp_one.filename)
+                try:
+                    os.remove(temp_one.filename)
+                except Exception as e:
+                    pass
 
     def saveCrash(self, file_crash_csv, path_crashseeds, seed: StructSeed, stdout, stderr, start_time, last_time):
         """

@@ -76,7 +76,7 @@ def mainFuzzer():
             vis.start_time, vis.last_time
         )
         init_addr = ana.getAddr(init_stdout[0:16])
-        init_interlen = ana.getInterlen(init_addr)
+        init_interlen, init_covernum = ana.getInterlen(init_addr)
         init_guardcov_list = ana.getRpt(init_interlen, init_addr)
         guard_set, guard_total = ana.traceGuardAnalysis(init_guardcov_list)
         sch.coveragepath = guard_set
@@ -86,7 +86,7 @@ def mainFuzzer():
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
 
         init_addr = ana.getAddr(init_stdout[0:16])
-        init_interlen = ana.getInterlen(init_addr)
+        init_interlen, init_covernum = ana.getInterlen(init_addr)
         # cmpcov_list = ana.getRpt(init_interlen, init_addr)
         # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch) todo
 
@@ -117,7 +117,7 @@ def mainFuzzer():
 
             # 1 seed inputs
             ld_addr = ana.getAddr(ld_stdout[0:16])
-            ld_interlen = ana.getInterlen(ld_addr)
+            ld_interlen, ld_covernum = ana.getInterlen(ld_addr)
             LOG(LOG_DEBUG, LOG_FUNCINFO(), len(ld_seed.content), b4ld_interlen, ld_interlen, showlog=True)
             LOG(LOG_DEBUG, LOG_FUNCINFO(), ana.getRpt(ld_interlen, ld_addr), showlog=True)
             if b4ld_interlen != ld_interlen:
@@ -148,7 +148,7 @@ def mainFuzzer():
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
 
         init_addr = ana.getAddr(init_stdout[0:16])
-        init_interlen = ana.getInterlen(init_addr)
+        init_interlen, init_covernum = ana.getInterlen(init_addr)
         init_cmpcov_list = ana.getRpt(init_interlen, init_addr)
         init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset, FLAG_DICT)
         init_cmpset = set(init_cmp_dict)
@@ -177,7 +177,7 @@ def mainFuzzer():
 
             # 1 seed inputs
             sd_addr = ana.getAddr(sd_stdout[0:16])
-            sd_interlen = ana.getInterlen(sd_addr)
+            sd_interlen, sd_covernum = ana.getInterlen(sd_addr)
             sd_diff = False
             if init_interlen != sd_interlen:
                 sd_diff = True
@@ -224,7 +224,7 @@ def mainFuzzer():
             # 2 cmp instruction
             # Track execution information of mutate seeds.
             bd_addr = ana.getAddr(bd_stdout[0:16])
-            bd_interlen = ana.getInterlen(bd_addr)
+            bd_interlen, bd_covernum = ana.getInterlen(bd_addr)
             bd_cmpcov_list = ana.getRpt(bd_interlen, bd_addr)  # report
 
             bd_cmp_dict = ana.traceAyalysis(bd_cmpcov_list, sch.skip_cmpidset, FLAG_DICT)
@@ -245,7 +245,7 @@ def mainFuzzer():
                 sch.quitFuzz()
             LOG(LOG_DEBUG, LOG_FUNCINFO(), one_loc, bd_diffcmp_set, showlog=True)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict, showlog=True)
-        # raise Exception()
+        raise Exception()
         '''bd <-'''
 
         '''3 cmp type'''
@@ -257,10 +257,14 @@ def mainFuzzer():
             ana.sendCmpid(stcmpid_k)
             # False positive comparison if all input bytes are covered
             vis.cmpnum += 1
-            if len(stloclist_v) == len(init_seed.content):
-                continue
+            # if len(stloclist_v) == len(init_seed.content):
+            #     continue
 
-            '''Type detect and Mutation strategy'''
+            '''Type detect and Generate Mutation strategy'''
+
+
+            '''Mutation strategy and Compare distance'''
+
             opt_seed = init_seed
             opt_cmp_dict = init_cmp_dict
 
@@ -291,7 +295,7 @@ def mainFuzzer():
                     # Generate analysis reports.
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), st_seed.content, st_stdout[0:16], st_stderr, showlog=True)
                     st_addr = ana.getAddr(st_stdout[0:16])
-                    st_interlen = ana.getInterlen(st_addr)
+                    st_interlen, st_covernum = ana.getInterlen(st_addr)
                     st_cmpcov_list = ana.getRpt(st_interlen, st_addr)
                     st_cmp_dict = ana.traceAyalysis(st_cmpcov_list, sch.skip_cmpidset, FLAG_DICT)  # report
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, st_seed.content)
