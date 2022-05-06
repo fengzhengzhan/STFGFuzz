@@ -194,6 +194,14 @@ class Analyzer:
 
         return diffcmp_set
 
+    def compareRptOne(self, b4_cmpcov_list, cmpcpv_list, pos: int):
+        if pos == -1:
+            if b4_cmpcov_list == cmpcpv_list:
+                return True
+        else:
+            if pos < len(b4_cmpcov_list) and pos < len(cmpcpv_list) and b4_cmpcov_list[pos] == cmpcpv_list[pos]:
+                return True
+        return False
 
 
 if __name__ == "__main__":

@@ -27,6 +27,7 @@ EXPAND_SEED = "expand.seed"
 COARSE_STR = "coarse"
 FINE_STR = "fine"
 ST_STR = "st"
+REPEAT_STR = "repeat"
 LENGTH_STR = "length"
 LD_EXPAND = 128
 

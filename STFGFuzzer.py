@@ -245,7 +245,7 @@ def mainFuzzer():
                 sch.quitFuzz()
             LOG(LOG_DEBUG, LOG_FUNCINFO(), one_loc, bd_diffcmp_set, showlog=True)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict, showlog=True)
-        raise Exception()
+        # raise Exception()
         '''bd <-'''
 
         '''3 cmp type'''
@@ -256,19 +256,44 @@ def mainFuzzer():
         for stcmpid_k, stloclist_v in cmpmaploc_dict.items():
             ana.sendCmpid(stcmpid_k)
             # False positive comparison if all input bytes are covered
-            vis.cmpnum += 1
             # if len(stloclist_v) == len(init_seed.content):
             #     continue
+            vis.cmpnum += 1
 
             '''Type detect and Generate Mutation strategy'''
+            opt_seed = init_seed
+            opt_cmp_dict = init_cmp_dict
+            ststart_seed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, ST_STR + str(vis.loop), stloclist_v)
+            ststart_seed = sch.selectOneSeed(SCH_THIS_SEED, ststart_seed)
+            ststart_stdout, ststart_stderr = Executor.run(fuzz_command.replace('@@', ststart_seed.filename))
+
+            ststart_addr = ana.getAddr(ststart_stdout[0:16])
+            ststart_interlen, ststart_covernum = ana.getInterlen(ststart_addr)
+            ststart_cmpcov_list = ana.getRpt(ststart_interlen, ststart_addr)
+            # Only the corresponding list data is retained, no parsing is required
+            cmp_len = len(ststart_cmpcov_list)
+
+            for cmpk_i in range(0, cmp_len):
+                # Removal of unmapped changes
+                repeat_seed = Mutator.mutSelectChar(
+                    init_seed.content, path_mutseeds, REPEAT_STR + str(vis.loop), stloclist_v)
+                repeat_seed = sch.selectOneSeed(SCH_THIS_SEED, repeat_seed)
+                repeat_stdout, repeat_stderr = Executor.run(fuzz_command.replace('@@', repeat_seed.filename))
+
+                repeat_addr = ana.getAddr(repeat_stdout[0:16])
+                repeat_interlen, repeat_covernum = ana.getInterlen(repeat_addr)
+                repeat_cmpcov_list = ana.getRpt(repeat_interlen, repeat_addr)
+
+                if not ana.compareRptOne(ststart_cmpcov_list, repeat_cmpcov_list, -1):
+                    continue
+
+                # Single-byte comparison in order
+                for one_loc in stloclist_v:
 
 
             '''Mutation strategy and Compare distance'''
 
-            opt_seed = init_seed
-            opt_cmp_dict = init_cmp_dict
 
-            ststart_seed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, ST_STR + str(vis.loop), stloclist_v)
             # sch.addq(SCH_MUT_SEED, [st_seed, ])
 
             b4_locmapdet_dict = {}
