@@ -288,7 +288,26 @@ def mainFuzzer():
                     continue
 
                 # Single-byte comparison in order
+                st_cmploc = []
                 for one_loc in stloclist_v:
+                    stloc_list = [one_loc, ]
+                    st_seed = Mutator.mutOneChar(init_seed.content, path_mutseeds, FINE_STR + str(vis.loop), stloc_list)
+                    st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
+                    st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
+                    sch.saveCrash(
+                        file_crash_csv, path_crashseeds, st_seed, st_stdout, st_stderr,
+                        vis.start_time, vis.last_time
+                    )
+
+                    st_addr = ana.getAddr(st_stdout[0:16])
+                    st_interlen, st_covernum = ana.getInterlen(st_addr)
+                    st_cmpcov_list = ana.getRpt(st_interlen, st_addr)
+
+                    if not ana.compareRptOne(ststart_cmpcov_list, st_cmpcov_list, one_loc):
+                        st_cmploc.append(one_loc)
+
+                # Identification Type and Update opt seed
+
 
 
             '''Mutation strategy and Compare distance'''

@@ -81,7 +81,7 @@ def mutOneChar(seedcont: bytes, filepath: str, label: str, loc_list) -> StructSe
     """
     for i, loci in enumerate(loc_list):
         while True:
-            randi = random.randint(48, 122)
+            randi = random.randint(33, 126)
             tempc = BYTES_ASCII[randi]
             if seedcont[loci: loci + 1] != tempc:
                 seedcont = seedcont[0:loci] + tempc + seedcont[loci + 1:]
