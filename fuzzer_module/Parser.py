@@ -7,6 +7,8 @@ from fuzzer_module.Fuzzconfig import *
 '''
 Multiple comparison type handling functions
 '''
+
+
 def handleStrMagic(seed_loc, bytes_flag, cont_list) -> dict:
     change_inputmap = {}
     fixed_cont = cont_list[0]
@@ -155,6 +157,8 @@ def handleUndefined():
 '''
 Try to solve the constraint according to the distance
 '''
+
+
 def solveDistence():
     type_infer_list = []
     locmapdet_dict = {}
@@ -207,10 +211,13 @@ def solveDistence():
 '''
 Type Inference Module.
 '''
+
+
 # Infer bytes status according bytes change.
-def inferFixedOrChanged(cont_list) -> int:
+def inferFixedOrChanged(ori_one, st_one) -> int:
+    ori0, ori1, st0, st1 = ori_one[IDX_ARG1], ori_one[IDX_ARG2], st_one[IDX_ARG1], st_one[IDX_ARG2]
     # Original group <-> Control group
-    ori0, ori1, st0, st1 = cont_list[0], cont_list[1], cont_list[2], cont_list[3]
+    bytesflag = PAR_CHGACHG
     if st0 == st1:
         bytesflag = PAR_SOLVED
     elif ori0 == st0 and ori1 == st1:
@@ -223,91 +230,87 @@ def inferFixedOrChanged(cont_list) -> int:
         bytesflag = PAR_CHGACHG
     return bytesflag
 
-
 def listIsdigit(cont_list):
     for cont_i in cont_list:
         if isinstance(cont_i, str) and not cont_i.isdigit():
             return False
     return True
 
-
-# Detect bytes type from bytes status and bytes contents.
-def detectCmpType(bytes_type, cont_list, onecmp: list) -> list:
-    type_infer = []
-    if bytes_type == PAR_SOLVED:
-        type_infer.append(TYPE_SOLVED)
-    elif bytes_type == PAR_FIXAFIX:
-        if onecmp[0] in TRACENUMCMPSET:
-            type_infer.append(TYPE_MAGICNUMS)
-        elif onecmp[0] == COV_SWITCH:
-            if listIsdigit(cont_list):
-                type_infer.append(TYPE_MAGICNUMS)
-            else:
-                type_infer.append(TYPE_MAGICSTR)
-
-    elif bytes_type == PAR_FIXACHG or bytes_type == PAR_CHGAFIX:
-        if onecmp[0] in HOOKSTRCMPSET:
-            type_infer.append(TYPE_MAGICSTR)
-        elif onecmp[0] in TRACENUMCMPSET:
-            type_infer.append(TYPE_MAGICNUMS)
-        elif onecmp[0] == COV_SWITCH:
-            if listIsdigit(cont_list):
-                type_infer.append(TYPE_MAGICNUMS)
-            else:
-                type_infer.append(TYPE_MAGICSTR)
-
-    elif bytes_type == PAR_CHGACHG:
-        type_infer.append(TYPE_CHECKCUMS)
-
-    return type_infer
-
-
-# According type flag to determine which one strategy will be executed.
-def exeTypeStrategy(opt_seed, seed, st_loc, type_infer_list, bytes_flag, cont_list, strategy):
-    ret_seed = seed
-    locmapdet_dict = {}
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), type_infer_list)
-    for inf_i in type_infer_list:
-        if inf_i == TYPE_SOLVED:
-            ret_seed = seed
-            locmapdet_dict = {}
-            break
-        elif inf_i == TYPE_MAGICSTR:
-            change_inputmap = handleStrMagic(st_loc, bytes_flag, cont_list)
-            locmapdet_dict.update(change_inputmap)
-        elif inf_i == TYPE_MAGICNUMS:
-            ret_seed, change_inputmap = handleDistanceNum(opt_seed, seed, st_loc, cont_list, strategy)
-            locmapdet_dict.update(change_inputmap)
-        elif inf_i == TYPE_CHECKCUMS:
-            ret_seed, change_inputmap = handleDistanceCheckSums(opt_seed, seed, st_loc, cont_list, strategy)
-            locmapdet_dict.update(change_inputmap)
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content)
-    return ret_seed, locmapdet_dict
-
-
-def typeDetect(opt_seed, ststart_seed, opt_cmpcov_list, ststart_cmpcov_list, cmpk_i):
+def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i) -> int:
     """
     Type identification and speculation.
     @return:
     """
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed, ststart_seed, opt_cmpcov_list, ststart_cmpcov_list, cmpk_i)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_cmpcov_list, ststart_cmpcov_list, cmpk_i)
     if cmpk_i >= len(opt_cmpcov_list) or cmpk_i >= len(ststart_cmpcov_list):
         # Additional processing required
-        return False
+        return STAT_FAIL
     else:
-        typeflag = opt_cmpcov_list[cmpk_i][IDX_CMPTYPE]
-        if typeflag in TRACENUMCMPSET:
-            pass
-        elif typeflag in HOOKSTRCMPSET:
-            pass
-        elif typeflag == COV_SWITCH:
-            pass
-        return True
+        # Determining the type of comparison instruction
+        # Determining byte types
+        # Determine the strategy to be executed
+        type_flag = opt_cmpcov_list[cmpk_i][IDX_CMPTYPE]
+        opt_one = opt_cmpcov_list[cmpk_i]
+        ststart_one = ststart_cmpcov_list[cmpk_i]
+        if type_flag in TRACENUMCMPSET:
+            # Determining the type of variables
+            bytes_flag = inferFixedOrChanged(opt_one, ststart_one)
+            # Speculative change type
+            if bytes_flag == TYPE_SOLVED:
+                return STAT_FIN
+            elif bytes_flag == PAR_FIXAFIX or bytes_flag == PAR_FIXACHG or bytes_flag == PAR_CHGAFIX:
+                return TYPE_MAGICNUMS
+            elif bytes_flag == PAR_CHGACHG:
+                return TYPE_CHECKCUMS
+
+        elif type_flag in HOOKSTRCMPSET:
+            # Determining the type of variables
+            bytes_flag = inferFixedOrChanged(opt_one, ststart_one)
+            # Speculative change type
+            if bytes_flag == TYPE_SOLVED:
+                return STAT_FIN
+            elif bytes_flag == PAR_FIXAFIX or bytes_flag == PAR_FIXACHG or bytes_flag == PAR_CHGAFIX:
+                return TYPE_MAGICSTR
+            elif bytes_flag == PAR_CHGACHG:
+                return TYPE_CHECKCUMS
+
+        elif type_flag == COV_SWITCH:
+            if listIsdigit(opt_one[4: 5 + int(opt_one[2])]):
+                return TYPE_MAGICNUMS
+            else:
+                return TYPE_MAGICSTR
+
+    return STAT_SUC
 
 
+def devStrategy(type_flag, type_strategy):
+    """
+    Develop a strategy based on type
+    """
 
+    # StructMutStrategy
 
-
+    # According type flag to determine which one strategy will be executed.
+    def exeTypeStrategy(opt_seed, seed, st_loc, type_infer_list, bytes_flag, cont_list, strategy):
+        ret_seed = seed
+        locmapdet_dict = {}
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), type_infer_list)
+        for inf_i in type_infer_list:
+            if inf_i == TYPE_SOLVED:
+                ret_seed = seed
+                locmapdet_dict = {}
+                break
+            elif inf_i == TYPE_MAGICSTR:
+                change_inputmap = handleStrMagic(st_loc, bytes_flag, cont_list)
+                locmapdet_dict.update(change_inputmap)
+            elif inf_i == TYPE_MAGICNUMS:
+                ret_seed, change_inputmap = handleDistanceNum(opt_seed, seed, st_loc, cont_list, strategy)
+                locmapdet_dict.update(change_inputmap)
+            elif inf_i == TYPE_CHECKCUMS:
+                ret_seed, change_inputmap = handleDistanceCheckSums(opt_seed, seed, st_loc, cont_list, strategy)
+                locmapdet_dict.update(change_inputmap)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content)
+        return ret_seed, locmapdet_dict
 
 
 if __name__ == "__main__":

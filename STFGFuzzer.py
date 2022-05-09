@@ -320,9 +320,8 @@ def mainFuzzer():
                 opt_interlen, opt_covernum = ana.getInterlen(opt_addr)
                 opt_cmpcov_list = ana.getRpt(opt_interlen, opt_addr)
 
-                ret_seed, type_infer_set, locmapdet_dict = Parser.typeDetect(
-                    opt_seed, ststart_seed, opt_cmpcov_list, ststart_cmpcov_list, cmpk_i
-                )
+                type_infer = Parser.typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i)
+                Parser.devStrategy(opt_cmpcov_list[cmpk_i][IDX_CMPTYPE], type_infer)
 
                 '''Mutation strategy and Compare distance'''
                 b4_locmapdet_dict = {}
