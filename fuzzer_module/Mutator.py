@@ -73,15 +73,26 @@ def mutSelectChar(seedcont: bytes, filepath: str, label: str, mutloc_list: list)
 
 def mutOneChar(seedcont: bytes, filepath: str, label: str, loc_list) -> StructSeed:
     """
-    @param seedcont:
-    @param filepath:
-    @param label:
-    @param loc_list:
     @return: only one seed
     """
     for i, loci in enumerate(loc_list):
         while True:
             randi = random.randint(33, 126)
+            tempc = BYTES_ASCII[randi]
+            if seedcont[loci: loci + 1] != tempc:
+                seedcont = seedcont[0:loci] + tempc + seedcont[loci + 1:]
+                break
+        # seedloc_list[loci] = chr(255 - ord(seedloc_list[loci]))
+    temp_one = StructSeed(filepath + getMutfilename(label), seedcont, MUT_SEED_SUB, set(loc_list))
+    return temp_one
+
+def mutSelectCharRand(seedcont: bytes, filepath: str, label: str, loc_list) -> StructSeed:
+    """
+    @return: only one seed
+    """
+    for i, loci in enumerate(loc_list):
+        while True:
+            randi = random.randint(0, 255)
             tempc = BYTES_ASCII[randi]
             if seedcont[loci: loci + 1] != tempc:
                 seedcont = seedcont[0:loci] + tempc + seedcont[loci + 1:]

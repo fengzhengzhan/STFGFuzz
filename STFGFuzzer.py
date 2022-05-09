@@ -261,8 +261,6 @@ def mainFuzzer():
             vis.cmpnum += 1
 
             '''Type detect and Generate Mutation strategy'''
-            opt_seed = init_seed
-            opt_cmp_dict = init_cmp_dict
             ststart_seed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, ST_STR + str(vis.loop), stloclist_v)
             ststart_seed = sch.selectOneSeed(SCH_THIS_SEED, ststart_seed)
             ststart_stdout, ststart_stderr = Executor.run(fuzz_command.replace('@@', ststart_seed.filename))
@@ -273,6 +271,7 @@ def mainFuzzer():
             # Only the corresponding list data is retained, no parsing is required
             cmp_len = len(ststart_cmpcov_list)
 
+            # Separate comparisons for each comparison instruction.
             for cmpk_i in range(0, cmp_len):
                 # Removal of unmapped changes
                 repeat_seed = Mutator.mutSelectChar(
@@ -303,93 +302,107 @@ def mainFuzzer():
                     st_interlen, st_covernum = ana.getInterlen(st_addr)
                     st_cmpcov_list = ana.getRpt(st_interlen, st_addr)
 
-                    if not ana.compareRptOne(ststart_cmpcov_list, st_cmpcov_list, one_loc):
+                    if not ana.compareRptOne(ststart_cmpcov_list, st_cmpcov_list, cmpk_i):
                         st_cmploc.append(one_loc)
 
-                # Identification Type and Update opt seed
+                # Identification Type and Update opt seed (in Random change)
+                # init_seed opt_seed
+                opt_seed = Mutator.mutSelectCharRand(
+                    init_seed.content, path_mutseeds, ST_STR + str(vis.loop), st_cmploc)
+                opt_seed = sch.selectOneSeed(SCH_THIS_SEED, opt_seed)
+                opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
+                sch.saveCrash(
+                    file_crash_csv, path_crashseeds, opt_seed, opt_stdout, opt_stderr,
+                    vis.start_time, vis.last_time
+                )
+
+                opt_addr = ana.getAddr(opt_stdout[0:16])
+                opt_interlen, opt_covernum = ana.getInterlen(opt_addr)
+                opt_cmpcov_list = ana.getRpt(opt_interlen, opt_addr)
+
+                ret_seed, type_infer_set, locmapdet_dict = Parser.typeDetect(
+                    opt_seed, ststart_seed, opt_cmpcov_list, ststart_cmpcov_list, cmpk_i
+                )
+
+                '''Mutation strategy and Compare distance'''
+                b4_locmapdet_dict = {}
 
 
 
-            '''Mutation strategy and Compare distance'''
+                sch.strategyq.put(StructMutStrategy(TYPE_DEFAULT, 0, len(stloclist_v), 0, 1))
+                strategy = sch.strategyq.get()
+                # Type Detection and Breaking the Constraint Cycle (At lease 1 loops)
+                while strategy.curloop < strategy.endloop or not sch.strategyq.empty():
+                    # print(strategy.curloop)
+                    strategy.curloop += 1
+                    strategy.curnum = 0
+                    sch.addq(SCH_MUT_SEED, [ststart_seed, ])
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curloop, strategy.endloop)
 
+                    while not sch.isEmpty(SCH_MUT_SEED):
+                        vis.total += 1
+                        st_seed = sch.selectOneSeed(SCH_MUT_SEED)
+                        st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
+                        sch.saveCrash(
+                            file_crash_csv, path_crashseeds, st_seed, st_stdout, st_stderr,
+                            vis.start_time, vis.last_time
+                        )
 
-            # sch.addq(SCH_MUT_SEED, [st_seed, ])
+                        # 2 cmp instruction
+                        # Generate analysis reports.
+                        LOG(LOG_DEBUG, LOG_FUNCINFO(), st_seed.content, st_stdout[0:16], st_stderr, showlog=True)
+                        st_addr = ana.getAddr(st_stdout[0:16])
+                        st_interlen, st_covernum = ana.getInterlen(st_addr)
+                        st_cmpcov_list = ana.getRpt(st_interlen, st_addr)
+                        st_cmp_dict = ana.traceAyalysis(st_cmpcov_list, sch.skip_cmpidset, FLAG_DICT)  # report
+                        LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, st_seed.content)
 
-            b4_locmapdet_dict = {}
-            sch.strategyq.put(StructMutStrategy(TYPE_DEFAULT, 0, len(stloclist_v), 0, 1))
-            strategy = sch.strategyq.get()
-            # Type Detection and Breaking the Constraint Cycle (At lease 1 loops)
-            while strategy.curloop < strategy.endloop or not sch.strategyq.empty():
-                # print(strategy.curloop)
-                strategy.curloop += 1
-                strategy.curnum = 0
-                sch.addq(SCH_MUT_SEED, [ststart_seed, ])
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curloop, strategy.endloop)
+                        # 3 cmp type
+                        # Return cmp type and mutate strategy according to typeDetect
+                        ret_seed, type_infer_set, locmapdet_dict = Parser.typeDetect(
+                            opt_seed, st_seed, stcmpid_k, stloclist_v,
+                            opt_cmp_dict, st_cmp_dict, strategy, sch
+                        )
 
-                while not sch.isEmpty(SCH_MUT_SEED):
-                    vis.total += 1
-                    st_seed = sch.selectOneSeed(SCH_MUT_SEED)
-                    st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
-                    sch.saveCrash(
-                        file_crash_csv, path_crashseeds, st_seed, st_stdout, st_stderr,
-                        vis.start_time, vis.last_time
-                    )
+                        # Comparison of global optimal values to achieve updated parameters
+                        opt_cmp_dict = opt_cmp_dict if ret_seed == opt_seed else st_cmp_dict
+                        opt_seed = ret_seed
+                        # if b4_locmapdet_dict == locmapdet_dict and not b4_locmapdet_dict and not locmapdet_dict:
+                        #     break
+                        if b4_locmapdet_dict == locmapdet_dict and not b4_locmapdet_dict:
+                            break
+                        b4_locmapdet_dict = locmapdet_dict
 
-                    # 2 cmp instruction
-                    # Generate analysis reports.
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), st_seed.content, st_stdout[0:16], st_stderr, showlog=True)
-                    st_addr = ana.getAddr(st_stdout[0:16])
-                    st_interlen, st_covernum = ana.getInterlen(st_addr)
-                    st_cmpcov_list = ana.getRpt(st_interlen, st_addr)
-                    st_cmp_dict = ana.traceAyalysis(st_cmpcov_list, sch.skip_cmpidset, FLAG_DICT)  # report
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, st_seed.content)
+                        LOG(LOG_DEBUG, LOG_FUNCINFO(), vis.cmpnum, st_stderr,
+                            locmapdet_dict, st_stdout, stcmpid_k, stloclist_v, ret_seed.content)  # todo , showlog=True
+                        LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, st_cmp_dict, showlog=True)
 
-                    # 3 cmp type
-                    # Return cmp type and mutate strategy according to typeDetect
-                    ret_seed, type_infer_set, locmapdet_dict = Parser.typeDetect(
-                        opt_seed, st_seed, stcmpid_k, stloclist_v,
-                        opt_cmp_dict, st_cmp_dict, strategy, sch
-                    )
+                        # 5 visualize
+                        res = vis.display(
+                            ret_seed, set(stloclist_v), st_stdout, st_stderr,
+                            "Strategy", len(sch.coveragepath),
+                        )
+                        vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
+                        if res == VIS_Q:
+                            sch.quitFuzz()
 
-                    # Comparison of global optimal values to achieve updated parameters
-                    opt_cmp_dict = opt_cmp_dict if ret_seed == opt_seed else st_cmp_dict
-                    opt_seed = ret_seed
-                    # if b4_locmapdet_dict == locmapdet_dict and not b4_locmapdet_dict and not locmapdet_dict:
-                    #     break
-                    if b4_locmapdet_dict == locmapdet_dict and not b4_locmapdet_dict:
-                        break
-                    b4_locmapdet_dict = locmapdet_dict
+                        if TYPE_SOLVED in type_infer_set:
+                            sch.skip_cmpidset.add(stcmpid_k)
+                            sch.freeze_bytes = sch.freeze_bytes.union(set(stloclist_v))
+                            sch.recsol_cmpset.add(stcmpid_k)
+                            sch.addq(SCH_LOOP_SEED, [ret_seed, ])
+                            break
 
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), vis.cmpnum, st_stderr,
-                        locmapdet_dict, st_stdout, stcmpid_k, stloclist_v, ret_seed.content)  # todo , showlog=True
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, st_cmp_dict, showlog=True)
-
-                    # 5 visualize
-                    res = vis.display(
-                        ret_seed, set(stloclist_v), st_stdout, st_stderr,
-                        "Strategy", len(sch.coveragepath),
-                    )
-                    vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
-                    if res == VIS_Q:
-                        sch.quitFuzz()
-
-                    if TYPE_SOLVED in type_infer_set:
-                        sch.skip_cmpidset.add(stcmpid_k)
-                        sch.freeze_bytes = sch.freeze_bytes.union(set(stloclist_v))
-                        sch.recsol_cmpset.add(stcmpid_k)
-                        sch.addq(SCH_LOOP_SEED, [ret_seed, ])
-                        break
-
-                    # Passing the constraint based on the number of cycles and the distance between comparisons.
-                    st_seed = Mutator.mutLocFromMap(
-                        ret_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict
-                    )
-                    if st_seed is not None:
-                        sch.addq(SCH_MUT_SEED, [st_seed, ])
+                        # Passing the constraint based on the number of cycles and the distance between comparisons.
+                        st_seed = Mutator.mutLocFromMap(
+                            ret_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict
+                        )
+                        if st_seed is not None:
+                            sch.addq(SCH_MUT_SEED, [st_seed, ])
 
         # Endless fuzzing, add the length seed.
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content, showlog=True)
         # if sch.isEmpty(SCH_LOOP_SEED) or init_seed.content != b4ld_seed.content:
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content, showlog=True)
         if sch.isEmpty(SCH_LOOP_SEED):
             sch.addq(SCH_LOOP_SEED, [init_seed, ])
 
