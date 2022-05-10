@@ -64,7 +64,7 @@ def handleDistanceNum(opt_seed, mut_seed, st_loc, cont_list, strategy) -> dict:
         ret_seed = mut_seed if random.randint(0, 1) == 1 else opt_seed
 
     # According bytes location to mutation seed location.
-    if strategy.curnum < strategy.endlen * 16:
+    if strategy.curnum < strategy.endnum * 16:
         chari = strategy.curnum // 16
         charb = strategy.curnum % 16
         strategy.curnum += 1
@@ -94,7 +94,7 @@ def handleDistanceStr(opt_seed, mut_seed, st_loc, cont_list, strategy) -> dict:
         ret_seed = mut_seed if random.randint(0, 1) == 1 else opt_seed
 
     # According bytes location to mutation seed location.
-    if strategy.curnum < strategy.endlen * 16:
+    if strategy.curnum < strategy.endnum * 16:
         chari = strategy.curnum // 16
         charb = strategy.curnum % 16
         strategy.curnum += 1
@@ -127,7 +127,7 @@ def handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy):
         ret_seed = mut_seed if random.randint(0, 1) == 1 else opt_seed
 
     # According bytes location to mutation seed location.
-    if strategy.curnum < strategy.endlen * 16:
+    if strategy.curnum < strategy.endnum * 16:
         st_len = len(st_loc)
         bit_len = st_len * 8 - 1
         # Return full string.
@@ -283,34 +283,24 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i) -> int:
     return STAT_SUC
 
 
-def devStrategy(type_flag, type_strategy):
+def devStrategy(opt_one, type_strategy, st_cmploc):
     """
     Develop a strategy based on type
     """
-
-    # StructMutStrategy
-
     # According type flag to determine which one strategy will be executed.
-    def exeTypeStrategy(opt_seed, seed, st_loc, type_infer_list, bytes_flag, cont_list, strategy):
-        ret_seed = seed
-        locmapdet_dict = {}
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), type_infer_list)
-        for inf_i in type_infer_list:
-            if inf_i == TYPE_SOLVED:
-                ret_seed = seed
-                locmapdet_dict = {}
-                break
-            elif inf_i == TYPE_MAGICSTR:
-                change_inputmap = handleStrMagic(st_loc, bytes_flag, cont_list)
-                locmapdet_dict.update(change_inputmap)
-            elif inf_i == TYPE_MAGICNUMS:
-                ret_seed, change_inputmap = handleDistanceNum(opt_seed, seed, st_loc, cont_list, strategy)
-                locmapdet_dict.update(change_inputmap)
-            elif inf_i == TYPE_CHECKCUMS:
-                ret_seed, change_inputmap = handleDistanceCheckSums(opt_seed, seed, st_loc, cont_list, strategy)
-                locmapdet_dict.update(change_inputmap)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content)
-        return ret_seed, locmapdet_dict
+    temp_strategy = StructMutStrategy(opt_one, 0, 0, 0, 0)
+    # Determining the executor numbers
+    temp_strategy.curnum = 0
+    temp_strategy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
+    # Determining the loop type
+    if opt_one[IDX_CMPTYPE] == COV_SWITCH:
+        temp_strategy.curloop = 0
+        temp_strategy.endloop = opt_one[2]
+    else:
+        temp_strategy.curloop = 0
+        temp_strategy.endloop = 1
+
+    return temp_strategy
 
 
 if __name__ == "__main__":

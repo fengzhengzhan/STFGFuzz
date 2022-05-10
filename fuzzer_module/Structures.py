@@ -50,10 +50,10 @@ class StructCmpInfo:
 
 
 class StructMutStrategy:
-    def __init__(self, type, curnum, endlen, curloop, endloop):
+    def __init__(self, type, curnum, endnum, curloop, endloop):
         self.type = type
         self.curnum = curnum
-        self.endlen = endlen
+        self.endnum = endnum
         self.curloop = curloop
         self.endloop = endloop
 

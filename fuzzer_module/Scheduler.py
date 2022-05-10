@@ -62,14 +62,6 @@ class Scheduler:
     def addDeleteq(self, temp_one):
         self.deleteq.put(temp_one)
 
-    def isEmpty(self, mode) -> bool:
-        temp_flag = False
-        if mode == SCH_LOOP_SEED:
-            temp_flag = self.seedq.empty()
-        elif mode == SCH_MUT_SEED:
-            temp_flag = self.mutateq.empty()
-        return temp_flag
-
     def deleteSeeds(self):
         """
         Delete mutated intermediate files.

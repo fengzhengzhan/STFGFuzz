@@ -65,7 +65,7 @@ def mainFuzzer():
                  [StructSeed(path_mutseeds + AUTO_SEED, Mutator.getFillStr(64), SEED_INIT, set()), ])
 
     '''Fuzzing Cycle'''
-    while not sch.isEmpty(SCH_LOOP_SEED):
+    while not sch.seedq.empty():
         vis.loop += 1
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
@@ -320,15 +320,21 @@ def mainFuzzer():
                 opt_interlen, opt_covernum = ana.getInterlen(opt_addr)
                 opt_cmpcov_list = ana.getRpt(opt_interlen, opt_addr)
 
+                # 3 cmp type
+                # Return cmp type and mutate strategy according to typeDetect
                 type_infer = Parser.typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i)
-                Parser.devStrategy(opt_cmpcov_list[cmpk_i][IDX_CMPTYPE], type_infer)
+                infer_strategy = Parser.devStrategy(opt_cmpcov_list[cmpk_i], type_infer, st_cmploc)
+                sch.strategyq.put(infer_strategy)
 
                 '''Mutation strategy and Compare distance'''
+                while not sch.strategyq.empty():
+
+
+
+
+                # ###############################################################
                 b4_locmapdet_dict = {}
 
-
-
-                sch.strategyq.put(StructMutStrategy(TYPE_DEFAULT, 0, len(stloclist_v), 0, 1))
                 strategy = sch.strategyq.get()
                 # Type Detection and Breaking the Constraint Cycle (At lease 1 loops)
                 while strategy.curloop < strategy.endloop or not sch.strategyq.empty():
@@ -338,7 +344,7 @@ def mainFuzzer():
                     sch.addq(SCH_MUT_SEED, [ststart_seed, ])
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curloop, strategy.endloop)
 
-                    while not sch.isEmpty(SCH_MUT_SEED):
+                    while not sch.mutateq.empty():
                         vis.total += 1
                         st_seed = sch.selectOneSeed(SCH_MUT_SEED)
                         st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
@@ -356,12 +362,7 @@ def mainFuzzer():
                         st_cmp_dict = ana.traceAyalysis(st_cmpcov_list, sch.skip_cmpidset, FLAG_DICT)  # report
                         LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, st_seed.content)
 
-                        # 3 cmp type
-                        # Return cmp type and mutate strategy according to typeDetect
-                        ret_seed, type_infer_set, locmapdet_dict = Parser.typeDetect(
-                            opt_seed, st_seed, stcmpid_k, stloclist_v,
-                            opt_cmp_dict, st_cmp_dict, strategy, sch
-                        )
+
 
                         # Comparison of global optimal values to achieve updated parameters
                         opt_cmp_dict = opt_cmp_dict if ret_seed == opt_seed else st_cmp_dict
@@ -400,9 +401,9 @@ def mainFuzzer():
                             sch.addq(SCH_MUT_SEED, [st_seed, ])
 
         # Endless fuzzing, add the length seed.
-        # if sch.isEmpty(SCH_LOOP_SEED) or init_seed.content != b4ld_seed.content:
+        # if sch.seedq.empty() or init_seed.content != b4ld_seed.content:
         LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content, showlog=True)
-        if sch.isEmpty(SCH_LOOP_SEED):
+        if sch.seedq.empty():
             sch.addq(SCH_LOOP_SEED, [init_seed, ])
 
         # Mutual mapping relationship
