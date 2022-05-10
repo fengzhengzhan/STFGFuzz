@@ -340,7 +340,8 @@ def mainFuzzer():
                             # Returns the status and the character to be mutated
                             # Comparison of global optimal values to achieve updated parameters
                             opt_seed, opt_cmpcov_list, exe_status, locmapdet_dict = \
-                                Parser.solveDistence(strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list)
+                                Parser.solveDistence(strategy, st_cmploc, opt_seed, st_seed,
+                                                     opt_cmpcov_list, st_cmpcov_list, cmpk_i)
 
                             # 5 visualize
                             res = vis.display(

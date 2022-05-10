@@ -160,8 +160,13 @@ def handleRamdom():
 '''
 Try to solve the constraint according to the distance
 '''
-def solveDistence(strategy: StructMutStrategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list):
+def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmpk_i):
+    ret_seed = opt_seed
+    ret_cmpcov_list = opt_cmpcov_list
+    exe_status = DIST_CONTINUE
     locmapdet_dict = {}
+    cont_list = [opt_cmpcov_list[cmpk_i][IDX_ARG1], opt_cmpcov_list[cmpk_i][IDX_ARG2],
+                 st_cmpcov_list[cmpk_i][IDX_ARG1], st_cmpcov_list[cmpk_i][IDX_ARG2]]
     if strategy.strategytype == TYPE_DEFAULT:
         pass
     elif strategy.strategytype == TYPE_UNDEFINED:
@@ -169,15 +174,18 @@ def solveDistence(strategy: StructMutStrategy, opt_seed, st_seed, opt_cmpcov_lis
     elif strategy.strategytype == TYPE_SOLVED:
         pass
     elif strategy.strategytype == TYPE_MAGICSTR:
-        pass
+        if strategy.conttype == PAR_CHGACHG:
+            handleDistanceStr(opt_seed, st_seed, st_cmploc, cont_list, strategy)
+        else:
+            handleStrMagic(st_cmploc, strategy.conttype, cont_list)
     elif strategy.strategytype == TYPE_MAGICNUMS:
-        pass
+        handleDistanceNum(opt_seed, st_seed, st_cmploc, cont_list, strategy)
     elif strategy.strategytype == TYPE_CHECKCUMS:
-        pass
+        handleDistanceCheckSums(opt_seed, st_seed, st_cmploc, cont_list, strategy)
     elif strategy.strategytype == TYPE_RANDOM:
         pass
 
-    return locmapdet_dict
+    return ret_seed, ret_cmpcov_list, exe_status, locmapdet_dict
 
 
 '''
