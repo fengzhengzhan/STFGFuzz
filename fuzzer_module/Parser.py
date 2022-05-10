@@ -160,6 +160,8 @@ def handleRamdom():
 '''
 Try to solve the constraint according to the distance
 '''
+
+
 def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmpk_i):
     ret_seed = opt_seed
     ret_cmpcov_list = opt_cmpcov_list
@@ -175,13 +177,17 @@ def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt
         pass
     elif strategy.strategytype == TYPE_MAGICSTR:
         if strategy.conttype == PAR_CHGACHG:
-            handleDistanceStr(opt_seed, st_seed, st_cmploc, cont_list, strategy)
+            ret_seed, change_inputmap = handleDistanceStr(opt_seed, st_seed, st_cmploc, cont_list, strategy)
+            locmapdet_dict.update(change_inputmap)
         else:
-            handleStrMagic(st_cmploc, strategy.conttype, cont_list)
+            change_inputmap = handleStrMagic(st_cmploc, strategy.conttype, cont_list)
+            locmapdet_dict.update(change_inputmap)
     elif strategy.strategytype == TYPE_MAGICNUMS:
-        handleDistanceNum(opt_seed, st_seed, st_cmploc, cont_list, strategy)
+        ret_seed, change_inputmap = handleDistanceNum(opt_seed, st_seed, st_cmploc, cont_list, strategy)
+        locmapdet_dict.update(change_inputmap)
     elif strategy.strategytype == TYPE_CHECKCUMS:
-        handleDistanceCheckSums(opt_seed, st_seed, st_cmploc, cont_list, strategy)
+        ret_seed, change_inputmap = handleDistanceCheckSums(opt_seed, st_seed, st_cmploc, cont_list, strategy)
+        locmapdet_dict.update(change_inputmap)
     elif strategy.strategytype == TYPE_RANDOM:
         pass
 
@@ -191,6 +197,8 @@ def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt
 '''
 Type Inference Module.
 '''
+
+
 # Infer bytes status according bytes change.
 def inferFixedOrChanged(ori_one, st_one) -> int:
     ori0, ori1, st0, st1 = ori_one[IDX_ARG1], ori_one[IDX_ARG2], st_one[IDX_ARG1], st_one[IDX_ARG2]
@@ -208,11 +216,13 @@ def inferFixedOrChanged(ori_one, st_one) -> int:
         bytesflag = PAR_CHGACHG
     return bytesflag
 
+
 def listIsdigit(cont_list):
     for cont_i in cont_list:
         if isinstance(cont_i, str) and not cont_i.isdigit():
             return False
     return True
+
 
 def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i):
     """
