@@ -146,73 +146,43 @@ def handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy):
     return ret_seed, change_inputmap
 
 
-def handleChecksums():
-    pass
+# def handleChecksums():
+#     pass
+#
+#
+# def handleUndefined():
+#     pass
 
-
-def handleUndefined():
+def handleRamdom():
     pass
 
 
 '''
 Try to solve the constraint according to the distance
 '''
-
-
-def solveDistence():
-    type_infer_list = []
+def solveDistence(strategy: StructMutStrategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list):
     locmapdet_dict = {}
-    ret_seed = seed
-    # Both parties report the existence of a single binding solution
-    # Two-dimensional arrays
-    opt_cmplist = opt_cmp_dict.get(st_key)
-    st_cmplist = st_cmp_dict.get(st_key)
-    if opt_cmplist is not None and st_cmplist is not None:  # Handling mutually corresponding constraints after mutation
-        # if len(opt_cmplist) == len(st_cmplist):
-        # Get the first comparison and determine the parameter type.
-        if opt_cmplist[0][IDX_CMPTYPE] in (TRACENUMCMPSET | HOOKSTRCMPSET):
-            # Double operand type comparison
-            for len_i in range(min(len(opt_cmplist), len(st_cmplist))):
-                cont_list = [opt_cmplist[len_i][IDX_ARG1], opt_cmplist[len_i][IDX_ARG2],
-                             st_cmplist[len_i][IDX_ARG1], st_cmplist[len_i][IDX_ARG2]]
-                # Determining the type of variables
-                bytes_flag = inferFixedOrChanged(cont_list)
-                # Speculative change type
-                type_infer_list = detectCmpType(bytes_flag, cont_list, st_cmplist[len_i])
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), type_infer_list, bytes_flag, cont_list, st_cmplist[len_i], showlog=True)
-                ret_seed, locmapdet_dict = exeTypeStrategy(opt_seed, seed, st_loc,
-                                                           type_infer_list, bytes_flag, cont_list, strategy)
-
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, locmapdet_dict)
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, cont_list)
-        elif opt_cmplist[0][IDX_CMPTYPE] == COV_SWITCH:
-            strategy.endloop = opt_cmplist[0][2]
-            for len_i in range(min(len(opt_cmplist), len(st_cmplist))):
-                cont_list = [opt_cmplist[len_i][4], opt_cmplist[len_i][4 + strategy.curloop],
-                             st_cmplist[len_i][4], st_cmplist[len_i][4 + strategy.curloop]]
-                # Determining the type of variables
-                bytes_flag = inferFixedOrChanged(cont_list)
-                # Speculative change type
-                type_infer_list = detectCmpType(bytes_flag, cont_list, st_cmplist[len_i])
-                ret_seed, locmapdet_dict = exeTypeStrategy(opt_seed, seed, st_loc,
-                                                           type_infer_list, bytes_flag, cont_list, strategy)
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curloop, cont_list, showlog=True)
-
-    elif opt_cmplist is not None and st_cmplist is None:
+    if strategy.strategytype == TYPE_DEFAULT:
         pass
-    elif opt_cmplist is None and st_cmplist is not None:
+    elif strategy.strategytype == TYPE_UNDEFINED:
         pass
-    else:
-        handleUndefined()
+    elif strategy.strategytype == TYPE_SOLVED:
+        pass
+    elif strategy.strategytype == TYPE_MAGICSTR:
+        pass
+    elif strategy.strategytype == TYPE_MAGICNUMS:
+        pass
+    elif strategy.strategytype == TYPE_CHECKCUMS:
+        pass
+    elif strategy.strategytype == TYPE_RANDOM:
+        pass
 
-    return ret_seed, set(type_infer_list), locmapdet_dict
+    return locmapdet_dict
 
 
 '''
 Type Inference Module.
 '''
-
-
 # Infer bytes status according bytes change.
 def inferFixedOrChanged(ori_one, st_one) -> int:
     ori0, ori1, st0, st1 = ori_one[IDX_ARG1], ori_one[IDX_ARG2], st_one[IDX_ARG1], st_one[IDX_ARG2]
@@ -236,15 +206,17 @@ def listIsdigit(cont_list):
             return False
     return True
 
-def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i) -> int:
+def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i):
     """
     Type identification and speculation.
     @return:
     """
     LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_cmpcov_list, ststart_cmpcov_list, cmpk_i)
+    bytes_flag = PAR_UNDEFINED
+    strategy_flag = STAT_SUC
     if cmpk_i >= len(opt_cmpcov_list) or cmpk_i >= len(ststart_cmpcov_list):
         # Additional processing required
-        return STAT_FAIL
+        strategy_flag = STAT_FAIL
     else:
         # Determining the type of comparison instruction
         # Determining byte types
@@ -257,38 +229,38 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i) -> int:
             bytes_flag = inferFixedOrChanged(opt_one, ststart_one)
             # Speculative change type
             if bytes_flag == TYPE_SOLVED:
-                return STAT_FIN
+                strategy_flag = STAT_FIN
             elif bytes_flag == PAR_FIXAFIX or bytes_flag == PAR_FIXACHG or bytes_flag == PAR_CHGAFIX:
-                return TYPE_MAGICNUMS
+                strategy_flag = TYPE_MAGICNUMS
             elif bytes_flag == PAR_CHGACHG:
-                return TYPE_CHECKCUMS
+                strategy_flag = TYPE_CHECKCUMS
 
         elif type_flag in HOOKSTRCMPSET:
             # Determining the type of variables
             bytes_flag = inferFixedOrChanged(opt_one, ststart_one)
             # Speculative change type
             if bytes_flag == TYPE_SOLVED:
-                return STAT_FIN
+                strategy_flag = STAT_FIN
             elif bytes_flag == PAR_FIXAFIX or bytes_flag == PAR_FIXACHG or bytes_flag == PAR_CHGAFIX:
-                return TYPE_MAGICSTR
+                strategy_flag = TYPE_MAGICSTR
             elif bytes_flag == PAR_CHGACHG:
-                return TYPE_CHECKCUMS
+                strategy_flag = TYPE_CHECKCUMS
 
         elif type_flag == COV_SWITCH:
             if listIsdigit(opt_one[4: 5 + int(opt_one[2])]):
-                return TYPE_MAGICNUMS
+                strategy_flag = TYPE_MAGICNUMS
             else:
-                return TYPE_MAGICSTR
+                strategy_flag = TYPE_MAGICSTR
 
-    return STAT_SUC
+    return bytes_flag, strategy_flag
 
 
-def devStrategy(opt_one, type_strategy, st_cmploc):
+def devStrategy(opt_one, bytes_flag, strategy_flag, st_cmploc):
     """
     Develop a strategy based on type
     """
     # According type flag to determine which one strategy will be executed.
-    temp_strategy = StructMutStrategy(opt_one, 0, 0, 0, 0)
+    temp_strategy = StructMutStrategy(strategy_flag, bytes_flag, 0, 0, 0, 0)
     # Determining the executor numbers
     temp_strategy.curnum = 0
     temp_strategy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
@@ -309,6 +281,6 @@ if __name__ == "__main__":
     st_loc = [1, 2, 3]
     cont_list = ["AAAC", "BEBF", "AAAD", "BEBF"]
     for i in range(0, 100):
-        strategy = StructMutStrategy(TYPE_DEFAULT, i, 3, 0, 2)
+        strategy = StructMutStrategy(TYPE_DEFAULT, PAR_FIXACHG, i, 3, 0, 2)
         ret_seed, change_inputmap = handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy)
         print(ret_seed.content, change_inputmap)

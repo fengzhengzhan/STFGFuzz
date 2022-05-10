@@ -50,8 +50,9 @@ class StructCmpInfo:
 
 
 class StructMutStrategy:
-    def __init__(self, type, curnum, endnum, curloop, endloop):
-        self.type = type
+    def __init__(self, strategytype, conttype, curnum, endnum, curloop, endloop):
+        self.strategytype = strategytype
+        self.conttype = conttype
         self.curnum = curnum
         self.endnum = endnum
         self.curloop = curloop
