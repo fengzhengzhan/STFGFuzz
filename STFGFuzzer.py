@@ -69,7 +69,7 @@ def mainFuzzer():
         vis.loop += 1
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
-        ana.sendCmpid("Guard\0")
+        ana.sendCmpid("Guard")
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         sch.saveCrash(
             file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr,
@@ -82,7 +82,7 @@ def mainFuzzer():
         sch.coveragepath = guard_set
         vis.num_pcguard = guard_total
 
-        ana.sendCmpid("None\0")
+        ana.sendCmpid("None")
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
 
         init_addr = ana.getAddr(init_stdout[0:16])
@@ -326,23 +326,26 @@ def mainFuzzer():
                 infer_strategy = Parser.devStrategy(opt_cmpcov_list[cmpk_i], bytes_flag, strategy_flag, st_cmploc)
                 sch.strategyq.put(infer_strategy)
 
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_cmpcov_list, ststart_cmpcov_list, showlog=True)
+
                 '''Mutation strategy and Compare distance'''
                 while not sch.strategyq.empty():
                     strategy = sch.strategyq.get()
                     # Type Detection and Breaking the Constraint Cycle (At lease 1 loops)
                     while strategy.curloop < strategy.endloop:
                         strategy.curloop += 1
-                        st_seed = init_seed
-                        st_cmpcov_list = init_cmpcov_list
+                        st_seed = ststart_seed
+                        st_cmpcov_list = ststart_cmpcov_list
                         while strategy.curnum < strategy.endnum:
                             vis.total += 1
                             strategy.curnum += 1
                             # Returns the status and the character to be mutated
                             # Comparison of global optimal values to achieve updated parameters
+                            LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, st_seed.content, showlog=True)
                             opt_seed, opt_cmpcov_list, exe_status, locmapdet_dict = \
                                 Parser.solveDistence(strategy, st_cmploc, opt_seed, st_seed,
                                                      opt_cmpcov_list, st_cmpcov_list, cmpk_i)
-
+                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, strategy.conttype, opt_cmpcov_list, exe_status, locmapdet_dict, showlog=True)
                             # 5 visualize
                             res = vis.display(
                                 opt_seed, set(st_cmploc), st_stdout, st_stderr,
@@ -352,7 +355,7 @@ def mainFuzzer():
                             if res == VIS_Q:
                                 sch.quitFuzz()
 
-                            if TYPE_SOLVED in exe_status:
+                            if exe_status == DIST_FINISH:
                                 sch.skip_cmpidset.add(stcmpid_k)
                                 sch.freeze_bytes = sch.freeze_bytes.union(set(stloclist_v))
                                 sch.recsol_cmpset.add(stcmpid_k)
@@ -376,6 +379,7 @@ def mainFuzzer():
                             st_addr = ana.getAddr(st_stdout[0:16])
                             st_interlen, st_covernum = ana.getInterlen(st_addr)
                             st_cmpcov_list = ana.getRpt(st_interlen, st_addr)
+                            LOG(LOG_DEBUG, LOG_FUNCINFO(), st_seed.content, showlog=True)
 
 
         # Endless fuzzing, add the length seed.

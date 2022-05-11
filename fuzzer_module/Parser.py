@@ -9,17 +9,6 @@ Multiple comparison type handling functions
 '''
 
 
-def handleStrMagic(seed_loc, bytes_flag, cont_list) -> dict:
-    change_inputmap = {}
-    fixed_cont = cont_list[0]
-    if bytes_flag == PAR_CHGAFIX:
-        fixed_cont = cont_list[1]
-
-    for fix_i in range(len(fixed_cont)):
-        change_inputmap[seed_loc[fix_i]] = bytes(fixed_cont[fix_i], encoding="utf-8")
-    return change_inputmap
-
-
 # Convert a string to a corresponding PAR_CONVER_BIT-bit integer
 def strConverUnival(strvalue):
     # unique_val = USE_INITNUM
@@ -45,23 +34,73 @@ def univalConverStr(intvalue, strlen):
     return cont
 
 
-def handleDistanceNum(opt_seed, mut_seed, st_loc, cont_list, strategy) -> dict:
-    ret_seed = opt_seed
-    change_inputmap = {}
-
+def getNumDistance(cont_list):
+    distance = 0
     # Type of int converse hex characters to compare distance.
     opt0 = strConverUnival(str(hex(int(cont_list[0]))[2:]))
     opt1 = strConverUnival(str(hex(int(cont_list[1]))[2:]))
     mut0 = strConverUnival(str(hex(int(cont_list[2]))[2:]))
     mut1 = strConverUnival(str(hex(int(cont_list[3]))[2:]))
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, mut_seed.content)
     # According distance to return which seed.
     if abs(opt0 - opt1) > abs(mut0 - mut1):  # Distance difference in a constraint.
-        ret_seed = mut_seed
+        distance = 1
     elif abs(opt0 - opt1) < abs(mut0 - mut1):
-        ret_seed = opt_seed
+        distance = -1
     elif abs(opt0 - opt1) == abs(mut0 - mut1):
+        distance = 0
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1, abs(opt0 - opt1), abs(mut0 - mut1))
+    return distance
+
+
+def getStrDistance(cont_list):
+    distance = 0
+    opt0 = strConverUnival(cont_list[0])
+    opt1 = strConverUnival(cont_list[1])
+    mut0 = strConverUnival(cont_list[2])
+    mut1 = strConverUnival(cont_list[3])
+    # According distance to return which seed.
+    if abs(opt0 - opt1) > abs(mut0 - mut1):  # Distance difference in a constraint.
+        distance = 1
+    elif abs(opt0 - opt1) < abs(mut0 - mut1):
+        distance = -1
+    elif abs(opt0 - opt1) == abs(mut0 - mut1):
+        distance = 0
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1, abs(opt0 - opt1), abs(mut0 - mut1))
+    return distance
+
+
+def gainRetSeed(distance, opt_seed, mut_seed):
+    """
+    d < 0 ret left, d > 0 ret right, d == 0 ret random.
+    """
+    # According distance to return which seed.
+    ret_seed = opt_seed
+    if distance > 0:  # Distance difference in a constraint.
+        ret_seed = mut_seed
+    elif distance < 0:
+        ret_seed = opt_seed
+    elif distance == 0:
         ret_seed = mut_seed if random.randint(0, 1) == 1 else opt_seed
+    return ret_seed
+
+
+def handleStrMagic(seed_loc, bytes_flag, cont_list) -> dict:
+    change_inputmap = {}
+    fixed_cont = cont_list[0]
+    if bytes_flag == PAR_CHGAFIX:
+        fixed_cont = cont_list[1]
+
+    for fix_i in range(len(fixed_cont)):
+        change_inputmap[seed_loc[fix_i]] = bytes(fixed_cont[fix_i], encoding="utf-8")
+    return change_inputmap
+
+
+def handleDistanceNum(opt_seed, mut_seed, st_loc, cont_list, strategy):
+    change_inputmap = {}
+
+    # According distance to return which seed.
+    distance = getNumDistance(cont_list)
+    ret_seed = gainRetSeed(distance, opt_seed, mut_seed)
 
     # According bytes location to mutation seed location.
     if strategy.curnum < strategy.endnum * 16:
@@ -72,26 +111,15 @@ def handleDistanceNum(opt_seed, mut_seed, st_loc, cont_list, strategy) -> dict:
         c = BYTES_ASCII[c]
         change_inputmap[st_loc[chari]] = c
         LOG(LOG_DEBUG, LOG_FUNCINFO(), chari, charb, st_loc, opt_seed.content, mut_seed.content, change_inputmap)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, mut0, opt1, mut1, abs(opt0 - opt1), abs(mut0 - mut1), ret_seed.content)
     return ret_seed, change_inputmap
 
 
-def handleDistanceStr(opt_seed, mut_seed, st_loc, cont_list, strategy) -> dict:
-    ret_seed = opt_seed
+def handleDistanceStr(opt_seed, mut_seed, st_loc, cont_list, strategy):
     change_inputmap = {}
 
-    opt0 = strConverUnival(cont_list[0])
-    opt1 = strConverUnival(cont_list[1])
-    mut0 = strConverUnival(cont_list[2])
-    mut1 = strConverUnival(cont_list[3])
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, mut_seed.content)
     # According distance to return which seed.
-    if abs(opt0 - opt1) > abs(mut0 - mut1):  # Distance difference in a constraint.
-        ret_seed = mut_seed
-    elif abs(opt0 - opt1) < abs(mut0 - mut1):
-        ret_seed = opt_seed
-    elif abs(opt0 - opt1) == abs(mut0 - mut1):
-        ret_seed = mut_seed if random.randint(0, 1) == 1 else opt_seed
+    distance = getStrDistance(cont_list)
+    ret_seed = gainRetSeed(distance, opt_seed, mut_seed)
 
     # According bytes location to mutation seed location.
     if strategy.curnum < strategy.endnum * 16:
@@ -103,28 +131,15 @@ def handleDistanceStr(opt_seed, mut_seed, st_loc, cont_list, strategy) -> dict:
         change_inputmap[st_loc[chari]] = c
         LOG(LOG_DEBUG, LOG_FUNCINFO(), chari, charb, st_loc,
             opt_seed.content, mut_seed.content, change_inputmap, showlog=True)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, mut0, opt1, mut1,
-            abs(opt0 - opt1), abs(mut0 - mut1), ret_seed.content, showlog=True)
     return ret_seed, change_inputmap
 
 
 # Turn single-byte variants into +1 -1 operations on the total length
 def handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy):
-    ret_seed = opt_seed
     change_inputmap = {}
 
-    opt0 = strConverUnival(cont_list[0])
-    opt1 = strConverUnival(cont_list[1])
-    mut0 = strConverUnival(cont_list[2])
-    mut1 = strConverUnival(cont_list[3])
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, mut_seed.content)
-    # According distance to return which seed.
-    if abs(opt0 - opt1) > abs(mut0 - mut1):  # Distance difference in a constraint.
-        ret_seed = mut_seed
-    elif abs(opt0 - opt1) < abs(mut0 - mut1):
-        ret_seed = opt_seed
-    elif abs(opt0 - opt1) == abs(mut0 - mut1):
-        ret_seed = mut_seed if random.randint(0, 1) == 1 else opt_seed
+    distance = getStrDistance(cont_list)
+    ret_seed = gainRetSeed(distance, opt_seed, mut_seed)
 
     # According bytes location to mutation seed location.
     if strategy.curnum < strategy.endnum * 16:
@@ -167,8 +182,9 @@ def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt
     ret_cmpcov_list = opt_cmpcov_list
     exe_status = DIST_CONTINUE
     locmapdet_dict = {}
-    cont_list = [opt_cmpcov_list[cmpk_i][IDX_ARG1], opt_cmpcov_list[cmpk_i][IDX_ARG2],
-                 st_cmpcov_list[cmpk_i][IDX_ARG1], st_cmpcov_list[cmpk_i][IDX_ARG2]]
+    cont_list = [opt_cmpcov_list[cmpk_i][3], opt_cmpcov_list[cmpk_i][4],
+                 st_cmpcov_list[cmpk_i][3], st_cmpcov_list[cmpk_i][4]]
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_cmpcov_list[cmpk_i], st_cmpcov_list[cmpk_i], cont_list, showlog=True)
     if strategy.strategytype == TYPE_DEFAULT:
         pass
     elif strategy.strategytype == TYPE_UNDEFINED:
@@ -180,7 +196,11 @@ def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt
             ret_seed, change_inputmap = handleDistanceStr(opt_seed, st_seed, st_cmploc, cont_list, strategy)
             locmapdet_dict.update(change_inputmap)
         else:
+            ret_seed = st_seed
             change_inputmap = handleStrMagic(st_cmploc, strategy.conttype, cont_list)
+            distance = getStrDistance(cont_list)
+            if distance == 0:
+                exe_status = DIST_FINISH
             locmapdet_dict.update(change_inputmap)
     elif strategy.strategytype == TYPE_MAGICNUMS:
         ret_seed, change_inputmap = handleDistanceNum(opt_seed, st_seed, st_cmploc, cont_list, strategy)
@@ -191,6 +211,12 @@ def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt
     elif strategy.strategytype == TYPE_RANDOM:
         pass
 
+    if ret_seed == opt_seed:
+        ret_cmpcov_list = opt_cmpcov_list
+    elif ret_seed == st_seed:
+        ret_cmpcov_list = st_cmpcov_list
+
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, ret_cmpcov_list, exe_status, locmapdet_dict, showlog=True)
     return ret_seed, ret_cmpcov_list, exe_status, locmapdet_dict
 
 
@@ -201,7 +227,8 @@ Type Inference Module.
 
 # Infer bytes status according bytes change.
 def inferFixedOrChanged(ori_one, st_one) -> int:
-    ori0, ori1, st0, st1 = ori_one[IDX_ARG1], ori_one[IDX_ARG2], st_one[IDX_ARG1], st_one[IDX_ARG2]
+    ori0, ori1, st0, st1 = ori_one[3], ori_one[4], st_one[3], st_one[4]
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), ori0, ori1, st0, st1, showlog=True)
     # Original group <-> Control group
     bytesflag = PAR_CHGACHG
     if st0 == st1:
