@@ -69,6 +69,7 @@ def getStrDistance(cont_list):
     return distance
 
 
+
 def gainRetSeed(distance, opt_seed, mut_seed):
     """
     d < 0 ret left, d > 0 ret right, d == 0 ret random.
@@ -103,10 +104,9 @@ def handleDistanceNum(opt_seed, mut_seed, st_loc, cont_list, strategy):
     ret_seed = gainRetSeed(distance, opt_seed, mut_seed)
 
     # According bytes location to mutation seed location.
-    if strategy.curnum < strategy.endnum * 16:
+    if strategy.curnum < strategy.endnum:
         chari = strategy.curnum // 16
         charb = strategy.curnum % 16
-        strategy.curnum += 1
         c = abs(ret_seed.content[st_loc[chari]] + MUT_BIT_LIST[charb]) % 256
         c = BYTES_ASCII[c]
         change_inputmap[st_loc[chari]] = c
@@ -122,10 +122,9 @@ def handleDistanceStr(opt_seed, mut_seed, st_loc, cont_list, strategy):
     ret_seed = gainRetSeed(distance, opt_seed, mut_seed)
 
     # According bytes location to mutation seed location.
-    if strategy.curnum < strategy.endnum * 16:
+    if strategy.curnum < strategy.endnum:
         chari = strategy.curnum // 16
         charb = strategy.curnum % 16
-        strategy.curnum += 1
         c = abs(ret_seed.content[st_loc[chari]] + MUT_BIT_LIST[charb]) % 256
         c = BYTES_ASCII[c]
         change_inputmap[st_loc[chari]] = c
@@ -142,7 +141,7 @@ def handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy):
     ret_seed = gainRetSeed(distance, opt_seed, mut_seed)
 
     # According bytes location to mutation seed location.
-    if strategy.curnum < strategy.endnum * 16:
+    if strategy.curnum < strategy.endnum:
         st_len = len(st_loc)
         bit_len = st_len * 8 - 1
         # Return full string.
@@ -156,7 +155,6 @@ def handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy):
         cont = univalConverStr(cont_num, st_len)
         for loc_idx, loc_i in enumerate(st_loc):
             change_inputmap[loc_i] = cont[loc_idx:loc_idx + 1]
-        strategy.curnum += 1
 
     return ret_seed, change_inputmap
 
@@ -198,9 +196,6 @@ def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt
         else:
             ret_seed = st_seed
             change_inputmap = handleStrMagic(st_cmploc, strategy.conttype, cont_list)
-            distance = getStrDistance(cont_list)
-            if distance == 0:
-                exe_status = DIST_FINISH
             locmapdet_dict.update(change_inputmap)
     elif strategy.strategytype == TYPE_MAGICNUMS:
         ret_seed, change_inputmap = handleDistanceNum(opt_seed, st_seed, st_cmploc, cont_list, strategy)
@@ -216,7 +211,10 @@ def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt
     elif ret_seed == st_seed:
         ret_cmpcov_list = st_cmpcov_list
 
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content, ret_cmpcov_list, exe_status, locmapdet_dict, showlog=True)
+    if st_cmpcov_list[cmpk_i][3] == st_cmpcov_list[cmpk_i][4]:
+        exe_status = DIST_FINISH
+
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, ret_seed.content, ret_cmpcov_list, exe_status, locmapdet_dict, showlog=True)
     return ret_seed, ret_cmpcov_list, exe_status, locmapdet_dict
 
 
@@ -292,7 +290,7 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i):
                 strategy_flag = TYPE_CHECKCUMS
 
         elif type_flag == COV_SWITCH:
-            if listIsdigit(opt_one[4: 5 + int(opt_one[2])]):
+            if listIsdigit(opt_one[4: 5 + int(opt_one[3])]):
                 strategy_flag = TYPE_MAGICNUMS
             else:
                 strategy_flag = TYPE_MAGICSTR
@@ -312,7 +310,7 @@ def devStrategy(opt_one, bytes_flag, strategy_flag, st_cmploc):
     # Determining the loop type
     if opt_one[IDX_CMPTYPE] == COV_SWITCH:
         temp_strategy.curloop = 0
-        temp_strategy.endloop = opt_one[2]
+        temp_strategy.endloop = opt_one[3]
     else:
         temp_strategy.curloop = 0
         temp_strategy.endloop = 1

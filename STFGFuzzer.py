@@ -90,7 +90,6 @@ def mainFuzzer():
         # cmpcov_list = ana.getRpt(init_interlen, init_addr)
         # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch) todo
 
-
         # Select the location to be mutated and add it to the location queue.
         sch.initEachloop(vis)
 
@@ -305,10 +304,11 @@ def mainFuzzer():
                     if not ana.compareRptOne(ststart_cmpcov_list, st_cmpcov_list, cmpk_i):
                         st_cmploc.append(one_loc)
 
+                ana.sendCmpid(stcmpid_k)
                 # Identification Type and Update opt seed (in Random change)
                 # init_seed opt_seed
                 opt_seed = Mutator.mutSelectCharRand(
-                    init_seed.content, path_mutseeds, ST_STR + str(vis.loop), st_cmploc)
+                    ststart_seed.content, path_mutseeds, ST_STR + str(vis.loop), st_cmploc)
                 opt_seed = sch.selectOneSeed(SCH_THIS_SEED, opt_seed)
                 opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
                 sch.saveCrash(
@@ -338,14 +338,16 @@ def mainFuzzer():
                         st_cmpcov_list = ststart_cmpcov_list
                         while strategy.curnum < strategy.endnum:
                             vis.total += 1
-                            strategy.curnum += 1
                             # Returns the status and the character to be mutated
                             # Comparison of global optimal values to achieve updated parameters
                             LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, st_seed.content, showlog=True)
                             opt_seed, opt_cmpcov_list, exe_status, locmapdet_dict = \
                                 Parser.solveDistence(strategy, st_cmploc, opt_seed, st_seed,
                                                      opt_cmpcov_list, st_cmpcov_list, cmpk_i)
-                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, strategy.conttype, opt_cmpcov_list, exe_status, locmapdet_dict, showlog=True)
+                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, strategy.conttype, opt_cmpcov_list,
+                                exe_status, locmapdet_dict, showlog=True)
+
+                            strategy.curnum += 1
                             # 5 visualize
                             res = vis.display(
                                 opt_seed, set(st_cmploc), st_stdout, st_stderr,
@@ -380,7 +382,6 @@ def mainFuzzer():
                             st_interlen, st_covernum = ana.getInterlen(st_addr)
                             st_cmpcov_list = ana.getRpt(st_interlen, st_addr)
                             LOG(LOG_DEBUG, LOG_FUNCINFO(), st_seed.content, showlog=True)
-
 
         # Endless fuzzing, add the length seed.
         LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content, showlog=True)
