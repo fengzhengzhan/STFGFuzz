@@ -71,9 +71,7 @@
 //const uint8_t maxCmpLen = 32;
 
 #define SHMGET_SIZE 2147483648  // 2*1024*1024*1024  2GB
-#define SEND_SIZE 64
 char* data = NULL;
-char* senddata = NULL;
 int filterlen = 128;
 int savelen = 144;
 int interlen = 160;  // 128+16+16
@@ -92,10 +90,10 @@ int retSame(char* each){
     int sendlen = strlen(sendcmpid);
     int eachlen = strlen(each);
     int idx = 0;
-    // printf("%s %s\n", sendcmpid, each);
+    
     // printf("%d %d\n", strlen(sendcmpid), strlen(each));
     // int scmp1 = strcmp(sendcmpid, each);
-    if(senddata == NULL) {
+    if(sendlen == 0) {
         same = 0;
     } else if (sendlen == strlen(defaultcmpid)) {
         int judge = 1;
@@ -131,8 +129,8 @@ int retSame(char* each){
             same = 0;
         } 
     }
-    // printf("%d", same);
 
+    // printf("%s %s %d %d %d\n", sendcmpid, each, same, sendlen, eachlen);
     return same;
 }
 
@@ -313,9 +311,8 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     printf("D%dZ\n", id_shm);  
 
     // memory get
-    senddata = (char *)shmat(id, NULL, 0);
-    printf("'%s'", senddata);
-    strcpy(sendcmpid, senddata);  // Get the sendcmpid
+    strcpy(sendcmpid, data);  // Get the sendcmpid
+    printf("F%sZ", sendcmpid);
 
 
     // void *PC = __builtin_return_address(0);

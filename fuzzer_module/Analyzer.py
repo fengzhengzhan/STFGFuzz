@@ -23,9 +23,8 @@ from fuzzer_module.Fuzzconfig import *
 
 class Analyzer:
     def __init__(self):
-        self.global_shm_key = USE_INITNUM
+        self.shm_key = USE_INITNUM
         self.addr = None
-        self.sendaddr = None
         try:
             self.rt = CDLL('librt.so')
         except:
@@ -38,32 +37,13 @@ class Analyzer:
         self.shmat.argtypes = [c_int, POINTER(c_void_p), c_int]
         self.shmat.restype = c_void_p
 
-
     # Combination Functions
     # getAddr()
     # getInterlen()
     # getRpt()
     # traceAyalysis()
 
-    def sendCmpid(self, cmpid):
-        """
-        Send cmpid to save the cmpid information.
-        @param cmpid:
-        @return:
-        """
-        if self.sendaddr is None:
-            shmid = self.shmget(ANA_SEND_KEY, ANA_SEND_SIZE, 0o1000 | 0o666)  # IPC_CREAT | Permission
-            while shmid < 0:
-                randkey = random.randint(100000, 999999)
-                shmid = self.shmget(randkey, ANA_SEND_SIZE, 0o1000 | 0o666)  # IPC_CREAT | Permission
-                with open(ANA_SEND_FILE, "w") as f:
-                    f.write(str(randkey))
-            self.sendaddr = self.shmat(shmid, None, 0)
-
-        cmpid = str(cmpid) + "\0"
-        memmove(self.sendaddr, cmpid.encode(), len(cmpid))
-
-    def getAddr(self, out_info: str):
+    def getShm(self, out_info: str):
         """
         Get the memory share address.
         """
@@ -73,11 +53,11 @@ class Analyzer:
             # print(shm_key)
         except Exception as e:
             # raise Exception("Error shm_key {}".format(e))
-            shm_key = self.global_shm_key
+            shm_key = self.shm_key
 
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), shm_key, self.global_shm_key)
-        if shm_key != self.global_shm_key:
-            self.global_shm_key = shm_key
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), shm_key, self.shm_key)
+        if shm_key != self.shm_key:
+            self.shm_key = shm_key
 
             shmid = self.shmget(shm_key, ANA_SHM_SIZE, 0o1000 | 0o666)  # 2*1024*1024*1024 2GB
             if shmid < 0:
@@ -85,53 +65,57 @@ class Analyzer:
 
             self.addr = self.shmat(shmid, None, 0)
 
-        return self.addr
-
-    def getInterlen(self, addr):
-        """
-        Get the length of rpt.
-        @param addr:
-        @return:
-        """
         # Get the length of cmpcovshm contents.
-        interlen_str = string_at(addr, ANA_INTERLEN_SIZE).decode("utf-8")
+        interlen_str = string_at(self.addr + ANA_FILTER_SIZE, ANA_INTERLEN_SIZE).decode("utf-8")
         re_str = INTERLEN_FLAG + "(.*?)" + END_EACH_FLAG
         interlen = int(re.search(re_str, interlen_str).group(1))
 
-        covernum_str = string_at(addr+ANA_INTERLEN_SIZE, ANA_COVERNUM_SIZE).decode("utf-8")
+        covernum_str = string_at(self.addr + ANA_FILTER_SIZE + ANA_INTERLEN_SIZE, ANA_COVERNUM_SIZE).decode("utf-8")
         re_str = COVERAGE_NUM + "(.*?)" + END_EACH_FLAG
         covernum = int(re.search(re_str, covernum_str).group(1))
-
         return interlen, covernum
 
-    def getRpt(self, interlen, addr):
+    def sendCmpid(self, cmpid):
+        """
+        Send cmpid to save the cmpid information.
+        @param cmpid:
+        @return:
+        """
+        if self.addr is None:
+            raise Exception("Error Memory share space not create.")
+
+        cmpid = str(cmpid) + "\0"
+        memmove(self.addr, cmpid.encode(), len(cmpid))
+
+    def getRpt(self, interlen):
         """
         Get the list of cmp information.
         @param interlen:
-        @param addr:
         @return:
         """
         # Read content in pieces
         pieces = interlen // ANA_SHM_INTERVAL
         over = interlen % ANA_SHM_INTERVAL
 
+        # print(string_at(self.addr+128+16, 4096))
         cmpcovshm_str = "["
         if pieces > 0:
-            cmpcovshm_str += string_at(addr + ANA_START_SIZE, ANA_SHM_INTERVAL - ANA_START_SIZE).decode("utf-8",
-                                                                                                              "ignore")
+            cmpcovshm_str += string_at(self.addr + ANA_START_SIZE, ANA_SHM_INTERVAL - ANA_START_SIZE)\
+                .decode("utf-8", "ignore")
             for each in range(1, pieces):
-                cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * each, ANA_SHM_INTERVAL).decode("utf-8", "ignore")
+                cmpcovshm_str += string_at(self.addr + ANA_SHM_INTERVAL * each, ANA_SHM_INTERVAL)\
+                    .decode("utf-8", "ignore")
             # fixme .decode("utf-8", "ignore")
-            cmpcovshm_str += string_at(addr + ANA_SHM_INTERVAL * pieces, over).decode("utf-8", "ignore")
+            cmpcovshm_str += string_at(self.addr + ANA_SHM_INTERVAL * pieces, over).decode("utf-8", "ignore")
         else:
-            cmpcovshm_str += string_at(addr + ANA_START_SIZE, over - ANA_START_SIZE).decode("utf-8", "ignore")
+            cmpcovshm_str += string_at(self.addr + ANA_START_SIZE, over - ANA_START_SIZE).decode("utf-8", "ignore")
         cmpcovshm_str += "]"
 
         # Make the fuzz loop block.
         # self.rt.shmctl(shmid, 0, 0)
 
         # Content to json
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovshm_str, showlog=True)
+        # LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovshm_str, showlog=True)
         cmpcov_list = ast.literal_eval(cmpcovshm_str)
         del cmpcovshm_str
         return cmpcov_list
@@ -172,6 +156,7 @@ class Analyzer:
     '''
     Tracking Comparison Module.
     '''
+
     def compareRptToLoc(self, b4cmp_dict, b4cmpset, cmp_dict):
         cmpset = set(cmp_dict)
         interset = b4cmpset & cmpset  # Intersection set
@@ -208,18 +193,20 @@ class Analyzer:
 
 if __name__ == "__main__":
     ana = Analyzer()
-    # ana.sendCmpid("abcde"+"\0")
-    # ana.sendCmpid("None\0")
-    # ana.sendCmpid("Guard\0")
-    ana.sendCmpid("m0x49e329\0")
+    ana.getShm("D124816Z\n")
+
+    # ana.sendCmpid("abcde")
+    # ana.sendCmpid("None")
+    # ana.sendCmpid("Guard")
+    ana.sendCmpid("m0x49e319")
     # while True:
     #     addr = ana.getAddr("D124816Z\n")
     #     interlen = ana.getInterlen(addr)
     #     print(interlen)
     #     cmpcovshm_list = ana.getRpt(interlen, addr)
-    addr = ana.getAddr("D124816Z\n")
-    interlen, covernum = ana.getInterlen(addr)
-    cmpcovshm_list = ana.getRpt(interlen, addr)
+    interlen, covernum = ana.getShm("D124816Z\n")
+    print(interlen, covernum)
+    cmpcovshm_list = ana.getRpt(interlen)
     with open("../Programs/TrackCrash/crashinfo/info", "w") as f:
         f.write(str(cmpcovshm_list))
     print(cmpcovshm_list)
