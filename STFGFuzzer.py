@@ -70,16 +70,16 @@ def mainFuzzer():
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
-        init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
+        ana.getShm(init_stdout[0:16])
         ana.sendCmpid("Guard")
+
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         sch.saveCrash(
             file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr,
             vis.start_time, vis.last_time
         )
-        init_addr = ana.getShm(init_stdout[0:16])
-        init_interlen, init_covernum = ana.getInterlen(init_addr)
-        init_guardcov_list = ana.getRpt(init_interlen, init_addr)
+        init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
+        init_guardcov_list = ana.getRpt(init_interlen)
         guard_set, guard_total = ana.traceGuardAnalysis(init_guardcov_list)
         sch.coveragepath = guard_set
         vis.num_pcguard = guard_total
@@ -87,9 +87,8 @@ def mainFuzzer():
         ana.sendCmpid("None")
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
 
-        init_addr = ana.getShm(init_stdout[0:16])
-        init_interlen, init_covernum = ana.getInterlen(init_addr)
-        # cmpcov_list = ana.getRpt(init_interlen, init_addr)
+        init_interlen, init_covernum  = ana.getShm(init_stdout[0:16])
+        # cmpcov_list = ana.getRpt(init_interlen)
         # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch) todo
 
         # Select the location to be mutated and add it to the location queue.
@@ -117,20 +116,19 @@ def mainFuzzer():
             )
 
             # 1 seed inputs
-            ld_addr = ana.getShm(ld_stdout[0:16])
-            ld_interlen, ld_covernum = ana.getInterlen(ld_addr)
+            ld_interlen, ld_covernum = ana.getShm(ld_stdout[0:16])
             LOG(LOG_DEBUG, LOG_FUNCINFO(), len(ld_seed.content), b4ld_interlen, ld_interlen, showlog=True)
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), ana.getRpt(ld_interlen, ld_addr), showlog=True)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), ana.getRpt(ld_interlen), showlog=True)
             if b4ld_interlen != ld_interlen:
                 b4ld_seed = ld_seed
                 b4ld_interlen = ld_interlen
             elif b4ld_interlen == ld_interlen:
                 # Current seed.
-                ld_cmpcov_list = ana.getRpt(ld_interlen, ld_addr)  # report
+                ld_cmpcov_list = ana.getRpt(ld_interlen)  # report
                 # Before seed.
                 b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace('@@', b4ld_seed.filename))
-                b4ld_addr = ana.getShm(b4ld_stdout[0:16])
-                b4ld_cmpcov_list = ana.getRpt(b4ld_interlen, b4ld_addr)
+                b4ld_interlen, b4ld_covernum = ana.getShm(b4ld_stdout[0:16])
+                b4ld_cmpcov_list = ana.getRpt(b4ld_interlen)
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), b4ld_cmpcov_list, showlog=True)
                 if ld_cmpcov_list != b4ld_cmpcov_list:
                     b4ld_seed = ld_seed
@@ -148,9 +146,8 @@ def mainFuzzer():
         init_seed = b4ld_seed
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
 
-        init_addr = ana.getShm(init_stdout[0:16])
-        init_interlen, init_covernum = ana.getInterlen(init_addr)
-        init_cmpcov_list = ana.getRpt(init_interlen, init_addr)
+        init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
+        init_cmpcov_list = ana.getRpt(init_interlen)
         init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset, FLAG_DICT)
         init_cmpset = set(init_cmp_dict)
 
@@ -177,14 +174,13 @@ def mainFuzzer():
             )
 
             # 1 seed inputs
-            sd_addr = ana.getShm(sd_stdout[0:16])
-            sd_interlen, sd_covernum = ana.getInterlen(sd_addr)
+            sd_interlen, sd_covernum = ana.getShm(sd_stdout[0:16])
             sd_diff = False
             if init_interlen != sd_interlen:
                 sd_diff = True
             elif init_interlen == sd_interlen:
                 # Current seed.
-                sd_cmpcov_list = ana.getRpt(sd_interlen, sd_addr)  # report
+                sd_cmpcov_list = ana.getRpt(sd_interlen)  # report
                 if init_cmpcov_list != sd_cmpcov_list:
                     sd_diff = True
 
@@ -224,9 +220,8 @@ def mainFuzzer():
 
             # 2 cmp instruction
             # Track execution information of mutate seeds.
-            bd_addr = ana.getShm(bd_stdout[0:16])
-            bd_interlen, bd_covernum = ana.getInterlen(bd_addr)
-            bd_cmpcov_list = ana.getRpt(bd_interlen, bd_addr)  # report
+            bd_interlen, bd_covernum = ana.getShm(bd_stdout[0:16])
+            bd_cmpcov_list = ana.getRpt(bd_interlen)  # report
 
             bd_cmp_dict = ana.traceAyalysis(bd_cmpcov_list, sch.skip_cmpidset, FLAG_DICT)
             bd_diffcmp_set = ana.compareRptToLoc(init_cmp_dict, init_cmpset, bd_cmp_dict)
@@ -266,9 +261,8 @@ def mainFuzzer():
             ststart_seed = sch.selectOneSeed(SCH_THIS_SEED, ststart_seed)
             ststart_stdout, ststart_stderr = Executor.run(fuzz_command.replace('@@', ststart_seed.filename))
 
-            ststart_addr = ana.getShm(ststart_stdout[0:16])
-            ststart_interlen, ststart_covernum = ana.getInterlen(ststart_addr)
-            ststart_cmpcov_list = ana.getRpt(ststart_interlen, ststart_addr)
+            ststart_interlen, ststart_covernum = ana.getShm(ststart_stdout[0:16])
+            ststart_cmpcov_list = ana.getRpt(ststart_interlen)
             # Only the corresponding list data is retained, no parsing is required
             cmp_len = len(ststart_cmpcov_list)
 
@@ -280,9 +274,8 @@ def mainFuzzer():
                 repeat_seed = sch.selectOneSeed(SCH_THIS_SEED, repeat_seed)
                 repeat_stdout, repeat_stderr = Executor.run(fuzz_command.replace('@@', repeat_seed.filename))
 
-                repeat_addr = ana.getShm(repeat_stdout[0:16])
-                repeat_interlen, repeat_covernum = ana.getInterlen(repeat_addr)
-                repeat_cmpcov_list = ana.getRpt(repeat_interlen, repeat_addr)
+                repeat_interlen, repeat_covernum = ana.getShm(repeat_stdout[0:16])
+                repeat_cmpcov_list = ana.getRpt(repeat_interlen)
 
                 if not ana.compareRptOne(ststart_cmpcov_list, repeat_cmpcov_list, -1):
                     continue
@@ -299,9 +292,8 @@ def mainFuzzer():
                         vis.start_time, vis.last_time
                     )
 
-                    st_addr = ana.getShm(st_stdout[0:16])
-                    st_interlen, st_covernum = ana.getInterlen(st_addr)
-                    st_cmpcov_list = ana.getRpt(st_interlen, st_addr)
+                    st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
+                    st_cmpcov_list = ana.getRpt(st_interlen)
 
                     if not ana.compareRptOne(ststart_cmpcov_list, st_cmpcov_list, cmpk_i):
                         st_cmploc.append(one_loc)
@@ -318,9 +310,8 @@ def mainFuzzer():
                     vis.start_time, vis.last_time
                 )
 
-                opt_addr = ana.getShm(opt_stdout[0:16])
-                opt_interlen, opt_covernum = ana.getInterlen(opt_addr)
-                opt_cmpcov_list = ana.getRpt(opt_interlen, opt_addr)
+                opt_interlen, opt_covernum = ana.getShm(opt_stdout[0:16])
+                opt_cmpcov_list = ana.getRpt(opt_interlen)
 
                 # 3 cmp type
                 # Return cmp type and mutate strategy according to typeDetect
@@ -380,9 +371,8 @@ def mainFuzzer():
 
                             # 2 cmp instruction
                             # Generate analysis reports.
-                            st_addr = ana.getShm(st_stdout[0:16])
-                            st_interlen, st_covernum = ana.getInterlen(st_addr)
-                            st_cmpcov_list = ana.getRpt(st_interlen, st_addr)
+                            st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
+                            st_cmpcov_list = ana.getRpt(st_interlen)
                             LOG(LOG_DEBUG, LOG_FUNCINFO(), st_seed.content, showlog=True)
 
         # Endless fuzzing, add the length seed.

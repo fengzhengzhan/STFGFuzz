@@ -312,7 +312,7 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
 
     // memory get
     strcpy(sendcmpid, data);  // Get the sendcmpid
-    printf("F%sZ", sendcmpid);
+    printf("F%sZ\n", sendcmpid);
 
 
     // void *PC = __builtin_return_address(0);
