@@ -66,8 +66,6 @@ class Analyzer:
     def getAddr(self, out_info: str):
         """
         Get the memory share address.
-        @param out_info:
-        @return:
         """
         try:
             re_str = SHMID_FLAG + "(.*?)" + END_EACH_FLAG

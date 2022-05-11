@@ -74,11 +74,12 @@
 #define SEND_SIZE 64
 char* data = NULL;
 char* senddata = NULL;
-int savelen = 16;
-int interlen = 32;
+int filterlen = 128;
+int savelen = 144;
+int interlen = 160;  // 128+16+16
 char buf[1024*1024];
-char sendcmpid[64];
-char eachcmpid[64];
+char sendcmpid[128];
+char eachcmpid[128];
 char* defaultcmpid = "None";
 char* guard = "Guard";
 int blocknum = -1;
@@ -149,7 +150,7 @@ void saveCovOnEnd() {
         interlen += strlen(buf);
         // Update interlen
         sprintf(buf, "L%dZ", interlen);
-        strcpy(data, buf);
+        strcpy(data + filterlen, buf);
 
     
         // Separating shared memory from the current process.
@@ -177,7 +178,7 @@ void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
         interlen += strlen(buf);
         // Update interlen
         sprintf(buf, "L%dZ", interlen);
-        strcpy(data, buf);
+        strcpy(data + filterlen, buf);
     }
 } 
 
@@ -240,7 +241,7 @@ void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int
         interlen += strlen(buf);
         // Update interlen
         sprintf(buf, "L%dZ", interlen);
-        strcpy(data, buf);
+        strcpy(data + filterlen, buf);
     }
 }
 
@@ -273,7 +274,7 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
         interlen += strlen(buf);
         // Update interlen
         sprintf(buf, "L%dZ", interlen);
-        strcpy(data, buf);
+        strcpy(data + filterlen, buf);
     }
 }
 
@@ -302,67 +303,19 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     }
 
     data = (char *)shmat(id, NULL, 0);
-    // if ((int)(data)==-1)
     if (data == NULL)
     {  
         printf("Error Data Shmat failed.\n");
         exit(1); 
     }  
-
-    // if (data == NULL)
-    // {
-    //     data = shmat(id, data, 0666);
-    // }
-
-    // if (data == NULL)
-    // {
-    //     printf("Error Shmat failed.\n");
-    //     exit(1);
-    // }
-
+    // printf("'%s' ", data);
     // Printf memory share id towards to terminal.
     printf("D%dZ\n", id_shm);  
 
     // memory get
-    key_t send_shm = 168421;
-    int sendid;
-    sendid = shmget(send_shm, SEND_SIZE, IPC_CREAT | 0666);
-    if (sendid < 0 ) {
-        FILE *fp = NULL;
-        char buff[64];
-
-        fp = fopen("/tmp/shmsendkey", "r");
-        fscanf(fp, "%s", buff);
-        int file_shm = atoi(buff);
-        // printf("%d %d\n", buff, sendid);
-        sendid = shmget(file_shm, SEND_SIZE, IPC_CREAT | 0666);
-        if (sendid < 0) {
-            printf("Error Send Shmget failed.\n");
-            exit(1); 
-        }
-    }
-
-    senddata = (char *)shmat(sendid, NULL, 0);
+    senddata = (char *)shmat(id, NULL, 0);
+    printf("'%s'", senddata);
     strcpy(sendcmpid, senddata);  // Get the sendcmpid
-    // if (strcmp(sendcmpid, defaultcmpid) == 0) {
-    //     printf("ok");
-    // }
-    // printf("%s\n", sendcmpid);
-
-    // sprintf(eachcmpid, "I%p", GET_FUNC_PC);
-    // // printf("%s\n", eachcmpid);
-    // if(strcmp(sendcmpid, eachcmpid) == 0) {
-    //     printf("ok");
-    // }
-
-
-    // if (senddata == NULL)
-    // {  
-    //     printf("Error Senddata Shmat failed.\n");
-    //     exit(1); 
-    // }
-
-    // strcpy(data, "CMPCOVSHM");
 
 
     // void *PC = __builtin_return_address(0);
@@ -378,17 +331,17 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
 
     cover = (char *)malloc(N*sizeof(char));
 
-    sprintf(eachcmpid, "I%p", GET_CALLER_PC);
+    sprintf(eachcmpid, "I%p", GET_FUNC_PC);
     if(retSame(eachcmpid) >= 0) {
 
-        sprintf(buf, "['I%p','I','%d_%d',%lu,'%p','%p'],", GET_CALLER_PC, blocknum, blockcmpcount, N, start, stop);
+        sprintf(buf, "['I%p','I','%d_%d',%lu,'%p','%p'],", GET_FUNC_PC, blocknum, blockcmpcount, N, start, stop);
         blockcmpcount++;
         strcpy(data + interlen, buf);
         interlen += strlen(buf);
         // Update interlen
         sprintf(buf, "L%dZ", interlen);
-        strcpy(data, buf);
-        // printf("\nS %p %lu Z\n", GET_CALLER_PC, N);  // Guards should start from 1.
+        strcpy(data + filterlen, buf);
+        // printf("\nS %p %lu Z\n", GET_FUNC_PC, N);  // Guards should start from 1.
         // Add dataflow analysis information.
     } else {
         sprintf(buf, " ");
@@ -396,7 +349,7 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
         interlen += strlen(buf);
         // Update interlen
         sprintf(buf, "L%dZ", interlen);
-        strcpy(data, buf);
+        strcpy(data + filterlen, buf);
     }
 
     // covernum
@@ -425,14 +378,14 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
 
     // This function is a part of the sanitizer run-time.
     // To use it, link with AddressSanitizer or other sanitizer.
-    sprintf(eachcmpid, "G%p", GET_CALLER_PC);
+    sprintf(eachcmpid, "G%p", GET_FUNC_PC);
     if (retSame(eachcmpid) == 1) {
-        sprintf(buf, "['G%p','G',%d],", GET_CALLER_PC, *guard);
+        sprintf(buf, "['G%p','G',%d],", GET_FUNC_PC, *guard);
         strcpy(data + interlen, buf);
         interlen += strlen(buf);
         // Update interlen
         sprintf(buf, "L%dZ", interlen);
-        strcpy(data, buf);
+        strcpy(data + filterlen, buf);
     }
     blocknum = *guard;
     blockcmpcount = 0;
