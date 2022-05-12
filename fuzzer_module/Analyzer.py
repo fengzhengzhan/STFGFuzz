@@ -131,12 +131,12 @@ class Analyzer:
         """
         cmp_dict = {}  # According cmp instruction to genetator dict.
         for each_i in cmpcov_list:
-            if each_i[IDX_CMPTYPE] in type_info and each_i[IDX_CMPID] not in freezeid_rpt:
+            if each_i[IDX_CMPTYPE+1] in type_info and each_i[IDX_CMPID] not in freezeid_rpt:
                 cmpid = each_i[IDX_CMPID]
                 if cmpid not in cmp_dict:
-                    cmp_dict[cmpid] = [each_i[0:IDX_CMPID] + each_i[IDX_CMPID + 1:]]
+                    cmp_dict[cmpid] = [each_i[1:]]
                 else:
-                    cmp_dict[cmpid].append(each_i[0:IDX_CMPID] + each_i[IDX_CMPID + 1:])
+                    cmp_dict[cmpid].append(each_i[1:])
         return cmp_dict
 
     def traceGuardAnalysis(self, guardcov_list):
@@ -147,10 +147,11 @@ class Analyzer:
         guard_set = set()
         guard_total = USE_INITNUM
         for trace_i in guardcov_list:
-            if trace_i[IDX_CMPTYPE] == EACH_PC_GUARD:
-                guard_set.add(trace_i[1])
-            elif trace_i[IDX_CMPTYPE] == INIT_PC_GUARD:
-                guard_total = trace_i[3]
+            trace = trace_i[1:]
+            if trace[IDX_CMPTYPE] == EACH_PC_GUARD:
+                guard_set.add(trace[1])
+            elif trace[IDX_CMPTYPE] == INIT_PC_GUARD:
+                guard_total = trace[2]
         return guard_set, guard_total
 
     '''
@@ -197,8 +198,8 @@ if __name__ == "__main__":
 
     # ana.sendCmpid("abcde")
     # ana.sendCmpid("None")
-    # ana.sendCmpid("Guard")
-    ana.sendCmpid("m0x49e319")
+    ana.sendCmpid("Guard")
+    # ana.sendCmpid("m0x49e319")
     # while True:
     #     addr = ana.getAddr("D124816Z\n")
     #     interlen = ana.getInterlen(addr)

@@ -69,7 +69,6 @@ def getStrDistance(cont_list):
     return distance
 
 
-
 def gainRetSeed(distance, opt_seed, mut_seed):
     """
     d < 0 ret left, d > 0 ret right, d == 0 ret random.
@@ -180,9 +179,11 @@ def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt
     ret_cmpcov_list = opt_cmpcov_list
     exe_status = DIST_CONTINUE
     locmapdet_dict = {}
-    cont_list = [opt_cmpcov_list[cmpk_i][3], opt_cmpcov_list[cmpk_i][4],
-                 st_cmpcov_list[cmpk_i][3], st_cmpcov_list[cmpk_i][4]]
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_cmpcov_list[cmpk_i], st_cmpcov_list[cmpk_i], cont_list, showlog=True)
+    opt_one = opt_cmpcov_list[cmpk_i][1:]
+    st_one = st_cmpcov_list[cmpk_i][1:]
+    cont_list = [opt_one[IDX_ARG], opt_one[IDX_ARG + strategy.curloop],
+                 st_one[IDX_ARG], st_one[IDX_ARG + strategy.curloop]]
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, opt_cmpcov_list[cmpk_i], st_cmpcov_list[cmpk_i], cont_list, showlog=True)
     if strategy.strategytype == TYPE_DEFAULT:
         pass
     elif strategy.strategytype == TYPE_UNDEFINED:
@@ -214,7 +215,8 @@ def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt
     if st_cmpcov_list[cmpk_i][3] == st_cmpcov_list[cmpk_i][4]:
         exe_status = DIST_FINISH
 
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, ret_seed.content, ret_cmpcov_list, exe_status, locmapdet_dict, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, ret_seed.content, ret_cmpcov_list, exe_status,
+        locmapdet_dict, showlog=True)
     return ret_seed, ret_cmpcov_list, exe_status, locmapdet_dict
 
 
@@ -225,7 +227,7 @@ Type Inference Module.
 
 # Infer bytes status according bytes change.
 def inferFixedOrChanged(ori_one, st_one) -> int:
-    ori0, ori1, st0, st1 = ori_one[3], ori_one[4], st_one[3], st_one[4]
+    ori0, ori1, st0, st1 = ori_one[IDX_ARG], ori_one[IDX_ARG+1], st_one[IDX_ARG], st_one[IDX_ARG+1]
     LOG(LOG_DEBUG, LOG_FUNCINFO(), ori0, ori1, st0, st1, showlog=True)
     # Original group <-> Control group
     bytesflag = PAR_CHGACHG
@@ -264,9 +266,9 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i):
         # Determining the type of comparison instruction
         # Determining byte types
         # Determine the strategy to be executed
-        type_flag = opt_cmpcov_list[cmpk_i][IDX_CMPTYPE]
-        opt_one = opt_cmpcov_list[cmpk_i]
-        ststart_one = ststart_cmpcov_list[cmpk_i]
+        type_flag = opt_cmpcov_list[cmpk_i][1:][IDX_CMPTYPE]
+        opt_one = opt_cmpcov_list[cmpk_i][1:]
+        ststart_one = ststart_cmpcov_list[cmpk_i][1:]
         if type_flag in TRACENUMCMPSET:
             # Determining the type of variables
             bytes_flag = inferFixedOrChanged(opt_one, ststart_one)
@@ -290,7 +292,7 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i):
                 strategy_flag = TYPE_CHECKCUMS
 
         elif type_flag == COV_SWITCH:
-            if listIsdigit(opt_one[4: 5 + int(opt_one[3])]):
+            if listIsdigit(opt_one[4: 5 + int(opt_one[2])]):
                 strategy_flag = TYPE_MAGICNUMS
             else:
                 strategy_flag = TYPE_MAGICSTR
@@ -298,7 +300,7 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i):
     return bytes_flag, strategy_flag
 
 
-def devStrategy(opt_one, bytes_flag, strategy_flag, st_cmploc):
+def devStrategy(opt_cmpcov_list, cmpk_i, bytes_flag, strategy_flag, st_cmploc):
     """
     Develop a strategy based on type
     """
@@ -307,13 +309,15 @@ def devStrategy(opt_one, bytes_flag, strategy_flag, st_cmploc):
     # Determining the executor numbers
     temp_strategy.curnum = 0
     temp_strategy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
-    # Determining the loop type
-    if opt_one[IDX_CMPTYPE] == COV_SWITCH:
-        temp_strategy.curloop = 0
-        temp_strategy.endloop = opt_one[3]
-    else:
-        temp_strategy.curloop = 0
-        temp_strategy.endloop = 1
+    temp_strategy.curloop = 0
+    temp_strategy.endloop = 1
+
+    if cmpk_i < len(opt_cmpcov_list):
+        opt_one = opt_cmpcov_list[cmpk_i][1:]
+        # Determining the loop type
+        if opt_one[IDX_CMPTYPE] == COV_SWITCH:
+            temp_strategy.curloop = 0
+            temp_strategy.endloop = opt_one[3]
 
     return temp_strategy
 

@@ -172,12 +172,11 @@ DIST_FINISH = 80
 DIST_CONTINUE = 81
 
 # Parameter Location Index
-IDX_CMPTYPE = 0  # n
-IDX_BLOCKNUM = 1  # 10_0
 IDX_CMPID = 0  # n0x1230x123
+IDX_CMPTYPE = 0  # n   Remove cmpid
+IDX_BLOCKNUM = 1  # 10_0
 
-IDX_ARG1 = 2
-IDX_ARG2 = 3
+IDX_ARG = 2
 
 # Status
 STAT_FAIL = -1

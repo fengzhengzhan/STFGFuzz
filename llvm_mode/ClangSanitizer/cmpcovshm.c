@@ -208,7 +208,7 @@ void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int
 
         int i = 0;
         // printf("<s1\"");
-        sprintf(buf+strlen(buf), ",'");
+        sprintf(buf+strlen(buf), ",b'");
 
         for (i = 0; i < n1; i ++) {
             // printf("%c", s1[i]);
@@ -219,7 +219,7 @@ void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int
             }
         }
         // printf("\"1s> <s2\"");
-        sprintf(buf+strlen(buf), "','");
+        sprintf(buf+strlen(buf), "',b'");
 
         for (i = 0; i < n2; i ++) {
             // printf("%c", s2[i]);

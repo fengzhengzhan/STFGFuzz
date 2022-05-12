@@ -101,7 +101,7 @@ def mainFuzzer():
         # If there is a change in the increase length then increase the length.
         b4ld_seed = init_seed
         b4ld_interlen = init_interlen
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content, ana.getRpt(init_interlen, init_addr), showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content, ana.getRpt(init_interlen))
         while len(b4ld_seed.content) < sch.expand_size:
             vis.total += 1
             sch.expandnums += 1
@@ -159,7 +159,7 @@ def mainFuzzer():
         # Get a report on changes to comparison instructions. # todo multiprocessing
         before_sdloc_list = []
         coarse_head = 0
-        need_fine_list = []
+        cmpmaploc_dict = {}
         while coarse_head < len(sch.loc_coarse_list):
             vis.total += 1
             # 1 seed inputs
@@ -175,20 +175,18 @@ def mainFuzzer():
 
             # 1 seed inputs
             sd_interlen, sd_covernum = ana.getShm(sd_stdout[0:16])
-            sd_diff = False
-            if init_interlen != sd_interlen:
-                sd_diff = True
-            elif init_interlen == sd_interlen:
-                # Current seed.
-                sd_cmpcov_list = ana.getRpt(sd_interlen)  # report
-                if init_cmpcov_list != sd_cmpcov_list:
-                    sd_diff = True
+            sd_cmpcov_list = ana.getRpt(sd_interlen)  # report
 
-            if sd_diff:
-                if len(need_fine_list) == 0:
-                    need_fine_list = before_sdloc_list + sdloc_list
-                else:
-                    need_fine_list += sdloc_list
+            sd_cmp_dict = ana.traceAyalysis(sd_cmpcov_list, sch.skip_cmpidset, FLAG_DICT)
+            sd_diffcmp_set = ana.compareRptToLoc(init_cmp_dict, init_cmpset, sd_cmp_dict)
+            # LOG(LOG_DEBUG, LOG_FUNCINFO(), sd_seed.content, init_cmp_dict['g0x4f98aa0x4faa2b'], bd_cmp_dict['g0x4f98aa0x4faa2b'], showlog=True)
+
+            for cmpid_key in sd_diffcmp_set:  # Determine if the dictionary is empty.
+                if cmpid_key not in sch.skip_cmpidset:
+                    if cmpid_key not in cmpmaploc_dict:
+                        cmpmaploc_dict[cmpid_key] = before_sdloc_list + sdloc_list
+                    else:
+                        cmpmaploc_dict[cmpid_key] += sdloc_list
 
             before_sdloc_list = sdloc_list
 
@@ -197,52 +195,8 @@ def mainFuzzer():
             vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), need_fine_list, showlog=True)
-        '''sd <-'''
-
-        '''bd -> Byte Detection O(m)'''
-        # Mutate seeds to find where to change. Then perform to a directed mutate.
-        # Mutate only one position at a time. Only the corresponding position is speculated.
-        cmpmaploc_dict = {}
-        need_fine_list = list(set(need_fine_list))
-        need_fine_list.sort()
-        for one_loc in need_fine_list:
-            vis.total += 1
-            # 1 seed inputs
-            bdloc_list = [one_loc, ]
-            bd_seed = Mutator.mutOneChar(init_seed.content, path_mutseeds, FINE_STR + str(vis.loop), bdloc_list)
-            bd_seed = sch.selectOneSeed(SCH_THIS_SEED, bd_seed)
-            bd_stdout, bd_stderr = Executor.run(fuzz_command.replace('@@', bd_seed.filename))
-            sch.saveCrash(
-                file_crash_csv, path_crashseeds, bd_seed, bd_stdout, bd_stderr,
-                vis.start_time, vis.last_time
-            )
-
-            # 2 cmp instruction
-            # Track execution information of mutate seeds.
-            bd_interlen, bd_covernum = ana.getShm(bd_stdout[0:16])
-            bd_cmpcov_list = ana.getRpt(bd_interlen)  # report
-
-            bd_cmp_dict = ana.traceAyalysis(bd_cmpcov_list, sch.skip_cmpidset, FLAG_DICT)
-            bd_diffcmp_set = ana.compareRptToLoc(init_cmp_dict, init_cmpset, bd_cmp_dict)
-            # LOG(LOG_DEBUG, LOG_FUNCINFO(), bd_seed.content, init_cmp_dict['g0x4f98aa0x4faa2b'], bd_cmp_dict['g0x4f98aa0x4faa2b'], showlog=True)
-
-            for cmpid_key in bd_diffcmp_set:  # Determine if the dictionary is empty.
-                if cmpid_key not in sch.skip_cmpidset:
-                    if cmpid_key not in cmpmaploc_dict:
-                        cmpmaploc_dict[cmpid_key] = [one_loc, ]
-                    else:
-                        cmpmaploc_dict[cmpid_key].append(one_loc)
-
-            # 5 visualize
-            res = vis.display(bd_seed, set(bdloc_list), bd_stdout, bd_stderr, "ByteDetect", len(sch.coveragepath))
-            vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
-            if res == VIS_Q:
-                sch.quitFuzz()
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), one_loc, bd_diffcmp_set, showlog=True)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict, showlog=True)
-        # raise Exception()
-        '''bd <-'''
+        '''sd <-'''
 
         '''3 cmp type'''
         '''st -> Constraints Analysis'''
@@ -280,23 +234,25 @@ def mainFuzzer():
                 if not ana.compareRptOne(ststart_cmpcov_list, repeat_cmpcov_list, -1):
                     continue
 
+                '''bd -> Byte Detection O(m)'''
                 # Single-byte comparison in order
                 st_cmploc = []
                 for one_loc in stloclist_v:
                     stloc_list = [one_loc, ]
-                    st_seed = Mutator.mutOneChar(init_seed.content, path_mutseeds, FINE_STR + str(vis.loop), stloc_list)
-                    st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
-                    st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
+                    bd_seed = Mutator.mutOneChar(init_seed.content, path_mutseeds, FINE_STR + str(vis.loop), stloc_list)
+                    bd_seed = sch.selectOneSeed(SCH_THIS_SEED, bd_seed)
+                    bd_stdout, bd_stderr = Executor.run(fuzz_command.replace('@@', bd_seed.filename))
                     sch.saveCrash(
-                        file_crash_csv, path_crashseeds, st_seed, st_stdout, st_stderr,
+                        file_crash_csv, path_crashseeds, bd_seed, bd_stdout, bd_stderr,
                         vis.start_time, vis.last_time
                     )
 
-                    st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
-                    st_cmpcov_list = ana.getRpt(st_interlen)
+                    bd_interlen, bd_covernum = ana.getShm(bd_stdout[0:16])
+                    bd_cmpcov_list = ana.getRpt(bd_interlen)
 
-                    if not ana.compareRptOne(ststart_cmpcov_list, st_cmpcov_list, cmpk_i):
+                    if not ana.compareRptOne(ststart_cmpcov_list, bd_cmpcov_list, cmpk_i):
                         st_cmploc.append(one_loc)
+                '''bd <-'''
 
                 ana.sendCmpid(stcmpid_k)
                 # Identification Type and Update opt seed (in Random change)
@@ -316,7 +272,7 @@ def mainFuzzer():
                 # 3 cmp type
                 # Return cmp type and mutate strategy according to typeDetect
                 bytes_flag, strategy_flag = Parser.typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i)
-                infer_strategy = Parser.devStrategy(opt_cmpcov_list[cmpk_i], bytes_flag, strategy_flag, st_cmploc)
+                infer_strategy = Parser.devStrategy(opt_cmpcov_list, cmpk_i, bytes_flag, strategy_flag, st_cmploc)
                 sch.strategyq.put(infer_strategy)
 
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_cmpcov_list, ststart_cmpcov_list, showlog=True)
@@ -341,14 +297,6 @@ def mainFuzzer():
                                 exe_status, locmapdet_dict, showlog=True)
 
                             strategy.curnum += 1
-                            # 5 visualize
-                            res = vis.display(
-                                opt_seed, set(st_cmploc), st_stdout, st_stderr,
-                                "Strategy", len(sch.coveragepath),
-                            )
-                            vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
-                            if res == VIS_Q:
-                                sch.quitFuzz()
 
                             if exe_status == DIST_FINISH:
                                 sch.skip_cmpidset.add(stcmpid_k)
@@ -373,6 +321,15 @@ def mainFuzzer():
                             # Generate analysis reports.
                             st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
                             st_cmpcov_list = ana.getRpt(st_interlen)
+
+                            # 5 visualize
+                            res = vis.display(
+                                opt_seed, set(st_cmploc), st_stdout, st_stderr,
+                                "Strategy", len(sch.coveragepath),
+                            )
+                            vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
+                            if res == VIS_Q:
+                                sch.quitFuzz()
                             LOG(LOG_DEBUG, LOG_FUNCINFO(), st_seed.content, showlog=True)
 
         # Endless fuzzing, add the length seed.
