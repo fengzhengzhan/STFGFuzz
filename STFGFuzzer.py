@@ -184,9 +184,9 @@ def mainFuzzer():
             for cmpid_key in sd_diffcmp_set:  # Determine if the dictionary is empty.
                 if cmpid_key not in sch.skip_cmpidset:
                     if cmpid_key not in cmpmaploc_dict:
-                        cmpmaploc_dict[cmpid_key] = before_sdloc_list + sdloc_list
+                        cmpmaploc_dict[cmpid_key] = set(before_sdloc_list) | set(sdloc_list)
                     else:
-                        cmpmaploc_dict[cmpid_key] += sdloc_list
+                        cmpmaploc_dict[cmpid_key] |= set(sdloc_list)
 
             before_sdloc_list = sdloc_list
 
@@ -203,7 +203,7 @@ def mainFuzzer():
         # Compare instruction type speculation based on input mapping,
         # then try to pass the corresponding constraint (1-2 rounds).
         vis.cmptotal = len(cmpmaploc_dict)
-        for stcmpid_k, stloclist_v in cmpmaploc_dict.items():
+        for stcmpid_k, stlocset_v in cmpmaploc_dict.items():
             ana.sendCmpid(stcmpid_k)
             # False positive comparison if all input bytes are covered
             # if len(stloclist_v) == len(init_seed.content):
@@ -211,35 +211,37 @@ def mainFuzzer():
             vis.cmpnum += 1
 
             '''Type detect and Generate Mutation strategy'''
+            stloclist_v = list(stlocset_v)
+            stloclist_v.sort()
             ststart_seed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, ST_STR + str(vis.loop), stloclist_v)
             ststart_seed = sch.selectOneSeed(SCH_THIS_SEED, ststart_seed)
             ststart_stdout, ststart_stderr = Executor.run(fuzz_command.replace('@@', ststart_seed.filename))
 
             ststart_interlen, ststart_covernum = ana.getShm(ststart_stdout[0:16])
             ststart_cmpcov_list = ana.getRpt(ststart_interlen)
+
+            # Removal of unmapped changes
+            repeat_seed = Mutator.mutSelectChar(
+                init_seed.content, path_mutseeds, REPEAT_STR + str(vis.loop), stloclist_v)
+            repeat_seed = sch.selectOneSeed(SCH_THIS_SEED, repeat_seed)
+            repeat_stdout, repeat_stderr = Executor.run(fuzz_command.replace('@@', repeat_seed.filename))
+
+            repeat_interlen, repeat_covernum = ana.getShm(repeat_stdout[0:16])
+            repeat_cmpcov_list = ana.getRpt(repeat_interlen)
+
+            if not ana.compareRptOne(ststart_cmpcov_list, repeat_cmpcov_list, -1):
+                continue
+
             # Only the corresponding list data is retained, no parsing is required
             cmp_len = len(ststart_cmpcov_list)
-
             # Separate comparisons for each comparison instruction.
-            for cmpk_i in range(0, cmp_len):
-                # Removal of unmapped changes
-                repeat_seed = Mutator.mutSelectChar(
-                    init_seed.content, path_mutseeds, REPEAT_STR + str(vis.loop), stloclist_v)
-                repeat_seed = sch.selectOneSeed(SCH_THIS_SEED, repeat_seed)
-                repeat_stdout, repeat_stderr = Executor.run(fuzz_command.replace('@@', repeat_seed.filename))
-
-                repeat_interlen, repeat_covernum = ana.getShm(repeat_stdout[0:16])
-                repeat_cmpcov_list = ana.getRpt(repeat_interlen)
-
-                if not ana.compareRptOne(ststart_cmpcov_list, repeat_cmpcov_list, -1):
-                    continue
-
+            for cmporder_i in range(0, cmp_len):
                 '''bd -> Byte Detection O(m)'''
                 # Single-byte comparison in order
                 st_cmploc = []
                 for one_loc in stloclist_v:
-                    stloc_list = [one_loc, ]
-                    bd_seed = Mutator.mutOneChar(init_seed.content, path_mutseeds, FINE_STR + str(vis.loop), stloc_list)
+                    bdloc_list = [one_loc, ]
+                    bd_seed = Mutator.mutOneChar(ststart_seed.content, path_mutseeds, FINE_STR + str(vis.loop), bdloc_list)
                     bd_seed = sch.selectOneSeed(SCH_THIS_SEED, bd_seed)
                     bd_stdout, bd_stderr = Executor.run(fuzz_command.replace('@@', bd_seed.filename))
                     sch.saveCrash(
@@ -250,8 +252,10 @@ def mainFuzzer():
                     bd_interlen, bd_covernum = ana.getShm(bd_stdout[0:16])
                     bd_cmpcov_list = ana.getRpt(bd_interlen)
 
-                    if not ana.compareRptOne(ststart_cmpcov_list, bd_cmpcov_list, cmpk_i):
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), ststart_cmpcov_list, bd_cmpcov_list)
+                    if not ana.compareRptOne(ststart_cmpcov_list, bd_cmpcov_list, cmporder_i):
                         st_cmploc.append(one_loc)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), ststart_cmpcov_list[cmporder_i], st_cmploc, showlog=True)
                 '''bd <-'''
 
                 ana.sendCmpid(stcmpid_k)
@@ -271,11 +275,11 @@ def mainFuzzer():
 
                 # 3 cmp type
                 # Return cmp type and mutate strategy according to typeDetect
-                bytes_flag, strategy_flag = Parser.typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i)
-                infer_strategy = Parser.devStrategy(opt_cmpcov_list, cmpk_i, bytes_flag, strategy_flag, st_cmploc)
+                bytes_flag, strategy_flag = Parser.typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_i)
+                infer_strategy = Parser.devStrategy(opt_cmpcov_list, cmporder_i, bytes_flag, strategy_flag, st_cmploc)
                 sch.strategyq.put(infer_strategy)
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_cmpcov_list, ststart_cmpcov_list, showlog=True)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, strategy_flag, opt_cmpcov_list, ststart_cmpcov_list, showlog=True)
 
                 '''Mutation strategy and Compare distance'''
                 while not sch.strategyq.empty():
@@ -292,7 +296,7 @@ def mainFuzzer():
                             LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, st_seed.content, showlog=True)
                             opt_seed, opt_cmpcov_list, exe_status, locmapdet_dict = \
                                 Parser.solveDistence(strategy, st_cmploc, opt_seed, st_seed,
-                                                     opt_cmpcov_list, st_cmpcov_list, cmpk_i)
+                                                     opt_cmpcov_list, st_cmpcov_list, cmporder_i)
                             LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, strategy.conttype, opt_cmpcov_list,
                                 exe_status, locmapdet_dict, showlog=True)
 

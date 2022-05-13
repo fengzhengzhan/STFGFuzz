@@ -174,16 +174,16 @@ Try to solve the constraint according to the distance
 '''
 
 
-def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmpk_i):
+def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmporder_i):
     ret_seed = opt_seed
     ret_cmpcov_list = opt_cmpcov_list
     exe_status = DIST_CONTINUE
     locmapdet_dict = {}
-    opt_one = opt_cmpcov_list[cmpk_i][1:]
-    st_one = st_cmpcov_list[cmpk_i][1:]
+    opt_one = opt_cmpcov_list[cmporder_i][1:]
+    st_one = st_cmpcov_list[cmporder_i][1:]
     cont_list = [opt_one[IDX_ARG], opt_one[IDX_ARG + strategy.curloop],
                  st_one[IDX_ARG], st_one[IDX_ARG + strategy.curloop]]
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, opt_cmpcov_list[cmpk_i], st_cmpcov_list[cmpk_i], cont_list, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, opt_cmpcov_list[cmporder_i], st_cmpcov_list[cmporder_i], cont_list, showlog=True)
     if strategy.strategytype == TYPE_DEFAULT:
         pass
     elif strategy.strategytype == TYPE_UNDEFINED:
@@ -212,7 +212,7 @@ def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt
     elif ret_seed == st_seed:
         ret_cmpcov_list = st_cmpcov_list
 
-    if st_cmpcov_list[cmpk_i][3] == st_cmpcov_list[cmpk_i][4]:
+    if st_cmpcov_list[cmporder_i][3] == st_cmpcov_list[cmporder_i][4]:
         exe_status = DIST_FINISH
 
     LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, ret_seed.content, ret_cmpcov_list, exe_status,
@@ -251,24 +251,27 @@ def listIsdigit(cont_list):
     return True
 
 
-def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i):
+def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_i):
     """
     Type identification and speculation.
     @return:
     """
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_cmpcov_list, ststart_cmpcov_list, cmpk_i)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_cmpcov_list, ststart_cmpcov_list, cmporder_i)
     bytes_flag = PAR_UNDEFINED
     strategy_flag = STAT_SUC
-    if cmpk_i >= len(opt_cmpcov_list) or cmpk_i >= len(ststart_cmpcov_list):
+    if cmporder_i >= len(opt_cmpcov_list) or cmporder_i >= len(ststart_cmpcov_list):
         # Additional processing required
         strategy_flag = STAT_FAIL
+    elif opt_cmpcov_list[cmporder_i][1:][IDX_ARG] == opt_cmpcov_list[cmporder_i][1:][IDX_ARG+1]:
+        bytes_flag = PAR_SOLVED
+        strategy_flag = STAT_FIN
     else:
         # Determining the type of comparison instruction
         # Determining byte types
         # Determine the strategy to be executed
-        type_flag = opt_cmpcov_list[cmpk_i][1:][IDX_CMPTYPE]
-        opt_one = opt_cmpcov_list[cmpk_i][1:]
-        ststart_one = ststart_cmpcov_list[cmpk_i][1:]
+        opt_one = opt_cmpcov_list[cmporder_i][1:]
+        ststart_one = ststart_cmpcov_list[cmporder_i][1:]
+        type_flag = opt_one[IDX_CMPTYPE]
         if type_flag in TRACENUMCMPSET:
             # Determining the type of variables
             bytes_flag = inferFixedOrChanged(opt_one, ststart_one)
@@ -300,7 +303,7 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmpk_i):
     return bytes_flag, strategy_flag
 
 
-def devStrategy(opt_cmpcov_list, cmpk_i, bytes_flag, strategy_flag, st_cmploc):
+def devStrategy(opt_cmpcov_list, cmporder_i, bytes_flag, strategy_flag, st_cmploc):
     """
     Develop a strategy based on type
     """
@@ -312,8 +315,8 @@ def devStrategy(opt_cmpcov_list, cmpk_i, bytes_flag, strategy_flag, st_cmploc):
     temp_strategy.curloop = 0
     temp_strategy.endloop = 1
 
-    if cmpk_i < len(opt_cmpcov_list):
-        opt_one = opt_cmpcov_list[cmpk_i][1:]
+    if cmporder_i < len(opt_cmpcov_list):
+        opt_one = opt_cmpcov_list[cmporder_i][1:]
         # Determining the loop type
         if opt_one[IDX_CMPTYPE] == COV_SWITCH:
             temp_strategy.curloop = 0
