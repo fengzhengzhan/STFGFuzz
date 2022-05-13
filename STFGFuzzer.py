@@ -291,9 +291,9 @@ def mainFuzzer():
                         st_cmpcov_list = ststart_cmpcov_list
                         while strategy.curnum < strategy.endnum:
                             vis.total += 1
+                            LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, st_seed.content, showlog=True)
                             # Returns the status and the character to be mutated
                             # Comparison of global optimal values to achieve updated parameters
-                            LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, st_seed.content, showlog=True)
                             opt_seed, opt_cmpcov_list, exe_status, locmapdet_dict = \
                                 Parser.solveDistence(strategy, st_cmploc, opt_seed, st_seed,
                                                      opt_cmpcov_list, st_cmpcov_list, cmporder_i)

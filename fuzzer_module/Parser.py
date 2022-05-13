@@ -4,9 +4,7 @@ import random
 
 from fuzzer_module.Fuzzconfig import *
 
-'''
-Multiple comparison type handling functions
-'''
+
 
 
 # Convert a string to a corresponding PAR_CONVER_BIT-bit integer
@@ -68,7 +66,6 @@ def getStrDistance(cont_list):
     LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1, abs(opt0 - opt1), abs(mut0 - mut1))
     return distance
 
-
 def gainRetSeed(distance, opt_seed, mut_seed):
     """
     d < 0 ret left, d > 0 ret right, d == 0 ret random.
@@ -83,8 +80,10 @@ def gainRetSeed(distance, opt_seed, mut_seed):
         ret_seed = mut_seed if random.randint(0, 1) == 1 else opt_seed
     return ret_seed
 
-
-def handleStrMagic(seed_loc, bytes_flag, cont_list) -> dict:
+'''
+Multiple comparison type handling functions
+'''
+def handleStrMagic(st_seed, seed_loc, bytes_flag, cont_list) -> dict:
     change_inputmap = {}
     fixed_cont = cont_list[0]
     if bytes_flag == PAR_CHGAFIX:
@@ -92,7 +91,7 @@ def handleStrMagic(seed_loc, bytes_flag, cont_list) -> dict:
 
     for fix_i in range(len(fixed_cont)):
         change_inputmap[seed_loc[fix_i]] = bytes(fixed_cont[fix_i], encoding="utf-8")
-    return change_inputmap
+    return st_seed, change_inputmap
 
 
 def handleDistanceNum(opt_seed, mut_seed, st_loc, cont_list, strategy):
@@ -165,16 +164,20 @@ def handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy):
 # def handleUndefined():
 #     pass
 
-def handleRamdom():
-    pass
+def handleRandom():
+    raise Exception("Mutate Random!")
 
 
 '''
 Try to solve the constraint according to the distance
 '''
 
-
-def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmporder_i):
+def solveDistence(strategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmporder_i):
+    """
+    Resolving the distance between constraints
+    strategy: StructMutStrategy
+    @return:
+    """
     ret_seed = opt_seed
     ret_cmpcov_list = opt_cmpcov_list
     exe_status = DIST_CONTINUE
@@ -183,11 +186,13 @@ def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt
     st_one = st_cmpcov_list[cmporder_i][1:]
     cont_list = [opt_one[IDX_ARG], opt_one[IDX_ARG + strategy.curloop],
                  st_one[IDX_ARG], st_one[IDX_ARG + strategy.curloop]]
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, opt_cmpcov_list[cmporder_i], st_cmpcov_list[cmporder_i], cont_list, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(),
+        strategy.strategytype, opt_cmpcov_list[cmporder_i], st_cmpcov_list[cmporder_i], cont_list, showlog=True)
+
     if strategy.strategytype == TYPE_DEFAULT:
-        pass
+        handleRandom()
     elif strategy.strategytype == TYPE_UNDEFINED:
-        pass
+        handleRandom()
     elif strategy.strategytype == TYPE_SOLVED:
         pass
     elif strategy.strategytype == TYPE_MAGICSTR:
@@ -195,8 +200,7 @@ def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt
             ret_seed, change_inputmap = handleDistanceStr(opt_seed, st_seed, st_cmploc, cont_list, strategy)
             locmapdet_dict.update(change_inputmap)
         else:
-            ret_seed = st_seed
-            change_inputmap = handleStrMagic(st_cmploc, strategy.conttype, cont_list)
+            ret_seed, change_inputmap = handleStrMagic(st_seed, st_cmploc, strategy.conttype, cont_list)
             locmapdet_dict.update(change_inputmap)
     elif strategy.strategytype == TYPE_MAGICNUMS:
         ret_seed, change_inputmap = handleDistanceNum(opt_seed, st_seed, st_cmploc, cont_list, strategy)
@@ -205,14 +209,14 @@ def solveDistence(strategy: StructMutStrategy, st_cmploc, opt_seed, st_seed, opt
         ret_seed, change_inputmap = handleDistanceCheckSums(opt_seed, st_seed, st_cmploc, cont_list, strategy)
         locmapdet_dict.update(change_inputmap)
     elif strategy.strategytype == TYPE_RANDOM:
-        pass
+        handleRandom()
 
     if ret_seed == opt_seed:
         ret_cmpcov_list = opt_cmpcov_list
     elif ret_seed == st_seed:
         ret_cmpcov_list = st_cmpcov_list
 
-    if st_cmpcov_list[cmporder_i][3] == st_cmpcov_list[cmporder_i][4]:
+    if st_one[IDX_ARG] == st_one[IDX_ARG + strategy.curloop]:
         exe_status = DIST_FINISH
 
     LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, ret_seed.content, ret_cmpcov_list, exe_status,
