@@ -5,23 +5,23 @@ import random
 from fuzzer_module.Fuzzconfig import *
 
 
-# Convert a string to a corresponding PAR_CONVER_BIT-bit integer
-def strConverUnival(strvalue):
+# Convert bytes to a corresponding PAR_CONVER_BIT-bit integer
+def bytesConverUnival(value):
     # unique_val = USE_INITNUM
-    if isinstance(strvalue, str):
+    if isinstance(value, bytes):
         u = 0
-        for str_i in range(0, len(strvalue)):
+        for b_i in range(0, len(value)):
             u = u * PAR_CONVER_BIT
-            u += ord(strvalue[str_i])
+            u += value[b_i]
         unique_val = u
     else:
         raise Exception("Error ConverUnical Type")
     return unique_val
 
 
-def univalConverStr(intvalue, strlen):
+def univalConverBytes(intvalue, blen):
     cont = b''
-    for l_i in range(0, strlen):
+    for l_i in range(0, blen):
         rest = intvalue % 256
         intvalue = (intvalue - rest) // 256
         # print(rest, intvalue, chr(rest))
@@ -33,10 +33,16 @@ def univalConverStr(intvalue, strlen):
 def getNumDistance(cont_list):
     distance = 0
     # Type of int converse hex characters to compare distance.
-    opt0 = strConverUnival(str(hex(int(cont_list[0]))[2:]))
-    opt1 = strConverUnival(str(hex(int(cont_list[1]))[2:]))
-    mut0 = strConverUnival(str(hex(int(cont_list[2]))[2:]))
-    mut1 = strConverUnival(str(hex(int(cont_list[3]))[2:]))
+    opt0 = bytesConverUnival(bytes(hex(int(cont_list[0]))[2:], encoding="utf-8"))
+    opt1 = bytesConverUnival(bytes(hex(int(cont_list[1]))[2:], encoding="utf-8"))
+    mut0 = bytesConverUnival(bytes(hex(int(cont_list[2]))[2:], encoding="utf-8"))
+    mut1 = bytesConverUnival(bytes(hex(int(cont_list[3]))[2:], encoding="utf-8"))
+    # opt0 = cont_list[0]
+    # opt1 = cont_list[1]
+    # mut0 = cont_list[2]
+    # mut1 = cont_list[3]
+    # LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1)
+
     # According distance to return which seed.
     if abs(opt0 - opt1) > abs(mut0 - mut1):  # Distance difference in a constraint.
         distance = 1
@@ -50,10 +56,10 @@ def getNumDistance(cont_list):
 
 def getStrDistance(cont_list):
     distance = 0
-    opt0 = strConverUnival(cont_list[0])
-    opt1 = strConverUnival(cont_list[1])
-    mut0 = strConverUnival(cont_list[2])
-    mut1 = strConverUnival(cont_list[3])
+    opt0 = bytesConverUnival(cont_list[0])
+    opt1 = bytesConverUnival(cont_list[1])
+    mut0 = bytesConverUnival(cont_list[2])
+    mut1 = bytesConverUnival(cont_list[3])
     # According distance to return which seed.
     if abs(opt0 - opt1) > abs(mut0 - mut1):  # Distance difference in a constraint.
         distance = 1
@@ -91,8 +97,7 @@ def handleStrMagic(st_seed, seed_loc, bytes_flag, cont_list):
     if bytes_flag == PAR_CHGAFIX:
         fixed_cont = cont_list[1]
 
-    print(fixed_cont)
-    for fix_i in range(len(fixed_cont)):
+    for fix_i in range(min(len(seed_loc), len(fixed_cont))):
         change_inputmap[seed_loc[fix_i]] = fixed_cont[fix_i:fix_i + 1]
     return st_seed, change_inputmap
 
@@ -109,8 +114,8 @@ def handleDistanceNum(opt_seed, mut_seed, st_loc, cont_list, strategy):
         chari = strategy.curnum // 16
         charb = strategy.curnum % 16
         c = abs(ret_seed.content[st_loc[chari]] + MUT_BIT_LIST[charb]) % 256
-        c = BYTES_ASCII[c]
-        change_inputmap[st_loc[chari]] = c
+        bc = BYTES_ASCII[c]
+        change_inputmap[st_loc[chari]] = bc
         LOG(LOG_DEBUG, LOG_FUNCINFO(), chari, charb, st_loc, opt_seed.content, mut_seed.content, change_inputmap)
     return ret_seed, change_inputmap
 
@@ -129,8 +134,7 @@ def handleDistanceStr(opt_seed, mut_seed, st_loc, cont_list, strategy):
         c = abs(ret_seed.content[st_loc[chari]] + MUT_BIT_LIST[charb]) % 256
         c = BYTES_ASCII[c]
         change_inputmap[st_loc[chari]] = c
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), chari, charb, st_loc,
-            opt_seed.content, mut_seed.content, change_inputmap, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), chari, charb, st_loc, opt_seed.content, mut_seed.content, change_inputmap)
     return ret_seed, change_inputmap
 
 
@@ -146,16 +150,16 @@ def handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy):
         st_len = len(st_loc)
         bit_len = st_len * 8 - 1
         # Return full string.
-        cont = ""
+        cont = b''
         for loc_i in st_loc:
-            cont += ret_seed.content[loc_i]
-        cont_num = strConverUnival(cont)
+            cont += ret_seed.content[loc_i:loc_i + 1]
+        cont_num = bytesConverUnival(cont)
         addnum = ((-1) ** (strategy.curnum % 2)) * (2 ** (bit_len - (strategy.curnum) // 2))
         cont_num = cont_num + addnum
         # print(addnum, cont_num)
-        cont = univalConverStr(cont_num, st_len)
-        for loc_idx, loc_i in enumerate(st_loc):
-            change_inputmap[loc_i] = cont[loc_idx:loc_idx + 1]
+        cont = univalConverBytes(cont_num, st_len)
+        for idx, loc_i in enumerate(st_loc):
+            change_inputmap[loc_i] = cont[idx:idx + 1]
 
     return ret_seed, change_inputmap
 
@@ -176,7 +180,7 @@ Try to solve the constraint according to the distance
 '''
 
 
-def solveDistence(strategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmporder_i):
+def solveDistence(strategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmporder_num):
     """
     Resolving the distance between constraints
     strategy: StructMutStrategy
@@ -186,12 +190,12 @@ def solveDistence(strategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cm
     ret_cmpcov_list = opt_cmpcov_list
     exe_status = DIST_CONTINUE
     locmapdet_dict = {}
-    opt_one = opt_cmpcov_list[cmporder_i][1:]
-    st_one = st_cmpcov_list[cmporder_i][1:]
+    opt_one = opt_cmpcov_list[cmporder_num][1:]
+    st_one = st_cmpcov_list[cmporder_num][1:]
     cont_list = [opt_one[IDX_ARG], opt_one[IDX_ARG + strategy.curloop],
                  st_one[IDX_ARG], st_one[IDX_ARG + strategy.curloop]]
     LOG(LOG_DEBUG, LOG_FUNCINFO(),
-        strategy.strategytype, opt_cmpcov_list[cmporder_i], st_cmpcov_list[cmporder_i], cont_list, showlog=True)
+        strategy.strategytype, opt_cmpcov_list[cmporder_num], st_cmpcov_list[cmporder_num], cont_list, showlog=True)
 
     if strategy.strategytype == TYPE_DEFAULT:
         handleRandom()
@@ -259,26 +263,26 @@ def listIsdigit(cont_list):
     return True
 
 
-def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_i):
+def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_num):
     """
     Type identification and speculation.
     @return:
     """
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_cmpcov_list, ststart_cmpcov_list, cmporder_i)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_cmpcov_list, ststart_cmpcov_list, cmporder_num)
     bytes_flag = PAR_UNDEFINED
     strategy_flag = STAT_SUC
-    if cmporder_i >= len(opt_cmpcov_list) or cmporder_i >= len(ststart_cmpcov_list):
+    if cmporder_num >= len(opt_cmpcov_list) or cmporder_num >= len(ststart_cmpcov_list):
         # Additional processing required
         strategy_flag = STAT_FAIL
-    elif opt_cmpcov_list[cmporder_i][1:][IDX_ARG] == opt_cmpcov_list[cmporder_i][1:][IDX_ARG + 1]:
+    elif opt_cmpcov_list[cmporder_num][1:][IDX_ARG] == opt_cmpcov_list[cmporder_num][1:][IDX_ARG + 1]:
         bytes_flag = PAR_SOLVED
         strategy_flag = STAT_FIN
     else:
         # Determining the type of comparison instruction
         # Determining byte types
         # Determine the strategy to be executed
-        opt_one = opt_cmpcov_list[cmporder_i][1:]
-        ststart_one = ststart_cmpcov_list[cmporder_i][1:]
+        opt_one = opt_cmpcov_list[cmporder_num][1:]
+        ststart_one = ststart_cmpcov_list[cmporder_num][1:]
         type_flag = opt_one[IDX_CMPTYPE]
         if type_flag in TRACENUMCMPSET:
             # Determining the type of variables
