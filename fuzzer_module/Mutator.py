@@ -6,10 +6,10 @@ from fuzzer_module.Fuzzconfig import *
 
 
 def getFillStr(length: int) -> bytes:
-    fill_bytes = b""
+    fill_bytes = b''
     # 64 characters
     if length <= 64:
-        default_str = b"AAABAAACAAADAAAEAAAFAAAGAAAHAAAIAAAJAAAKAAALAAAMAAANAAAOAAAPAAAQ"
+        default_str = b'AAABAAACAAADAAAEAAAFAAAGAAAHAAAIAAAJAAAKAAALAAAMAAANAAAOAAAPAAAQ'
         fill_bytes = default_str[0:length]
     else:
         while len(fill_bytes) <= length:

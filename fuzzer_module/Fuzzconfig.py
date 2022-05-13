@@ -104,6 +104,7 @@ FLAG_DICT = {
 # Hex for visible characters
 # bytes.fromhex(HEX_ASCII[n])
 # bytes.fromhex("".join(HEX_ASCII[n1:n2])
+# bytes[0:1] Get the one byte character. b'a'
 BYTES_ASCII = [b'\x00', b'\x01', b'\x02', b'\x03', b'\x04', b'\x05', b'\x06', b'\x07', b'\x08', b'\t', b'\n', b'\x0b',
                b'\x0c', b'\r', b'\x0e', b'\x0f', b'\x10', b'\x11', b'\x12', b'\x13', b'\x14', b'\x15', b'\x16', b'\x17',
                b'\x18', b'\x19', b'\x1a', b'\x1b', b'\x1c', b'\x1d', b'\x1e', b'\x1f', b' ', b'!', b'"', b'#', b'$',
@@ -255,7 +256,7 @@ GEN_TRACEBC_SUFFIX = "_trace.bc"
 GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
 
 '''Mutator'''
-MUT_STR = b"AAABAAAC"
+MUT_STR = b'AAABAAAC'
 MUT_MATCH = 4  # Truncate 4 bytes as a fast variant flag for fast matching.
 MUT_STEP = 4  # step size of mutant seeds
 SEED_INIT = 100

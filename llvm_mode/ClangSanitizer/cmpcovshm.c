@@ -212,22 +212,26 @@ void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int
 
         for (i = 0; i < n1; i ++) {
             // printf("%c", s1[i]);
-            if (s1[i] == '"' || s1[i] == '\\' || s1[i] == '\'') {
-                sprintf(buf+strlen(buf), "\\%c", s1[i]);
-            } else {
-                sprintf(buf+strlen(buf), "%c", s1[i]);
-            }
+            sprintf(buf+strlen(buf), "\\x%02x", (unsigned char)s1[i]);
+            // if (s1[i] == '"' || s1[i] == '\\' || s1[i] == '\'') {
+            //     sprintf(buf+strlen(buf), "\\%c", s1[i]);
+            // } else {
+            //     sprintf(buf+strlen(buf), "%c", s1[i]);
+            // }
+            // printf("\\x%02x,%c ", (unsigned char)s1[i],(unsigned char)s1[i]);
         }
         // printf("\"1s> <s2\"");
         sprintf(buf+strlen(buf), "',b'");
 
         for (i = 0; i < n2; i ++) {
             // printf("%c", s2[i]);
-            if (s2[i] == '"' || s2[i] == '\\' || s2[i] == '\'') {
-                sprintf(buf+strlen(buf), "\\%c", s2[i]);
-            } else {
-                sprintf(buf+strlen(buf), "%c", s2[i]);
-            }               
+            sprintf(buf+strlen(buf), "\\x%02x", (unsigned char)s2[i]);
+            // if (s2[i] == '"' || s2[i] == '\\' || s2[i] == '\'') {
+            //     sprintf(buf+strlen(buf), "\\%c", s2[i]);
+            // } else {
+            //     sprintf(buf+strlen(buf), "%c", s2[i]);
+            // }     
+            // printf("\\x%02x,%c ", (unsigned char)s2[i],(unsigned char)s2[i]);          
         }
         // printf("\"2s> ");
         sprintf(buf+strlen(buf), "'");

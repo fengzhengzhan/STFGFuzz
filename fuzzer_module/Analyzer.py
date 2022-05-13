@@ -115,6 +115,7 @@ class Analyzer:
         # self.rt.shmctl(shmid, 0, 0)
 
         # Content to json
+        print(cmpcovshm_str)
         # LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovshm_str, showlog=True)
         cmpcov_list = ast.literal_eval(cmpcovshm_str)
         del cmpcovshm_str

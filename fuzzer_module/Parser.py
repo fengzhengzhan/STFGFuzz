@@ -5,8 +5,6 @@ import random
 from fuzzer_module.Fuzzconfig import *
 
 
-
-
 # Convert a string to a corresponding PAR_CONVER_BIT-bit integer
 def strConverUnival(strvalue):
     # unique_val = USE_INITNUM
@@ -22,7 +20,7 @@ def strConverUnival(strvalue):
 
 
 def univalConverStr(intvalue, strlen):
-    cont = b""
+    cont = b''
     for l_i in range(0, strlen):
         rest = intvalue % 256
         intvalue = (intvalue - rest) // 256
@@ -66,6 +64,7 @@ def getStrDistance(cont_list):
     LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1, abs(opt0 - opt1), abs(mut0 - mut1))
     return distance
 
+
 def gainRetSeed(distance, opt_seed, mut_seed):
     """
     d < 0 ret left, d > 0 ret right, d == 0 ret random.
@@ -80,17 +79,21 @@ def gainRetSeed(distance, opt_seed, mut_seed):
         ret_seed = mut_seed if random.randint(0, 1) == 1 else opt_seed
     return ret_seed
 
+
 '''
 Multiple comparison type handling functions
 '''
-def handleStrMagic(st_seed, seed_loc, bytes_flag, cont_list) -> dict:
+
+
+def handleStrMagic(st_seed, seed_loc, bytes_flag, cont_list):
     change_inputmap = {}
     fixed_cont = cont_list[0]
     if bytes_flag == PAR_CHGAFIX:
         fixed_cont = cont_list[1]
 
+    print(fixed_cont)
     for fix_i in range(len(fixed_cont)):
-        change_inputmap[seed_loc[fix_i]] = bytes(fixed_cont[fix_i], encoding="utf-8")
+        change_inputmap[seed_loc[fix_i]] = fixed_cont[fix_i:fix_i + 1]
     return st_seed, change_inputmap
 
 
@@ -172,6 +175,7 @@ def handleRandom():
 Try to solve the constraint according to the distance
 '''
 
+
 def solveDistence(strategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmporder_i):
     """
     Resolving the distance between constraints
@@ -231,7 +235,7 @@ Type Inference Module.
 
 # Infer bytes status according bytes change.
 def inferFixedOrChanged(ori_one, st_one) -> int:
-    ori0, ori1, st0, st1 = ori_one[IDX_ARG], ori_one[IDX_ARG+1], st_one[IDX_ARG], st_one[IDX_ARG+1]
+    ori0, ori1, st0, st1 = ori_one[IDX_ARG], ori_one[IDX_ARG + 1], st_one[IDX_ARG], st_one[IDX_ARG + 1]
     LOG(LOG_DEBUG, LOG_FUNCINFO(), ori0, ori1, st0, st1, showlog=True)
     # Original group <-> Control group
     bytesflag = PAR_CHGACHG
@@ -266,7 +270,7 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_i):
     if cmporder_i >= len(opt_cmpcov_list) or cmporder_i >= len(ststart_cmpcov_list):
         # Additional processing required
         strategy_flag = STAT_FAIL
-    elif opt_cmpcov_list[cmporder_i][1:][IDX_ARG] == opt_cmpcov_list[cmporder_i][1:][IDX_ARG+1]:
+    elif opt_cmpcov_list[cmporder_i][1:][IDX_ARG] == opt_cmpcov_list[cmporder_i][1:][IDX_ARG + 1]:
         bytes_flag = PAR_SOLVED
         strategy_flag = STAT_FIN
     else:
