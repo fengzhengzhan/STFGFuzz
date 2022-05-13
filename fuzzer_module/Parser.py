@@ -192,8 +192,12 @@ def solveDistence(strategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cm
     locmapdet_dict = {}
     opt_one = opt_cmpcov_list[cmporder_num][1:]
     st_one = st_cmpcov_list[cmporder_num][1:]
-    cont_list = [opt_one[IDX_ARG], opt_one[IDX_ARG + strategy.curloop],
-                 st_one[IDX_ARG], st_one[IDX_ARG + strategy.curloop]]
+    if opt_one[IDX_CMPTYPE] == COV_SWITCH:
+        cont_list = [opt_one[4], opt_one[4 + strategy.curloop],
+                     st_one[4], st_one[4 + strategy.curloop]]
+    else:
+        cont_list = [opt_one[IDX_ARG], opt_one[IDX_ARG + strategy.curloop],
+                     st_one[IDX_ARG], st_one[IDX_ARG + strategy.curloop]]
     LOG(LOG_DEBUG, LOG_FUNCINFO(),
         strategy.strategytype, opt_cmpcov_list[cmporder_num], st_cmpcov_list[cmporder_num], cont_list, showlog=True)
 
@@ -203,7 +207,7 @@ def solveDistence(strategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cm
         handleRandom()
     elif strategy.strategytype == TYPE_SOLVED:
         pass
-    elif strategy.strategytype == TYPE_MAGICSTR:
+    elif strategy.strategytype == TYPE_MAGICBYTES:
         if strategy.conttype == PAR_CHGACHG:
             ret_seed, change_inputmap = handleDistanceStr(opt_seed, st_seed, st_cmploc, cont_list, strategy)
             locmapdet_dict.update(change_inputmap)
@@ -258,7 +262,7 @@ def inferFixedOrChanged(ori_one, st_one) -> int:
 
 def listIsdigit(cont_list):
     for cont_i in cont_list:
-        if isinstance(cont_i, str) and not cont_i.isdigit():
+        if isinstance(cont_i, bytes) and not cont_i.isdigit():
             return False
     return True
 
@@ -302,7 +306,7 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_num):
             if bytes_flag == TYPE_SOLVED:
                 strategy_flag = STAT_FIN
             elif bytes_flag == PAR_FIXAFIX or bytes_flag == PAR_FIXACHG or bytes_flag == PAR_CHGAFIX:
-                strategy_flag = TYPE_MAGICSTR
+                strategy_flag = TYPE_MAGICBYTES
             elif bytes_flag == PAR_CHGACHG:
                 strategy_flag = TYPE_CHECKCUMS
 
@@ -310,7 +314,7 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_num):
             if listIsdigit(opt_one[4: 5 + int(opt_one[2])]):
                 strategy_flag = TYPE_MAGICNUMS
             else:
-                strategy_flag = TYPE_MAGICSTR
+                strategy_flag = TYPE_MAGICBYTES
 
     return bytes_flag, strategy_flag
 
@@ -332,7 +336,7 @@ def devStrategy(opt_cmpcov_list, cmporder_i, bytes_flag, strategy_flag, st_cmplo
         # Determining the loop type
         if opt_one[IDX_CMPTYPE] == COV_SWITCH:
             temp_strategy.curloop = 0
-            temp_strategy.endloop = opt_one[3]
+            temp_strategy.endloop = opt_one[2]
 
     return temp_strategy
 

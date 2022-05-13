@@ -204,6 +204,7 @@ def mainFuzzer():
         # then try to pass the corresponding constraint (1-2 rounds).
         vis.cmptotal = len(cmpmaploc_dict)
         for stcmpid_ki, stlocset_vi in cmpmaploc_dict.items():
+            vis.total += 1
             ana.sendCmpid(stcmpid_ki)
             # False positive comparison if all input bytes are covered
             # if len(stloclist_v) == len(init_seed.content):
@@ -236,10 +237,12 @@ def mainFuzzer():
             cmp_len = len(ststart_cmpcov_list)
             # Separate comparisons for each comparison instruction.
             for cmporder_j in range(0, cmp_len):
+                vis.total += 1
                 '''bd -> Byte Detection O(m)'''
                 # Single-byte comparison in order
                 st_cmploc = []
                 for one_loc in stloclist_v:
+                    vis.total += 1
                     bdloc_list = [one_loc, ]
                     bd_seed = Mutator.mutOneChar(ststart_seed.content, path_mutseeds, FINE_STR + str(vis.loop), bdloc_list)
                     bd_seed = sch.selectOneSeed(SCH_THIS_SEED, bd_seed)
@@ -255,6 +258,14 @@ def mainFuzzer():
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), ststart_cmpcov_list, bd_cmpcov_list)
                     if not ana.compareRptOne(ststart_cmpcov_list, bd_cmpcov_list, cmporder_j):
                         st_cmploc.append(one_loc)
+                    # 5 visualize
+                    res = vis.display(
+                        bd_seed, set(st_cmploc), bd_stdout, bd_stderr,
+                        "Byte", len(sch.coveragepath),
+                    )
+                    vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
+                    if res == VIS_Q:
+                        sch.quitFuzz()
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), ststart_cmpcov_list[cmporder_j], st_cmploc, showlog=True)
                 '''bd <-'''
 
@@ -298,8 +309,8 @@ def mainFuzzer():
                             opt_seed, opt_cmpcov_list, exe_status, locmapdet_dict = \
                                 Parser.solveDistence(strategy, st_cmploc, opt_seed, st_seed,
                                                      opt_cmpcov_list, st_cmpcov_list, cmporder_j)
-                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, strategy.conttype, opt_cmpcov_list,
-                                exe_status, locmapdet_dict, showlog=True)
+                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, strategy.conttype, strategy.curloop,
+                                strategy.endloop, opt_cmpcov_list, exe_status, locmapdet_dict, showlog=True)
 
                             strategy.curnum += 1
 
