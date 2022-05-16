@@ -27,6 +27,9 @@ class Scheduler:
         self.recunique_crash = set()
         self.recsol_cmpset = set()  # Record data, do not use
 
+        self.file_crash_csv = None
+        self.path_crashseeds = None
+
     def initEachloop(self, vis):
         self.loc_coarse_list = []
         self.slid_window = SCH_SLID_WINDOW
@@ -75,29 +78,31 @@ class Scheduler:
                 except Exception as e:
                     pass
 
-    def saveCrash(self, file_crash_csv, path_crashseeds, seed: StructSeed, stdout, stderr, start_time, last_time):
+    def saveCrash(self, seed: StructSeed, stdout, stderr, start_time, last_time):
         """
         To facilitate analysis, save all the crash seed information in a csv file
         @return:
         """
-        path, name = os.path.split(seed.filename)
-        if not os.path.exists(path_crashseeds + name) and len(stderr) != 0:
-            try:
-                re_str = "#0 (.*?) in"
-                crashid = re.search(re_str, str(stderr)).group(1)
-            except Exception as e:
-                crashid = str(stderr)[-16:-3]  #
-            if crashid not in self.recunique_crash:
-                self.recunique_crash.add(crashid)
-                # write csv
-                with open(file_crash_csv, "a+", encoding="utf-8") as cf:
-                    # GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
-                    linestr = str(name) + "," \
-                              + datetime.datetime.strftime(start_time, "%Y-%m-%d_%H:%M:%S") + "," + last_time + "," \
-                              + str(seed.content) + "," + str(stdout) + "," + str(stderr) + "\n"
-                    cf.write(linestr)
-                # write seed
-                saveAsFile(seed.content, path_crashseeds + name)
+        if self.file_crash_csv != None and self.path_crashseeds != None:
+            path, name = os.path.split(seed.filename)
+            if not os.path.exists(self.path_crashseeds + name) and len(stderr) != 0:
+                try:
+                    re_str = "#0 (.*?) in"
+                    crashid = re.search(re_str, str(stderr)).group(1)
+                except Exception as e:
+                    crashid = str(stderr)[-16:-3]  #
+                if crashid not in self.recunique_crash:
+                    self.recunique_crash.add(crashid)
+                    # write csv
+                    with open(self.file_crash_csv, "a+", encoding="utf-8") as cf:
+                        # GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
+                        linestr = str(name) + "," + datetime.datetime.strftime(start_time, "%Y-%m-%d_%H:%M:%S") + "," \
+                                  + last_time + "," + str(seed.content) + "," + str(stdout) + "," + str(stderr) + "\n"
+                        cf.write(linestr)
+                    # write seed
+                    saveAsFile(seed.content, self.path_crashseeds + name)
+        else:
+            raise Exception(LOG_FUNCINFO() + "Error Path")
 
     def quitFuzz(self):
         self.deleteSeeds()

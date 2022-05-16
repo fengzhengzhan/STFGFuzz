@@ -37,6 +37,8 @@ def mainFuzzer():
     ana = Analyzer.Analyzer()
     sch = Scheduler.Scheduler()
     vis = Visualizer.Visualizer()
+    sch.file_crash_csv = file_crash_csv
+    sch.path_crashseeds = path_crashseeds
     # Directed Location
     binline_dict = Builder.getBinaryInfo(program_name)
     target_dict = Comparator.getTarget(program_name)
@@ -74,10 +76,7 @@ def mainFuzzer():
         ana.sendCmpid("Guard")
 
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
-        sch.saveCrash(
-            file_crash_csv, path_crashseeds, init_seed, init_stdout, init_stderr,
-            vis.start_time, vis.last_time
-        )
+        sch.saveCrash(init_seed, init_stdout, init_stderr, vis.start_time, vis.last_time)
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         init_guardcov_list = ana.getRpt(init_interlen)
         guard_set, guard_total = ana.traceGuardAnalysis(init_guardcov_list)
@@ -87,7 +86,7 @@ def mainFuzzer():
         ana.sendCmpid("None")
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
 
-        init_interlen, init_covernum  = ana.getShm(init_stdout[0:16])
+        init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         # cmpcov_list = ana.getRpt(init_interlen)
         # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch) todo
 
@@ -110,10 +109,7 @@ def mainFuzzer():
             ld_seed = Mutator.mutAddLength(b4ld_seed.content, path_mutseeds, LENGTH_STR, LD_EXPAND)
             ld_seed = sch.selectOneSeed(SCH_THIS_SEED, ld_seed)
             ld_stdout, ld_stderr = Executor.run(fuzz_command.replace('@@', ld_seed.filename))
-            sch.saveCrash(
-                file_crash_csv, path_crashseeds, ld_seed, ld_stdout, ld_stderr,
-                vis.start_time, vis.last_time
-            )
+            sch.saveCrash(ld_seed, ld_stdout, ld_stderr, vis.start_time, vis.last_time)
 
             # 1 seed inputs
             ld_interlen, ld_covernum = ana.getShm(ld_stdout[0:16])
@@ -168,10 +164,7 @@ def mainFuzzer():
             sd_seed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, COARSE_STR + str(vis.loop), sdloc_list)
             sd_seed = sch.selectOneSeed(SCH_THIS_SEED, sd_seed)
             sd_stdout, sd_stderr = Executor.run(fuzz_command.replace('@@', sd_seed.filename))
-            sch.saveCrash(
-                file_crash_csv, path_crashseeds, sd_seed, sd_stdout, sd_stderr,
-                vis.start_time, vis.last_time
-            )
+            sch.saveCrash(sd_seed, sd_stdout, sd_stderr, vis.start_time, vis.last_time)
 
             # 1 seed inputs
             sd_interlen, sd_covernum = ana.getShm(sd_stdout[0:16])
@@ -204,7 +197,7 @@ def mainFuzzer():
         # then try to pass the corresponding constraint (1-2 rounds).
         vis.cmptotal = len(cmpmaploc_dict)
         for stcmpid_ki, stlocset_vi in cmpmaploc_dict.items():
-            vis.total += 1
+            vis.total += 3
             ana.sendCmpid(stcmpid_ki)
             # False positive comparison if all input bytes are covered
             # if len(stloclist_v) == len(init_seed.content):
@@ -244,13 +237,11 @@ def mainFuzzer():
                 for one_loc in stloclist_v:
                     vis.total += 1
                     bdloc_list = [one_loc, ]
-                    bd_seed = Mutator.mutOneChar(ststart_seed.content, path_mutseeds, FINE_STR + str(vis.loop), bdloc_list)
+                    bd_seed = Mutator.mutOneChar(ststart_seed.content, path_mutseeds, FINE_STR + str(vis.loop),
+                                                 bdloc_list)
                     bd_seed = sch.selectOneSeed(SCH_THIS_SEED, bd_seed)
                     bd_stdout, bd_stderr = Executor.run(fuzz_command.replace('@@', bd_seed.filename))
-                    sch.saveCrash(
-                        file_crash_csv, path_crashseeds, bd_seed, bd_stdout, bd_stderr,
-                        vis.start_time, vis.last_time
-                    )
+                    sch.saveCrash(bd_seed, bd_stdout, bd_stderr, vis.start_time, vis.last_time)
 
                     bd_interlen, bd_covernum = ana.getShm(bd_stdout[0:16])
                     bd_cmpcov_list = ana.getRpt(bd_interlen)
@@ -272,14 +263,9 @@ def mainFuzzer():
                 ana.sendCmpid(stcmpid_ki)
                 # Identification Type and Update opt seed (in Random change)
                 # init_seed opt_seed
-                opt_seed = Mutator.mutSelectCharRand(
-                    ststart_seed.content, path_mutseeds, ST_STR + str(vis.loop), st_cmploc)
-                opt_seed = sch.selectOneSeed(SCH_THIS_SEED, opt_seed)
+                opt_seed = sch.selectOneSeed(SCH_THIS_SEED, init_seed)
                 opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
-                sch.saveCrash(
-                    file_crash_csv, path_crashseeds, opt_seed, opt_stdout, opt_stderr,
-                    vis.start_time, vis.last_time
-                )
+                sch.saveCrash(opt_seed, opt_stdout, opt_stderr, vis.start_time, vis.last_time)
 
                 opt_interlen, opt_covernum = ana.getShm(opt_stdout[0:16])
                 opt_cmpcov_list = ana.getRpt(opt_interlen)
@@ -290,7 +276,8 @@ def mainFuzzer():
                 infer_strategy = Parser.devStrategy(opt_cmpcov_list, cmporder_j, bytes_flag, strategy_flag, st_cmploc)
                 sch.strategyq.put(infer_strategy)
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, strategy_flag, opt_cmpcov_list, ststart_cmpcov_list, showlog=True)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, strategy_flag, opt_cmpcov_list, ststart_cmpcov_list,
+                    showlog=True)
 
                 '''Mutation strategy and Compare distance'''
                 while not sch.strategyq.empty():
@@ -299,8 +286,15 @@ def mainFuzzer():
                     while strategy.curloop < strategy.endloop:
                         strategy.curloop += 1
                         strategy.curnum = 0
-                        st_seed = ststart_seed
-                        st_cmpcov_list = ststart_cmpcov_list
+                        vis.total += 1
+                        st_seed = Mutator.mutSelectCharRand(
+                            ststart_seed.content, path_mutseeds, ST_STR + str(vis.loop), st_cmploc)
+                        st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
+                        st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
+                        sch.saveCrash(st_seed, st_stdout, st_stderr, vis.start_time, vis.last_time)
+                        st_interlen, st_covernum = ana.getShm(opt_stdout[0:16])
+                        st_cmpcov_list = ana.getRpt(st_interlen)
+
                         while strategy.curnum < strategy.endnum:
                             vis.total += 1
                             LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, st_seed.content, showlog=True)
@@ -320,6 +314,8 @@ def mainFuzzer():
                                 sch.recsol_cmpset.add(stcmpid_ki)
                                 sch.addq(SCH_LOOP_SEED, [opt_seed, ])
                                 break
+                            elif len(locmapdet_dict) == 0 or exe_status == DIST_FAIL:
+                                pass
 
                             # The next mutate seed
                             # Passing the constraint based on the number of cycles and the distance between comparisons.
@@ -328,10 +324,7 @@ def mainFuzzer():
                             )
                             st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
                             st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
-                            sch.saveCrash(
-                                file_crash_csv, path_crashseeds, st_seed, st_stdout, st_stderr,
-                                vis.start_time, vis.last_time
-                            )
+                            sch.saveCrash(st_seed, st_stdout, st_stderr, vis.start_time, vis.last_time)
 
                             # 2 cmp instruction
                             # Generate analysis reports.
