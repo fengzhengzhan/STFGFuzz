@@ -319,10 +319,13 @@ def mainFuzzer():
 
                             # The next mutate seed
                             # Passing the constraint based on the number of cycles and the distance between comparisons.
-                            st_seed = Mutator.mutLocFromMap(
-                                opt_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict
-                            )
-                            st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
+                            if len(locmapdet_dict) == 0:
+                                st_seed = opt_seed
+                            else:
+                                st_seed = Mutator.mutLocFromMap(
+                                    opt_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict
+                                )
+                                st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
                             st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
                             sch.saveCrash(st_seed, st_stdout, st_stderr, vis.start_time, vis.last_time)
 
