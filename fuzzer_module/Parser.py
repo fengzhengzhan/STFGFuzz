@@ -237,7 +237,7 @@ def solveDistence(strategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cm
             ret_seed, change_inputmap = handleCheckNum(opt_seed, st_seed, st_cmploc, cont_list, strategy)
 
         elif strategy.strategytype == TYPE_MAGICBYTES:
-            ret_seed, change_inputmap = handleMagicBytes(st_seed, st_cmploc, strategy.conttype, cont_list)
+            ret_seed, change_inputmap = handleMagicBytes(st_seed, st_cmploc, strategy.bytestype, cont_list)
         elif strategy.strategytype == TYPE_CHECKBYTES:
             ret_seed, change_inputmap = handleCheckBytes(opt_seed, st_seed, st_cmploc, cont_list, strategy)
 
@@ -307,8 +307,9 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_num):
     @return:
     """
     LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_cmpcov_list, ststart_cmpcov_list, cmporder_num)
-    bytes_flag = PAR_UNDEFINED
     strategy_flag = STAT_SUC
+    cmp_flag = UNDEFINE
+    bytes_flag = PAR_UNDEFINED
     if cmporder_num >= len(opt_cmpcov_list) or cmporder_num >= len(ststart_cmpcov_list):
         # Additional processing required
         strategy_flag = STAT_FAIL
@@ -321,8 +322,8 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_num):
         # Determine the strategy to be executed
         opt_one = opt_cmpcov_list[cmporder_num][1:]
         ststart_one = ststart_cmpcov_list[cmporder_num][1:]
-        type_flag = opt_one[IDX_CMPTYPE]
-        if type_flag in TRACENUMCMPSET:
+        cmp_flag = opt_one[IDX_CMPTYPE]
+        if cmp_flag in TRACENUMCMPSET:
             # Determining the type of variables
             bytes_flag = inferFixedOrChanged(opt_one, ststart_one)
             # Speculative change type
@@ -332,10 +333,10 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_num):
                 strategy_flag = TYPE_RANDOM
             elif bytes_flag == PAR_FIXACHG or bytes_flag == PAR_CHGAFIX:
                 strategy_flag = TYPE_MAGICNUM
-            elif bytes_flag == PAR_CHGACHG:
+            else:  # bytes_flag == PAR_CHGACHG
                 strategy_flag = TYPE_CHECKNUM
 
-        elif type_flag in HOOKSTRCMPSET:
+        elif cmp_flag in HOOKSTRCMPSET:
             # Determining the type of variables
             bytes_flag = inferFixedOrChanged(opt_one, ststart_one)
             # Speculative change type
@@ -345,38 +346,39 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_num):
                 strategy_flag = TYPE_RANDOM
             elif bytes_flag == PAR_FIXACHG or bytes_flag == PAR_CHGAFIX:
                 strategy_flag = TYPE_MAGICBYTES
-            elif bytes_flag == PAR_CHGACHG:
+            else:  # bytes_flag == PAR_CHGACHG
                 strategy_flag = TYPE_CHECKBYTES
 
-        elif type_flag == COV_SWITCH:
+        elif cmp_flag == COV_SWITCH:
             if listIsdigit(opt_one[4: 5 + int(opt_one[2])]):
-                strategy_flag = TYPE_MAGICNUM
+                strategy_flag = TYPE_CHECKNUM
             else:
-                strategy_flag = TYPE_MAGICBYTES
+                strategy_flag = TYPE_CHECKBYTES
 
-    return bytes_flag, strategy_flag
+    return strategy_flag, cmp_flag, bytes_flag
 
 
-def devStrategy(opt_cmpcov_list, cmporder_i, bytes_flag, strategy_flag, st_cmploc):
+def devStrategy(opt_cmpcov_list, cmporder_i, strategy_flag, cmp_flag, bytes_flag, st_cmploc):
     """
     Develop a strategy based on type
     """
     # According type flag to determine which one strategy will be executed.
-    temp_strategy = StructMutStrategy(strategy_flag, bytes_flag, 0, 0, 0, 0)
+    temp_stgy = StructMutStrategy(strategy_flag, cmp_flag, bytes_flag, 0, 0, 0, 0)
     # Determining the executor numbers
-    temp_strategy.curnum = 0
-    temp_strategy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
-    temp_strategy.curloop = 0
-    temp_strategy.endloop = 1
+    temp_stgy.curnum = 0
+    temp_stgy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
+
+    temp_stgy.curloop = 0
+    temp_stgy.endloop = 1
 
     if cmporder_i < len(opt_cmpcov_list):
         opt_one = opt_cmpcov_list[cmporder_i][1:]
         # Determining the loop type
         if opt_one[IDX_CMPTYPE] == COV_SWITCH:
-            temp_strategy.curloop = 0
-            temp_strategy.endloop = opt_one[2]
+            temp_stgy.curloop = 0
+            temp_stgy.endloop = opt_one[2]
 
-    return temp_strategy
+    return temp_stgy
 
 
 if __name__ == "__main__":

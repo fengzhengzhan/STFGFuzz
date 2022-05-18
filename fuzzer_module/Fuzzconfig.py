@@ -66,6 +66,8 @@ CMPSET = {COV_CMP1, COV_CMP2, COV_CMP4, COV_CMP8, COV_CONSTCMP1, COV_CONSTCMP2, 
           HOOK_MEMCMP, HOOK_STRNCMP, HOOK_STRCMP, HOOK_STRNCASECMP, HOOK_STRCASECMP,
           COV_SWITCH, COV_DIV4, COV_DIV8, COV_GEP}
 
+UNDEFINE = 'z'
+
 SHMID_FLAG = 'D'  # Content show from stdout, that represent the memory share id.
 INTERLEN_FLAG = 'L'  # The length of array.
 INTERLEN_VALUE = 16  # The space bytes in the start of content represents interlen values.
@@ -126,7 +128,7 @@ BYTES_ASCII = [b'\x00', b'\x01', b'\x02', b'\x03', b'\x04', b'\x05', b'\x06', b'
                b'\xea', b'\xeb', b'\xec', b'\xed', b'\xee', b'\xef', b'\xf0', b'\xf1', b'\xf2', b'\xf3', b'\xf4',
                b'\xf5', b'\xf6', b'\xf7', b'\xf8', b'\xf9', b'\xfa', b'\xfb', b'\xfc', b'\xfd', b'\xfe', b'\xff']
 
-
+# strategy STGY
 # Detect cmp types
 TYPE_DEFAULT = 50
 TYPE_UNDEFINED = 51

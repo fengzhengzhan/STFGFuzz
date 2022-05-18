@@ -287,17 +287,16 @@ def mainFuzzer():
 
                 # 3 cmp type
                 # Return cmp type and mutate strategy according to typeDetect
-                bytes_flag, strategy_flag = Parser.typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_j)
-                infer_strategy = Parser.devStrategy(opt_cmpcov_list, cmporder_j, bytes_flag, strategy_flag, st_cmploc)
+                strategy_flag, cmp_flag, bytes_flag  = Parser.typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_j, st_cmploc)
+                infer_strategy = Parser.devStrategy(opt_cmpcov_list, cmporder_j, strategy_flag, cmp_flag, bytes_flag, st_cmploc)
                 sch.strategyq.put(infer_strategy)
 
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, strategy_flag, opt_cmpcov_list, ststart_cmpcov_list,
                     showlog=True)
 
                 # fixme
-                opt_seed = Mutator.mutLocFromMap(
-                                    opt_seed.content, path_mutseeds, ST_STR + str(vis.loop), {1:b'\x76',2:b'\x61', 3:b'\x6c'}
-                                )
+                opt_seed = Mutator.mutLocFromMap(opt_seed.content, path_mutseeds, ST_STR + str(vis.loop),
+                                                 {1:b'\x65',2:b'\x65', 3:b'\x65'})
                 opt_seed = sch.selectOneSeed(SCH_THIS_SEED, opt_seed)
                 opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
                 sch.saveCrash(opt_seed, opt_stdout, opt_stderr, vis.start_time, vis.last_time)
@@ -329,7 +328,7 @@ def mainFuzzer():
                             opt_seed, opt_cmpcov_list, exe_status, locmapdet_dict = \
                                 Parser.solveDistence(strategy, st_cmploc, opt_seed, st_seed,
                                                      opt_cmpcov_list, st_cmpcov_list, cmporder_j)
-                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, strategy.conttype, strategy.curloop,
+                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, strategy.bytestype, strategy.curloop,
                                 strategy.endloop, opt_cmpcov_list, exe_status, locmapdet_dict, showlog=True)
 
                             strategy.curnum += 1
