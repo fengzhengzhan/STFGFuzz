@@ -172,7 +172,7 @@ def hexToNum(num):
 # print(hex(1818326372))
 # x = '\x6c\x61\x75\x64'
 
-# numToHexChar(1818326624)
+numToHexChar(1818326624)
 # numToHexChar(1618370924)
 #
 # i = hexToNum('8375616c')

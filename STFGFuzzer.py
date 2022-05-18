@@ -295,14 +295,14 @@ def mainFuzzer():
                     showlog=True)
 
                 # fixme
-                opt_seed = Mutator.mutLocFromMap(opt_seed.content, path_mutseeds, ST_STR + str(vis.loop),
-                                                 {1:b'\x65',2:b'\x65', 3:b'\x65'})
-                opt_seed = sch.selectOneSeed(SCH_THIS_SEED, opt_seed)
-                opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
-                sch.saveCrash(opt_seed, opt_stdout, opt_stderr, vis.start_time, vis.last_time)
-
-                opt_interlen, opt_covernum = ana.getShm(opt_stdout[0:16])
-                opt_cmpcov_list = ana.getRpt(opt_interlen)
+                # opt_seed = Mutator.mutLocFromMap(opt_seed.content, path_mutseeds, ST_STR + str(vis.loop),
+                #                                  {1:b'\x65',2:b'\x65', 3:b'\x65'})
+                # opt_seed = sch.selectOneSeed(SCH_THIS_SEED, opt_seed)
+                # opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
+                # sch.saveCrash(opt_seed, opt_stdout, opt_stderr, vis.start_time, vis.last_time)
+                #
+                # opt_interlen, opt_covernum = ana.getShm(opt_stdout[0:16])
+                # opt_cmpcov_list = ana.getRpt(opt_interlen)
 
                 '''Mutation strategy and Compare distance'''
                 while not sch.strategyq.empty():
