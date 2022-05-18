@@ -33,14 +33,14 @@ def univalConverBytes(intvalue, blen):
 def getNumDistance(cont_list):
     distance = 0
     # Type of int converse hex characters to compare distance.
-    opt0 = bytesConverUnival(bytes(hex(int(cont_list[0]))[2:], encoding="utf-8"))
-    opt1 = bytesConverUnival(bytes(hex(int(cont_list[1]))[2:], encoding="utf-8"))
-    mut0 = bytesConverUnival(bytes(hex(int(cont_list[2]))[2:], encoding="utf-8"))
-    mut1 = bytesConverUnival(bytes(hex(int(cont_list[3]))[2:], encoding="utf-8"))
-    # opt0 = cont_list[0]
-    # opt1 = cont_list[1]
-    # mut0 = cont_list[2]
-    # mut1 = cont_list[3]
+    # opt0 = bytesConverUnival(bytes(hex(int(cont_list[0]))[2:], encoding="utf-8"))
+    # opt1 = bytesConverUnival(bytes(hex(int(cont_list[1]))[2:], encoding="utf-8"))
+    # mut0 = bytesConverUnival(bytes(hex(int(cont_list[2]))[2:], encoding="utf-8"))
+    # mut1 = bytesConverUnival(bytes(hex(int(cont_list[3]))[2:], encoding="utf-8"))
+    opt0 = cont_list[0]
+    opt1 = cont_list[1]
+    mut0 = cont_list[2]
+    mut1 = cont_list[3]
     # LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1)
 
     # According distance to return which seed.
@@ -50,7 +50,7 @@ def getNumDistance(cont_list):
         distance = -1
     elif abs(opt0 - opt1) == abs(mut0 - mut1):
         distance = 0
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1, abs(opt0 - opt1), abs(mut0 - mut1))
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1, abs(opt0 - opt1), abs(mut0 - mut1), showlog=True)
     return distance
 
 
@@ -117,12 +117,46 @@ def gainCheckSumsChangeMap(ret_seed, st_loc, strategy):
     return change_inputmap
 
 
+def gainRandomChangeMap(st_loc):
+    change_inputmap = {}
+    r = random.randint(1, len(st_loc))
+    for r_i in range(0, r):
+        rloc = random.randint(0, len(st_loc) - 1)
+        rc = random.randint(0, 255)
+        temp = {rloc: BYTES_ASCII[rc]}
+        change_inputmap.update(temp)
+    return change_inputmap
+
+
 '''
 Multiple comparison type handling functions
 '''
 
 
-def handleBytesMagic(st_seed, seed_loc, bytes_flag, cont_list):
+def handleMagicNum(opt_seed, mut_seed, st_loc, cont_list, strategy):
+    # According distance to return which seed.
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, mut_seed.content, showlog=True)
+    distance = getNumDistance(cont_list)
+    ret_seed = gainRetSeed(distance, opt_seed, mut_seed)
+    # According bytes location to mutation seed location.
+    change_inputmap = gainMagicChangeMap(ret_seed, st_loc, strategy)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), distance, cont_list, ret_seed.content, change_inputmap, showlog=True)
+
+    return ret_seed, change_inputmap
+
+
+# Turn single-byte variants into +1 -1 operations on the total length
+def handleCheckNum(opt_seed, mut_seed, st_loc, cont_list, strategy):
+    # According distance to return which seed.
+    distance = getBytesDistance(cont_list)
+    ret_seed = gainRetSeed(distance, opt_seed, mut_seed)
+    # According bytes location to mutation seed location.
+    change_inputmap = gainMagicChangeMap(ret_seed, st_loc, strategy)
+
+    return ret_seed, change_inputmap
+
+
+def handleMagicBytes(st_seed, seed_loc, bytes_flag, cont_list):
     change_inputmap = {}
     fixed_cont = cont_list[0]
     if bytes_flag == PAR_CHGAFIX:
@@ -133,35 +167,24 @@ def handleBytesMagic(st_seed, seed_loc, bytes_flag, cont_list):
     return st_seed, change_inputmap
 
 
-def handleDistanceNum(opt_seed, mut_seed, st_loc, cont_list, strategy):
+def handleCheckBytes(opt_seed, mut_seed, st_loc, cont_list, strategy):
+    # According distance to return which seed.
+    distance = getBytesDistance(cont_list)
+    ret_seed = gainRetSeed(distance, opt_seed, mut_seed)
+    # According bytes location to mutation seed location.
+    change_inputmap = gainMagicChangeMap(ret_seed, st_loc, strategy)
+
+    return ret_seed, change_inputmap
+
+
+def handleRandom(opt_seed, mut_seed, st_loc, cont_list):
     # According distance to return which seed.
     distance = getNumDistance(cont_list)
     ret_seed = gainRetSeed(distance, opt_seed, mut_seed)
     # According bytes location to mutation seed location.
-    change_inputmap = gainMagicChangeMap(ret_seed, st_loc, strategy)
-
-    return ret_seed, change_inputmap
-
-
-def handleDistanceBytes(opt_seed, mut_seed, st_loc, cont_list, strategy):
-    # According distance to return which seed.
-    distance = getBytesDistance(cont_list)
-    ret_seed = gainRetSeed(distance, opt_seed, mut_seed)
-    # According bytes location to mutation seed location.
-    change_inputmap = gainMagicChangeMap(ret_seed, st_loc, strategy)
-
-    return ret_seed, change_inputmap
-
-
-# Turn single-byte variants into +1 -1 operations on the total length
-def handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy):
-    # According distance to return which seed.
-    distance = getBytesDistance(cont_list)
-    ret_seed = gainRetSeed(distance, opt_seed, mut_seed)
-    # According bytes location to mutation seed location.
-    change_inputmap = gainMagicChangeMap(ret_seed, st_loc, strategy)
-
-    return ret_seed, change_inputmap
+    change_inputmap = gainRandomChangeMap(st_loc)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), st_loc, ret_seed.content, change_inputmap)
+    return change_inputmap
 
 
 # def handleChecksums():
@@ -170,9 +193,6 @@ def handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy):
 #
 # def handleUndefined():
 #     pass
-
-def handleRandom():
-    raise Exception("Mutate Random!")
 
 
 '''
@@ -199,32 +219,32 @@ def solveDistence(strategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cm
             cont_list = [opt_one[4], opt_one[4 + strategy.curloop],
                          st_one[4], st_one[4 + strategy.curloop]]
         else:
-            cont_list = [opt_one[IDX_ARG], opt_one[IDX_ARG + strategy.curloop],
-                         st_one[IDX_ARG], st_one[IDX_ARG + strategy.curloop]]
+            cont_list = [opt_one[IDX_ARG], opt_one[IDX_ARG + 1],
+                         st_one[IDX_ARG], st_one[IDX_ARG + 1]]
         LOG(LOG_DEBUG, LOG_FUNCINFO(),
             strategy.strategytype, opt_cmpcov_list[cmporder_num], st_cmpcov_list[cmporder_num], cont_list, showlog=True)
 
         if strategy.strategytype == TYPE_DEFAULT:
-            handleRandom()
+            change_inputmap = handleRandom(opt_seed, st_seed, st_cmploc, cont_list)
         elif strategy.strategytype == TYPE_UNDEFINED:
-            handleRandom()
+            change_inputmap = handleRandom(opt_seed, st_seed, st_cmploc, cont_list)
         elif strategy.strategytype == TYPE_SOLVED:
             pass
+
+        elif strategy.strategytype == TYPE_MAGICNUM:
+            ret_seed, change_inputmap = handleMagicNum(opt_seed, st_seed, st_cmploc, cont_list, strategy)
+        elif strategy.strategytype == TYPE_CHECKNUM:
+            ret_seed, change_inputmap = handleCheckNum(opt_seed, st_seed, st_cmploc, cont_list, strategy)
+
         elif strategy.strategytype == TYPE_MAGICBYTES:
-            if strategy.conttype == PAR_CHGACHG:
-                ret_seed, change_inputmap = handleDistanceBytes(opt_seed, st_seed, st_cmploc, cont_list, strategy)
-                locmapdet_dict.update(change_inputmap)
-            else:
-                ret_seed, change_inputmap = handleBytesMagic(st_seed, st_cmploc, strategy.conttype, cont_list)
-                locmapdet_dict.update(change_inputmap)
-        elif strategy.strategytype == TYPE_MAGICNUMS:
-            ret_seed, change_inputmap = handleDistanceNum(opt_seed, st_seed, st_cmploc, cont_list, strategy)
-            locmapdet_dict.update(change_inputmap)
-        elif strategy.strategytype == TYPE_CHECKCUMS:
-            ret_seed, change_inputmap = handleDistanceCheckSums(opt_seed, st_seed, st_cmploc, cont_list, strategy)
-            locmapdet_dict.update(change_inputmap)
+            ret_seed, change_inputmap = handleMagicBytes(st_seed, st_cmploc, strategy.conttype, cont_list)
+        elif strategy.strategytype == TYPE_CHECKBYTES:
+            ret_seed, change_inputmap = handleCheckBytes(opt_seed, st_seed, st_cmploc, cont_list, strategy)
+
         elif strategy.strategytype == TYPE_RANDOM:
-            handleRandom()
+            change_inputmap = handleRandom(opt_seed, st_seed, st_cmploc, cont_list)
+
+        locmapdet_dict.update(change_inputmap)
 
         if ret_seed == opt_seed:
             ret_cmpcov_list = opt_cmpcov_list
@@ -238,14 +258,14 @@ def solveDistence(strategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cm
             locmapdet_dict, showlog=True)
     else:
         sf = strategy.strategytype
-        if sf == TYPE_MAGICBYTES or sf == TYPE_MAGICNUMS:
+        if sf == TYPE_MAGICBYTES or sf == TYPE_MAGICNUM:
             change_inputmap = gainMagicChangeMap(ret_seed, st_cmploc, strategy)
-            locmapdet_dict.update(change_inputmap)
-        elif sf == TYPE_CHECKCUMS:
+        elif sf == TYPE_CHECKNUM or sf == TYPE_CHECKBYTES:
             change_inputmap = gainCheckSumsChangeMap(ret_seed, st_cmploc, strategy)
-            locmapdet_dict.update(change_inputmap)
         else:
-            pass
+            change_inputmap = gainRandomChangeMap(st_cmploc)
+
+        locmapdet_dict.update(change_inputmap)
 
     return ret_seed, ret_cmpcov_list, exe_status, locmapdet_dict
 
@@ -308,10 +328,12 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_num):
             # Speculative change type
             if bytes_flag == TYPE_SOLVED:
                 strategy_flag = STAT_FIN
-            elif bytes_flag == PAR_FIXAFIX or bytes_flag == PAR_FIXACHG or bytes_flag == PAR_CHGAFIX:
-                strategy_flag = TYPE_MAGICNUMS
+            elif bytes_flag == PAR_FIXAFIX:
+                strategy_flag = TYPE_RANDOM
+            elif bytes_flag == PAR_FIXACHG or bytes_flag == PAR_CHGAFIX:
+                strategy_flag = TYPE_MAGICNUM
             elif bytes_flag == PAR_CHGACHG:
-                strategy_flag = TYPE_CHECKCUMS
+                strategy_flag = TYPE_CHECKNUM
 
         elif type_flag in HOOKSTRCMPSET:
             # Determining the type of variables
@@ -319,14 +341,16 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_num):
             # Speculative change type
             if bytes_flag == TYPE_SOLVED:
                 strategy_flag = STAT_FIN
-            elif bytes_flag == PAR_FIXAFIX or bytes_flag == PAR_FIXACHG or bytes_flag == PAR_CHGAFIX:
+            elif bytes_flag == PAR_FIXAFIX:
+                strategy_flag = TYPE_RANDOM
+            elif bytes_flag == PAR_FIXACHG or bytes_flag == PAR_CHGAFIX:
                 strategy_flag = TYPE_MAGICBYTES
             elif bytes_flag == PAR_CHGACHG:
-                strategy_flag = TYPE_CHECKCUMS
+                strategy_flag = TYPE_CHECKBYTES
 
         elif type_flag == COV_SWITCH:
             if listIsdigit(opt_one[4: 5 + int(opt_one[2])]):
-                strategy_flag = TYPE_MAGICNUMS
+                strategy_flag = TYPE_MAGICNUM
             else:
                 strategy_flag = TYPE_MAGICBYTES
 
@@ -356,11 +380,16 @@ def devStrategy(opt_cmpcov_list, cmporder_i, bytes_flag, strategy_flag, st_cmplo
 
 
 if __name__ == "__main__":
-    opt_seed = StructSeed("path", "AAAC", MUT_SEED_SUB, set([0, 1]))
-    mut_seed = StructSeed("path", "AAAD", MUT_SEED_SUB, set([0, 1]))
-    st_loc = [1, 2, 3]
-    cont_list = ["AAAC", "BEBF", "AAAD", "BEBF"]
-    for i in range(0, 100):
-        strategy = StructMutStrategy(TYPE_DEFAULT, PAR_FIXACHG, i, 3, 0, 2)
-        ret_seed, change_inputmap = handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy)
-        print(ret_seed.content, change_inputmap)
+    # opt_seed = StructSeed("path", "AAAC", MUT_SEED_SUB, set([0, 1]))
+    # mut_seed = StructSeed("path", "AAAD", MUT_SEED_SUB, set([0, 1]))
+    # st_loc = [1, 2, 3]
+    # cont_list = ["AAAC", "BEBF", "AAAD", "BEBF"]
+    # for i in range(0, 100):
+    #     strategy = StructMutStrategy(TYPE_DEFAULT, PAR_FIXACHG, i, 3, 0, 2)
+    #     ret_seed, change_inputmap = handleDistanceCheckSums(opt_seed, mut_seed, st_loc, cont_list, strategy)
+    #     print(ret_seed.content, change_inputmap)
+
+    # handleDistanceNum()
+
+    print(bytes(hex(int(1818326624))[2:], encoding="utf-8"))
+    print(bytesConverUnival(bytes(hex(int(1818326624))[2:], encoding="utf-8")))
