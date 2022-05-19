@@ -97,7 +97,8 @@ class Scheduler:
                     with open(self.file_crash_csv, "a+", encoding="utf-8") as cf:
                         # GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
                         linestr = str(name) + "," + datetime.datetime.strftime(start_time, "%Y-%m-%d_%H:%M:%S") + "," \
-                                  + last_time + "," + str(seed.content) + "," + str(stdout) + "," + str(stderr) + "\n"
+                                  + last_time + "," + str(seed.content).replace(',', 'comma') + "," \
+                                  + str(stdout).replace(',', 'comma') + "," + str(stderr).replace(',', 'comma') + ",\n"
                         cf.write(linestr)
                     # write seed
                     saveAsFile(seed.content, self.path_crashseeds + name)
