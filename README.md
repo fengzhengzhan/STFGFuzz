@@ -20,6 +20,7 @@ export LLVM_COMPILER=clang
 CC=wllvm CFLAGS="-g -O0" LIBS="-lacl" ./configure --prefix=`pwd`
 make -j6  # -j Depends on the number of computer processes.
 make install
+cd coreutils-8.24-lava-safe/lava-install/bin/
 extract-bc xxx  # Get the file in .bc format.
 
 clang -fsanitize=address -fsanitize-coverage=trace-pc-guard,trace-cmp -emit-llvm -c xxx.bc -o xxx_trace.bc

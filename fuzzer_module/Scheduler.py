@@ -12,7 +12,7 @@ class Scheduler:
         self.mutateq: Queue[StructSeed] = Queue(maxsize=0)
         self.importantq: Queue[StructSeed] = Queue(maxsize=0)
         self.deleteq: Queue[StructSeed] = Queue(maxsize=0)
-        self.strategyq: Queue[StructMutStrategy] = Queue(maxsize=0)
+        self.strategyq: Queue[StructStrategy] = Queue(maxsize=0)
 
         self.loc_coarse_list: 'list[int]' = []
         self.slid_window: int = SCH_SLID_WINDOW

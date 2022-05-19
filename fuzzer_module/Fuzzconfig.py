@@ -257,7 +257,7 @@ PAR_FIX_TYPE = 184  # fixed fixed
 PAR_VARINIT = 0
 PAR_VARMUT = 1
 
-PAR_CONVER_BIT = 256
+PAR_BIT_BASE = 256
 
 '''Scheduler'''
 SCH_LOOP_SEED = 221
@@ -321,9 +321,11 @@ LOG_CRITICAL = logging.CRITICAL
 LOG_LEVEL = LOG_WARNING
 
 try:
+    print(getProjectPath() + '/Programs/{}.log'.format(FUZZNAME))
     logging.basicConfig(filename=getProjectPath() + '/Programs/{}.log'.format(FUZZNAME), level=LOG_LEVEL,
                         format=LOG_FORMAT)
 except:
+    print('{}.log'.format(FUZZNAME))
     logging.basicConfig(filename='{}.log'.format(FUZZNAME), level=LOG_LEVEL, format=LOG_FORMAT)
 logging.debug("{} -------------------------".format(FUZZNAME))
 

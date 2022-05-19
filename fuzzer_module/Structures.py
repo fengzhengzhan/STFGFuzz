@@ -49,7 +49,7 @@ class StructCmpInfo:
         self.endguardfalse = endguardfalse
 
 
-class StructMutStrategy:
+class StructStrategy:
     def __init__(self, strategytype, cmptype, bytestype, curnum, endnum, curloop, endloop):
         self.strategytype = strategytype
         self.cmptype = cmptype
