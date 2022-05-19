@@ -280,15 +280,21 @@ def mainFuzzer():
                 # init_seed opt_seed
                 opt_seed = sch.selectOneSeed(SCH_THIS_SEED, init_seed)
                 opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
-                sch.saveCrash(opt_seed, opt_stdout, opt_stderr, vis.start_time, vis.last_time)
-
                 opt_interlen, opt_covernum = ana.getShm(opt_stdout[0:16])
                 opt_cmpcov_list = ana.getRpt(opt_interlen)
+
+                st_seed = Mutator.mutSelectCharRand(
+                    init_seed.content, path_mutseeds, ST_STR + str(vis.loop), st_cmploc)
+                st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
+                st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
+                sch.saveCrash(st_seed, st_stdout, st_stderr, vis.start_time, vis.last_time)
+                st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
+                st_cmpcov_list = ana.getRpt(st_interlen)
 
                 # 3 cmp type
                 # Return cmp type and mutate strategy according to typeDetect
                 strategy_flag, cmp_flag, bytes_flag  = Parser.typeDetect(
-                    opt_cmpcov_list, ststart_cmpcov_list, cmporder_j)
+                    opt_cmpcov_list, st_cmpcov_list, cmporder_j)
                 infer_strategy = Parser.devStrategy(
                     opt_cmpcov_list, cmporder_j, strategy_flag, cmp_flag, bytes_flag, st_cmploc)
                 sch.strategyq.put(infer_strategy)
@@ -313,37 +319,11 @@ def mainFuzzer():
                     while strategy.curloop < strategy.endloop:
                         strategy.curloop += 1
                         strategy.curnum = 0
-                        vis.total += 1
-                        st_seed = Mutator.mutSelectCharRand(
-                            ststart_seed.content, path_mutseeds, ST_STR + str(vis.loop), st_cmploc)
-                        st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
-                        st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
-                        sch.saveCrash(st_seed, st_stdout, st_stderr, vis.start_time, vis.last_time)
-                        st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
-                        st_cmpcov_list = ana.getRpt(st_interlen)
-
                         while strategy.curnum < strategy.endnum:
                             vis.total += 1
-                            LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, st_seed.content, showlog=True)
-                            # Returns the status and the character to be mutated
-                            # Comparison of global optimal values to achieve updated parameters
-                            opt_seed, opt_cmpcov_list, exe_status, locmapdet_dict = \
-                                Parser.solveDistence(strategy, st_cmploc, opt_seed, st_seed,
-                                                     opt_cmpcov_list, st_cmpcov_list, cmporder_j)
-                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, strategy.bytestype, strategy.curloop,
-                                strategy.endloop, opt_cmpcov_list, exe_status, locmapdet_dict, showlog=True)
 
-                            strategy.curnum += 1
-
-                            if exe_status == DIST_FINISH:
-                                sch.skip_cmpidset.add(stcmpid_ki)
-                                # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
-                                sch.recsol_cmpset.add(stcmpid_ki)
-                                sch.addq(SCH_LOOP_SEED, [opt_seed, ])
-                                break
-                            elif len(locmapdet_dict) == 0 or exe_status == DIST_FAIL:
-                                pass
-
+                            locmapdet_dict = Parser.solveChangeMap(
+                                strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_j)
                             # The next mutate seed
                             # Passing the constraint based on the number of cycles and the distance between comparisons.
                             if len(locmapdet_dict) == 0:
@@ -360,6 +340,25 @@ def mainFuzzer():
                             # Generate analysis reports.
                             st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
                             st_cmpcov_list = ana.getRpt(st_interlen)
+
+                            LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content, st_seed.content, showlog=True)
+                            # Returns the status and the character to be mutated
+                            # Comparison of global optimal values to achieve updated parameters
+                            opt_seed, opt_cmpcov_list, exe_status = Parser.solveDistence(
+                                strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmporder_j)
+                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, strategy.bytestype, strategy.curloop,
+                                strategy.endloop, opt_cmpcov_list, exe_status, locmapdet_dict, showlog=True)
+
+                            strategy.curnum += 1
+                            if exe_status == DIST_FINISH:
+                                sch.skip_cmpidset.add(stcmpid_ki)
+                                # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
+                                sch.recsol_cmpset.add(stcmpid_ki)
+                                sch.addq(SCH_LOOP_SEED, [opt_seed, ])
+                                break
+                            elif len(locmapdet_dict) == 0 or exe_status == DIST_FAIL:
+                                pass
+
 
                             # 5 visualize
                             res = vis.display(
