@@ -223,6 +223,8 @@ def handleRandom(opt_seed, mut_seed, st_loc, cont_list):
 '''
 Try to solve the constraint according to the distance
 '''
+def solveChangeMap():
+    pass
 
 
 def solveDistence(strategy, st_cmploc, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmporder_num):

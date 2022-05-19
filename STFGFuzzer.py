@@ -287,8 +287,10 @@ def mainFuzzer():
 
                 # 3 cmp type
                 # Return cmp type and mutate strategy according to typeDetect
-                strategy_flag, cmp_flag, bytes_flag  = Parser.typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_j)
-                infer_strategy = Parser.devStrategy(opt_cmpcov_list, cmporder_j, strategy_flag, cmp_flag, bytes_flag, st_cmploc)
+                strategy_flag, cmp_flag, bytes_flag  = Parser.typeDetect(
+                    opt_cmpcov_list, ststart_cmpcov_list, cmporder_j)
+                infer_strategy = Parser.devStrategy(
+                    opt_cmpcov_list, cmporder_j, strategy_flag, cmp_flag, bytes_flag, st_cmploc)
                 sch.strategyq.put(infer_strategy)
 
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, strategy_flag, opt_cmpcov_list, ststart_cmpcov_list,
@@ -311,12 +313,13 @@ def mainFuzzer():
                     while strategy.curloop < strategy.endloop:
                         strategy.curloop += 1
                         strategy.curnum = 0
+                        vis.total += 1
                         st_seed = Mutator.mutSelectCharRand(
                             ststart_seed.content, path_mutseeds, ST_STR + str(vis.loop), st_cmploc)
                         st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
                         st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
                         sch.saveCrash(st_seed, st_stdout, st_stderr, vis.start_time, vis.last_time)
-                        st_interlen, st_covernum = ana.getShm(opt_stdout[0:16])
+                        st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
                         st_cmpcov_list = ana.getRpt(st_interlen)
 
                         while strategy.curnum < strategy.endnum:
