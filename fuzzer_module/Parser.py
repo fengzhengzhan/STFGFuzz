@@ -6,16 +6,14 @@ from fuzzer_module.Fuzzconfig import *
 
 
 # Convert bytes to a corresponding PAR_CONVER_BIT-bit integer
-def bytesConverUnival(value):
-    # unique_val = USE_INITNUM
+def bytesConverUnival(value) -> int:
+    unique_val = value
     if isinstance(value, bytes):
         u = 0
         for b_i in range(0, len(value)):
             u = u * PAR_BIT_BASE
             u += value[b_i]
         unique_val = u
-    else:
-        raise Exception("Error ConverUnical Type")
     return unique_val
 
 
@@ -42,17 +40,19 @@ def numToBytes(num):
     return b
 
 
-def getNumDistance(cont_list):
-    distance = 0
+def getDistance(cont_list):
     # Type of int converse hex characters to compare distance.
-    # opt0 = bytesConverUnival(bytes(hex(int(cont_list[0]))[2:], encoding="utf-8"))
-    # opt1 = bytesConverUnival(bytes(hex(int(cont_list[1]))[2:], encoding="utf-8"))
-    # mut0 = bytesConverUnival(bytes(hex(int(cont_list[2]))[2:], encoding="utf-8"))
-    # mut1 = bytesConverUnival(bytes(hex(int(cont_list[3]))[2:], encoding="utf-8"))
     opt0 = cont_list[0]
     opt1 = cont_list[1]
     mut0 = cont_list[2]
     mut1 = cont_list[3]
+    if isinstance(opt0, bytes) or isinstance(opt1, bytes) or isinstance(mut0, bytes) or isinstance(mut1, bytes):
+        opt0 = bytesConverUnival(opt0)
+        opt1 = bytesConverUnival(opt1)
+        mut0 = bytesConverUnival(mut0)
+        mut1 = bytesConverUnival(mut1)
+
+    distance = 0
     # LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1)
 
     # According distance to return which seed.
@@ -204,13 +204,12 @@ def solveChangeMap(strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_num)
 
     locmapdet_dict = {}
     change_inputmap = {}
-    opt_one = opt_cmpcov_list[cmporder_num][1:]
-    if opt_one[IDX_CMPTYPE] == COV_SWITCH:
-        cont_list = [opt_one[4], opt_one[4 + strategy.curloop]]
-    else:
-        cont_list = [opt_one[IDX_ARG], opt_one[IDX_ARG + 1]]
-
     if cmporder_num < len(opt_cmpcov_list):
+        opt_one = opt_cmpcov_list[cmporder_num][1:]
+        if opt_one[IDX_CMPTYPE] == COV_SWITCH:
+            cont_list = [opt_one[4], opt_one[4 + strategy.curloop]]
+        else:
+            cont_list = [opt_one[IDX_ARG], opt_one[IDX_ARG + 1]]
 
         if strategy.strategytype == TYPE_DEFAULT:
             change_inputmap = handleRandom(st_cmploc)
@@ -258,7 +257,7 @@ def solveDistence(strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, 
             cont_list = [opt_one[IDX_ARG], opt_one[IDX_ARG + 1],
                          st_one[IDX_ARG], st_one[IDX_ARG + 1]]
 
-        distance = getNumDistance(cont_list)
+        distance = getDistance(cont_list)
         ret_seed = getRetSeed(distance, opt_seed, st_seed)
 
         if ret_seed == st_seed:
