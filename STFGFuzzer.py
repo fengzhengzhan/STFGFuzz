@@ -303,7 +303,7 @@ def mainFuzzer():
                     showlog=True)
 
                 # fixme
-                # opt_seed = Mutator.mutLocFromMap(opt_seed.content, path_mutseeds, ST_STR + str(vis.loop),
+                # opt_seed = Mutator.mutLocFromMap(opt_seed, opt_seed.content, path_mutseeds, ST_STR + str(vis.loop),
                 #                                  {1:b'\x65',2:b'\x65', 3:b'\x65'})
                 # opt_seed = sch.selectOneSeed(SCH_THIS_SEED, opt_seed)
                 # opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
@@ -335,12 +335,12 @@ def mainFuzzer():
                                 st_seed = opt_seed
                             elif strategy.curnum == 0:
                                 st_seed = Mutator.mutLocFromMap(
-                                    st_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict
+                                    st_seed, st_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict
                                 )
                                 st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
                             else:
                                 st_seed = Mutator.mutLocFromMap(
-                                    opt_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict
+                                    opt_seed, opt_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict
                                 )
                                 st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
                             st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))

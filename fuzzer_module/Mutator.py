@@ -102,13 +102,13 @@ def mutSelectCharRand(seedcont: bytes, filepath: str, label: str, loc_list) -> S
     return temp_one
 
 
-def mutLocFromMap(seedcont: bytes, filepath: str, label: str, locmapdet_dict: 'dict[int:bytes]') -> StructSeed:
+def mutLocFromMap(seed, seedcont: bytes, filepath: str, label: str, locmapdet_dict: 'dict[int:bytes]') -> StructSeed:
     if locmapdet_dict:
-        for lockey, chgval in locmapdet_dict.items():
+        for lockey, chgval in sorted(locmapdet_dict.items()):
             seedcont = seedcont[0:lockey] + chgval + seedcont[lockey + 1:]
         temp_one = StructSeed(filepath + getMutfilename(label), seedcont, MUT_SEED_SUB, set(locmapdet_dict))
     else:
-        temp_one = None
+        temp_one = seed
     return temp_one
 
 
