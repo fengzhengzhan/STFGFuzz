@@ -103,7 +103,7 @@ Multiple comparison type handling functions
 '''
 
 
-def handleMagicNum(opt_seed, st_loc, cont_list, strategy):
+def handleMagicNum(st_cmploc, cont_list, strategy):
     change_inputmap = {}
     fixed_cont = cont_list[0]
     if strategy.bytestype == PAR_CHGAFIX:
@@ -111,60 +111,60 @@ def handleMagicNum(opt_seed, st_loc, cont_list, strategy):
     fixed_cont = numToBytes(fixed_cont)
 
     if strategy.curnum == 0:
-        for idx, loc in enumerate(st_loc[::1]):
+        for idx, loc in enumerate(st_cmploc[::1]):
             change_inputmap[loc] = fixed_cont[idx:idx + 1]
     elif strategy.curnum == 1:
-        for idx, loc in enumerate(st_loc[::-1]):
+        for idx, loc in enumerate(st_cmploc[::-1]):
             change_inputmap[loc] = fixed_cont[idx:idx + 1]
     else:
         strategy.strategytype = TYPE_CHECKNUM
         strategy.curnum = 0
-        strategy.endnum = len(st_loc) * len(MUT_BIT_LIST)
+        strategy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
 
     return change_inputmap
 
 
-def handleMagicBytes(opt_seed, st_loc, cont_list, strategy):
+def handleMagicBytes(st_cmploc, cont_list, strategy):
     change_inputmap = {}
     fixed_cont = cont_list[0]
     if strategy.bytestype == PAR_CHGAFIX:
         fixed_cont = cont_list[1]
 
     if strategy.curnum == 0:
-        for idx, loc in enumerate(st_loc[::1]):
+        for idx, loc in enumerate(st_cmploc[::1]):
             change_inputmap[loc] = fixed_cont[idx:idx + 1]
     elif strategy.curnum == 1:
-        for idx, loc in enumerate(st_loc[::-1]):
+        for idx, loc in enumerate(st_cmploc[::-1]):
             change_inputmap[loc] = fixed_cont[idx:idx + 1]
     else:
         strategy.strategytype = TYPE_CHECKBYTES
         strategy.curnum = 0
-        strategy.endnum = len(st_loc) * len(MUT_BIT_LIST)
+        strategy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
 
     return change_inputmap
 
 
-def handleChecksums(ret_seed, st_loc, strategy):
+def handleChecksums(ret_seed, st_cmploc, strategy):
     change_inputmap = {}
     if strategy.curnum < strategy.endnum:
         ci = strategy.curnum // 16
         cb = strategy.curnum % 16
         pre = MUT_BIT_LIST[cb]
         while ci >= 0:
-            n = ret_seed.content[st_loc[ci]] + pre
+            n = ret_seed.content[st_cmploc[ci]] + pre
             # Add
             if n >= PAR_BIT_BASE:
                 now = n % PAR_BIT_BASE
                 pre = n // PAR_BIT_BASE
-                change_inputmap[st_loc[ci]] = BYTES_ASCII[now]
+                change_inputmap[st_cmploc[ci]] = BYTES_ASCII[now]
             # Sub
             elif n < 0:
                 now = (n + PAR_BIT_BASE) % PAR_BIT_BASE
                 pre = n // PAR_BIT_BASE
-                change_inputmap[st_loc[ci]] = BYTES_ASCII[now]
+                change_inputmap[st_cmploc[ci]] = BYTES_ASCII[now]
             # Exit
             elif 0 <= n < PAR_BIT_BASE:
-                change_inputmap[st_loc[ci]] = BYTES_ASCII[n]
+                change_inputmap[st_cmploc[ci]] = BYTES_ASCII[n]
                 break
             ci -= 1
     return change_inputmap
@@ -215,12 +215,12 @@ def solveChangeMap(strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_num)
             pass
 
         elif strategy.strategytype == TYPE_MAGICNUM:
-            change_inputmap = handleMagicNum(opt_seed, st_cmploc, cont_list, strategy)
+            change_inputmap = handleMagicNum(st_cmploc, cont_list, strategy)
         elif strategy.strategytype == TYPE_CHECKNUM:
             change_inputmap = handleChecksums(opt_seed, st_cmploc, strategy)
 
         elif strategy.strategytype == TYPE_MAGICBYTES:
-            change_inputmap = handleMagicBytes(opt_seed, st_cmploc, cont_list, strategy)
+            change_inputmap = handleMagicBytes(st_cmploc, cont_list, strategy)
         elif strategy.strategytype == TYPE_CHECKBYTES:
             change_inputmap = handleChecksums(opt_seed, st_cmploc, strategy)
 
