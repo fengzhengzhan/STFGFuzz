@@ -16,8 +16,8 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-VIS_TERM = True
-# VIS_TERM = False
+# VIS_TERM = True
+VIS_TERM = False
 # VIS_SHOWGRAPH = True
 VIS_SHOWGRAPH = False
 
@@ -131,7 +131,10 @@ BYTES_ASCII = [b'\x00', b'\x01', b'\x02', b'\x03', b'\x04', b'\x05', b'\x06', b'
                b'\xf5', b'\xf6', b'\xf7', b'\xf8', b'\xf9', b'\xfa', b'\xfb', b'\xfc', b'\xfd', b'\xfe', b'\xff']
 
 # strategy STGY
-# Detect cmp types
+# Status || Detect cmp types
+STAT_FAIL = -1
+STAT_SUC = 1
+STAT_FIN = 2
 TYPE_DEFAULT = 50
 TYPE_UNDEFINED = 51
 TYPE_SOLVED = 52
@@ -152,10 +155,7 @@ IDX_BLOCKNUM = 1  # 10_0
 
 IDX_ARG = 2
 
-# Status
-STAT_FAIL = -1
-STAT_SUC = 1
-STAT_FIN = 2
+
 
 '''Analyzer'''
 ANA_ENDPROG_IDX = -2

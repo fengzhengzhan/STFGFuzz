@@ -322,12 +322,22 @@ def mainFuzzer():
                         while strategy.curnum < strategy.endnum:
                             vis.total += 1
 
-                            locmapdet_dict = Parser.solveChangeMap(
-                                strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_j)
+                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, showlog=True)
+                            if strategy.curnum == 0:
+                                locmapdet_dict = Parser.solveChangeMap(
+                                    strategy, st_cmploc, st_seed, st_cmpcov_list, cmporder_j)
+                            else:
+                                locmapdet_dict = Parser.solveChangeMap(
+                                    strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_j)
                             # The next mutate seed
                             # Passing the constraint based on the number of cycles and the distance between comparisons.
                             if len(locmapdet_dict) == 0:
                                 st_seed = opt_seed
+                            elif strategy.curnum == 0:
+                                st_seed = Mutator.mutLocFromMap(
+                                    st_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict
+                                )
+                                st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
                             else:
                                 st_seed = Mutator.mutLocFromMap(
                                     opt_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict

@@ -7,6 +7,19 @@ from shutil import copy
 from fuzzer_module.Fuzzconfig import *
 
 
+class StructPath:
+    def __init__(self, path_codeBin, path_codeIR, path_codesources, path_datagraph, path_datapatchloc,
+                 path_seedscrash, path_seedsinit, path_seedsmutate):
+        self.code_Bin = path_codeBin
+        self.code_IR = path_codeIR
+        self.code_sources = path_codesources
+        self.data_graph = path_datagraph
+        self.data_patchloc = path_datapatchloc
+        self.seeds_crash = path_seedscrash
+        self.seeds_init = path_seedsinit
+        self.seeds_mutate = path_seedsmutate
+
+
 def createDir(path: str) -> None:
     if not os.path.exists(path):
         os.makedirs(path)
