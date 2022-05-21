@@ -161,7 +161,8 @@ class Analyzer:
         b4cmpset = set(b4cmp_dict)
         cmpset = set(cmp_dict)
         interset = b4cmpset & cmpset  # Intersection set
-        symdiffset = b4cmpset ^ cmpset  # Symmetric Difference set
+        # symdiffset = b4cmpset ^ cmpset  # Symmetric Difference set
+        symdiffset = cmpset - b4cmpset  # Symmetric Difference set
         diffcmp_set = set()
         LOG(LOG_DEBUG, LOG_FUNCINFO(), interset, symdiffset)
 

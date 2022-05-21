@@ -175,7 +175,8 @@ def mainFuzzer():
 
             sd_cmp_dict = ana.traceAyalysis(sd_cmpcov_list, sch.skip_cmpidset)
             sd_diffcmp_set = ana.compareRptToLoc(init_cmp_dict, sd_cmp_dict)
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), init_cmp_dict, sd_cmp_dict)
+
+            # LOG(LOG_DEBUG, LOG_FUNCINFO(), init_cmp_dict, sd_cmp_dict, sd_diffcmp_set)
 
             # LOG(LOG_DEBUG, LOG_FUNCINFO(), sd_seed.content, init_cmp_dict['g0x4f98aa0x4faa2b'], bd_cmp_dict['g0x4f98aa0x4faa2b'])
 
@@ -194,7 +195,7 @@ def mainFuzzer():
             vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict, showlog=True)
         # raise Exception()
         '''sd <-'''
 
@@ -366,7 +367,7 @@ def mainFuzzer():
                             st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
                             st_cmpcov_list = ana.getRpt(st_interlen)
 
-                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, strategy.curloop, strategy.endloop, st_cmploc, locmapdet_dict, opt_seed.content, st_seed.content, showlog=True)
+                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, strategy.curloop, strategy.endloop, st_cmploc, locmapdet_dict, opt_seed.content, st_seed.content)
                             # Returns the status and the character to be mutated
                             # Comparison of global optimal values to achieve updated parameters
                             opt_seed, opt_cmpcov_list, exe_status = Parser.solveDistence(

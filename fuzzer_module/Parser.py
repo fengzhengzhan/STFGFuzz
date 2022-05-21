@@ -78,7 +78,7 @@ def getDistance(cont_list):
         distance = -1
     elif abs(opt0 - opt1) == abs(mut0 - mut1):
         distance = 0
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1, abs(opt0 - opt1), abs(mut0 - mut1), showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1, abs(opt0 - opt1), abs(mut0 - mut1))
     return distance
 
 
@@ -162,7 +162,7 @@ def handleChecksums(ret_seed, st_loc, strategy):
         while ci >= 0:
             if ci < len(st_loc) and st_loc[ci] < len(ret_seed.content):
                 n = ret_seed.content[st_loc[ci]] + pre
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content[st_loc[ci]], pre, n, showlog=True)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content[st_loc[ci]], pre, n)
                 stloc = st_loc[ci]
             else:
                 n = pre
