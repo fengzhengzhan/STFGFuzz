@@ -6,7 +6,7 @@ from fuzzer_module.Fuzzconfig import *
 
 
 # Convert bytes to a corresponding PAR_CONVER_BIT-bit integer
-def bytesConverUnival(value) -> int:
+def bytesConverNum(value) -> int:
     unique_val = value
     if isinstance(value, bytes):
         u = 0
@@ -15,6 +15,17 @@ def bytesConverUnival(value) -> int:
             u += value[b_i]
         unique_val = u
     return unique_val
+
+
+def numConverBytes(intvalue, blen):
+    cont = b''
+    for l_i in range(0, blen):
+        rest = intvalue % PAR_BIT_BASE
+        intvalue = (intvalue - rest) // PAR_BIT_BASE
+        # print(rest, intvalue, chr(rest))
+        cont = BYTES_ASCII[rest] + cont
+
+    return cont
 
 
 def converNumList(cont_list):
@@ -34,17 +45,6 @@ def converNumList(cont_list):
     return temp
 
 
-def converBytes(intvalue, blen):
-    cont = b''
-    for l_i in range(0, blen):
-        rest = intvalue % PAR_BIT_BASE
-        intvalue = (intvalue - rest) // PAR_BIT_BASE
-        # print(rest, intvalue, chr(rest))
-        cont = BYTES_ASCII[rest] + cont
-
-    return cont
-
-
 def numToBytes(num):
     h = str(hex(num)[2:])
     if len(h) % 2 != 0:
@@ -61,8 +61,8 @@ def getDistance(cont_list):
     # Type of int converse hex characters to compare distance.
     opt0, opt1, mut0, mut1 = cont_list[0], cont_list[1], cont_list[2], cont_list[3]
     if isinstance(opt0, bytes) or isinstance(opt1, bytes) or isinstance(mut0, bytes) or isinstance(mut1, bytes):
-        opt0, opt1, mut0, mut1 = bytesConverUnival(opt0), bytesConverUnival(opt1), \
-                                 bytesConverUnival(mut0), bytesConverUnival(mut1)
+        opt0, opt1, mut0, mut1 = bytesConverNum(opt0), bytesConverNum(opt1), \
+                                 bytesConverNum(mut0), bytesConverNum(mut1)
 
     distance = 0
     # LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1)
@@ -400,4 +400,4 @@ if __name__ == "__main__":
     # handleDistanceNum()
 
     print(bytes(hex(int(1818326624))[2:], encoding="utf-8"))
-    print(bytesConverUnival(bytes(hex(int(1818326624))[2:], encoding="utf-8")))
+    print(bytesConverNum(bytes(hex(int(1818326624))[2:], encoding="utf-8")))

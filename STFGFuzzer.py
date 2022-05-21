@@ -366,7 +366,7 @@ def mainFuzzer():
                             st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
                             st_cmpcov_list = ana.getRpt(st_interlen)
 
-                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, st_cmploc, locmapdet_dict, opt_seed.content, st_seed.content, showlog=True)
+                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, strategy.curloop, strategy.endloop, st_cmploc, locmapdet_dict, opt_seed.content, st_seed.content, showlog=True)
                             # Returns the status and the character to be mutated
                             # Comparison of global optimal values to achieve updated parameters
                             opt_seed, opt_cmpcov_list, exe_status = Parser.solveDistence(

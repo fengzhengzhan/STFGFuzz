@@ -182,6 +182,6 @@ def hexToNum(num):
 #     print("{}:'{}',".format(one, hex(i)), end=" ")
 
 print(int('0xAAAA',16))
-print(int('0xCAAA',16))
-print(int('0xBAAA',16))
+print(int('0xc7ff',16))
+print(int('0xcaff',16))
 print(int('0xC0DE',16))
