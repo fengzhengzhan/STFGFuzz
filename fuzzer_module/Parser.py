@@ -45,15 +45,19 @@ def converNumList(cont_list):
     return temp
 
 
-def numToBytes(num):
-    h = str(hex(num)[2:])
-    if len(h) % 2 != 0:
-        h = "0" + h
-
+def numToBytes(num, nlen, mode):
     b = b''
-    for i in range(0, len(h), 2):
-        b += BYTES_ASCII[int(h[i:i + 2], 16)]
-
+    h = str(hex(num)[2:])
+    if mode == PAR_CONVSINGLE:
+        if len(h) < nlen:
+            h = "0"*(nlen-len(h)) + h
+        for i in range(0, len(h)):
+            b += BYTES_ASCII[ord(h[i:i+1])]
+    elif mode == PAR_CONVDOUBLE:
+        if len(h) < nlen*2:
+            h = "0"*(nlen*2-len(h)) + h
+        for i in range(0, len(h), 2):
+            b += BYTES_ASCII[int(h[i:i + 2], 16)]
     return b
 
 
@@ -89,6 +93,7 @@ def getRetSeed(distance, opt_seed, mut_seed):
     elif distance < 0:
         ret_seed = opt_seed
     elif distance == 0:
+        # Directions may fail at this point
         ret_seed = mut_seed if random.randint(0, 1) == 1 else opt_seed
     return ret_seed
 
@@ -103,12 +108,21 @@ def handleMagicNum(st_cmploc, cont_list, strategy):
     fixed_cont = cont_list[0]
     if strategy.bytestype == PAR_CHGAFIX:
         fixed_cont = cont_list[1]
-    fixed_cont = numToBytes(fixed_cont)
 
     if strategy.curnum == 0:
+        fixed_cont = numToBytes(fixed_cont, len(st_cmploc), PAR_CONVSINGLE)
         for idx, loc in enumerate(st_cmploc[::1]):
             change_inputmap[loc] = fixed_cont[idx:idx + 1]
     elif strategy.curnum == 1:
+        fixed_cont = numToBytes(fixed_cont, len(st_cmploc), PAR_CONVSINGLE)
+        for idx, loc in enumerate(st_cmploc[::-1]):
+            change_inputmap[loc] = fixed_cont[idx:idx + 1]
+    elif strategy.curnum == 2:
+        fixed_cont = numToBytes(fixed_cont, len(st_cmploc), PAR_CONVDOUBLE)
+        for idx, loc in enumerate(st_cmploc[::1]):
+            change_inputmap[loc] = fixed_cont[idx:idx + 1]
+    elif strategy.curnum == 3:
+        fixed_cont = numToBytes(fixed_cont, len(st_cmploc), PAR_CONVDOUBLE)
         for idx, loc in enumerate(st_cmploc[::-1]):
             change_inputmap[loc] = fixed_cont[idx:idx + 1]
     else:
@@ -366,10 +380,12 @@ def devStrategy(opt_cmpcov_list, cmporder_i, strategy_flag, cmp_flag, bytes_flag
     temp_stgy = StructStrategy(strategy_flag, cmp_flag, bytes_flag, 0, 0, 0, 0)
     # Determining the executor numbers
     temp_stgy.curnum = 0
-    if strategy_flag == TYPE_MAGICNUM or strategy_flag == TYPE_MAGICBYTES:
+    if strategy_flag == TYPE_MAGICNUM:
+        temp_stgy.endnum = 5
+    elif strategy_flag == TYPE_MAGICBYTES:
         temp_stgy.endnum = 3
     else:
-        temp_stgy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
+        temp_stgy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)  # Can't reach.
 
     temp_stgy.curloop = 0
     if strategy_flag == TYPE_MAGICNUM or strategy_flag == TYPE_CHECKNUM:
