@@ -17,7 +17,24 @@ def bytesConverUnival(value) -> int:
     return unique_val
 
 
-def univalConverBytes(intvalue, blen):
+def converNumList(cont_list):
+    """
+    According hex to conver numbers.
+    @return:
+    """
+    temp = []
+    for one in cont_list:
+        if isinstance(one, bytes):
+            temp.append(b)
+        elif isinstance(one, int):
+            b = bytes(hex(int(one))[2:], encoding="utf-8")
+        else:
+            raise Exception("Error converNum")
+        temp.append(b)
+    return temp
+
+
+def converBytes(intvalue, blen):
     cont = b''
     for l_i in range(0, blen):
         rest = intvalue % PAR_BIT_BASE
@@ -42,15 +59,10 @@ def numToBytes(num):
 
 def getDistance(cont_list):
     # Type of int converse hex characters to compare distance.
-    opt0 = cont_list[0]
-    opt1 = cont_list[1]
-    mut0 = cont_list[2]
-    mut1 = cont_list[3]
+    opt0, opt1, mut0, mut1 = cont_list[0], cont_list[1], cont_list[2], cont_list[3]
     if isinstance(opt0, bytes) or isinstance(opt1, bytes) or isinstance(mut0, bytes) or isinstance(mut1, bytes):
-        opt0 = bytesConverUnival(opt0)
-        opt1 = bytesConverUnival(opt1)
-        mut0 = bytesConverUnival(mut0)
-        mut1 = bytesConverUnival(mut1)
+        opt0, opt1, mut0, mut1 = bytesConverUnival(opt0), bytesConverUnival(opt1), \
+                                 bytesConverUnival(mut0), bytesConverUnival(mut1)
 
     distance = 0
     # LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1)
@@ -63,23 +75,6 @@ def getDistance(cont_list):
     elif abs(opt0 - opt1) == abs(mut0 - mut1):
         distance = 0
     LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1, abs(opt0 - opt1), abs(mut0 - mut1), showlog=True)
-    return distance
-
-
-def getBytesDistance(cont_list):
-    distance = 0
-    opt0 = bytesConverUnival(cont_list[0])
-    opt1 = bytesConverUnival(cont_list[1])
-    mut0 = bytesConverUnival(cont_list[2])
-    mut1 = bytesConverUnival(cont_list[3])
-    # According distance to return which seed.
-    if abs(opt0 - opt1) > abs(mut0 - mut1):  # Distance difference in a constraint.
-        distance = 1
-    elif abs(opt0 - opt1) < abs(mut0 - mut1):
-        distance = -1
-    elif abs(opt0 - opt1) == abs(mut0 - mut1):
-        distance = 0
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1, abs(opt0 - opt1), abs(mut0 - mut1))
     return distance
 
 
@@ -153,6 +148,7 @@ def handleChecksums(ret_seed, st_loc, strategy):
         while ci >= 0:
             if ci < len(st_loc) and st_loc[ci] < len(ret_seed.content):
                 n = ret_seed.content[st_loc[ci]] + pre
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content[st_loc[ci]], pre, n, showlog=True)
                 stloc = st_loc[ci]
             else:
                 n = pre
@@ -200,7 +196,7 @@ def solveChangeMap(strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_num)
     Get the strategy change map
     @return:
     """
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), st_cmploc, opt_seed.content, opt_cmpcov_list, cmporder_num, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), st_cmploc, opt_seed.content, opt_cmpcov_list, cmporder_num)
 
     locmapdet_dict = {}
     change_inputmap = {}
@@ -257,8 +253,13 @@ def solveDistence(strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, 
             cont_list = [opt_one[IDX_ARG], opt_one[IDX_ARG + 1],
                          st_one[IDX_ARG], st_one[IDX_ARG + 1]]
 
-        distance = getDistance(cont_list)
-        ret_seed = getRetSeed(distance, opt_seed, st_seed)
+        if strategy.curloop == 2:
+            cont_list = converNumList(cont_list)
+            distance = getDistance(cont_list)
+            ret_seed = getRetSeed(distance, opt_seed, st_seed)
+        else:
+            distance = getDistance(cont_list)
+            ret_seed = getRetSeed(distance, opt_seed, st_seed)
 
         if ret_seed == st_seed:
             ret_cmpcov_list = st_cmpcov_list
@@ -277,7 +278,7 @@ Type Inference Module.
 # Infer bytes status according bytes change.
 def inferFixedOrChanged(ori_one, st_one) -> int:
     ori0, ori1, st0, st1 = ori_one[IDX_ARG], ori_one[IDX_ARG + 1], st_one[IDX_ARG], st_one[IDX_ARG + 1]
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), ori0, ori1, st0, st1, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), ori0, ori1, st0, st1)
     # Original group <-> Control group
     bytesflag = PAR_CHGACHG
     if st0 == st1:
@@ -371,7 +372,10 @@ def devStrategy(opt_cmpcov_list, cmporder_i, strategy_flag, cmp_flag, bytes_flag
         temp_stgy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
 
     temp_stgy.curloop = 0
-    temp_stgy.endloop = 1
+    if strategy_flag == TYPE_MAGICNUM or strategy_flag == TYPE_CHECKNUM:
+        temp_stgy.endloop = 2
+    else:
+        temp_stgy.endloop = 1
 
     if cmporder_i < len(opt_cmpcov_list):
         opt_one = opt_cmpcov_list[cmporder_i][1:]

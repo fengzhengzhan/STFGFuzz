@@ -172,11 +172,16 @@ def hexToNum(num):
 # print(hex(1818326372))
 # x = '\x6c\x61\x75\x64'
 
-numToHexChar(1818326624)
+# numToHexChar(1818326624)
 # numToHexChar(1618370924)
 #
 # i = hexToNum('8375616c')
 # numToHexChar(i)
 
-for i, one in enumerate(BYTES_ASCII):
-    print("{}:'{}',".format(one, hex(i)), end=" ")
+# for i, one in enumerate(BYTES_ASCII):
+#     print("{}:'{}',".format(one, hex(i)), end=" ")
+
+print(int('0xAAAA',16))
+print(int('0xCAAA',16))
+print(int('0xBAAA',16))
+print(int('0xC0DE',16))

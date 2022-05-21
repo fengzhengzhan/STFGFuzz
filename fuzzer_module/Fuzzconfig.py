@@ -129,6 +129,10 @@ BYTES_ASCII = [b'\x00', b'\x01', b'\x02', b'\x03', b'\x04', b'\x05', b'\x06', b'
                b'\xdf', b'\xe0', b'\xe1', b'\xe2', b'\xe3', b'\xe4', b'\xe5', b'\xe6', b'\xe7', b'\xe8', b'\xe9',
                b'\xea', b'\xeb', b'\xec', b'\xed', b'\xee', b'\xef', b'\xf0', b'\xf1', b'\xf2', b'\xf3', b'\xf4',
                b'\xf5', b'\xf6', b'\xf7', b'\xf8', b'\xf9', b'\xfa', b'\xfb', b'\xfc', b'\xfd', b'\xfe', b'\xff']
+HEX_ASCII = [b'0', b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9', b'A', b'B', b'C', b'D', b'E', b'F', b'G', b'H',
+             b'I', b'J', b'K', b'L', b'M', b'N', b'O', b'P', b'Q', b'R', b'S', b'T', b'U', b'V', b'W', b'X', b'Y', b'Z',
+             b'a', b'b', b'c', b'd', b'e', b'f', b'g', b'h', b'i', b'j', b'k', b'l', b'm', b'n', b'o', b'p', b'q', b'r',
+             b's', b't', b'u', b'v', b'w', b'x', b'y', b'z']
 
 # strategy STGY
 # Status || Detect cmp types
@@ -154,8 +158,6 @@ IDX_CMPTYPE = 0  # n   Remove cmpid
 IDX_BLOCKNUM = 1  # 10_0
 
 IDX_ARG = 2
-
-
 
 '''Analyzer'''
 ANA_ENDPROG_IDX = -2

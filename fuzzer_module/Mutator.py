@@ -59,18 +59,6 @@ def mutSeeds(seedcont: bytes, filepath: str, label: str) -> 'list[StructSeed]':
     return mutate_listq
 
 
-def mutSelectChar(seedcont: bytes, filepath: str, label: str, mutloc_list: list) -> StructSeed:
-    """
-    Mutate one character at a time.
-    @return:
-    """
-    mut_bytes = getFillStr(len(mutloc_list))
-    for i, loci in enumerate(mutloc_list):
-        seedcont = seedcont[0:loci] + mut_bytes[i:i + 1] + seedcont[loci + 1:]
-    temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), seedcont, MUT_SEED_SUB, set(mutloc_list))
-    return temp_one
-
-
 def mutOneChar(seedcont: bytes, filepath: str, label: str, loc_list) -> StructSeed:
     """
     @return: only one seed
@@ -85,6 +73,19 @@ def mutOneChar(seedcont: bytes, filepath: str, label: str, loc_list) -> StructSe
         # seedloc_list[loci] = chr(255 - ord(seedloc_list[loci]))
     temp_one = StructSeed(filepath + getMutfilename(label), seedcont, MUT_SEED_SUB, set(loc_list))
     return temp_one
+
+
+def mutSelectChar(seedcont: bytes, filepath: str, label: str, mutloc_list: list) -> StructSeed:
+    """
+    Mutate one character at a time.
+    @return:
+    """
+    mut_bytes = getFillStr(len(mutloc_list))
+    for i, loci in enumerate(mutloc_list):
+        seedcont = seedcont[0:loci] + mut_bytes[i:i + 1] + seedcont[loci + 1:]
+    temp_one: StructSeed = StructSeed(filepath + getMutfilename(label), seedcont, MUT_SEED_SUB, set(mutloc_list))
+    return temp_one
+
 
 def mutSelectCharRand(seedcont: bytes, filepath: str, label: str, loc_list) -> StructSeed:
     """
