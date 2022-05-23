@@ -330,8 +330,9 @@ def mainFuzzer():
                             sch.skip_cmpidset.add(stcmpid_ki)
                             # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
                             sch.recsol_cmpset.add(stcmpid_ki)
-                            LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content)
-                            sch.addq(SCH_LOOP_SEED, [opt_seed, ])
+                            opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
+                            if len(opt_stderr) == 0:
+                                sch.addq(SCH_LOOP_SEED, [opt_seed, ])
                             break
 
                         while strategy.curnum < strategy.endnum:
@@ -390,8 +391,9 @@ def mainFuzzer():
                                 sch.skip_cmpidset.add(stcmpid_ki)
                                 # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
                                 sch.recsol_cmpset.add(stcmpid_ki)
-                                LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_seed.content)
-                                sch.addq(SCH_LOOP_SEED, [opt_seed, ])
+                                opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
+                                if len(opt_stderr) == 0:
+                                    sch.addq(SCH_LOOP_SEED, [opt_seed, ])
                                 break
                             elif len(locmapdet_dict) == 0 or exe_status == DIST_FAIL:
                                 pass
