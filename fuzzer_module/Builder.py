@@ -136,6 +136,13 @@ def getCFG(cfglist, map_numTofuncasm):
     return cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode
 
 
+def buildBFSdistance(graph) -> dict:
+    """
+    An incoming graph is traversed breadth-first to determine the mutual position of nodes.
+    @return:
+    """
+    pass
+
 def buildConstraint(start_node, end_node, st_list):
     """
     Constructing constraint graph.
@@ -144,6 +151,9 @@ def buildConstraint(start_node, end_node, st_list):
     Use color labels for key nodes.
     @return:
     """
+    pass
+
+
 
 
 

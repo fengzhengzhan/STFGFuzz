@@ -1,0 +1,265 @@
+{
+  "name": "CFG for 'fadvise' function",
+  "directed": true,
+  "strict": false,
+  "label": "CFG for 'fadvise' function",
+  "_subgraph_cnt": 0,
+  "objects": [
+    {
+      "_gvid": 0,
+      "name": "Node0x55555581ba00",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%2:\\l  %3 = alloca %struct._IO_FILE*, align 8\\l  %4 = alloca i32, align 4\\l  call void @__sanitizer_cov_trace_pc_guard(i32* getelementptr inbounds ([10 x\\l... i32], [10 x i32]* @__sancov_gen_.32, i32 0, i32 0)) #14, !dbg !826\\l  store %struct._IO_FILE* %0, %struct._IO_FILE** %3, align 8\\l  call void @llvm.dbg.declare(metadata %struct._IO_FILE** %3, metadata !827,\\l... metadata !DIExpression()), !dbg !828\\l  store i32 %1, i32* %4, align 4\\l  call void @llvm.dbg.declare(metadata i32* %4, metadata !829, metadata\\l... !DIExpression()), !dbg !830\\l  %5 = load %struct._IO_FILE*, %struct._IO_FILE** %3, align 8, !dbg !831\\l  %6 = icmp ne %struct._IO_FILE* %5, null, !dbg !831\\l  br i1 %6, label %7, label %._crit_edge, !dbg !833\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 1,
+      "name": "Node0x55555581bb90",
+      "color": "#b70d28ff",
+      "fillcolor": "#e8765c70",
+      "label": "{%7:\\l7:                                                \\l  %8 = load %struct._IO_FILE*, %struct._IO_FILE** %3, align 8, !dbg !834\\l  %9 = call i32 @lava_get(i32 323), !dbg !835\\l  %10 = call i32 @lava_get(i32 323), !dbg !836\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 1818326302, i32 %10), !dbg\\l... !837\\l  %11 = icmp eq i32 1818326302, %10, !dbg !837\\l  br i1 %11, label %._crit_edge1, label %12, !dbg !838\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 2,
+      "name": "Node0x55555581bb40",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f7b39670",
+      "label": "{._crit_edge:                                      \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.32 to i64), i64 4) to i32*)) #14, !dbg\\l... !833\\l  br label %58, !dbg !833\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 3,
+      "name": "Node0x55555581bfa0",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%58:\\l58:                                               \\l  ret void, !dbg !871\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 4,
+      "name": "Node0x55555581bbe0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f6bfa670",
+      "label": "{._crit_edge1:                                     \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.32 to i64), i64 8) to i32*)) #14, !dbg\\l... !838\\l  br label %15, !dbg !838\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 5,
+      "name": "Node0x55555581bc30",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f6bfa670",
+      "label": "{%12:\\l12:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.32 to i64), i64 12) to i32*)) #14, !dbg\\l... !839\\l  %13 = call i32 @lava_get(i32 323), !dbg !839\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 511009132, i32 %13), !dbg\\l... !840\\l  %14 = icmp eq i32 511009132, %13, !dbg !840\\l  br label %15, !dbg !838\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 6,
+      "name": "Node0x55555581bc80",
+      "color": "#b70d28ff",
+      "fillcolor": "#e8765c70",
+      "label": "{%15:\\l15:                                               \\l  %16 = phi i1 [ true, %._crit_edge1 ], [ %14, %12 ]\\l  %17 = zext i1 %16 to i32, !dbg !838\\l  %18 = mul i32 %9, %17, !dbg !841\\l  %19 = zext i32 %18 to i64, !dbg !842\\l  %20 = getelementptr inbounds %struct._IO_FILE, %struct._IO_FILE* %8, i64\\l... %19, !dbg !842\\l  %21 = call i32 @lava_get(i32 326), !dbg !843\\l  %22 = call i32 @lava_get(i32 326), !dbg !844\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 1818326299, i32 %22), !dbg\\l... !845\\l  %23 = icmp eq i32 1818326299, %22, !dbg !845\\l  br i1 %23, label %._crit_edge2, label %24, !dbg !846\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 7,
+      "name": "Node0x55555581bcd0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f6bfa670",
+      "label": "{._crit_edge2:                                     \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.32 to i64), i64 16) to i32*)) #14, !dbg\\l... !846\\l  br label %27, !dbg !846\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 8,
+      "name": "Node0x55555581bd20",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f6bfa670",
+      "label": "{%24:\\l24:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.32 to i64), i64 20) to i32*)) #14, !dbg\\l... !847\\l  %25 = call i32 @lava_get(i32 326), !dbg !847\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 460677484, i32 %25), !dbg\\l... !848\\l  %26 = icmp eq i32 460677484, %25, !dbg !848\\l  br label %27, !dbg !846\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 9,
+      "name": "Node0x55555581bd70",
+      "color": "#b70d28ff",
+      "fillcolor": "#e8765c70",
+      "label": "{%27:\\l27:                                               \\l  %28 = phi i1 [ true, %._crit_edge2 ], [ %26, %24 ]\\l  %29 = zext i1 %28 to i32, !dbg !846\\l  %30 = mul i32 %21, %29, !dbg !849\\l  %31 = zext i32 %30 to i64, !dbg !850\\l  %32 = getelementptr inbounds %struct._IO_FILE, %struct._IO_FILE* %20, i64\\l... %31, !dbg !850\\l  %33 = call i32 @fileno(%struct._IO_FILE* %32) #15, !dbg !851\\l  %34 = call i32 @lava_get(i32 323), !dbg !852\\l  %35 = call i32 @lava_get(i32 323), !dbg !853\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 1818326302, i32 %35), !dbg\\l... !854\\l  %36 = icmp eq i32 1818326302, %35, !dbg !854\\l  br i1 %36, label %._crit_edge3, label %37, !dbg !855\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 10,
+      "name": "Node0x55555581bdc0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f6bfa670",
+      "label": "{._crit_edge3:                                     \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.32 to i64), i64 24) to i32*)) #14, !dbg\\l... !855\\l  br label %40, !dbg !855\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 11,
+      "name": "Node0x55555581be10",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f6bfa670",
+      "label": "{%37:\\l37:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.32 to i64), i64 28) to i32*)) #14, !dbg\\l... !856\\l  %38 = call i32 @lava_get(i32 323), !dbg !856\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 511009132, i32 %38), !dbg\\l... !857\\l  %39 = icmp eq i32 511009132, %38, !dbg !857\\l  br label %40, !dbg !855\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 12,
+      "name": "Node0x55555581be60",
+      "color": "#b70d28ff",
+      "fillcolor": "#e8765c70",
+      "label": "{%40:\\l40:                                               \\l  %41 = phi i1 [ true, %._crit_edge3 ], [ %39, %37 ]\\l  %42 = zext i1 %41 to i32, !dbg !855\\l  %43 = mul i32 %34, %42, !dbg !858\\l  %44 = add i32 %33, %43, !dbg !859\\l  %45 = call i32 @lava_get(i32 326), !dbg !860\\l  %46 = call i32 @lava_get(i32 326), !dbg !861\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 1818326299, i32 %46), !dbg\\l... !862\\l  %47 = icmp eq i32 1818326299, %46, !dbg !862\\l  br i1 %47, label %._crit_edge4, label %48, !dbg !863\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 13,
+      "name": "Node0x55555581beb0",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f6bfa670",
+      "label": "{._crit_edge4:                                     \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.32 to i64), i64 32) to i32*)) #14, !dbg\\l... !863\\l  br label %51, !dbg !863\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 14,
+      "name": "Node0x55555581bf00",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f6bfa670",
+      "label": "{%48:\\l48:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.32 to i64), i64 36) to i32*)) #14, !dbg\\l... !864\\l  %49 = call i32 @lava_get(i32 326), !dbg !864\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 460677484, i32 %49), !dbg\\l... !865\\l  %50 = icmp eq i32 460677484, %49, !dbg !865\\l  br label %51, !dbg !863\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 15,
+      "name": "Node0x55555581bf50",
+      "color": "#b70d28ff",
+      "fillcolor": "#e8765c70",
+      "label": "{%51:\\l51:                                               \\l  %52 = phi i1 [ true, %._crit_edge4 ], [ %50, %48 ]\\l  %53 = zext i1 %52 to i32, !dbg !863\\l  %54 = mul i32 %45, %53, !dbg !866\\l  %55 = add i32 0, %54, !dbg !867\\l  %56 = zext i32 %55 to i64, !dbg !868\\l  %57 = load i32, i32* %4, align 4, !dbg !869\\l  call void @fdadvise(i32 %44, i64 %56, i64 0, i32 %57), !dbg !870\\l  br label %58, !dbg !870\\l}",
+      "shape": "record",
+      "style": "filled"
+    }
+  ],
+  "edges": [
+    {
+      "_gvid": 0,
+      "tail": 0,
+      "head": 1,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 1,
+      "tail": 0,
+      "head": 2,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 2,
+      "tail": 1,
+      "head": 4,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 3,
+      "tail": 1,
+      "head": 5,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 4,
+      "tail": 2,
+      "head": 3
+    },
+    {
+      "_gvid": 5,
+      "tail": 4,
+      "head": 6
+    },
+    {
+      "_gvid": 6,
+      "tail": 5,
+      "head": 6
+    },
+    {
+      "_gvid": 7,
+      "tail": 6,
+      "head": 7,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 8,
+      "tail": 6,
+      "head": 8,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 9,
+      "tail": 7,
+      "head": 9
+    },
+    {
+      "_gvid": 10,
+      "tail": 8,
+      "head": 9
+    },
+    {
+      "_gvid": 11,
+      "tail": 9,
+      "head": 10,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 12,
+      "tail": 9,
+      "head": 11,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 13,
+      "tail": 10,
+      "head": 12
+    },
+    {
+      "_gvid": 14,
+      "tail": 11,
+      "head": 12
+    },
+    {
+      "_gvid": 15,
+      "tail": 12,
+      "head": 13,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 16,
+      "tail": 12,
+      "head": 14,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 17,
+      "tail": 13,
+      "head": 15
+    },
+    {
+      "_gvid": 18,
+      "tail": 14,
+      "head": 15
+    },
+    {
+      "_gvid": 19,
+      "tail": 15,
+      "head": 3
+    }
+  ]
+}

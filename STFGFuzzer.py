@@ -13,6 +13,9 @@ from fuzzer_module.Fuzzconfig import *
 
 # python3.7 STFGFuzzer.py -n demo -- ./Programs/demo/code_Bin/demo -f @@
 # python3.7 STFGFuzzer.py -n base64 -- ./Programs/base64/code_Bin/base64 -d @@
+# python3.7 STFGFuzzer.py -n md5sum -- ./Programs/md5sum/code_Bin/md5sum -c @@
+# python3.7 STFGFuzzer.py -n uniq -- ./Programs/uniq/code_Bin/uniq @@
+# python3.7 STFGFuzzer.py -n who -- ./Programs/who/code_Bin/who @@
 
 def mainFuzzer():
     """

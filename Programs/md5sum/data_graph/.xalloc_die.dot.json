@@ -1,0 +1,27 @@
+{
+  "name": "CFG for 'xalloc_die' function",
+  "directed": true,
+  "strict": false,
+  "label": "CFG for 'xalloc_die' function",
+  "_subgraph_cnt": 0,
+  "objects": [
+    {
+      "_gvid": 0,
+      "name": "Node0x555555911890",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%0:\\l  %1 = load volatile i32, i32* @exit_failure, align 4, !dbg !771\\l  %2 = call i8* @gettext(i8* getelementptr inbounds ([17 x i8], [17 x i8]*\\l... @.str.1.152, i32 0, i32 0)) #14, !dbg !772\\l  call void (i32, i32, i8*, ...) @error(i32 %1, i32 0, i8* getelementptr\\l... inbounds ([3 x i8], [3 x i8]* @.str.153, i32 0, i32 0), i8* %2), !dbg !773\\l  call void @abort() #15, !dbg !774\\l  unreachable, !dbg !774\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 1,
+      "name": "Node0x555555912270",
+      "color": "#3d50c3ff",
+      "fillcolor": "#3d50c370",
+      "label": "{%3:\\l3:                                                \\l  ret void, !dbg !775\\l}",
+      "shape": "record",
+      "style": "filled"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "name": "CFG for 'select_plural' function",
+  "directed": true,
+  "strict": false,
+  "label": "CFG for 'select_plural' function",
+  "_subgraph_cnt": 0,
+  "objects": [
+    {
+      "_gvid": 0,
+      "name": "Node0x55555578e630",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%1:\\l  %2 = alloca i64, align 8\\l  call void @__sanitizer_cov_trace_pc_guard(i32* getelementptr inbounds ([3 x\\l... i32], [3 x i32]* @__sancov_gen_.15, i32 0, i32 0)) #14, !dbg !767\\l  store i64 %0, i64* %2, align 8\\l  call void @llvm.dbg.declare(metadata i64* %2, metadata !768, metadata\\l... !DIExpression()), !dbg !769\\l  %3 = load i64, i64* %2, align 8, !dbg !770\\l  call void @__sanitizer_cov_trace_const_cmp8(i64 -1, i64 %3), !dbg !771\\l  %4 = icmp ule i64 %3, -1, !dbg !771\\l  br i1 %4, label %5, label %7, !dbg !770\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 1,
+      "name": "Node0x55555578ec20",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f59c7d70",
+      "label": "{%5:\\l5:                                                \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([3 x i32]* @__sancov_gen_.15 to i64), i64 4) to i32*)) #14, !dbg\\l... !772\\l  %6 = load i64, i64* %2, align 8, !dbg !772\\l  br label %11, !dbg !770\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 2,
+      "name": "Node0x555555791b60",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f59c7d70",
+      "label": "{%7:\\l7:                                                \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([3 x i32]* @__sancov_gen_.15 to i64), i64 8) to i32*)) #14, !dbg\\l... !773\\l  %8 = load i64, i64* %2, align 8, !dbg !773\\l  %9 = urem i64 %8, 1000000, !dbg !774\\l  %10 = add i64 %9, 1000000, !dbg !775\\l  br label %11, !dbg !770\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 3,
+      "name": "Node0x555555791bb0",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%11:\\l11:                                               \\l  %12 = phi i64 [ %6, %5 ], [ %10, %7 ], !dbg !770\\l  ret i64 %12, !dbg !776\\l}",
+      "shape": "record",
+      "style": "filled"
+    }
+  ],
+  "edges": [
+    {
+      "_gvid": 0,
+      "tail": 0,
+      "head": 1,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 1,
+      "tail": 0,
+      "head": 2,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 2,
+      "tail": 1,
+      "head": 3
+    },
+    {
+      "_gvid": 3,
+      "tail": 2,
+      "head": 3
+    }
+  ]
+}

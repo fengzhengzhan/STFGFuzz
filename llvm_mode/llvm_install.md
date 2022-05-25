@@ -10,13 +10,18 @@
 ## Download the files to be compiled.
 
 ```bash
+sudo apt update
+sudo apt upgrade
 sudo apt-get install xz-utils 
+sudo apt-get install gcc automake autoconf libtool make
+sudo apt-get install build-essential
+sudo apt-get install python3.7
 mkdir LLVM
 # install cmake 3.21.1
 wget https://github.com/Kitware/CMake/releases/download/v3.21.1/cmake-3.21.1-linux-x86_64.tar.gz
 tar -zxvf cmake-3.21.1-linux-x86_64.tar.gz
-mv cmake-3.21.1-linux-x86_64 /opt/cmake321
-ln -sf /opt/cmake321/bin/* /usr/bin/
+mv cmake-3.21.1-linux-x86_64 /opt/cmake-3.21.1
+ln -sf /opt/cmake-3.21.1/bin/* /usr/bin/
 cmake --version
 
 # install clang, llvm, compiler-rt.
