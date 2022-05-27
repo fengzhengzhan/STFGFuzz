@@ -4,6 +4,7 @@ import ast
 import re
 import json
 import networkx as nx
+from queue import Queue
 
 from fuzzer_module.Fuzzconfig import *
 
@@ -164,13 +165,27 @@ def addDistanceGraph(G, root):
     # G.nodes[0][BUI_NODE_DISTANCE] = 10
     # print(G.nodes[0][BUI_NODE_DISTANCE])
     # print(G.nodes[1][BUI_NODE_DISTANCE])
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), root, G.nodes(data=True))
+    nodeidq = Queue(maxsize=0)
+    layerq = Queue(maxsize=0)
+    for r_i in root:
+        nodeidq.put(r_i)
+        layerq.put(0)
+        while not nodeidq.empty() and not layerq.empty():
+            curnodeid = nodeidq.get()
+            curlayer = layerq.get()
+            G.nodes[curnodeid][BUI_NODE_DISTANCE] = curlayer
+            # print(curnodeid, G.nodes[curnodeid][BUI_NODE_LABEL])
+            for node_j in G.successors(curnodeid):
+                # print("  ", node_j, )
+                tdis = G.nodes[node_j][BUI_NODE_DISTANCE]
+                if tdis == -1:
+                    nodeidq.put(node_j)
+                    layerq.put(curlayer+1)
+                else:
+                    G.nodes[node_j][BUI_NODE_DISTANCE] = min(tdis, curlayer)
+
     LOG(LOG_DEBUG, LOG_FUNCINFO(), root, G.nodes(data=True), showlog=True)
-
-
-
-
-
-
 
 
 def buildBFSdistance(cggraph, cfggraph_dict) -> dict:
@@ -180,7 +195,7 @@ def buildBFSdistance(cggraph, cfggraph_dict) -> dict:
     """
     LOG(LOG_DEBUG, cggraph, cfggraph_dict, showlog=True)
     # CG BFS
-    print(cggraph.dgname, cggraph.dg)
+    # print(cggraph.dgname, cggraph.dg)
     cgroot = searchRoot(cggraph.dg)
     addDistanceGraph(cggraph.dg, cgroot)
 
@@ -188,6 +203,7 @@ def buildBFSdistance(cggraph, cfggraph_dict) -> dict:
     print(cfggraph_dict)
     for cfgname_ik, cfgG_iv in cfggraph_dict.items():
         cfgroot = searchRoot(cfgG_iv.dg)
+        addDistanceGraph(cfgG_iv.dg, cfgroot)
 
 
 def buildConstraint(start_node, end_node, st_list):

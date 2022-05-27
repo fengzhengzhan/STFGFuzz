@@ -50,8 +50,8 @@ def mainFuzzer():
     cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
     cggraph, map_funcTocgnode = Builder.getCG(cglist)
     cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode = Builder.getCFG(cfglist, map_numTofuncasm)
-    Builder.buildBFSdistance(cggraph, cfggraph_dict)
-    raise Exception()
+    Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
+
     LOG(LOG_DEBUG, LOG_FUNCINFO(),
         cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode)
 
