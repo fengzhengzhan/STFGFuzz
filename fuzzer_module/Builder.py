@@ -42,6 +42,7 @@ def getCG(cglist):
     @return:
     """
     for jsonfile in cglist:
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), jsonfile)
         with open(jsonfile, 'r') as f:
             data = json.load(f)
         # for k, v in data.items():
@@ -54,7 +55,8 @@ def getCG(cglist):
             nodes_list.append((node[BUI_NODE_NUM],
                                {BUI_NODE_NUM: node[BUI_NODE_NUM],
                                 BUI_NODE_NAME: node[BUI_NODE_NAME],
-                                BUI_NODE_LABEL: node[BUI_NODE_LABEL]}))
+                                BUI_NODE_LABEL: node[BUI_NODE_LABEL],
+                                BUI_NODE_DISTANCE: USE_INITNUM}))
             map_funcTocgnode[node[BUI_NODE_LABEL][1:-1]] = node[BUI_NODE_NAME]
         # Edges
         edges_list = []
@@ -120,6 +122,7 @@ def getCFG(cfglist, map_numTofuncasm):
                                    {BUI_NODE_NUM: node_j[BUI_NODE_NUM],
                                     BUI_NODE_NAME: node_j[BUI_NODE_NAME],
                                     BUI_NODE_LABEL: temp_intlist,
+                                    BUI_NODE_DISTANCE: USE_INITNUM,
                                     BUI_NODE_ST: []}))
             # Edges
             edges_list = []
@@ -136,12 +139,56 @@ def getCFG(cfglist, map_numTofuncasm):
     return cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode
 
 
-def buildBFSdistance(graph) -> dict:
+def searchRoot(G):
+    """
+    Traverse all nodes to find which node has no parent nodes, that is considered root node.
+    @return:
+    """
+    root_list = []
+    # for n in G.nodes(data=True):
+    #     predecessors = G.predecessors(n[0])
+    #     print(n, n[0], predecessors)
+    #     if len(list(predecessors)) == 0:
+    #         print(n)
+
+    for n in G.nodes(data=False):
+        predecessors = G.predecessors(n)
+        if len(list(predecessors)) == 0:
+            root_list.append(n)
+
+    return root_list
+
+
+def addDistanceGraph(G, root):
+    # print(G.nodes[0][BUI_NODE_DISTANCE])
+    # G.nodes[0][BUI_NODE_DISTANCE] = 10
+    # print(G.nodes[0][BUI_NODE_DISTANCE])
+    # print(G.nodes[1][BUI_NODE_DISTANCE])
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), root, G.nodes(data=True), showlog=True)
+
+
+
+
+
+
+
+
+def buildBFSdistance(cggraph, cfggraph_dict) -> dict:
     """
     An incoming graph is traversed breadth-first to determine the mutual position of nodes.
     @return:
     """
-    pass
+    LOG(LOG_DEBUG, cggraph, cfggraph_dict, showlog=True)
+    # CG BFS
+    print(cggraph.dgname, cggraph.dg)
+    cgroot = searchRoot(cggraph.dg)
+    addDistanceGraph(cggraph.dg, cgroot)
+
+    # CFG BFS
+    print(cfggraph_dict)
+    for cfgname_ik, cfgG_iv in cfggraph_dict.items():
+        cfgroot = searchRoot(cfgG_iv.dg)
+
 
 def buildConstraint(start_node, end_node, st_list):
     """
@@ -152,8 +199,3 @@ def buildConstraint(start_node, end_node, st_list):
     @return:
     """
     pass
-
-
-
-
-
