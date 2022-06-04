@@ -2,7 +2,36 @@
 
 - Download LAVA-M Dataset: [Download](http://panda.moyix.net/~moyix/lava_corpus.tar.xz)
 
-## base64
+## LAVA-1
+
+### lava-4961
+```bash
+sudo apt-get install autoconf automake libtool
+# Do not change folder permissions, as CRASH_INPUT may not be generated.
+su root
+cd lava_corpus/LAVA-1/
+# ./validate.sh
+cp -r file-5.22/ file4961
+cd file4961
+git checkout 4961_R_0x12345678-0x22345678
+cd file../
+
+# wllvm-sanity-checker
+export FORCE_UNSAFE_CONFIGURE=1
+export LLVM_COMPILER=clang
+autoreconf -f -i
+CC=wllvm WLLVM_CONFIGURE_ONLY=1 CFLAGS="-g -O0 -fvisibility=default" LIBS="-lacl" ./configure --enable-static --disable-shared --prefix=`pwd`/lava-install
+make -j$(nproc)  # -j Depends on the number of computer processes.
+make install
+cd lava-install/bin/
+extract-bc file
+
+sudo clang -lz -fsanitize=address -Wl,--whole-archive -L../../llvm_mode/ClangSanitizer -lcmpcov -Wl,--no-whole-archive code_IR/lava4961.o -o code_Bin/lava4961
+```
+
+## LAVA-M
+
+### base64
 
 ```bash
 # docker:ubuntu18.04
@@ -22,7 +51,7 @@ cd lava_corpus/LAVA-M/base64/coreutils-8.24-lava-safe
 export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
 CC=wllvm CFLAGS="-g -O0" LIBS="-lacl" ./configure --disable-shared --prefix=`pwd`/lava-install
-make -j6  # -j Depends on the number of computer processes.
+make -j$(nproc)  # -j Depends on the number of computer processes.
 make install
 cd lava-install/bin/
 extract-bc base64
@@ -37,7 +66,7 @@ llc -filetype=obj base64_pass.bc -o base64.o
 clang -fsanitize=address -Wl,--whole-archive -L./ClangSanitizer -lcmpcov -Wl,--no-whole-archive base64.o -o base64
 ```
 
-## Problems
+### Problems
 
 ```bash
 apt install build-essential

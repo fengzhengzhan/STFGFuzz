@@ -20,6 +20,34 @@ then
 	
 	echo "ProgramName: <${PROGRAMNAME}>"
 	
+	# Create Files
+	cd ${PROGRAMNAME}
+	if [ ! -d code_Bin ];then
+		mkdir -m 775 code_Bin
+	fi
+	if [ ! -d code_IR ];then
+		mkdir -m 775 code_IR
+	fi
+	if [ ! -d code_sources ];then
+		mkdir -m 775 code_sources
+	fi
+	if [ ! -d data_graph ];then
+		mkdir -m 775 data_graph
+	fi
+	if [ ! -d data_patchloc ];then
+		mkdir -m 775 data_patchloc
+	fi
+	if [ ! -d seeds_crash ];then
+		mkdir -m 775 seeds_crash
+	fi
+	if [ ! -d seeds_init ];then
+		mkdir -m 775 seeds_init
+	fi
+	if [ ! -d seeds_mutate ];then
+		mkdir -m 775 seeds_mutate
+	fi
+	cd ..
+	
 	# Using clang sanitizer to hook functions.
 	cd ..  # Return to the root path.
 	
@@ -77,7 +105,8 @@ then
 		opt -load ../../${LLVMPASSPATH} -line -S ${IR}/${PROGRAMNAME_TRACE}.${SUFFIX} -o ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} >> ${LINE_SAVE}
 		echo "}" >> ${LINE_SAVE}
 		llc -filetype=obj ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} -o ${IR}/${PROGRAMNAME}.o  # Object file
-		${COMPILER} -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
+		${COMPILER} -lz -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
+		# ${COMPILER} -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
 		# clang -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive -L/usr/local/lib/ -lhiredis ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
 		cd ../..
 		
