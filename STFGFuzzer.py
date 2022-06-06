@@ -51,18 +51,18 @@ def mainFuzzer():
     map_numTofuncasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
     del target_dict
     del binline_dict
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm)
     # Graph Information
-    print("{} Build Graph Information.".format(getTime()))
+    print("{} Build Graph Information...".format(getTime()))
     cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
     cggraph, map_funcTocgnode = Builder.getCG(cglist)
     cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode = Builder.getCFG(cfglist, map_numTofuncasm)
     Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
 
-    print("{} Directed Target Sequence.")
+    print("{} Directed Target Sequence...".format(getTime()))
     Builder.printTargetSeq(map_numfuncTotgtnode)
     LOG(LOG_DEBUG, LOG_FUNCINFO(),
-        cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode, showlog=True)
+        cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode)
 
     # vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
 
@@ -70,7 +70,7 @@ def mainFuzzer():
     before_coverage = sch.coveragepath
 
     # Init seed lists
-    print("{} Init Seed lists.".format(getTime()))
+    print("{} Init Seed lists...".format(getTime()))
     init_seeds_list = Generator.prepareEnv(program_name)
     if len(init_seeds_list) > 0:
         temp_listq = []
@@ -82,11 +82,12 @@ def mainFuzzer():
                  [StructSeed(path_mutseeds + AUTO_SEED, Mutator.getFillStr(64), SEED_INIT, set()), ])
 
     '''Fuzzing Cycle'''
-    print("{} Fuzzing Loop.".format(getTime()))
+    print("{} Fuzzing Loop...".format(getTime()))
     while not sch.seedq.empty():
         vis.loop += 1
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), fuzz_command.replace('@@', init_seed.filename), showlog=True)
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         ana.getShm(init_stdout[0:16])
         ana.sendCmpid("Guard")

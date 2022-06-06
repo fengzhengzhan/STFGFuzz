@@ -23,7 +23,7 @@ from fuzzer_module.Fuzzconfig import *
 
 class Analyzer:
     def __init__(self):
-        self.shm_key = USE_INITNUM
+        self.shm_key = 124816
         self.addr = None
         try:
             self.rt = CDLL('librt.so')
@@ -47,13 +47,15 @@ class Analyzer:
         """
         Get the memory share address.
         """
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), out_info, showlog=True)
         try:
             re_str = SHMID_FLAG + "(.*?)" + END_EACH_FLAG
             shm_key = int(re.search(re_str, str(out_info)).group(1))
             # print(shm_key)
         except Exception as e:
-            # raise Exception("Error shm_key {}".format(e))
             shm_key = self.shm_key
+            if self.shm_key == USE_INITNUM:
+                raise Exception("Error shm_key {}".format(e))
 
         LOG(LOG_DEBUG, LOG_FUNCINFO(), shm_key, self.shm_key)
         if shm_key != self.shm_key:
@@ -66,6 +68,7 @@ class Analyzer:
             self.addr = self.shmat(shmid, None, 0)
 
         # Get the length of cmpcovshm contents.
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), self.addr)
         interlen_str = string_at(self.addr + ANA_FILTER_SIZE, ANA_INTERLEN_SIZE).decode("utf-8")
         re_str = INTERLEN_FLAG + "(.*?)" + END_EACH_FLAG
         interlen = int(re.search(re_str, interlen_str).group(1))
