@@ -59,6 +59,8 @@ def mainFuzzer():
     cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode = Builder.getCFG(cfglist, map_numTofuncasm)
     Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
 
+    print("{} Directed Target Sequence.")
+    Builder.printTargetSeq(map_numfuncTotgtnode)
     LOG(LOG_DEBUG, LOG_FUNCINFO(),
         cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode, showlog=True)
 

@@ -104,6 +104,9 @@ def getCFG(cfglist, map_numTofuncasm):
                 guard_res = pattern.findall(node_j[BUI_NODE_LABEL])
                 # if graphname == "file_magicfind" and len(guard_res) == 0:
                 #     print("file_magicfind", node_j[BUI_NODE_LABEL])
+                if len(guard_res) == 0:
+                    pattern = re.compile(BUI_GUARD2_RE)
+                    guard_res = pattern.findall(node_j[BUI_NODE_LABEL])
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), guard_res)
                 temp_intlist = []
                 for one in guard_res:
@@ -150,6 +153,33 @@ def getCFG(cfglist, map_numTofuncasm):
             cfggraph_dict[graphname] = cfggraph
 
     return cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode
+
+
+def printTargetSeq(map_numfuncTotgtnode):
+    copy_map = map_numfuncTotgtnode.copy()
+    tgtnum = list(copy_map.keys())
+    tgtnum.sort()
+    for tgtnum_i in tgtnum:
+        print("=={}==".format(tgtnum_i))
+        funcs = copy_map[tgtnum_i].keys()
+        tgtnode = {}
+        for func_j in funcs:
+            for node_k in copy_map[tgtnum_i][func_j]:
+                nid = int(node_k[0]) * BUI_ORDER_MULTI
+                if nid not in tgtnode:
+                    tgtnode[nid] = [int(node_k[0]), func_j, node_k[1], node_k[2]]
+                else:
+                    while nid in tgtnode:
+                        nid += 1
+                    tgtnode[nid] = [int(node_k[0]), func_j, node_k[1], node_k[2]]
+
+        ordernode = list(tgtnode.keys())
+        ordernode.sort(reverse=True)
+        for order_j in ordernode:
+            print("# {} {} {} {}".format(tgtnode[order_j][0], tgtnode[order_j][1],
+                                         tgtnode[order_j][2], tgtnode[order_j][3]))
+
+        # print(tgtnode)
 
 
 def searchRoot(G):
@@ -227,3 +257,8 @@ def buildConstraint(start_node, end_node, st_list):
     @return:
     """
     pass
+
+
+if __name__ == '__main__':
+    testmap = {0: {'mget': [[1, [238], 'Node0x55abc9b6b560']], 'mget2': [[1, [238], 'Node0x55abc9b6b560']], 'file_softmagic': [[3, [4], 'Node0x55abc9b06a10']], 'process': [[7, [14], 'Node0x55abc96ae500']], 'match': [[2, [72], 'Node0x55abc9b0df60']], 'file_or_fd': [[5, [46], 'Node0x55abc96d34f0']], 'file_buffer': [[4, [26], 'Node0x55abc9a2b810']], 'magic_file': [[6, [2], 'Node0x55abc96ee670']], 'main': [[8, [91], 'Node0x55abc9677d20']], 'file_magicfind': [[0, [0], 'Node0x55abc9916c00']]}}
+    printTargetSeq(testmap)
