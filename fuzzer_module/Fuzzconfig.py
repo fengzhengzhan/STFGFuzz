@@ -16,8 +16,8 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-# VIS_TERM = True
-VIS_TERM = False
+VIS_TERM = True
+# VIS_TERM = False
 # VIS_SHOWGRAPH = True
 VIS_SHOWGRAPH = False
 
@@ -188,7 +188,7 @@ BUI_INIT_WEIGHT = 0
 BUI_GUARD_RE = "@__sanitizer_cov_trace_pc_guard\(i32\* inttoptr \(i64 add \(i64\\\\l\.\.\. " \
                "ptrtoint \(\[\d*? x i32\]\* @__sancov_gen_.\d*? to i64\), i64 (\d*?)\) to i32\*\)\)"
 # @__sanitizer_cov_trace_pc_guard(i32* getelementptr inbounds ([20 x\l... i32], [20 x i32]* @__sancov_gen_.127, i32 0, i32 0))
-BUI_GUARD2_RE = "@__sanitizer_cov_trace_pc_guard\(i32\* getelementptr inbounds \(\[\d*? x\\\\l\.\.\. i32\], " \
+BUI_GUARD2_RE = "@__sanitizer_cov_trace_pc_guard\(i32\* getelementptr inbounds \(\[.*?\\\\l\.\.\. .*?i32\], " \
                 "\[\d*? x i32\]\* @__sancov_gen_\.\d*?, i32 (\d*?), i32 \d*?\)\)"
 BUI_LOC_INTERVAL = 4
 BUI_NODE_ST = "nodest"
@@ -271,6 +271,7 @@ PAR_CONVDOUBLE = 211
 SCH_LOOP_SEED = 221
 SCH_MUT_SEED = 222
 SCH_THIS_SEED = 223
+SCH_THISMUT_SEED = 224
 
 SCH_SAVEASFILE = True
 

@@ -1,0 +1,285 @@
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==62192==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000001 (pc 0x000139aed2a2 bp 0x7ffee39fd1c0 sp 0x7ffee39fccc0 T0)
+==62192==The signal is caused by a READ memory access.
+==62192==Hint: address points to the zero page.
+    #0 0x139aed2a1 in ccl::NodeType const* ccl::Background::register_type<ccl::Background>() background.cpp
+    #1 0x139aee74c in __cxx_global_var_init background.cpp:31
+    #2 0x139aee7b4 in _GLOBAL__sub_I_background.cpp background.cpp
+    #3 0x184ef1591 in ImageLoaderMachO::doModInitFunctions(ImageLoader::LinkContext const&) (dyld:x86_64+0x18591)
+    #4 0x184ef1797 in ImageLoaderMachO::doInitialization(ImageLoader::LinkContext const&) (dyld:x86_64+0x18797)
+    #5 0x184eecbe9 in ImageLoader::recursiveInitialization(ImageLoader::LinkContext const&, unsigned int, char const*, ImageLoader::InitializerTimingList&, ImageLoader::UninitedUpwards&) (dyld:x86_64+0x13be9)
+    #6 0x184eebd72 in ImageLoader::processInitializers(ImageLoader::LinkContext const&, unsigned int, ImageLoader::InitializerTimingList&, ImageLoader::UninitedUpwards&) (dyld:x86_64+0x12d72)
+    #7 0x184eebe04 in ImageLoader::runInitializers(ImageLoader::LinkContext const&, ImageLoader::InitializerTimingList&) (dyld:x86_64+0x12e04)
+    #8 0x184edb764 in dyld::initializeMainExecutable() (dyld:x86_64+0x2764)
+    #9 0x184ee0708 in dyld::_main(macho_header const*, unsigned long, int, char const**, char const**, char const**, unsigned long*) (dyld:x86_64+0x7708)
+    #10 0x184eda502 in dyldbootstrap::start(macho_header const*, int, char const**, long, macho_header const*, unsigned long*) (dyld:x86_64+0x1502)
+    #11 0x184eda035 in _dyld_start (dyld:x86_64+0x1035)
+
+==62192==Register values:
+rax = 0x00000001793fd880  rbx = 0x00007ffee39fcf60  rcx = 0x0000000000000001  rdx = 0x0000000000000001  
+rdi = 0x00007ffee39fca71  rsi = 0x0000000000000000  rbp = 0x00007ffee39fd1c0  rsp = 0x00007ffee39fccc0  
+ r8 = 0x00007ffee39fcd00   r9 = 0x0000602000004078  r10 = 0x00001fffdc73f8ff  r11 = 0xffffffffffffff50  
+r12 = 0x00007ffee39fcdc0  r13 = 0x00007ffee39fcde0  r14 = 0x00007ffee39fcd80  r15 = 0x00007ffee39fcda0  
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: SEGV background.cpp in ccl::NodeType const* ccl::Background::register_type<ccl::Background>()
+==62192==ABORTING
+Abort trap: 6
+
+
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==2046656==ERROR: AddressSanitizer: stack-overflow on address 0x7ffe0c8bff80 (pc 0x00000048926d bp 0x7ffe0c8c0810 sp 0x7ffe0c8bff70 T0)
+    #0 0x48926d in printf_common(void*, char const*, __va_list_tag*) /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors_format.inc:495:70
+    #1 0x48aa32 in vsprintf /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:1670:1
+    #2 0x48abee in sprintf /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:1713:1
+    #3 0x4f8bb6 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bb6)
+    #4 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #5 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #6 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #7 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #8 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #9 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #10 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #11 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #12 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #13 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #14 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #15 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #16 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #17 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #18 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #19 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #20 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #21 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #22 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #23 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #24 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #25 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #26 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #27 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #28 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #29 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #30 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #31 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #32 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #33 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #34 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #35 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #36 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #37 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #38 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #39 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #40 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #41 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #42 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #43 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #44 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #45 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #46 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #47 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #48 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #49 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #50 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #51 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #52 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #53 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #54 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #55 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #56 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #57 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #58 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #59 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #60 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #61 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #62 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #63 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #64 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #65 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #66 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #67 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #68 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #69 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #70 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #71 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #72 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #73 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #74 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #75 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #76 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #77 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #78 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #79 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #80 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #81 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #82 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #83 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #84 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #85 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #86 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #87 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #88 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #89 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #90 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #91 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #92 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #93 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #94 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #95 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #96 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #97 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #98 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #99 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #100 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #101 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #102 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #103 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #104 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #105 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #106 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #107 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #108 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #109 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #110 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #111 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #112 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #113 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #114 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #115 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #116 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #117 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #118 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #119 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #120 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #121 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #122 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #123 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #124 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #125 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #126 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #127 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #128 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #129 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #130 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #131 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #132 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #133 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #134 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #135 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #136 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #137 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #138 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #139 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #140 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #141 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #142 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #143 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #144 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #145 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #146 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #147 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #148 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #149 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #150 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #151 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #152 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #153 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #154 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #155 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #156 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #157 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #158 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #159 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #160 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #161 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #162 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #163 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #164 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #165 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #166 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #167 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #168 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #169 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #170 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #171 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #172 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #173 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #174 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #175 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #176 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #177 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #178 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #179 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #180 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #181 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #182 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #183 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #184 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #185 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #186 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #187 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #188 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #189 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #190 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #191 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #192 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #193 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #194 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #195 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #196 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #197 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #198 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #199 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #200 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #201 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #202 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #203 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #204 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #205 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #206 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #207 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #208 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #209 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #210 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #211 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #212 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #213 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #214 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #215 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #216 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #217 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #218 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #219 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #220 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #221 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #222 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #223 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #224 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #225 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #226 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #227 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #228 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #229 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #230 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #231 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #232 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #233 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #234 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #235 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #236 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #237 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #238 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #239 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #240 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #241 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #242 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #243 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #244 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #245 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+    #246 0x4f8bd8 in handleStrMemCmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f8bd8)
+    #247 0x4f9741 in __sanitizer_weak_hook_strcmp (/home/fzz/Desktop/STFGFuzz/Programs/base64/code_Bin/base64+0x4f9741)
+    #248 0x49b200 in __interceptor_strcmp.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:453:3
+
+SUMMARY: AddressSanitizer: stack-overflow /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors_format.inc:495:70 in printf_common(void*, char const*, __va_list_tag*)
+==2046656==ABORTING
+

@@ -58,7 +58,7 @@ def genTerminal():
         elif opt == "-n":
             program_name = arg
         elif opt == "-t":
-            patchtype = arg
+            patchtype = [arg]
 
     return program_name, patchtype, fuzz_command
 

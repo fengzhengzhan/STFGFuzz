@@ -11,7 +11,8 @@ class Scheduler:
         self.seedq: Queue[StructSeed] = Queue(maxsize=0)
         self.mutateq: Queue[StructSeed] = Queue(maxsize=0)
         self.importantq: Queue[StructSeed] = Queue(maxsize=0)
-        self.deleteq: Queue[StructSeed] = Queue(maxsize=0)
+        self.delq: Queue[StructSeed] = Queue(maxsize=0)
+        self.delmutq: Queue[StructSeed] = Queue(maxsize=0)
         self.strategyq: Queue[StructStrategy] = Queue(maxsize=0)
 
         self.loc_coarse_list: 'list[int]' = []
@@ -42,17 +43,23 @@ class Scheduler:
         if mode == SCH_LOOP_SEED:
             if not self.seedq.empty():
                 temp_one = self.seedq.get()
+            self.delq.put(temp_one)
         elif mode == SCH_MUT_SEED:
             if not self.mutateq.empty():
                 temp_one = self.mutateq.get()
+            self.delmutq.put(temp_one)
         elif mode == SCH_THIS_SEED:
             temp_one = mutseed
+            self.delq.put(temp_one)
+        elif mode == SCH_THISMUT_SEED:
+            temp_one = mutseed
+            self.delmutq.put(temp_one)
 
         if temp_one == None:
             raise Exception("Error: seed None.")
         if SCH_SAVEASFILE:
             saveAsFile(temp_one.content, temp_one.filename)
-        self.addDeleteq(temp_one)
+
         return temp_one
 
     def addq(self, mode: int, struct_list: 'list[StructSeed]'):
@@ -62,21 +69,29 @@ class Scheduler:
             elif mode == SCH_MUT_SEED:
                 self.mutateq.put(each)
 
-    def addDeleteq(self, temp_one):
-        self.deleteq.put(temp_one)
 
-    def deleteSeeds(self):
+    def deleteSeeds(self, mode):
         """
         Delete mutated intermediate files.
         @return:
         """
-        while not self.deleteq.empty():
-            temp_one = self.deleteq.get()
-            if SCH_SAVEASFILE:
-                try:
-                    os.remove(temp_one.filename)
-                except Exception as e:
-                    pass
+        if mode == SCH_THIS_SEED:
+            while not self.delq.empty():
+                temp_one = self.delq.get()
+                if SCH_SAVEASFILE:
+                    try:
+                        os.remove(temp_one.filename)
+                    except Exception as e:
+                        pass
+        elif mode == SCH_THISMUT_SEED:
+            while not self.delmutq.empty():
+                temp_one = self.delmutq.get()
+                if SCH_SAVEASFILE:
+                    try:
+                        os.remove(temp_one.filename)
+                    except Exception as e:
+                        pass
+
 
     def saveCrash(self, seed: StructSeed, stdout, stderr, start_time, last_time):
         """
@@ -106,5 +121,6 @@ class Scheduler:
             raise Exception(LOG_FUNCINFO() + "Error Path")
 
     def quitFuzz(self):
-        self.deleteSeeds()
+        self.deleteSeeds(SCH_THIS_SEED)
+        self.deleteSeeds(SCH_THISMUT_SEED)
         sys.exit(0)

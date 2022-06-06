@@ -107,7 +107,11 @@ def getCFG(cfglist, map_numTofuncasm):
                 if len(guard_res) == 0:
                     pattern = re.compile(BUI_GUARD2_RE)
                     guard_res = pattern.findall(node_j[BUI_NODE_LABEL])
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_LABEL], showlog=True)
+<<<<<<< HEAD
+                    if len(guard_res) == 0:
+                        LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_LABEL], showlog=True)
+=======
+>>>>>>> parent of 4e7a4bb... direct
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), guard_res)
                 temp_intlist = []
                 for one in guard_res:
@@ -243,7 +247,7 @@ def buildBFSdistance(cggraph, cfggraph_dict) -> dict:
     addDistanceGraph(cggraph.dg, cgroot)
 
     # CFG BFS
-    print(cfggraph_dict)
+    # print(cfggraph_dict)
     for cfgname_ik, cfgG_iv in cfggraph_dict.items():
         cfgroot = searchRoot(cfgG_iv.dg)
         addDistanceGraph(cfgG_iv.dg, cfgroot)
@@ -261,5 +265,5 @@ def buildConstraint(start_node, end_node, st_list):
 
 
 if __name__ == '__main__':
-    testmap = {0: {'mget': [[1, [238], 'Node0x55abc9b6b560']], 'mget2': [[1, [238], 'Node0x55abc9b6b560']], 'file_softmagic': [[3, [4], 'Node0x55abc9b06a10']], 'process': [[7, [14], 'Node0x55abc96ae500']], 'match': [[2, [72], 'Node0x55abc9b0df60']], 'file_or_fd': [[5, [46], 'Node0x55abc96d34f0']], 'file_buffer': [[4, [26], 'Node0x55abc9a2b810']], 'magic_file': [[6, [2], 'Node0x55abc96ee670']], 'main': [[8, [91], 'Node0x55abc9677d20']], 'file_magicfind': [[0, [0], 'Node0x55abc9916c00']]},1: {'mget': [[1, [238], 'Node0x55abc9b6b560']], 'mget2': [[1, [238], 'Node0x55abc9b6b560']], 'file_softmagic': [[3, [4], 'Node0x55abc9b06a10']], 'process': [[7, [14], 'Node0x55abc96ae500']], 'match': [[2, [72], 'Node0x55abc9b0df60']], 'file_or_fd': [[5, [46], 'Node0x55abc96d34f0']], 'file_buffer': [[4, [26], 'Node0x55abc9a2b810']], 'magic_file': [[6, [2], 'Node0x55abc96ee670']], 'main': [[8, [91], 'Node0x55abc9677d20']], 'file_magicfind': [[0, [0], 'Node0x55abc9916c00']]}}
+    testmap = {0: {'mget': [[1, [238], 'Node0x55abc9b6b560']], 'mget2': [[1, [238], 'Node0x55abc9b6b560']], 'file_softmagic': [[3, [4], 'Node0x55abc9b06a10']], 'process': [[7, [14], 'Node0x55abc96ae500']], 'match': [[2, [72], 'Node0x55abc9b0df60']], 'file_or_fd': [[5, [46], 'Node0x55abc96d34f0']], 'file_buffer': [[4, [26], 'Node0x55abc9a2b810']], 'magic_file': [[6, [2], 'Node0x55abc96ee670']], 'main': [[8, [91], 'Node0x55abc9677d20']], 'file_magicfind': [[0, [0], 'Node0x55abc9916c00']]}}
     printTargetSeq(testmap)

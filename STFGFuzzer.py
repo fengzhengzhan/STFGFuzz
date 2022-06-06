@@ -16,7 +16,7 @@ from fuzzer_module.Fuzzconfig import *
 # python3.7 STFGFuzzer.py -n md5sum -- ./Programs/md5sum/code_Bin/md5sum -c @@
 # python3.7 STFGFuzzer.py -n uniq -- ./Programs/uniq/code_Bin/uniq @@
 # python3.7 STFGFuzzer.py -n who -- ./Programs/who/code_Bin/who @@
-# python3.7 STFGFuzzer.py -n lava4961 -t sanitizer -- ./Programs/lava4961/code_Bin/lava4961 @@
+# python3.7 STFGFuzzer.py -n lava4961 -t sanitizer -- Programs/lava4961/code_Bin/lava4961 @@
 
 def mainFuzzer():
     """
@@ -25,7 +25,7 @@ def mainFuzzer():
     """
     # Receive command line parameters.
     program_name, patchtype, fuzz_command = Generator.genTerminal()
-    if fuzz_command == "" or program_name == "" or patchtype not in COM_PATCHSET:
+    if fuzz_command == "" or program_name == "":
         print("python {}.py -h".format(FUZZNAME))
         raise Exception("Error parameters.")
 
@@ -39,38 +39,36 @@ def mainFuzzer():
     LOG(LOG_DEBUG, LOG_FUNCINFO(), path_initseeds, path_mutseeds, path_crashseeds)
 
     '''Fuzzing test procedure.'''
-    ana = Analyzer.Analyzer()
-    sch = Scheduler.Scheduler()
-    vis = Visualizer.Visualizer()
-    sch.file_crash_csv = file_crash_csv
-    sch.path_crashseeds = path_crashseeds
+
     # Directed Location
     print("{} Build Directional Position.".format(getTime()))
     binline_dict = Builder.getBinaryInfo(path_graph)
-    target_dict = Comparator.getTarget(path_patchloc)
+    target_dict = Comparator.getTarget(path_patchloc, patchtype)
     map_numTofuncasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
     del target_dict
     del binline_dict
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm, showlog=True)
     # Graph Information
-    print("{} Build Graph Information...".format(getTime()))
+    print("{} Build Graph Information.".format(getTime()))
     cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
     cggraph, map_funcTocgnode = Builder.getCG(cglist)
     cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode = Builder.getCFG(cfglist, map_numTofuncasm)
     Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
 
-    print("{} Directed Target Sequence...".format(getTime()))
+    print("{} Directed Target Sequence.")
     Builder.printTargetSeq(map_numfuncTotgtnode)
     LOG(LOG_DEBUG, LOG_FUNCINFO(),
-        cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode)
+        cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode, showlog=True)
 
     # vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
-
+    sch = Scheduler.Scheduler()
+    sch.file_crash_csv = file_crash_csv
+    sch.path_crashseeds = path_crashseeds
     # Init Loop Variables
     before_coverage = sch.coveragepath
 
     # Init seed lists
-    print("{} Init Seed lists...".format(getTime()))
+    print("{} Init Seed lists.".format(getTime()))
     init_seeds_list = Generator.prepareEnv(program_name)
     if len(init_seeds_list) > 0:
         temp_listq = []
@@ -82,12 +80,17 @@ def mainFuzzer():
                  [StructSeed(path_mutseeds + AUTO_SEED, Mutator.getFillStr(64), SEED_INIT, set()), ])
 
     '''Fuzzing Cycle'''
+<<<<<<< HEAD
     print("{} Fuzzing Loop...".format(getTime()))
+    ana = Analyzer.Analyzer()
+    vis = Visualizer.Visualizer()
+=======
+    print("{} Fuzzing Loop.".format(getTime()))
+>>>>>>> parent of 4e7a4bb... direct
     while not sch.seedq.empty():
         vis.loop += 1
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), fuzz_command.replace('@@', init_seed.filename), showlog=True)
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         ana.getShm(init_stdout[0:16])
         ana.sendCmpid("Guard")
@@ -182,7 +185,7 @@ def mainFuzzer():
             # print(sdloc_list)
             coarse_head += sch.slid_window // 2
             sd_seed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, COARSE_STR + str(vis.loop), sdloc_list)
-            sd_seed = sch.selectOneSeed(SCH_THIS_SEED, sd_seed)
+            sd_seed = sch.selectOneSeed(SCH_THISMUT_SEED, sd_seed)
             sd_stdout, sd_stderr = Executor.run(fuzz_command.replace('@@', sd_seed.filename))
             sch.saveCrash(sd_seed, sd_stdout, sd_stderr, vis.start_time, vis.last_time)
 
@@ -276,7 +279,7 @@ def mainFuzzer():
                     bdloc_list = [one_loc, ]
                     bd_seed = Mutator.mutOneChar(ststart_seed.content, path_mutseeds, FINE_STR + str(vis.loop),
                                                  bdloc_list)
-                    bd_seed = sch.selectOneSeed(SCH_THIS_SEED, bd_seed)
+                    bd_seed = sch.selectOneSeed(SCH_THISMUT_SEED, bd_seed)
                     bd_stdout, bd_stderr = Executor.run(fuzz_command.replace('@@', bd_seed.filename))
                     sch.saveCrash(bd_seed, bd_stdout, bd_stderr, vis.start_time, vis.last_time)
 
@@ -371,12 +374,12 @@ def mainFuzzer():
                                 st_seed = Mutator.mutLocFromMap(
                                     st_seed, st_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict
                                 )
-                                st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
+                                st_seed = sch.selectOneSeed(SCH_THISMUT_SEED, st_seed)
                             else:
                                 st_seed = Mutator.mutLocFromMap(
                                     opt_seed, opt_seed.content, path_mutseeds, ST_STR + str(vis.loop), locmapdet_dict
                                 )
-                                st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
+                                st_seed = sch.selectOneSeed(SCH_THISMUT_SEED, st_seed)
                             st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
                             sch.saveCrash(st_seed, st_stdout, st_stderr, vis.start_time, vis.last_time)
 
@@ -414,10 +417,12 @@ def mainFuzzer():
                                 break
                             elif len(locmapdet_dict) == 0 or exe_status == DIST_FAIL:
                                 pass
+                    sch.deleteSeeds(SCH_THISMUT_SEED)
 
         # raise Exception()
         # Endless fuzzing, add the length seed.
         LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content)
+        sch.deleteSeeds(SCH_THIS_SEED)
         if sch.seedq.empty():
             sch.addq(SCH_LOOP_SEED, [init_seed, ])
 

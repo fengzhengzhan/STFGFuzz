@@ -4,7 +4,7 @@ import re
 from fuzzer_module.Fuzzconfig import *
 
 
-def getTarget(path_patchloc):
+def getTarget(path_patchloc, patchtype:list):
     """
     Get the required number of lines of directed functions corresponding to the binary block position.
     There are three types: git patch, sanitizer, manual.
@@ -16,10 +16,10 @@ def getTarget(path_patchloc):
         file_split = file_i.split(".")
         fname, ext = file_split[0], file_split[-1]
         # print(fname, ext)
-        if ext == COM_PATCH:  # github patch
+        if ext == COM_PATCH and ext in patchtype:  # github patch
             pass
 
-        if ext == COM_SANITIZER:  # sanitizer
+        if ext == COM_SANITIZER and ext in patchtype:  # sanitizer
             sanitizer_cont = getFileList(path_patchloc + file_i)
             target_dict[target_num] = StructTarget([], 3)
 
@@ -36,7 +36,7 @@ def getTarget(path_patchloc):
             target_num += 1
             # print(target_dict[0].tgttrace)
 
-        if ext == COM_MANUAL:  # manual design
+        if ext == COM_MANUAL and ext in patchtype:  # manual design
             # target:stack:funcname:line
             # A blank line is required between the different targets of the manual mutation target.
             manual_cont = getFileList(path_patchloc + file_i)

@@ -7,7 +7,11 @@
   "objects": [
     {
       "_gvid": 0,
-      "name": "Node0x5573ac52ab80",
+<<<<<<< HEAD
+      "name": "Node0x55701761fb80",
+=======
+      "name": "Node0x55abc984ab80",
+>>>>>>> parent of 4e7a4bb... direct
       "color": "#b70d28ff",
       "fillcolor": "#b70d2870",
       "label": "{%3:\\l  %4 = alloca i32, align 4\\l  %5 = alloca %struct.magic_set*, align 8\\l  %6 = alloca %struct.magic_entry*, align 8\\l  %7 = alloca %struct.magic_entry_set*, align 8\\l  %8 = alloca i64, align 8\\l  %9 = alloca %struct.magic_entry*, align 8\\l  call void @__sanitizer_cov_trace_pc_guard(i32* getelementptr inbounds ([6 x\\l... i32], [6 x i32]* @__sancov_gen_.81, i32 0, i32 0)) #11, !dbg !1216\\l  store %struct.magic_set* %0, %struct.magic_set** %5, align 8\\l  call void @llvm.dbg.declare(metadata %struct.magic_set** %5, metadata !1217,\\l... metadata !DIExpression()), !dbg !1218\\l  store %struct.magic_entry* %1, %struct.magic_entry** %6, align 8\\l  call void @llvm.dbg.declare(metadata %struct.magic_entry** %6, metadata\\l... !1219, metadata !DIExpression()), !dbg !1220\\l  store %struct.magic_entry_set* %2, %struct.magic_entry_set** %7, align 8\\l  call void @llvm.dbg.declare(metadata %struct.magic_entry_set** %7, metadata\\l... !1221, metadata !DIExpression()), !dbg !1222\\l  call void @llvm.dbg.declare(metadata i64* %8, metadata !1223, metadata\\l... !DIExpression()), !dbg !1224\\l  %10 = load %struct.magic_entry*, %struct.magic_entry** %6, align 8, !dbg\\l... !1225\\l  %11 = getelementptr inbounds %struct.magic_entry, %struct.magic_entry* %10,\\l... i32 0, i32 0, !dbg !1226\\l  %12 = load %struct.magic*, %struct.magic** %11, align 8, !dbg !1226\\l  %13 = getelementptr inbounds %struct.magic, %struct.magic* %12, i32 0, i32\\l... 5, !dbg !1227\\l  %14 = load i8, i8* %13, align 2, !dbg !1227\\l  %15 = zext i8 %14 to i32, !dbg !1225\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 45, i32 %15), !dbg !1228\\l  %16 = icmp eq i32 %15, 45, !dbg !1228\\l  %17 = zext i1 %16 to i64, !dbg !1225\\l  %18 = select i1 %16, i32 1, i32 0, !dbg !1225\\l  %19 = sext i32 %18 to i64, !dbg !1225\\l  store i64 %19, i64* %8, align 8, !dbg !1224\\l  %20 = load %struct.magic_entry_set*, %struct.magic_entry_set** %7, align 8,\\l... !dbg !1229\\l  %21 = load i64, i64* %8, align 8, !dbg !1231\\l  %22 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %20, i64 %21, !dbg !1229\\l  %23 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %22, i32 0, i32 1, !dbg !1232\\l  %24 = load i32, i32* %23, align 8, !dbg !1232\\l  %25 = load %struct.magic_entry_set*, %struct.magic_entry_set** %7, align 8,\\l... !dbg !1233\\l  %26 = load i64, i64* %8, align 8, !dbg !1234\\l  %27 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %25, i64 %26, !dbg !1233\\l  %28 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %27, i32 0, i32 2, !dbg !1235\\l  %29 = load i32, i32* %28, align 4, !dbg !1235\\l  call void @__sanitizer_cov_trace_cmp4(i32 %24, i32 %29), !dbg !1236\\l  %30 = icmp eq i32 %24, %29, !dbg !1236\\l  br i1 %30, label %31, label %80, !dbg !1237\\l|{<s0>T|<s1>F}}",
@@ -16,7 +20,11 @@
     },
     {
       "_gvid": 1,
-      "name": "Node0x5573ac4e6970",
+<<<<<<< HEAD
+      "name": "Node0x5570175db970",
+=======
+      "name": "Node0x55abc9806970",
+>>>>>>> parent of 4e7a4bb... direct
       "color": "#3d50c3ff",
       "fillcolor": "#ec7f6370",
       "label": "{%31:\\l31:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([6 x i32]* @__sancov_gen_.81 to i64), i64 4) to i32*)) #11, !dbg\\l... !1238\\l  call void @llvm.dbg.declare(metadata %struct.magic_entry** %9, metadata\\l... !1240, metadata !DIExpression()), !dbg !1238\\l  %32 = load %struct.magic_entry_set*, %struct.magic_entry_set** %7, align 8,\\l... !dbg !1241\\l  %33 = load i64, i64* %8, align 8, !dbg !1242\\l  %34 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %32, i64 %33, !dbg !1241\\l  %35 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %34, i32 0, i32 2, !dbg !1243\\l  %36 = load i32, i32* %35, align 4, !dbg !1244\\l  %37 = zext i32 %36 to i64, !dbg !1244\\l  %38 = add i64 %37, 200, !dbg !1244\\l  %39 = trunc i64 %38 to i32, !dbg !1244\\l  store i32 %39, i32* %35, align 4, !dbg !1244\\l  %40 = load %struct.magic_entry_set*, %struct.magic_entry_set** %7, align 8,\\l... !dbg !1245\\l  %41 = load i64, i64* %8, align 8, !dbg !1245\\l  %42 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %40, i64 %41, !dbg !1245\\l  %43 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %42, i32 0, i32 0, !dbg !1245\\l  %44 = load %struct.magic_entry*, %struct.magic_entry** %43, align 8, !dbg\\l... !1245\\l  %45 = bitcast %struct.magic_entry* %44 to i8*, !dbg !1245\\l  %46 = load %struct.magic_entry_set*, %struct.magic_entry_set** %7, align 8,\\l... !dbg !1245\\l  %47 = load i64, i64* %8, align 8, !dbg !1245\\l  %48 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %46, i64 %47, !dbg !1245\\l  %49 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %48, i32 0, i32 2, !dbg !1245\\l  %50 = load i32, i32* %49, align 4, !dbg !1245\\l  %51 = zext i32 %50 to i64, !dbg !1245\\l  %52 = mul i64 16, %51, !dbg !1245\\l  %53 = call i8* @realloc(i8* %45, i64 %52) #12, !dbg !1245\\l  %54 = bitcast i8* %53 to %struct.magic_entry*, !dbg !1245\\l  store %struct.magic_entry* %54, %struct.magic_entry** %9, align 8, !dbg !1247\\l  %55 = icmp eq %struct.magic_entry* %54, null, !dbg !1248\\l  br i1 %55, label %56, label %65, !dbg !1249\\l|{<s0>T|<s1>F}}",
@@ -25,7 +33,11 @@
     },
     {
       "_gvid": 2,
-      "name": "Node0x5573ac4e6a60",
+<<<<<<< HEAD
+      "name": "Node0x5570175dba60",
+=======
+      "name": "Node0x55abc9806a60",
+>>>>>>> parent of 4e7a4bb... direct
       "color": "#b70d28ff",
       "fillcolor": "#cc403a70",
       "label": "{%80:\\l80:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([6 x i32]* @__sancov_gen_.81 to i64), i64 16) to i32*)) #11, !dbg\\l... !1269\\l  %81 = load %struct.magic_entry_set*, %struct.magic_entry_set** %7, align 8,\\l... !dbg !1269\\l  %82 = load i64, i64* %8, align 8, !dbg !1270\\l  %83 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %81, i64 %82, !dbg !1269\\l  %84 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %83, i32 0, i32 0, !dbg !1271\\l  %85 = load %struct.magic_entry*, %struct.magic_entry** %84, align 8, !dbg\\l... !1271\\l  %86 = load %struct.magic_entry_set*, %struct.magic_entry_set** %7, align 8,\\l... !dbg !1272\\l  %87 = load i64, i64* %8, align 8, !dbg !1273\\l  %88 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %86, i64 %87, !dbg !1272\\l  %89 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %88, i32 0, i32 1, !dbg !1274\\l  %90 = load i32, i32* %89, align 8, !dbg !1275\\l  %91 = add i32 %90, 1, !dbg !1275\\l  store i32 %91, i32* %89, align 8, !dbg !1275\\l  %92 = zext i32 %90 to i64, !dbg !1269\\l  %93 = getelementptr inbounds %struct.magic_entry, %struct.magic_entry* %85,\\l... i64 %92, !dbg !1269\\l  %94 = load %struct.magic_entry*, %struct.magic_entry** %6, align 8, !dbg\\l... !1276\\l  %95 = bitcast %struct.magic_entry* %93 to i8*, !dbg !1277\\l  %96 = bitcast %struct.magic_entry* %94 to i8*, !dbg !1277\\l  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 8 %95, i8* align 8 %96, i64\\l... 16, i1 false), !dbg !1277\\l  %97 = load %struct.magic_entry*, %struct.magic_entry** %6, align 8, !dbg\\l... !1278\\l  %98 = bitcast %struct.magic_entry* %97 to i8*, !dbg !1279\\l  call void @llvm.memset.p0i8.i64(i8* align 8 %98, i8 0, i64 16, i1 false),\\l... !dbg !1279\\l  store i32 0, i32* %4, align 4, !dbg !1280\\l  br label %99, !dbg !1280\\l}",
@@ -34,7 +46,11 @@
     },
     {
       "_gvid": 3,
-      "name": "Node0x5573ac4e69c0",
+<<<<<<< HEAD
+      "name": "Node0x5570175db9c0",
+=======
+      "name": "Node0x55abc98069c0",
+>>>>>>> parent of 4e7a4bb... direct
       "color": "#3d50c3ff",
       "fillcolor": "#ead5c970",
       "label": "{%56:\\l56:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([6 x i32]* @__sancov_gen_.81 to i64), i64 8) to i32*)) #11, !dbg\\l... !1250\\l  %57 = load %struct.magic_set*, %struct.magic_set** %5, align 8, !dbg !1250\\l  %58 = load %struct.magic_entry_set*, %struct.magic_entry_set** %7, align 8,\\l... !dbg !1252\\l  %59 = load i64, i64* %8, align 8, !dbg !1253\\l  %60 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %58, i64 %59, !dbg !1252\\l  %61 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %60, i32 0, i32 2, !dbg !1254\\l  %62 = load i32, i32* %61, align 4, !dbg !1254\\l  %63 = zext i32 %62 to i64, !dbg !1252\\l  %64 = mul i64 16, %63, !dbg !1255\\l  call void @file_oomem(%struct.magic_set* %57, i64 %64), !dbg !1256\\l  store i32 -1, i32* %4, align 4, !dbg !1257\\l  br label %99, !dbg !1257\\l}",
@@ -43,7 +59,11 @@
     },
     {
       "_gvid": 4,
-      "name": "Node0x5573ac4e6a10",
+<<<<<<< HEAD
+      "name": "Node0x5570175dba10",
+=======
+      "name": "Node0x55abc9806a10",
+>>>>>>> parent of 4e7a4bb... direct
       "color": "#3d50c3ff",
       "fillcolor": "#f7b39670",
       "label": "{%65:\\l65:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([6 x i32]* @__sancov_gen_.81 to i64), i64 12) to i32*)) #11, !dbg\\l... !1258\\l  %66 = load %struct.magic_entry*, %struct.magic_entry** %9, align 8, !dbg\\l... !1258\\l  %67 = load %struct.magic_entry_set*, %struct.magic_entry_set** %7, align 8,\\l... !dbg !1259\\l  %68 = load i64, i64* %8, align 8, !dbg !1260\\l  %69 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %67, i64 %68, !dbg !1259\\l  %70 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %69, i32 0, i32 1, !dbg !1261\\l  %71 = load i32, i32* %70, align 8, !dbg !1261\\l  %72 = zext i32 %71 to i64, !dbg !1258\\l  %73 = getelementptr inbounds %struct.magic_entry, %struct.magic_entry* %66,\\l... i64 %72, !dbg !1258\\l  %74 = bitcast %struct.magic_entry* %73 to i8*, !dbg !1262\\l  call void @llvm.memset.p0i8.i64(i8* align 8 %74, i8 0, i64 3200, i1 false),\\l... !dbg !1262\\l  %75 = load %struct.magic_entry*, %struct.magic_entry** %9, align 8, !dbg\\l... !1263\\l  %76 = load %struct.magic_entry_set*, %struct.magic_entry_set** %7, align 8,\\l... !dbg !1264\\l  %77 = load i64, i64* %8, align 8, !dbg !1265\\l  %78 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %76, i64 %77, !dbg !1264\\l  %79 = getelementptr inbounds %struct.magic_entry_set,\\l... %struct.magic_entry_set* %78, i32 0, i32 0, !dbg !1266\\l  store %struct.magic_entry* %75, %struct.magic_entry** %79, align 8, !dbg\\l... !1267\\l  br label %80, !dbg !1268\\l}",
@@ -52,7 +72,11 @@
     },
     {
       "_gvid": 5,
-      "name": "Node0x5573ac4e6ab0",
+<<<<<<< HEAD
+      "name": "Node0x5570175dbab0",
+=======
+      "name": "Node0x55abc9806ab0",
+>>>>>>> parent of 4e7a4bb... direct
       "color": "#b70d28ff",
       "fillcolor": "#b70d2870",
       "label": "{%99:\\l99:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([6 x i32]* @__sancov_gen_.81 to i64), i64 20) to i32*)) #11, !dbg\\l... !1281\\l  %100 = load i32, i32* %4, align 4, !dbg !1281\\l  ret i32 %100, !dbg !1281\\l}",

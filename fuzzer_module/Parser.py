@@ -187,12 +187,13 @@ def handleChecksums(ret_seed, st_loc, strategy):
 
 def handleRandom(st_loc):
     change_inputmap = {}
-    r = random.randint(1, len(st_loc))
-    for r_i in range(0, r):
-        rloc = random.randint(0, len(st_loc) - 1)
-        rc = random.randint(0, 255)
-        temp = {rloc: BYTES_ASCII[rc]}
-        change_inputmap.update(temp)
+    if len(st_loc) > 0:
+        r = random.randint(1, len(st_loc))
+        for r_i in range(0, r):
+            rloc = random.randint(0, len(st_loc) - 1)
+            rc = random.randint(0, 255)
+            temp = {rloc: BYTES_ASCII[rc]}
+            change_inputmap.update(temp)
     return change_inputmap
 
 
