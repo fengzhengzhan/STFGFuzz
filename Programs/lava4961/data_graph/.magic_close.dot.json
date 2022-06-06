@@ -1,0 +1,69 @@
+{
+  "name": "CFG for 'magic_close' function",
+  "directed": true,
+  "strict": false,
+  "label": "CFG for 'magic_close' function",
+  "_subgraph_cnt": 0,
+  "objects": [
+    {
+      "_gvid": 0,
+      "name": "Node0x559c5c804790",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%1:\\l  %2 = alloca %struct.magic_set*, align 8\\l  call void @__sanitizer_cov_trace_pc_guard(i32* getelementptr inbounds ([4 x\\l... i32], [4 x i32]* @__sancov_gen_.16, i32 0, i32 0)) #11, !dbg !1259\\l  store %struct.magic_set* %0, %struct.magic_set** %2, align 8\\l  call void @llvm.dbg.declare(metadata %struct.magic_set** %2, metadata !1260,\\l... metadata !DIExpression()), !dbg !1261\\l  %3 = load %struct.magic_set*, %struct.magic_set** %2, align 8, !dbg !1262\\l  %4 = icmp eq %struct.magic_set* %3, null, !dbg !1264\\l  br i1 %4, label %5, label %6, !dbg !1265\\l|{<s0>T|<s1>F}}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 1,
+      "name": "Node0x559c5c805080",
+      "color": "#3d50c3ff",
+      "fillcolor": "#f7b39670",
+      "label": "{%5:\\l5:                                                \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([4 x i32]* @__sancov_gen_.16 to i64), i64 4) to i32*)) #11, !dbg\\l... !1266\\l  br label %8, !dbg !1266\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 2,
+      "name": "Node0x559c5c8050d0",
+      "color": "#b70d28ff",
+      "fillcolor": "#e8765c70",
+      "label": "{%6:\\l6:                                                \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([4 x i32]* @__sancov_gen_.16 to i64), i64 8) to i32*)) #11, !dbg\\l... !1267\\l  %7 = load %struct.magic_set*, %struct.magic_set** %2, align 8, !dbg !1267\\l  call void @file_ms_free(%struct.magic_set* %7), !dbg !1268\\l  br label %8, !dbg !1269\\l}",
+      "shape": "record",
+      "style": "filled"
+    },
+    {
+      "_gvid": 3,
+      "name": "Node0x559c5c805120",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%8:\\l8:                                                \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([4 x i32]* @__sancov_gen_.16 to i64), i64 12) to i32*)) #11, !dbg\\l... !1269\\l  ret void, !dbg !1269\\l}",
+      "shape": "record",
+      "style": "filled"
+    }
+  ],
+  "edges": [
+    {
+      "_gvid": 0,
+      "tail": 0,
+      "head": 1,
+      "tailport": "s0"
+    },
+    {
+      "_gvid": 1,
+      "tail": 0,
+      "head": 2,
+      "tailport": "s1"
+    },
+    {
+      "_gvid": 2,
+      "tail": 1,
+      "head": 3
+    },
+    {
+      "_gvid": 3,
+      "tail": 2,
+      "head": 3
+    }
+  ]
+}

@@ -16,6 +16,7 @@ from fuzzer_module.Fuzzconfig import *
 # python3.7 STFGFuzzer.py -n md5sum -- ./Programs/md5sum/code_Bin/md5sum -c @@
 # python3.7 STFGFuzzer.py -n uniq -- ./Programs/uniq/code_Bin/uniq @@
 # python3.7 STFGFuzzer.py -n who -- ./Programs/who/code_Bin/who @@
+# python3.7 STFGFuzzer.py -n lava4961 -t sanitizer -- ./Programs/lava4961/code_Bin/lava4961 @@
 
 def mainFuzzer():
     """
@@ -43,10 +44,12 @@ def mainFuzzer():
     sch.file_crash_csv = file_crash_csv
     sch.path_crashseeds = path_crashseeds
     # Directed Location
+    print("{} Build Directional Position.".format(getTime()))
     binline_dict = Builder.getBinaryInfo(program_name)
     target_dict = Comparator.getTarget(program_name)
     map_numTofuncasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
     # Graph Information
+    print("{} Build Graph Information.".format(getTime()))
     cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
     cggraph, map_funcTocgnode = Builder.getCG(cglist)
     cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode = Builder.getCFG(cfglist, map_numTofuncasm)
@@ -61,6 +64,7 @@ def mainFuzzer():
     before_coverage = sch.coveragepath
 
     # Init seed lists
+    print("{} Init Seed lists.".format(getTime()))
     init_seeds_list = Generator.prepareEnv(program_name)
     if len(init_seeds_list) > 0:
         temp_listq = []
@@ -72,6 +76,7 @@ def mainFuzzer():
                  [StructSeed(path_mutseeds + AUTO_SEED, Mutator.getFillStr(64), SEED_INIT, set()), ])
 
     '''Fuzzing Cycle'''
+    print("{} Fuzzing Loop.".format(getTime()))
     while not sch.seedq.empty():
         vis.loop += 1
         # First run to collect information.

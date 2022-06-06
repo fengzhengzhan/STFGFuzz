@@ -1,0 +1,18 @@
+{
+  "name": "CFG for 'sancov.module_ctor_trace_pc_guard' function",
+  "directed": true,
+  "strict": false,
+  "label": "CFG for 'sancov.module_ctor_trace_pc_guard' function",
+  "_subgraph_cnt": 0,
+  "objects": [
+    {
+      "_gvid": 0,
+      "name": "Node0x559c5ce4cac0",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%0:\\l  call void @__sanitizer_cov_trace_pc_guard_init(i32*\\l... @__start___sancov_guards, i32* @__stop___sancov_guards)\\l  ret void\\l}",
+      "shape": "record",
+      "style": "filled"
+    }
+  ]
+}

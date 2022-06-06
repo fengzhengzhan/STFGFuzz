@@ -1,0 +1,18 @@
+{
+  "name": "CFG for 'usage' function",
+  "directed": true,
+  "strict": false,
+  "label": "CFG for 'usage' function",
+  "_subgraph_cnt": 0,
+  "objects": [
+    {
+      "_gvid": 0,
+      "name": "Node0x559c5c7cd270",
+      "color": "#b70d28ff",
+      "fillcolor": "#b70d2870",
+      "label": "{%0:\\l  %1 = load %struct._IO_FILE*, %struct._IO_FILE** @stderr, align 8, !dbg !1208\\l  %2 = load i8*, i8** @progname, align 8, !dbg !1209\\l  %3 = load i8*, i8** @progname, align 8, !dbg !1210\\l  %4 = load i8*, i8** @progname, align 8, !dbg !1211\\l  %5 = call i32 (%struct._IO_FILE*, i8*, ...) @fprintf(%struct._IO_FILE* %1,\\l... i8* getelementptr inbounds ([201 x i8], [201 x i8]* @.str.60, i64 0, i64 0),\\l... i8* %2, i8* %3, i8* %4), !dbg !1212\\l  call void @exit(i32 1) #11, !dbg !1213\\l  unreachable, !dbg !1213\\l}",
+      "shape": "record",
+      "style": "filled"
+    }
+  ]
+}

@@ -56,6 +56,9 @@ def getFileList(filepathname: str) -> list:
         file_list = f.readlines()
     return file_list
 
+def getTime():
+    t = str(time.strftime("[%H:%M:%S]", time.localtime(time.time())))
+    return t
 
 def getTimeStr():
     t = str(time.strftime("%Y%m%d%H%M%S", time.localtime(time.time())))

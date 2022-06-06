@@ -46,7 +46,7 @@ def genTerminal():
             print("Usage:")
             print(" python {}.py [OPTIONS] -- [files] [OPTIONS] @@".format(FUZZNAME))
             print(" python {}.py -n demo -- ./Programs/demo/code_Bin/demo -f @@".format(FUZZNAME))
-            print(" python {}.py -n demo -t manual -- ./Programs/demo/code_Bin/demo -f @@".format(FUZZNAME))
+            print(" python {}.py -n demo -t sanitizer -- ./Programs/demo/code_Bin/demo -f @@".format(FUZZNAME))
             print()
             print("STFGFuzzer")
             print()
