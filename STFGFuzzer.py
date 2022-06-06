@@ -80,13 +80,9 @@ def mainFuzzer():
                  [StructSeed(path_mutseeds + AUTO_SEED, Mutator.getFillStr(64), SEED_INIT, set()), ])
 
     '''Fuzzing Cycle'''
-<<<<<<< HEAD
     print("{} Fuzzing Loop...".format(getTime()))
     ana = Analyzer.Analyzer()
     vis = Visualizer.Visualizer()
-=======
-    print("{} Fuzzing Loop.".format(getTime()))
->>>>>>> parent of 4e7a4bb... direct
     while not sch.seedq.empty():
         vis.loop += 1
         # First run to collect information.

@@ -107,11 +107,9 @@ def getCFG(cfglist, map_numTofuncasm):
                 if len(guard_res) == 0:
                     pattern = re.compile(BUI_GUARD2_RE)
                     guard_res = pattern.findall(node_j[BUI_NODE_LABEL])
-<<<<<<< HEAD
-                    if len(guard_res) == 0:
-                        LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_LABEL], showlog=True)
-=======
->>>>>>> parent of 4e7a4bb... direct
+                    # if len(guard_res) == 0:
+                    #     LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_LABEL], showlog=True)
+
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), guard_res)
                 temp_intlist = []
                 for one in guard_res:
