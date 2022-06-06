@@ -98,22 +98,13 @@ def getCFG(cfglist, map_numTofuncasm):
             nodes_list = []
             for node_j in data[BUI_NODES]:
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_NAME], node_j[BUI_NODE_LABEL])
-                # Find target
-                for tarnum_k in map_numTofuncasm:
-                    for target_l in map_numTofuncasm[tarnum_k].get(graphname):
-                        res = node_j[BUI_NODE_LABEL].find(target_l)
-                        if res != -1:
-                            if tarnum_k not in map_numfuncTotgtnode:
-                                map_numfuncTotgtnode[tarnum_k] = {}
-                            if graphname not in map_numfuncTotgtnode[tarnum_k]:
-                                map_numfuncTotgtnode[tarnum_k][graphname] = [node_j[BUI_NODE_NAME]]
-                            else:
-                                map_numfuncTotgtnode[tarnum_k][graphname].append(node_j[BUI_NODE_NAME])
 
                 # Find Guard num node_j
                 pattern = re.compile(BUI_GUARD_RE)
                 guard_res = pattern.findall(node_j[BUI_NODE_LABEL])
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_LABEL], guard_res)
+                # if graphname == "file_magicfind" and len(guard_res) == 0:
+                #     print("file_magicfind", node_j[BUI_NODE_LABEL])
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), guard_res)
                 temp_intlist = []
                 for one in guard_res:
                     temp_guardnum = int(int(one, 10) / BUI_LOC_INTERVAL)
@@ -126,6 +117,26 @@ def getCFG(cfglist, map_numTofuncasm):
                                     BUI_NODE_LABEL: temp_intlist,
                                     BUI_NODE_DISTANCE: USE_INITNUM,
                                     BUI_NODE_ST: []}))
+
+                # Find target
+                for tarnum_k in map_numTofuncasm:  # target nums
+                    # print(map_numTofuncasm[0], graphname)
+                    # if graphname == "file_magicfind" or graphname == "match":
+                    #     print(graphname, node_j[BUI_NODE_LABEL])
+                    if graphname in map_numTofuncasm[tarnum_k]:
+                        for target_l in map_numTofuncasm[tarnum_k].get(graphname):  # [tgtnumid, asm]
+                            tgtid = target_l[0]
+                            res = node_j[BUI_NODE_LABEL].replace(' ', '').replace('\\l', '')\
+                                .find(target_l[1].replace(' ', ''))
+
+                            if res != -1:
+                                if tarnum_k not in map_numfuncTotgtnode:
+                                    map_numfuncTotgtnode[tarnum_k] = {}
+                                if graphname not in map_numfuncTotgtnode[tarnum_k]:
+                                    map_numfuncTotgtnode[tarnum_k][graphname] = [[tgtid, temp_intlist, node_j[BUI_NODE_NAME]]]
+                                else:
+                                    map_numfuncTotgtnode[tarnum_k][graphname].append([tgtid, temp_intlist, node_j[BUI_NODE_NAME]])
+
             # Edges
             edges_list = []
             for edge_j in data[BUI_EDGES]:
@@ -186,7 +197,7 @@ def addDistanceGraph(G, root):
                 else:
                     G.nodes[node_j][BUI_NODE_DISTANCE] = min(tdis, curlayer)
 
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), root, G.nodes(data=True), showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), root, G.nodes(data=True))
 
 
 def buildBFSdistance(cggraph, cfggraph_dict) -> dict:
@@ -194,7 +205,7 @@ def buildBFSdistance(cggraph, cfggraph_dict) -> dict:
     An incoming graph is traversed breadth-first to determine the mutual position of nodes.
     @return:
     """
-    LOG(LOG_DEBUG, cggraph, cfggraph_dict, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), cggraph, cfggraph_dict)
     # CG BFS
     # print(cggraph.dgname, cggraph.dg)
     cgroot = searchRoot(cggraph.dg)

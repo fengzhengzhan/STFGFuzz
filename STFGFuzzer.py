@@ -51,6 +51,7 @@ def mainFuzzer():
     map_numTofuncasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
     del target_dict
     del binline_dict
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm, showlog=True)
     # Graph Information
     print("{} Build Graph Information.".format(getTime()))
     cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
