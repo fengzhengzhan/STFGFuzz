@@ -7,7 +7,9 @@ from fuzzer_module.Tools import *
 # map_guardTofuncname
 
 '''Struct'''
-
+class StructPath:
+    def __init__(self):
+        pass
 
 class StructTarget:
     def __init__(self, tgttrace: list, tgtinfo: int):

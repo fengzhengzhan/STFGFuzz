@@ -34,6 +34,7 @@ def mainFuzzer():
     path_crashseeds = PROGRAMS + os.sep + program_name + os.sep + SEEDSCRASH + os.sep
     path_graph = PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH + os.sep
     path_codeIR = PROGRAMS + os.sep + program_name + os.sep + CODEIR + os.sep
+    path_patchloc = PROGRAMS + os.sep + program_name + os.sep + DATAPATCHLOC + os.sep
     file_crash_csv = path_crashseeds + CRASH_CSVFILENAME
     LOG(LOG_DEBUG, LOG_FUNCINFO(), path_initseeds, path_mutseeds, path_crashseeds)
 
@@ -45,9 +46,11 @@ def mainFuzzer():
     sch.path_crashseeds = path_crashseeds
     # Directed Location
     print("{} Build Directional Position.".format(getTime()))
-    target_dict = Comparator.getTarget(program_name)
-    binline_dict = Builder.getBinaryInfo(program_name)
+    binline_dict = Builder.getBinaryInfo(path_graph)
+    target_dict = Comparator.getTarget(path_patchloc)
     map_numTofuncasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
+    del target_dict
+    del binline_dict
     # Graph Information
     print("{} Build Graph Information.".format(getTime()))
     cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
@@ -56,7 +59,7 @@ def mainFuzzer():
     Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
 
     LOG(LOG_DEBUG, LOG_FUNCINFO(),
-        cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode)
+        cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode, showlog=True)
 
     # vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
 

@@ -18,14 +18,14 @@ class Graph:
         self.dg.add_weighted_edges_from(edges_list)
 
 
-def getBinaryInfo(program_name: str) -> 'dict[str:dict[int:dict[str:str]]]':
+def getBinaryInfo(path_graph: str) -> 'dict[str:dict[int:dict[str:str]]]':
     """
     From data_patchloc/binaryline.info file parses strings into dictionaries.
     @return:
     """
     # {'function_name':{line:{'':''},line:{'':''}}, }
-    temp_patchfile = PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH + os.sep + BUI_PATCHFILE
-    patchline_info = getFileContent(temp_patchfile)
+    binary_graph = path_graph + BUI_PATCHFILE
+    patchline_info = getFileContent(binary_graph)
     pattern = re.compile(r"\s+")
     patchline_sub = re.sub(pattern, ' ', patchline_info)
 
@@ -78,13 +78,14 @@ def getCFG(cfglist, map_numTofuncasm):
     @param cfglist:
     @return:
     """
-    map_guardTocfgnode: 'dict[guardnum:node_j]' = {}
-    map_numfuncTotgtnode: 'dict[funcname:node_j]' = {}
+    map_guardTocfgnode: '{guardnum:node_j}' = {}
+    map_numfuncTotgtnode: '{funcname:[id,nodeid,node_j]}' = {}
     cfggraph_dict = {}
     for jsonfile_i in cfglist:
         # funcname = jsonfile_i.split(os.sep)[-1][1:-9]
         with open(jsonfile_i, 'r') as f:
             data = json.load(f)
+            # print(data)
             graphname = data[BUI_NAME].split(" ")[-2][1:-1]  # That also is the function name.
             # Excluding the single node_j case.
             if BUI_EDGES not in data:

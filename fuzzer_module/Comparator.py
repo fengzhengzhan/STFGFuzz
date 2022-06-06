@@ -4,13 +4,12 @@ import re
 from fuzzer_module.Fuzzconfig import *
 
 
-def getTarget(program_name: str):
+def getTarget(path_patchloc):
     """
     Get the required number of lines of directed functions corresponding to the binary block position.
     There are three types: git patch, sanitizer, manual.
     @return:
     """
-    path_patchloc = PROGRAMS + os.sep + program_name + os.sep + DATAPATCHLOC + os.sep
     target_num = 0
     target_dict: 'dict[target_num:StructTarget]' = {}
     for file_i in os.listdir(path_patchloc):
@@ -62,31 +61,38 @@ def getTarget(program_name: str):
 
 
 def getDirectedNodeLoc(binline_dict: dict, target_dict: 'dict[target_num:StructTarget]'):
-    map_numTofuncasm: 'dict[targetnum:dict[funcname:list[asm, asm]]]' = {}
-    for tar_k, tar_v in target_dict.items():
-        # print(tar_v.ttrace, tar_v.tfunc, tar_v.tline)
+    """
+    Get the IR of the target position
+    @return:
+    """
+    # print(binline_dict.keys())
+    map_numTofuncasm: '{targetnum:{funcname:[[id,asm],[id,asm],...]}}' = {}
+    for tgt_k, tgt_v in target_dict.items():
+        # print(tgt_v.ttrace, tgt_v.tfunc, tgt_v.tline)
         funcToasm = {}
-        ttrace, tfunc, tline = tar_v.ttrace, tar_v.tfunc, tar_v.tline
-        for idx in range(len(ttrace)):
+        tgttrace = tgt_v.tgttrace
+        for each in tgttrace:
+            ttrace, tfunc, tline = each[0], each[1], each[2]
+            # print(ttrace, tfunc, tline)
             # Find the real key in CG Symbols.
             temp_binkey = []
             for bin_kj in binline_dict.keys():
-                findres = bin_kj.find(tfunc[idx])
+                findres = bin_kj.find(tfunc)
                 if findres != -1:
                     temp_binkey.append(bin_kj)
-                # print(bin_kj, tfunc[idx], findres)
+                # print(bin_kj, tfunc[each], findres)
             # Get the asm instruction.
             for tempbin_kj in temp_binkey:
-                if tempbin_kj in binline_dict and tline[idx] in binline_dict[tempbin_kj]:
+                if tempbin_kj in binline_dict and tline in binline_dict[tempbin_kj]:
                     # {'I': '', 'F': '_Z3bugv', 'C': '7', 'N': '', 'D': ''}
-                    tempfunc = binline_dict[tempbin_kj][tline[idx]][COM_BINFUNC]
-                    tempin = binline_dict[tempbin_kj][tline[idx]][COM_BININ]
+                    tempfunc = binline_dict[tempbin_kj][tline][COM_BINFUNC]
+                    tempins = binline_dict[tempbin_kj][tline][COM_BININS]
                     if tempfunc not in funcToasm:
-                        funcToasm[tempfunc] = [tempin]
+                        funcToasm[tempfunc] = [[ttrace, tempins]]
                     elif tempfunc in funcToasm:
-                        funcToasm[tempfunc].append(tempin)
-        map_numTofuncasm[tar_k] = funcToasm
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm)
+                        funcToasm[tempfunc].append([ttrace, tempins])
+        map_numTofuncasm[tgt_k] = funcToasm
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm, showlog=True)
     return map_numTofuncasm
 
 
