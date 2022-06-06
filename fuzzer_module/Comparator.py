@@ -14,25 +14,28 @@ def getTarget(program_name: str):
     target_num = 0
     target_dict: 'dict[target_num:StructTarget]' = {}
     for file_i in os.listdir(path_patchloc):
-        fname, ext = os.path.splitext(file_i)
+        file_split = file_i.split(".")
+        fname, ext = file_split[0], file_split[-1]
         # print(fname, ext)
         if ext == COM_PATCH:  # github patch
             pass
 
         if ext == COM_SANITIZER:  # sanitizer
             sanitizer_cont = getFileList(path_patchloc + file_i)
-            target_dict[target_num] = StructTarget([], [], [])
+            target_dict[target_num] = StructTarget([], 3)
 
             for cont_i in sanitizer_cont:
                 line = str(cont_i).replace('\n', '')
                 re_str = "#(.*?) 0x.*? in (.*?) .*?:(.*?):(.*)"
                 re_cont = re.search(re_str, line)
+                # print(re_cont)
                 if re_cont is not None:
                     cont_groups = re_cont.groups()
                     # print(cont_groups)
-                    target_dict[target_num].additem(int(cont_groups[0]), delBrackets(cont_groups[1]),
+                    target_dict[target_num].addone(int(cont_groups[0]), delBrackets(cont_groups[1]),
                                                     int(cont_groups[2]))
             target_num += 1
+            # print(target_dict[0].tgttrace)
 
         if ext == COM_MANUAL:  # manual design
             # target:stack:funcname:line
@@ -46,9 +49,9 @@ def getTarget(program_name: str):
                     continue
                 numid = int(line[0])
                 if numid not in nums:
-                    nums[numid] = StructTarget([int(line[1])], [delBrackets(line[2])], [int(line[3])])
+                    nums[numid] = StructTarget([], 3).addone(int(line[1]), delBrackets(line[2]), int(line[3]))
                 else:
-                    nums[numid].additem(int(line[1]), delBrackets(line[2]), int(line[3]))
+                    nums[numid].addone(int(line[1]), delBrackets(line[2]), int(line[3]))
 
             for man_k, man_v in nums.items():
                 target_dict[target_num] = man_v

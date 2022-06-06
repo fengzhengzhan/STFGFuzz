@@ -45,8 +45,8 @@ def mainFuzzer():
     sch.path_crashseeds = path_crashseeds
     # Directed Location
     print("{} Build Directional Position.".format(getTime()))
-    binline_dict = Builder.getBinaryInfo(program_name)
     target_dict = Comparator.getTarget(program_name)
+    binline_dict = Builder.getBinaryInfo(program_name)
     map_numTofuncasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
     # Graph Information
     print("{} Build Graph Information.".format(getTime()))

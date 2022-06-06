@@ -10,15 +10,17 @@ from fuzzer_module.Tools import *
 
 
 class StructTarget:
-    def __init__(self, ttrace: list, tfunc: list, tline: list):
-        self.ttrace: list = ttrace
-        self.tfunc: list = tfunc
-        self.tline: list = tline
+    def __init__(self, tgttrace: list, tgtinfo: int):
+        self.tgttrace: list = tgttrace
+        self.tgtinfo: int = tgtinfo
+
+    def addone(self, ttrace, tfunc, tline):
+        self.tgttrace.append([ttrace, tfunc, tline])
 
     def additem(self, ttrace, tfunc, tline):
-        self.ttrace.append(ttrace)
-        self.tfunc.append(tfunc)
-        self.tline.append(tline)
+        for one_i in range(0, len(ttrace)):
+            self.tgttrace.append([ttrace[one_i], tfunc[one_i], tline[one_i]])
+
 
 # The structure stores information about the seed file.
 class StructSeed:

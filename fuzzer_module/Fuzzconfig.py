@@ -190,14 +190,10 @@ BUI_LOC_INTERVAL = 4
 BUI_NODE_ST = "nodest"
 
 '''Comparator'''
-COM_PATCH = '.patch'
-COM_SANITIZER = '.sanitizer'
-COM_MANUAL = '.manual'
+COM_PATCH = 'patch'
+COM_SANITIZER = 'sanitizer'
+COM_MANUAL = 'manual'
 COM_PATCHSET = {USE_INITNUM, COM_PATCH, COM_SANITIZER, COM_MANUAL}
-
-COM_PATCH_FILE = 'errors_patch.info'
-COM_SANITIZER_FILE = 'errors_sanitizer.info'
-COM_MANUAL_FILE = "errors_manual.info"
 
 COM_BININ = 'I'
 COM_BINFUNC = 'F'
@@ -327,11 +323,11 @@ LOG_CRITICAL = logging.CRITICAL
 LOG_LEVEL = LOG_WARNING
 
 try:
-    print(getProjectPath() + '/Programs/{}.log'.format(FUZZNAME))
+    print(getTime() + ' ' + getProjectPath() + '/Programs/{}.log'.format(FUZZNAME))
     logging.basicConfig(filename=getProjectPath() + '/Programs/{}.log'.format(FUZZNAME), level=LOG_LEVEL,
                         format=LOG_FORMAT)
 except:
-    print('{}.log'.format(FUZZNAME))
+    print('{} {}.log'.format(getTime(), FUZZNAME))
     logging.basicConfig(filename='{}.log'.format(FUZZNAME), level=LOG_LEVEL, format=LOG_FORMAT)
 logging.debug("{} -------------------------".format(FUZZNAME))
 
