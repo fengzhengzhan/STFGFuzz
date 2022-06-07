@@ -106,5 +106,6 @@ if __name__ == "__main__":
     # print(delBrackets("bug"))
     # std_out, std_err = runothercmd("./Programs/base64/code_Bin/base64 -d Programs/base64/seeds_crash/validate_inputs/utmp-fuzzed-222.b64")
     # print(std_out, std_err)
-    cont = readContent("/home/fzz/Desktop/STFGFuzz/Programs/base64/seeds_init/rand.seed")
-    print(cont)
+    # cont = readContent("/home/fzz/Desktop/STFGFuzz/Programs/base64/seeds_init/rand.seed")
+    # print(cont)
+    print(delBrackets("bug(args)"))

@@ -15,7 +15,7 @@ def getTarget(path_patchloc, patchtype:list):
     for file_i in os.listdir(path_patchloc):
         file_split = file_i.split(".")
         fname, ext = file_split[0], file_split[-1]
-        print(fname, ext)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), fname, ext)
         if ext == COM_PATCH and ext in patchtype:  # github patch
             pass
 

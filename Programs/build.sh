@@ -98,7 +98,7 @@ then
 		# Compile the program
 		cd ${PROGRAMS}/${PROGRAMNAME}
 		# clang -g -emit-llvm -c ${SOURCES}/${PROGRAMNAME}.cc -o ${IR}/${PROGRAMNAME}.${SUFFIX} # IR
-		# -fsanitize-coverage=bb,no-prune,trace-pc-guard  -fsanitize-coverage=edge,trace-pc-guard (default)
+		# -fsanitize-recover=address,memory -fsanitize-coverage=bb,no-prune,trace-pc-guard  -fsanitize-coverage=edge,trace-pc-guard (default)
 		${COMPILER} -fsanitize-recover=address -fsanitize-coverage=bb,no-prune,trace-pc-guard,trace-cmp -emit-llvm -c ${SOURCES}/${PROGRAMNAME}.${SUFFIX} -o ${IR}/${PROGRAMNAME_TRACE}.${SUFFIX} 
 		rm -f ${LINE_SAVE}
 		echo "{" >> ${LINE_SAVE}

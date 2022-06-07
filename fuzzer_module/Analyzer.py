@@ -56,7 +56,6 @@ class Analyzer:
             # if self.shm_key == USE_INITNUM:
             #     raise Exception("Error shm_key {}".format(e))
 
-
         LOG(LOG_DEBUG, LOG_FUNCINFO(), shm_key, self.shm_key)
         if shm_key != self.shm_key:
             self.shm_key = shm_key
@@ -103,10 +102,10 @@ class Analyzer:
         # print(string_at(self.addr+128+16, 4096))
         cmpcovshm_str = "["
         if pieces > 0:
-            cmpcovshm_str += string_at(self.addr + ANA_START_SIZE, ANA_SHM_INTERVAL - ANA_START_SIZE)\
+            cmpcovshm_str += string_at(self.addr + ANA_START_SIZE, ANA_SHM_INTERVAL - ANA_START_SIZE) \
                 .decode("utf-8", "ignore")
             for each in range(1, pieces):
-                cmpcovshm_str += string_at(self.addr + ANA_SHM_INTERVAL * each, ANA_SHM_INTERVAL)\
+                cmpcovshm_str += string_at(self.addr + ANA_SHM_INTERVAL * each, ANA_SHM_INTERVAL) \
                     .decode("utf-8", "ignore")
             # fixme .decode("utf-8", "ignore")
             cmpcovshm_str += string_at(self.addr + ANA_SHM_INTERVAL * pieces, over).decode("utf-8", "ignore")
@@ -133,7 +132,7 @@ class Analyzer:
         """
         cmp_dict = {}  # According cmp instruction to genetator dict.
         for each_i in cmpcov_list:
-            if each_i[IDX_CMPTYPE+1] in FLAG_DICT and each_i[IDX_CMPID] not in freezeid_rpt:
+            if each_i[IDX_CMPTYPE + 1] in FLAG_DICT and each_i[IDX_CMPID] not in freezeid_rpt:
                 cmpid = each_i[IDX_CMPID]
                 if cmpid not in cmp_dict:
                     cmp_dict[cmpid] = [each_i[1:]]
@@ -141,11 +140,10 @@ class Analyzer:
                     cmp_dict[cmpid].append(each_i[1:])
         return cmp_dict
 
-    def traceGuardAnalysis(self, guardcov_list):
+    def getGuardNum(self, guardcov_list):
         """
-        Perform a trace of the compare instruction execution path if necessary.
+        Get all pc_guard numbers.
         """
-        # Iterate through the trace report to get the corresponding information
         guard_set = set()
         guard_total = USE_INITNUM
         for trace_i in guardcov_list:
@@ -155,6 +153,31 @@ class Analyzer:
             elif trace[IDX_CMPTYPE] == INIT_PC_GUARD:
                 guard_total = trace[2]
         return guard_set, guard_total
+
+    def traceGuardAnalysis(self, guardcov_list, sch):
+        """
+        Perform a trace of the compare instruction execution path if necessary.
+        """
+        # Iterate through the trace report to get the corresponding information
+        for trace_i in guardcov_list:
+            trace = trace_i[1:]
+            if trace[IDX_CMPTYPE] == EACH_PC_GUARD:
+                guard_funcname = delBrackets(trace[1])
+                guard_num = trace[2]
+                # Map execute function name to symbol function name.
+                if guard_funcname not in sch.map_functo_symbol:
+                    for bin_kj in sch.map_functo_guard.keys():
+                        findres = bin_kj.find(guard_funcname)
+                        if findres != -1:
+                            sch.map_functo_symbol[guard_funcname] = bin_kj
+
+                # Change guard start number from symbol function name which use execute function name map it.
+                if guard_funcname in sch.map_functo_symbol:
+                    if guard_num < sch.map_functo_guard[sch.map_functo_symbol[guard_funcname]]:
+                        sch.map_functo_guard[sch.map_functo_symbol[guard_funcname]] = guard_num
+
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.map_functo_symbol, sch.map_functo_guard, showlog=True)
+        return
 
     '''
     Tracking Comparison Module.
@@ -208,8 +231,8 @@ if __name__ == "__main__":
     ana.getShm("D124816Z\n")
 
     # ana.sendCmpid("abcde")
-    # ana.sendCmpid("None")
-    ana.sendCmpid("Guard")
+    ana.sendCmpid("None")
+    # ana.sendCmpid("Guard")
     # ana.sendCmpid("m0x49e319")
     # while True:
     #     addr = ana.getAddr("D124816Z\n")

@@ -12,7 +12,7 @@ from fuzzer_module.Fuzzconfig import *
 # Close Address Space Layout Randomization.
 # echo 0 > /proc/sys/kernel/randomize_va_space
 
-# python3.7 STFGFuzzer.py -n demo -- ./Programs/demo/code_Bin/demo -f @@
+# python3.7 STFGFuzzer.py -n demo -t sanitizer -- ./Programs/demo/code_Bin/demo -f @@
 # python3.7 STFGFuzzer.py -n base64 -- ./Programs/base64/code_Bin/base64 -d @@
 # python3.7 STFGFuzzer.py -n md5sum -- ./Programs/md5sum/code_Bin/md5sum -c @@
 # python3.7 STFGFuzzer.py -n uniq -- ./Programs/uniq/code_Bin/uniq @@
@@ -58,16 +58,19 @@ def mainFuzzer():
     print("{} Build Graph Information...".format(getTime()))
     cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
     cggraph, map_functo_cgnode = Builder.getCG(cglist)
-    cfggraph_dict, map_guardto_cfgnode, map_numfuncto_tgtnode = Builder.getCFG(cfglist, map_numto_funcasm)
+    cfggraph_dict, map_guardto_cfgnode, map_functo_tgtnode = Builder.getCFG(cfglist, map_numto_funcasm)
     Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
-
-    print("{} Directed Target Sequence...")
-    Builder.printTargetSeq(map_numfuncto_tgtnode)
-    LOG(LOG_DEBUG, LOG_FUNCINFO(),
-        cggraph, map_functo_cgnode, cfggraph_dict, map_guardto_cfgnode, map_numfuncto_tgtnode, showlog=True)
-
-
     sch = Scheduler.Scheduler()
+    for k in map_functo_cgnode.keys():
+        sch.map_functo_guard[k] = USE_INITMAXNUM
+
+    print("{} Directed Target Sequence...".format(getTime()))
+    Builder.printTargetSeq(map_functo_tgtnode)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(),
+        cggraph, map_functo_cgnode, cfggraph_dict, map_guardto_cfgnode, map_functo_tgtnode)
+
+
+
     sch.file_crash_csv = file_crash_csv
     sch.path_crashseeds = path_crashseeds
     # Init Loop Variables
@@ -95,7 +98,7 @@ def mainFuzzer():
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
-        # ana.getShm(init_stdout[0:16])
+        ana.getShm(init_stdout[0:16])
         LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content)
 
         # # Guard
@@ -175,14 +178,16 @@ def mainFuzzer():
         tarcmp_dict = {}  # Save cmpid for the next explore
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         init_guardcov_list = ana.getRpt(init_interlen)
-        guard_set, guard_total = ana.traceGuardAnalysis(init_guardcov_list)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_guardcov_list, sch.map_functo_guard)
+        guard_set, guard_total = ana.getGuardNum(init_guardcov_list)
+        ana.traceGuardAnalysis(init_guardcov_list, sch)
         sch.coverage_path = guard_set
         vis.num_pcguard = guard_total
         # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
         # init_cmpset = set(init_cmp_dict)
 
-
         # print(init_seed.content)
+        # Get the length of seed, transform it to num array.
         for loci in range(0, len(init_seed.content)):
             if loci not in sch.freeze_bytes:
                 sch.loc_coarse_list.append(loci)

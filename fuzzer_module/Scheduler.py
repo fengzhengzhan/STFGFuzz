@@ -31,7 +31,8 @@ class Scheduler:
         self.file_crash_csv = None
         self.path_crashseeds = None
 
-        self.map_functo_startguard = {}
+        self.map_functo_guard = {}
+        self.map_functo_symbol = {}
 
     def initEachloop(self, vis):
         self.loc_coarse_list = []
