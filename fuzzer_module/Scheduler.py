@@ -20,7 +20,7 @@ class Scheduler:
         self.freeze_bytes = set()
         self.skip_cmpidset = set()  # freeze or ignore
 
-        self.coveragepath = set()
+        self.coverage_path = set()
 
         self.expandnums = 0
         self.expand_size = SCH_EXPAND_SIZE
@@ -30,6 +30,8 @@ class Scheduler:
 
         self.file_crash_csv = None
         self.path_crashseeds = None
+
+        self.map_functo_startguard = {}
 
     def initEachloop(self, vis):
         self.loc_coarse_list = []

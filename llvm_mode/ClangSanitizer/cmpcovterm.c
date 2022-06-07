@@ -167,7 +167,7 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
 
     // This function is a part of the sanitizer run-time.
     // To use it, link with AddressSanitizer or other sanitizer.
-    // char PcDescr[10240];
+    // char PcDescr[1024];
     // __sanitizer_symbolize_pc(PC, "%p_%F_%L", PcDescr, sizeof(PcDescr));
     // printf("\nG %p %x %s\n", guard, *guard, PcDescr);
     printf("\nG %p %p %p %x Z\n", GET_FUNC_PC, GET_CALLER_PC, guard, *guard);

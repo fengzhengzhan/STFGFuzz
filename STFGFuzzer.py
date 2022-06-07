@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import faulthandler  # Use to find Segmentation Fault
+import time
 
 faulthandler.enable()
 
@@ -23,6 +24,11 @@ def mainFuzzer():
     The fuzzing Loop.
     @return:
     """
+    print("{} Start Directed Fuzzing...".format(getTime()))
+    stdout, stderr = Executor.run("cat /proc/sys/kernel/randomize_va_space")
+    if stdout != b'0\n':
+        raise Exception("Please turn off address randomization")
+
     # Receive command line parameters.
     program_name, patchtype, fuzz_command = Generator.genTerminal()
     if fuzz_command == "" or program_name == "":
@@ -38,37 +44,37 @@ def mainFuzzer():
     file_crash_csv = path_crashseeds + CRASH_CSVFILENAME
     LOG(LOG_DEBUG, LOG_FUNCINFO(), path_initseeds, path_mutseeds, path_crashseeds)
 
-    '''Fuzzing test procedure.'''
+    '''Fuzzing test procedure'''
 
     # Directed Location
-    print("{} Build Directional Position.".format(getTime()))
+    print("{} Build Directional Position...".format(getTime()))
     binline_dict = Builder.getBinaryInfo(path_graph)
     target_dict = Comparator.getTarget(path_patchloc, patchtype)
-    map_numTofuncasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
+    map_numto_funcasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
     del target_dict
     del binline_dict
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numto_funcasm, showlog=True)
     # Graph Information
-    print("{} Build Graph Information.".format(getTime()))
+    print("{} Build Graph Information...".format(getTime()))
     cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
-    cggraph, map_funcTocgnode = Builder.getCG(cglist)
-    cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode = Builder.getCFG(cfglist, map_numTofuncasm)
+    cggraph, map_functo_cgnode = Builder.getCG(cglist)
+    cfggraph_dict, map_guardto_cfgnode, map_numfuncto_tgtnode = Builder.getCFG(cfglist, map_numto_funcasm)
     Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
 
-    print("{} Directed Target Sequence.")
-    Builder.printTargetSeq(map_numfuncTotgtnode)
+    print("{} Directed Target Sequence...")
+    Builder.printTargetSeq(map_numfuncto_tgtnode)
     LOG(LOG_DEBUG, LOG_FUNCINFO(),
-        cggraph, map_funcTocgnode, cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode, showlog=True)
+        cggraph, map_functo_cgnode, cfggraph_dict, map_guardto_cfgnode, map_numfuncto_tgtnode, showlog=True)
 
-    # vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
+
     sch = Scheduler.Scheduler()
     sch.file_crash_csv = file_crash_csv
     sch.path_crashseeds = path_crashseeds
     # Init Loop Variables
-    before_coverage = sch.coveragepath
+    before_coverage = sch.coverage_path
 
     # Init seed lists
-    print("{} Init Seed lists.".format(getTime()))
+    print("{} Init Seed lists...".format(getTime()))
     init_seeds_list = Generator.prepareEnv(program_name)
     if len(init_seeds_list) > 0:
         temp_listq = []
@@ -83,26 +89,27 @@ def mainFuzzer():
     print("{} Fuzzing Loop...".format(getTime()))
     ana = Analyzer.Analyzer()
     vis = Visualizer.Visualizer()
+    vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
     while not sch.seedq.empty():
         vis.loop += 1
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
-        ana.getShm(init_stdout[0:16])
-        ana.sendCmpid("Guard")
+        # ana.getShm(init_stdout[0:16])
         LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content)
 
-        init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
-        sch.saveCrash(init_seed, init_stdout, init_stderr, vis.start_time, vis.last_time)
-        init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
-        init_guardcov_list = ana.getRpt(init_interlen)
-        guard_set, guard_total = ana.traceGuardAnalysis(init_guardcov_list)
-        sch.coveragepath = guard_set
-        vis.num_pcguard = guard_total
+        # # Guard
+        # ana.sendCmpid("Guard")
+        # init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
+        # sch.saveCrash(init_seed, init_stdout, init_stderr, vis.start_time, vis.last_time)
+        # init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
+        # init_guardcov_list = ana.getRpt(init_interlen)
+        # guard_set, guard_total = ana.traceGuardAnalysis(init_guardcov_list)
+        # sch.coveragepath = guard_set
+        # vis.num_pcguard = guard_total
 
         ana.sendCmpid("None")
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
-
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         # cmpcov_list = ana.getRpt(init_interlen)
         # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch) todo
@@ -149,32 +156,36 @@ def mainFuzzer():
                 else:
                     break
 
-            res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, "LengthDetect", len(sch.coveragepath))
+            res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, "LengthDetect", len(sch.coverage_path))
             vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
         '''ld <-'''
 
+        ana.sendCmpid("Guard")
         # Reset the init_seed
         init_seed = sch.selectOneSeed(SCH_THIS_SEED, b4ld_seed)
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
+        sch.saveCrash(init_seed, init_stdout, init_stderr, vis.start_time, vis.last_time)
 
-        init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
-        init_cmpcov_list = ana.getRpt(init_interlen)
-        init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
-        # init_cmpset = set(init_cmp_dict)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_cmpcov_list, init_cmp_dict, showlog=True)
         # Get all the constraints.
+        # Binary files each function blocks from 0.
+        # Execution files each function blocks from n.
+        # Get the offset of the address block.
+        tarcmp_dict = {}  # Save cmpid for the next explore
+        init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
+        init_guardcov_list = ana.getRpt(init_interlen)
+        guard_set, guard_total = ana.traceGuardAnalysis(init_guardcov_list)
+        sch.coverage_path = guard_set
+        vis.num_pcguard = guard_total
+        # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
+        # init_cmpset = set(init_cmp_dict)
 
 
         # print(init_seed.content)
         for loci in range(0, len(init_seed.content)):
             if loci not in sch.freeze_bytes:
                 sch.loc_coarse_list.append(loci)
-
-
-
-
 
         '''3 cmp type'''
         '''st -> Constraints Analysis'''
@@ -224,7 +235,7 @@ def mainFuzzer():
 
                 # 5 visualize
                 res = vis.display(sd_seed, set(sdloc_list), sd_stdout, sd_stderr, "SlidingDetect",
-                                  len(sch.coveragepath))
+                                  len(sch.coverage_path))
                 vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
                 if res == VIS_Q:
                     sch.quitFuzz()
@@ -297,7 +308,7 @@ def mainFuzzer():
                     # 5 visualize
                     res = vis.display(
                         bd_seed, set(st_cmploc), bd_stdout, bd_stderr,
-                        "Byte", len(sch.coveragepath),
+                        "Byte", len(sch.coverage_path),
                     )
                     vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
                     if res == VIS_Q:
@@ -404,7 +415,7 @@ def mainFuzzer():
                             # 5 visualize
                             res = vis.display(
                                 opt_seed, set(st_cmploc), st_stdout, st_stderr,
-                                "Strategy", len(sch.coveragepath),
+                                "Strategy", len(sch.coverage_path),
                             )
                             vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
                             if res == VIS_Q:

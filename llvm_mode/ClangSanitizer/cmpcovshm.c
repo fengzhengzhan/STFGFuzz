@@ -291,6 +291,8 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
 // once per DSO and may be called multiple times with the same parameters.
 void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
 
+    static uint64_t N;
+    
     if (start == stop || *start) return;  // Initialize only once.
     
     //memory share
@@ -321,16 +323,16 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
 
 
     // void *PC = __builtin_return_address(0);
-    // char PcDescr[10240];
+    // char PcDescr[1024];
     // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
-    static uint64_t N = 0;  // Counter for the guards.
+    // int n = 0;  // Counter for the guards.
     // printf("\nI %p %p %p Z\n", GET_FUNC_PC, start, stop);
     // Add dataflow analysis information.
     for (uint32_t *x = start; x < stop; x++)
     {
         *x = ++N;
     }
-    printf("%d", N);
+    // printf("%d", N);
 
     cover = (char *)malloc(N*sizeof(char));
 
@@ -371,7 +373,7 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
 // But for large functions it will emit a simple call:
 //    __sanitizer_cov_trace_pc_guard(guard);
 void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
-    if (!*guard) return;  // Duplicate the guard check.
+    // if (!*guard) return;  // Duplicate the guard check.
     // If you set *guard to 0 this code will not be called again for this edge.
     // Now you can get the PC and do whatever you want:
     //   store it somewhere or symbolize it and print right away.

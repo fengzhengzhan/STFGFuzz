@@ -49,7 +49,7 @@ def getCG(cglist):
         # for k, v in data.items():
         #     print(k,"->", v)
         # Constructing directed graph.
-        map_funcTocgnode = {}
+        map_functo_cgnode = {}
         # Nodes
         nodes_list = []
         for node in data[BUI_NODES]:
@@ -58,7 +58,7 @@ def getCG(cglist):
                                 BUI_NODE_NAME: node[BUI_NODE_NAME],
                                 BUI_NODE_LABEL: node[BUI_NODE_LABEL],
                                 BUI_NODE_DISTANCE: USE_INITNUM}))
-            map_funcTocgnode[node[BUI_NODE_LABEL][1:-1]] = node[BUI_NODE_NAME]
+            map_functo_cgnode[node[BUI_NODE_LABEL][1:-1]] = node[BUI_NODE_NAME]
         # Edges
         edges_list = []
         for edge in data[BUI_EDGES]:
@@ -69,7 +69,7 @@ def getCG(cglist):
         LOG(LOG_DEBUG, LOG_FUNCINFO(), nodes_list, edges_list)
         cggraph = Graph(data[BUI_NAME].split(" ")[-1], nodes_list, edges_list)
 
-    return cggraph, map_funcTocgnode
+    return cggraph, map_functo_cgnode
 
 
 def getCFG(cfglist, map_numTofuncasm):
@@ -78,8 +78,8 @@ def getCFG(cfglist, map_numTofuncasm):
     @param cfglist:
     @return:
     """
-    map_guardTocfgnode: '{guardnum:node_j}' = {}
-    map_numfuncTotgtnode: '{funcname:[id,nodeid,node_j]}' = {}
+    map_guardto_cfgnode: '{guardnum:node_j}' = {}
+    map_numfuncto_tgtnode: '{funcname:[id,nodeid,node_j]}' = {}
     cfggraph_dict = {}
     for jsonfile_i in cfglist:
         # funcname = jsonfile_i.split(os.sep)[-1][1:-9]
@@ -97,7 +97,7 @@ def getCFG(cfglist, map_numTofuncasm):
             # Nodes
             nodes_list = []
             for node_j in data[BUI_NODES]:
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_NAME], node_j[BUI_NODE_LABEL], showlog=True)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_NAME], node_j[BUI_NODE_LABEL])
 
                 # Find Guard num node_j
                 pattern = re.compile(BUI_GUARD_RE)
@@ -115,7 +115,7 @@ def getCFG(cfglist, map_numTofuncasm):
                 for one in guard_res:
                     temp_guardnum = int(int(one, 10) / BUI_LOC_INTERVAL)
                     temp_intlist.append(temp_guardnum)
-                    map_guardTocfgnode[temp_guardnum] = node_j[BUI_NODE_NAME]
+                    map_guardto_cfgnode[temp_guardnum] = node_j[BUI_NODE_NAME]
 
                 nodes_list.append((node_j[BUI_NODE_NUM],
                                    {BUI_NODE_NUM: node_j[BUI_NODE_NUM],
@@ -136,12 +136,12 @@ def getCFG(cfglist, map_numTofuncasm):
                                 .find(target_l[1].replace(' ', ''))
 
                             if res != -1:
-                                if tarnum_k not in map_numfuncTotgtnode:
-                                    map_numfuncTotgtnode[tarnum_k] = {}
-                                if graphname not in map_numfuncTotgtnode[tarnum_k]:
-                                    map_numfuncTotgtnode[tarnum_k][graphname] = [[tgtid, temp_intlist, node_j[BUI_NODE_NAME]]]
+                                if tarnum_k not in map_numfuncto_tgtnode:
+                                    map_numfuncto_tgtnode[tarnum_k] = {}
+                                if graphname not in map_numfuncto_tgtnode[tarnum_k]:
+                                    map_numfuncto_tgtnode[tarnum_k][graphname] = [[tgtid, temp_intlist, node_j[BUI_NODE_NAME]]]
                                 else:
-                                    map_numfuncTotgtnode[tarnum_k][graphname].append([tgtid, temp_intlist, node_j[BUI_NODE_NAME]])
+                                    map_numfuncto_tgtnode[tarnum_k][graphname].append([tgtid, temp_intlist, node_j[BUI_NODE_NAME]])
 
             # Edges
             edges_list = []
@@ -155,7 +155,7 @@ def getCFG(cfglist, map_numTofuncasm):
             cfggraph = Graph(graphname, nodes_list, edges_list)
             cfggraph_dict[graphname] = cfggraph
 
-    return cfggraph_dict, map_guardTocfgnode, map_numfuncTotgtnode
+    return cfggraph_dict, map_guardto_cfgnode, map_numfuncto_tgtnode
 
 
 def printTargetSeq(map_numfuncTotgtnode):
