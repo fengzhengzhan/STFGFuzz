@@ -7,7 +7,7 @@
   "objects": [
     {
       "_gvid": 0,
-      "name": "Node0x55bd7b94cc80",
+      "name": "Node0x55d2547ecc80",
       "color": "#b70d28ff",
       "fillcolor": "#b70d2870",
       "label": "{%3:\\l  %4 = alloca i32, align 4\\l  %5 = alloca %struct.magic_set*, align 8\\l  %6 = alloca i32, align 4\\l  %7 = alloca i8*, align 8\\l  call void @__sanitizer_cov_trace_pc_guard(i32* getelementptr inbounds ([8 x\\l... i32], [8 x i32]* @__sancov_gen_.33, i32 0, i32 0)) #11, !dbg !1259\\l  store %struct.magic_set* %0, %struct.magic_set** %5, align 8\\l  call void @llvm.dbg.declare(metadata %struct.magic_set** %5, metadata !1260,\\l... metadata !DIExpression()), !dbg !1261\\l  store i32 %1, i32* %6, align 4\\l  call void @llvm.dbg.declare(metadata i32* %6, metadata !1262, metadata\\l... !DIExpression()), !dbg !1263\\l  store i8* %2, i8** %7, align 8\\l  call void @llvm.dbg.declare(metadata i8** %7, metadata !1264, metadata\\l... !DIExpression()), !dbg !1265\\l  %8 = load i32, i32* %6, align 4, !dbg !1266\\l  %9 = zext i32 %8 to i64, !dbg !1267\\l  call void @__sanitizer_cov_trace_switch(i64 %9, i64* getelementptr inbounds\\l... ([7 x i64], [7 x i64]* @__sancov_gen_cov_switch_values.34, i32 0, i32 0)),\\l... !dbg !1267\\l  switch i32 %8, label %45 [\\l    i32 0, label %10\\l    i32 1, label %17\\l    i32 2, label %24\\l    i32 3, label %31\\l    i32 4, label %38\\l  ], !dbg !1267\\l|{<s0>def|<s1>0|<s2>1|<s3>2|<s4>3|<s5>4}}",
@@ -16,7 +16,7 @@
     },
     {
       "_gvid": 1,
-      "name": "Node0x55bd7b94ce60",
+      "name": "Node0x55d2547ece60",
       "color": "#3d50c3ff",
       "fillcolor": "#e5d8d170",
       "label": "{%45:\\l45:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([8 x i32]* @__sancov_gen_.33 to i64), i64 24) to i32*)) #11, !dbg\\l... !1304\\l  %46 = call i32* @__errno_location() #12, !dbg !1304\\l  store i32 22, i32* %46, align 4, !dbg !1305\\l  store i32 -1, i32* %4, align 4, !dbg !1306\\l  br label %47, !dbg !1306\\l}",
@@ -25,7 +25,7 @@
     },
     {
       "_gvid": 2,
-      "name": "Node0x55bd7b94ccd0",
+      "name": "Node0x55d2547eccd0",
       "color": "#3d50c3ff",
       "fillcolor": "#e5d8d170",
       "label": "{%10:\\l10:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([8 x i32]* @__sancov_gen_.33 to i64), i64 4) to i32*)) #11, !dbg\\l... !1268\\l  %11 = load i8*, i8** %7, align 8, !dbg !1268\\l  %12 = bitcast i8* %11 to i64*, !dbg !1270\\l  %13 = load i64, i64* %12, align 8, !dbg !1271\\l  %14 = trunc i64 %13 to i16, !dbg !1271\\l  %15 = load %struct.magic_set*, %struct.magic_set** %5, align 8, !dbg !1272\\l  %16 = getelementptr inbounds %struct.magic_set, %struct.magic_set* %15, i32\\l... 0, i32 11, !dbg !1273\\l  store i16 %14, i16* %16, align 8, !dbg !1274\\l  store i32 0, i32* %4, align 4, !dbg !1275\\l  br label %47, !dbg !1275\\l}",
@@ -34,7 +34,7 @@
     },
     {
       "_gvid": 3,
-      "name": "Node0x55bd7b94cd20",
+      "name": "Node0x55d2547ecd20",
       "color": "#3d50c3ff",
       "fillcolor": "#e5d8d170",
       "label": "{%17:\\l17:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([8 x i32]* @__sancov_gen_.33 to i64), i64 8) to i32*)) #11, !dbg\\l... !1276\\l  %18 = load i8*, i8** %7, align 8, !dbg !1276\\l  %19 = bitcast i8* %18 to i64*, !dbg !1277\\l  %20 = load i64, i64* %19, align 8, !dbg !1278\\l  %21 = trunc i64 %20 to i16, !dbg !1278\\l  %22 = load %struct.magic_set*, %struct.magic_set** %5, align 8, !dbg !1279\\l  %23 = getelementptr inbounds %struct.magic_set, %struct.magic_set* %22, i32\\l... 0, i32 12, !dbg !1280\\l  store i16 %21, i16* %23, align 2, !dbg !1281\\l  store i32 0, i32* %4, align 4, !dbg !1282\\l  br label %47, !dbg !1282\\l}",
@@ -43,7 +43,7 @@
     },
     {
       "_gvid": 4,
-      "name": "Node0x55bd7b94cd70",
+      "name": "Node0x55d2547ecd70",
       "color": "#3d50c3ff",
       "fillcolor": "#e5d8d170",
       "label": "{%24:\\l24:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([8 x i32]* @__sancov_gen_.33 to i64), i64 12) to i32*)) #11, !dbg\\l... !1283\\l  %25 = load i8*, i8** %7, align 8, !dbg !1283\\l  %26 = bitcast i8* %25 to i64*, !dbg !1284\\l  %27 = load i64, i64* %26, align 8, !dbg !1285\\l  %28 = trunc i64 %27 to i16, !dbg !1285\\l  %29 = load %struct.magic_set*, %struct.magic_set** %5, align 8, !dbg !1286\\l  %30 = getelementptr inbounds %struct.magic_set, %struct.magic_set* %29, i32\\l... 0, i32 14, !dbg !1287\\l  store i16 %28, i16* %30, align 2, !dbg !1288\\l  store i32 0, i32* %4, align 4, !dbg !1289\\l  br label %47, !dbg !1289\\l}",
@@ -52,7 +52,7 @@
     },
     {
       "_gvid": 5,
-      "name": "Node0x55bd7b94cdc0",
+      "name": "Node0x55d2547ecdc0",
       "color": "#3d50c3ff",
       "fillcolor": "#e5d8d170",
       "label": "{%31:\\l31:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([8 x i32]* @__sancov_gen_.33 to i64), i64 16) to i32*)) #11, !dbg\\l... !1290\\l  %32 = load i8*, i8** %7, align 8, !dbg !1290\\l  %33 = bitcast i8* %32 to i64*, !dbg !1291\\l  %34 = load i64, i64* %33, align 8, !dbg !1292\\l  %35 = trunc i64 %34 to i16, !dbg !1292\\l  %36 = load %struct.magic_set*, %struct.magic_set** %5, align 8, !dbg !1293\\l  %37 = getelementptr inbounds %struct.magic_set, %struct.magic_set* %36, i32\\l... 0, i32 13, !dbg !1294\\l  store i16 %35, i16* %37, align 4, !dbg !1295\\l  store i32 0, i32* %4, align 4, !dbg !1296\\l  br label %47, !dbg !1296\\l}",
@@ -61,7 +61,7 @@
     },
     {
       "_gvid": 6,
-      "name": "Node0x55bd7b94ce10",
+      "name": "Node0x55d2547ece10",
       "color": "#3d50c3ff",
       "fillcolor": "#e5d8d170",
       "label": "{%38:\\l38:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([8 x i32]* @__sancov_gen_.33 to i64), i64 20) to i32*)) #11, !dbg\\l... !1297\\l  %39 = load i8*, i8** %7, align 8, !dbg !1297\\l  %40 = bitcast i8* %39 to i64*, !dbg !1298\\l  %41 = load i64, i64* %40, align 8, !dbg !1299\\l  %42 = trunc i64 %41 to i16, !dbg !1299\\l  %43 = load %struct.magic_set*, %struct.magic_set** %5, align 8, !dbg !1300\\l  %44 = getelementptr inbounds %struct.magic_set, %struct.magic_set* %43, i32\\l... 0, i32 15, !dbg !1301\\l  store i16 %42, i16* %44, align 8, !dbg !1302\\l  store i32 0, i32* %4, align 4, !dbg !1303\\l  br label %47, !dbg !1303\\l}",
@@ -70,7 +70,7 @@
     },
     {
       "_gvid": 7,
-      "name": "Node0x55bd7b94ceb0",
+      "name": "Node0x55d2547eceb0",
       "color": "#b70d28ff",
       "fillcolor": "#b70d2870",
       "label": "{%47:\\l47:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([8 x i32]* @__sancov_gen_.33 to i64), i64 28) to i32*)) #11, !dbg\\l... !1307\\l  %48 = load i32, i32* %4, align 4, !dbg !1307\\l  ret i32 %48, !dbg !1307\\l}",

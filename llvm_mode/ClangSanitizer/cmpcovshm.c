@@ -84,6 +84,7 @@ int blocknum = -1;
 int blockcmpcount = 0;
 char *cover;
 int covernum = 0;
+char PcDescr[1024];
 
 int retSame(char* each){
     int same = -1;
@@ -142,7 +143,7 @@ void saveCovOnEnd() {
         // printf("\nE %p Z\n", GET_FUNC_PC);
         // Add dataflow analysis information.
 
-        sprintf(buf, "['Eend','E','%d_%d'],",blocknum, blockcmpcount);
+        sprintf(buf, "['Eend','E','%s_%d_%d'],", PcDescr, blocknum, blockcmpcount);
         blockcmpcount++;
         strcpy(data + interlen, buf);
         interlen += strlen(buf);
@@ -170,7 +171,7 @@ void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
         // printf("\n%c %p %lu %lu %d Z\n", funcinfo, GET_FUNC_PC, arg1, arg2, arg_len);
         // Add dataflow analysis information.
 
-        sprintf(buf, "['%c%p%p%p','%c','%d_%d',%lu,%lu,%d],", funcinfo, GET_FUNC_PC, GET_CALLER_PC, GET_BLOCK_PC, funcinfo, blocknum, blockcmpcount, arg1, arg2, arg_len);
+        sprintf(buf, "['%c%p%p%p','%c','%s_%d_%d',%lu,%lu,%d],", funcinfo, GET_FUNC_PC, GET_CALLER_PC, GET_BLOCK_PC, funcinfo, PcDescr, blocknum, blockcmpcount, arg1, arg2, arg_len);
         blockcmpcount++;
         strcpy(data + interlen, buf);
         interlen += strlen(buf);
@@ -197,7 +198,7 @@ void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int
         }
         
         // printf("\n%c %x ", funcinfo, *(int *)called_pc);
-        sprintf(buf, "['%c%p','%c','%d_%d'", funcinfo, called_pc, funcinfo, blocknum, blockcmpcount);
+        sprintf(buf, "['%c%p','%c','%s_%d_%d'", funcinfo, called_pc, funcinfo, PcDescr, blocknum, blockcmpcount);
         blockcmpcount++;
         // uint64_t traceflag =  reinterpret_cast<uint64_t>(called_pc) |
         //     (reinterpret_cast<uint64_t>(s1) << 48) |
@@ -262,7 +263,7 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     if(retSame(eachcmpid) >= 0) {
 
         // printf("\n%c %p %lu %lu", COV_TRACE_SWITCH, GET_FUNC_PC, Cases[0], Cases[1]);
-        sprintf(buf, "['%c%p%p%p','%c','%d_%d',%lu,%lu,%lu", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, GET_BLOCK_PC, COV_TRACE_SWITCH, blocknum, blockcmpcount, Cases[0], Cases[1], Val);
+        sprintf(buf, "['%c%p%p%p','%c','%s_%d_%d',%lu,%lu,%lu", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, GET_BLOCK_PC, COV_TRACE_SWITCH, PcDescr, blocknum, blockcmpcount, Cases[0], Cases[1], Val);
         blockcmpcount++;
 
         for (int i = 0; i < Cases[0]; i ++) {
@@ -322,20 +323,21 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     // void *PC = __builtin_return_address(0);
     // char PcDescr[10240];
     // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
-    static uint64_t N;  // Counter for the guards.
+    static uint64_t N = 0;  // Counter for the guards.
     // printf("\nI %p %p %p Z\n", GET_FUNC_PC, start, stop);
     // Add dataflow analysis information.
     for (uint32_t *x = start; x < stop; x++)
     {
         *x = ++N;
     }
+    printf("%d", N);
 
     cover = (char *)malloc(N*sizeof(char));
 
     sprintf(eachcmpid, "I%p", GET_FUNC_PC);
     if(retSame(eachcmpid) >= 0) {
 
-        sprintf(buf, "['I%p','I','%d_%d',%lu,'%p','%p'],", GET_FUNC_PC, blocknum, blockcmpcount, N, start, stop);
+        sprintf(buf, "['I%p','I','%s_%d_%d',%lu,'%p','%p'],", GET_FUNC_PC, PcDescr, blocknum, blockcmpcount, N, start, stop);
         blockcmpcount++;
         strcpy(data + interlen, buf);
         interlen += strlen(buf);
@@ -380,17 +382,29 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
     // This function is a part of the sanitizer run-time.
     // To use it, link with AddressSanitizer or other sanitizer.
     sprintf(eachcmpid, "G%p", GET_FUNC_PC);
+    __sanitizer_symbolize_pc(GET_FUNC_PC, "%F", PcDescr, sizeof(PcDescr));
+    int i;
+    for (i = 3; i <= strlen(PcDescr); i++)
+    {
+        PcDescr[i-3] = PcDescr[i];
+    }
     if (retSame(eachcmpid) == 1) {
-        sprintf(buf, "['G%p','G',%d],", GET_FUNC_PC, *guard);
+        // This function is a part of the sanitizer run-time.
+        // To use it, link with AddressSanitizer or other sanitizer.
+        // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
+        
+        // printf("guard:%s\n", PcDescr);
+        sprintf(buf, "['G%p','G','%s',%d],", GET_FUNC_PC, PcDescr, *guard);
+        // printf("['G%p','G','%s',%d],", GET_FUNC_PC, PcDescr, *guard);
         strcpy(data + interlen, buf);
         interlen += strlen(buf);
         // Update interlen
         sprintf(buf, "L%dZ", interlen);
         strcpy(data + filterlen, buf);
     }
+
     blocknum = *guard;
     blockcmpcount = 0;
-
     if (cover[blocknum] != 'C') {
         cover[blocknum] = 'C';
         covernum += 1;

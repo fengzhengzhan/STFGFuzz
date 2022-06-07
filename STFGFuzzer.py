@@ -124,7 +124,7 @@ def mainFuzzer():
             # if before_coverage == sch.coveragepath and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
             # According fixed length to expand the content length of seed.
             ld_seed = Mutator.mutAddLength(b4ld_seed.content, path_mutseeds, LENGTH_STR, LD_EXPAND)
-            ld_seed = sch.selectOneSeed(SCH_THIS_SEED, ld_seed)
+            ld_seed = sch.selectOneSeed(SCH_THISMUT_SEED, ld_seed)
             ld_stdout, ld_stderr = Executor.run(fuzz_command.replace('@@', ld_seed.filename))
             sch.saveCrash(ld_seed, ld_stdout, ld_stderr, vis.start_time, vis.last_time)
 
@@ -156,64 +156,25 @@ def mainFuzzer():
         '''ld <-'''
 
         # Reset the init_seed
-        init_seed = b4ld_seed
+        init_seed = sch.selectOneSeed(SCH_THIS_SEED, b4ld_seed)
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
 
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         init_cmpcov_list = ana.getRpt(init_interlen)
         init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
         # init_cmpset = set(init_cmp_dict)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_cmpcov_list, init_cmp_dict, showlog=True)
+        # Get all the constraints.
+
 
         # print(init_seed.content)
         for loci in range(0, len(init_seed.content)):
             if loci not in sch.freeze_bytes:
                 sch.loc_coarse_list.append(loci)
 
-        '''sd -> Sliding Window Detection O(n/step)'''
-        # Get a report on changes to comparison instructions. # todo multiprocessing
-        before_sdloc_list = []
-        coarse_head = 0
-        cmpmaploc_dict = {}
-        while coarse_head < len(sch.loc_coarse_list):
-            vis.total += 1
-            # 1 seed inputs
-            sdloc_list = sch.loc_coarse_list[coarse_head:coarse_head + sch.slid_window]
-            # print(sdloc_list)
-            coarse_head += sch.slid_window // 2
-            sd_seed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, COARSE_STR + str(vis.loop), sdloc_list)
-            sd_seed = sch.selectOneSeed(SCH_THISMUT_SEED, sd_seed)
-            sd_stdout, sd_stderr = Executor.run(fuzz_command.replace('@@', sd_seed.filename))
-            sch.saveCrash(sd_seed, sd_stdout, sd_stderr, vis.start_time, vis.last_time)
 
-            # 1 seed inputs
-            sd_interlen, sd_covernum = ana.getShm(sd_stdout[0:16])
-            sd_cmpcov_list = ana.getRpt(sd_interlen)  # report
 
-            sd_cmp_dict = ana.traceAyalysis(sd_cmpcov_list, sch.skip_cmpidset)
-            sd_diffcmp_set = ana.compareRptToLoc(init_cmp_dict, sd_cmp_dict)
 
-            # LOG(LOG_DEBUG, LOG_FUNCINFO(), init_cmp_dict, sd_cmp_dict, sd_diffcmp_set)
-
-            # LOG(LOG_DEBUG, LOG_FUNCINFO(), sd_seed.content, init_cmp_dict['g0x4f98aa0x4faa2b'], bd_cmp_dict['g0x4f98aa0x4faa2b'])
-
-            # todo 滑动窗口扩展，过度添加元素
-            for cmpid_key in sd_diffcmp_set:  # Determine if the dictionary is empty.
-                if cmpid_key not in sch.skip_cmpidset:
-                    if cmpid_key not in cmpmaploc_dict:
-                        cmpmaploc_dict[cmpid_key] = set(before_sdloc_list) | set(sdloc_list)
-                    else:
-                        cmpmaploc_dict[cmpid_key] |= set(sdloc_list)
-
-            before_sdloc_list = sdloc_list
-
-            # 5 visualize
-            res = vis.display(sd_seed, set(sdloc_list), sd_stdout, sd_stderr, "SlidingDetect", len(sch.coveragepath))
-            vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
-            if res == VIS_Q:
-                sch.quitFuzz()
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict, showlog=True)
-        # raise Exception()
-        '''sd <-'''
 
         '''3 cmp type'''
         '''st -> Constraints Analysis'''
@@ -222,6 +183,54 @@ def mainFuzzer():
         vis.cmptotal = len(cmpmaploc_dict)
         for stcmpid_ki, stlocset_vi in cmpmaploc_dict.items():
             vis.cmpnum += 1
+
+            '''sd -> Sliding Window Detection O(n/step)'''
+            # Get a report on changes to comparison instructions. # todo multiprocessing
+            before_sdloc_list = []
+            coarse_head = 0
+            cmpmaploc_dict = {}
+            while coarse_head < len(sch.loc_coarse_list):
+                vis.total += 1
+                # 1 seed inputs
+                sdloc_list = sch.loc_coarse_list[coarse_head:coarse_head + sch.slid_window]
+                # print(sdloc_list)
+                coarse_head += sch.slid_window // 2
+                sd_seed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, COARSE_STR + str(vis.loop),
+                                                sdloc_list)
+                sd_seed = sch.selectOneSeed(SCH_THISMUT_SEED, sd_seed)
+                sd_stdout, sd_stderr = Executor.run(fuzz_command.replace('@@', sd_seed.filename))
+                sch.saveCrash(sd_seed, sd_stdout, sd_stderr, vis.start_time, vis.last_time)
+
+                # 1 seed inputs
+                sd_interlen, sd_covernum = ana.getShm(sd_stdout[0:16])
+                sd_cmpcov_list = ana.getRpt(sd_interlen)  # report
+
+                sd_cmp_dict = ana.traceAyalysis(sd_cmpcov_list, sch.skip_cmpidset)
+                sd_diffcmp_set = ana.compareRptToLoc(init_cmp_dict, sd_cmp_dict)
+
+                # LOG(LOG_DEBUG, LOG_FUNCINFO(), init_cmp_dict, sd_cmp_dict, sd_diffcmp_set)
+
+                # LOG(LOG_DEBUG, LOG_FUNCINFO(), sd_seed.content, init_cmp_dict['g0x4f98aa0x4faa2b'], bd_cmp_dict['g0x4f98aa0x4faa2b'])
+
+                # todo 滑动窗口扩展，过度添加元素
+                for cmpid_key in sd_diffcmp_set:  # Determine if the dictionary is empty.
+                    if cmpid_key not in sch.skip_cmpidset:
+                        if cmpid_key not in cmpmaploc_dict:
+                            cmpmaploc_dict[cmpid_key] = set(before_sdloc_list) | set(sdloc_list)
+                        else:
+                            cmpmaploc_dict[cmpid_key] |= set(sdloc_list)
+
+                before_sdloc_list = sdloc_list
+
+                # 5 visualize
+                res = vis.display(sd_seed, set(sdloc_list), sd_stdout, sd_stderr, "SlidingDetect",
+                                  len(sch.coveragepath))
+                vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
+                if res == VIS_Q:
+                    sch.quitFuzz()
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict, showlog=True)
+            # raise Exception()
+            '''sd <-'''
 
             # fixme
             # filterl = ["c0x4f972b0x4f9aac0x4fbd23"]

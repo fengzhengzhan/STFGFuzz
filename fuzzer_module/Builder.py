@@ -97,7 +97,7 @@ def getCFG(cfglist, map_numTofuncasm):
             # Nodes
             nodes_list = []
             for node_j in data[BUI_NODES]:
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_NAME], node_j[BUI_NODE_LABEL])
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_NAME], node_j[BUI_NODE_LABEL], showlog=True)
 
                 # Find Guard num node_j
                 pattern = re.compile(BUI_GUARD_RE)

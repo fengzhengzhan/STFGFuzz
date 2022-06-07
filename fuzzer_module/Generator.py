@@ -34,9 +34,9 @@ def genTerminal():
         print("python {}.py -h".format(FUZZNAME))
         raise Exception("Error options.")
 
-    fuzz_command = " ".join(args)
     program_name = ""
-    patchtype = USE_INITNUM
+    patchtype = []
+    fuzz_command = " ".join(args)
 
     LOG(LOG_DEBUG, LOG_FUNCINFO(), fuzz_command)
 
@@ -58,7 +58,7 @@ def genTerminal():
         elif opt == "-n":
             program_name = arg
         elif opt == "-t":
-            patchtype = [arg]
+            patchtype.append(arg)
 
     return program_name, patchtype, fuzz_command
 

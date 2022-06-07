@@ -124,3 +124,6 @@ class Scheduler:
         self.deleteSeeds(SCH_THIS_SEED)
         self.deleteSeeds(SCH_THISMUT_SEED)
         sys.exit(0)
+
+    def selectConstraint(self):
+        pass

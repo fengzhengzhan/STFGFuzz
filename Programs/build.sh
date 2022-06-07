@@ -114,15 +114,15 @@ then
 		if [ $5 ]
 		then
 			echo -e "\n------- ${PROGRAMNAME} -------"
-			if [ $5 == "seedrand" ]
+			if [ $5 == "rand.seed" ]
 			then
 				./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME} $4 "${PROGRAMS}/${PROGRAMNAME}/seeds_init/rand.seed"
-			elif [ $5 == "seedcrash" ]
+			elif [ $5 == "crash.seed" ]
 			then
 				./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME} $4 "${PROGRAMS}/${PROGRAMNAME}/seeds_crash/crash.seed"
 			else
-				echo "Usage: ./build.sh -n demo clang++ -f seedrand"
-				echo "Usage: ./build.sh -n base64 clang -d seedcrash"
+				echo "Usage: ./build.sh -n demo clang++ -f rand.seed"
+				echo "Usage: ./build.sh -n base64 clang -d crash.seed"
 			fi
 		fi
 		
