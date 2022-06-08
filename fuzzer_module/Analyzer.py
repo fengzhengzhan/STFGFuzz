@@ -176,7 +176,7 @@ class Analyzer:
                     if guard_num < sch.map_functo_guard[sch.map_functo_symbol[guard_funcname]]:
                         sch.map_functo_guard[sch.map_functo_symbol[guard_funcname]] = guard_num
 
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.map_functo_symbol, sch.map_functo_guard, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.map_functo_symbol, sch.map_functo_guard)
         return
 
     '''
@@ -231,8 +231,8 @@ if __name__ == "__main__":
     ana.getShm("D124816Z\n")
 
     # ana.sendCmpid("abcde")
-    ana.sendCmpid("None")
-    # ana.sendCmpid("Guard")
+    # ana.sendCmpid("None")
+    ana.sendCmpid("Guard")
     # ana.sendCmpid("m0x49e319")
     # while True:
     #     addr = ana.getAddr("D124816Z\n")
@@ -244,6 +244,6 @@ if __name__ == "__main__":
     cmpcovshm_list = ana.getRpt(interlen)
     with open("../Programs/TrackCrash/crashinfo/info", "w") as f:
         f.write(str(cmpcovshm_list))
-    print(cmpcovshm_list)
+    # print(cmpcovshm_list)
     print(interlen, covernum)
     # print(cmpcovshm_list)

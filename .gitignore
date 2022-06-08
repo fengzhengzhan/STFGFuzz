@@ -34,4 +34,5 @@ Programs/STFGFuzzer.log
 Programs/STFGFuzzer_print.log
 Programs/STFGFuzzer_show.log
 Programs/TrackCrash/crashinfo/
+Programs/TrackCrash/crashone/
 fuzzer_module/__pycache__/

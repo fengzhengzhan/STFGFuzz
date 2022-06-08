@@ -175,13 +175,23 @@ def hexToNum(num):
 # numToHexChar(1818326624)
 # numToHexChar(1618370924)
 #
-# i = hexToNum('8375616c')
-# numToHexChar(i)
+i = hexToNum('14dc2228')  # 349970984
+numToHexChar(i)
+i = hexToNum('2822dc14')  # 673373204
+numToHexChar(i)
+
+# 1818326624
+hexToNum('6475616c')
+numToHexChar(i)
+
+numToHexChar(305419896)
+numToHexChar(573855352)
+
 
 # for i, one in enumerate(BYTES_ASCII):
 #     print("{}:'{}',".format(one, hex(i)), end=" ")
-
-print(int('0xAAAA',16))
-print(int('0xc7ff',16))
-print(int('0xcaff',16))
-print(int('0xC0DE',16))
+#
+# print(int('0xAAAA',16))
+# print(int('0xc7ff',16))
+# print(int('0xcaff',16))
+# print(int('0xC0DE',16))
