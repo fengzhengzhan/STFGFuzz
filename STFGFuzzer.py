@@ -58,16 +58,17 @@ def mainFuzzer():
     print("{} Build Graph Information...".format(getTime()))
     cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
     cggraph, map_functo_cgnode = Builder.getCG(cglist)
-    cfggraph_dict, map_guardto_cfgnode, map_functo_tgtnode = Builder.getCFG(cfglist, map_numto_funcasm)
+    cfggraph_dict, map_funcguardto_cfgnode, map_functo_tgtgvid = Builder.getCFG(cfglist, map_numto_funcasm)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_funcguardto_cfgnode, map_functo_tgtgvid)
     Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
+    map_tgtpred = Builder.getTargetPredecessorsGuard(cfggraph_dict, map_funcguardto_cfgnode, map_functo_tgtgvid)
     sch = Scheduler.Scheduler()
     for k in map_functo_cgnode.keys():
         sch.map_functo_guard[k] = USE_INITMAXNUM
 
     print("{} Directed Target Sequence...".format(getTime()))
-    Builder.printTargetSeq(map_functo_tgtnode)
-    LOG(LOG_DEBUG, LOG_FUNCINFO(),
-        cggraph, map_functo_cgnode, cfggraph_dict, map_guardto_cfgnode, map_functo_tgtnode)
+    Builder.printTargetSeq(map_functo_tgtgvid)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_functo_tgtgvid, showlog=True)
 
 
 
@@ -93,6 +94,9 @@ def mainFuzzer():
     ana = Analyzer.Analyzer()
     vis = Visualizer.Visualizer()
     vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
+    time.sleep(5)
+    vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
+    time.sleep(5)
     while not sch.seedq.empty():
         vis.loop += 1
         # First run to collect information.

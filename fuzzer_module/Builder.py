@@ -78,7 +78,7 @@ def getCFG(cfglist, map_numTofuncasm):
     @param cfglist:
     @return:
     """
-    map_guardto_cfgnode: '{guardnum:node_j}' = {}
+    map_funcguardto_cfgnode: '{funcname:{guardnum:node_j}}' = {}
     map_functo_tgtnode: '{funcname:[id,nodeid,node_j]}' = {}
     cfggraph_dict = {}
     for jsonfile_i in cfglist:
@@ -87,6 +87,8 @@ def getCFG(cfglist, map_numTofuncasm):
             data = json.load(f)
             # print(data)
             graphname = data[BUI_NAME].split(" ")[-2][1:-1]  # That also is the function name.
+            if graphname not in map_funcguardto_cfgnode:
+                map_funcguardto_cfgnode[graphname] = {}
 
             # for k, v in data.items():
             #     print(k,"->", v)
@@ -113,7 +115,7 @@ def getCFG(cfglist, map_numTofuncasm):
                 for one in guard_res:
                     temp_guardnum = int(int(one, 10) / BUI_LOC_INTERVAL)
                     temp_intlist.append(temp_guardnum)
-                    map_guardto_cfgnode[temp_guardnum] = node_j[BUI_NODE_NAME]
+                    map_funcguardto_cfgnode[graphname][temp_guardnum] = node_j[BUI_NODE_NUM]
 
                 nodes_list.append((node_j[BUI_NODE_NUM],
                                    {BUI_NODE_NUM: node_j[BUI_NODE_NUM],
@@ -130,16 +132,18 @@ def getCFG(cfglist, map_numTofuncasm):
                     if graphname in map_numTofuncasm[tarnum_k]:
                         for target_l in map_numTofuncasm[tarnum_k].get(graphname):  # [tgtnumid, asm]
                             tgtid = target_l[0]
-                            res = node_j[BUI_NODE_LABEL].replace(' ', '').replace('\\l', '')\
+                            res = node_j[BUI_NODE_LABEL].replace(' ', '').replace('\\l', '') \
                                 .find(target_l[1].replace(' ', ''))
 
                             if res != -1:
                                 if tarnum_k not in map_functo_tgtnode:
                                     map_functo_tgtnode[tarnum_k] = {}
                                 if graphname not in map_functo_tgtnode[tarnum_k]:
-                                    map_functo_tgtnode[tarnum_k][graphname] = [[tgtid, temp_intlist, node_j[BUI_NODE_NAME]]]
+                                    map_functo_tgtnode[tarnum_k][graphname] = [
+                                        [tgtid, temp_intlist, node_j[BUI_NODE_NUM]]]
                                 else:
-                                    map_functo_tgtnode[tarnum_k][graphname].append([tgtid, temp_intlist, node_j[BUI_NODE_NAME]])
+                                    map_functo_tgtnode[tarnum_k][graphname].append(
+                                        [tgtid, temp_intlist, node_j[BUI_NODE_NUM]])
 
             # Excluding the single node_j case.
             if BUI_EDGES not in data:
@@ -156,7 +160,56 @@ def getCFG(cfglist, map_numTofuncasm):
             cfggraph = Graph(graphname, nodes_list, edges_list)
             cfggraph_dict[graphname] = cfggraph
 
-    return cfggraph_dict, map_guardto_cfgnode, map_functo_tgtnode
+    return cfggraph_dict, map_funcguardto_cfgnode, map_functo_tgtnode
+
+
+def getPredecessorsGvid(G, map_funcguardto_gvid, nodegvid):
+    predis_dict = {}
+    predq = Queue(maxsize=0)
+    # print(G.nodes, type(G.nodes))
+    # print(list(G.predecessors(nodegvid)))
+    # for n in G.nodes:
+    #     print(n, list(G.predecessors(n)))
+    #     for x in G.predecessors(n):
+    #         print(G.nodes(data=True)[x])
+    # print(G.nodes(data=True)[nodegvid])
+    predq.put(nodegvid)
+    predis_dict[nodegvid] = 0
+    while not predq.empty():
+        curgvid = predq.get()
+        for x in G.predecessors(curgvid):
+            if x not in predis_dict:
+                predq.put(x)
+                predis_dict[x] = predis_dict[curgvid] + 1
+
+    return predis_dict
+
+
+def getTargetPredecessorsGuard(cfggraph_dict, map_funcguardto_gvid, map_functo_tgtnode):
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), cfggraph_dict, map_functo_tgtnode, showlog=True)
+    map_tgtpred = {}
+    for tgtnum_i in map_functo_tgtnode:  # Select target numbers.
+        map_tgtpred[tgtnum_i] = {}
+        for tgtfunc_j in map_functo_tgtnode[tgtnum_i]:
+            if tgtfunc_j not in cfggraph_dict or tgtfunc_j not in map_funcguardto_gvid:
+                map_tgtpred[tgtnum_i][tgtfunc_j] = {0:0, }
+            else:
+                for tgtlist_k in map_functo_tgtnode[tgtnum_i][tgtfunc_j]:
+                    tgtidx = tgtlist_k[0]
+                    tgtloc_list = tgtlist_k[1]
+                    tgtnodegvid = tgtlist_k[2]
+                    predis_dict = getPredecessorsGvid(
+                        cfggraph_dict[tgtfunc_j].dg, map_funcguardto_gvid, tgtnodegvid)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(),
+                        tgtfunc_j, tgtidx, tgtloc_list, tgtnodegvid, predis_dict, map_funcguardto_gvid, showlog=True)
+                    # for k, v in predis_dict.items():
+                    #     print(k, cfggraph_dict[tgtfunc_j].dg.nodes(data=True)[k], v)
+                    if tgtfunc_j not in map_tgtpred[tgtnum_i]:
+                        map_tgtpred[tgtnum_i][tgtfunc_j] = {}
+                    map_tgtpred[tgtnum_i][tgtfunc_j].update(predis_dict)
+                    # print(predis_dict)
+    # print(map_tgtpred)
+    return map_tgtpred
 
 
 def printTargetSeq(map_numfuncTotgtnode):
@@ -228,7 +281,7 @@ def addDistanceGraph(G, root):
                 tdis = G.nodes[node_j][BUI_NODE_DISTANCE]
                 if tdis == -1:
                     nodeidq.put(node_j)
-                    layerq.put(curlayer+1)
+                    layerq.put(curlayer + 1)
                 else:
                     G.nodes[node_j][BUI_NODE_DISTANCE] = min(tdis, curlayer)
 
@@ -265,5 +318,9 @@ def buildConstraint(start_node, end_node, st_list):
 
 
 if __name__ == '__main__':
-    testmap = {0: {'mget': [[1, [238], 'Node0x55abc9b6b560']], 'mget2': [[1, [238], 'Node0x55abc9b6b560']], 'file_softmagic': [[3, [4], 'Node0x55abc9b06a10']], 'process': [[7, [14], 'Node0x55abc96ae500']], 'match': [[2, [72], 'Node0x55abc9b0df60']], 'file_or_fd': [[5, [46], 'Node0x55abc96d34f0']], 'file_buffer': [[4, [26], 'Node0x55abc9a2b810']], 'magic_file': [[6, [2], 'Node0x55abc96ee670']], 'main': [[8, [91], 'Node0x55abc9677d20']], 'file_magicfind': [[0, [0], 'Node0x55abc9916c00']]}}
+    testmap = {0: {'mget': [[1, [238], 'Node0x55abc9b6b560']], 'mget2': [[1, [238], 'Node0x55abc9b6b560']],
+                   'file_softmagic': [[3, [4], 'Node0x55abc9b06a10']], 'process': [[7, [14], 'Node0x55abc96ae500']],
+                   'match': [[2, [72], 'Node0x55abc9b0df60']], 'file_or_fd': [[5, [46], 'Node0x55abc96d34f0']],
+                   'file_buffer': [[4, [26], 'Node0x55abc9a2b810']], 'magic_file': [[6, [2], 'Node0x55abc96ee670']],
+                   'main': [[8, [91], 'Node0x55abc9677d20']], 'file_magicfind': [[0, [0], 'Node0x55abc9916c00']]}}
     printTargetSeq(testmap)
