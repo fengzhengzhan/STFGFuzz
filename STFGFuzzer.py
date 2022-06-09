@@ -58,17 +58,19 @@ def mainFuzzer():
     print("{} Build Graph Information...".format(getTime()))
     cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
     cggraph, map_functo_cgnode = Builder.getCG(cglist)
-    cfggraph_dict, map_funcguardto_cfgnode, map_functo_tgtgvid = Builder.getCFG(cfglist, map_numto_funcasm)
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_funcguardto_cfgnode, map_functo_tgtgvid)
+    cfggraph_dict, map_funcguardto_cfggvid, map_functo_tgtguard = Builder.getCFG(cfglist, map_numto_funcasm)
+    # map_functo_tgtguard {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_funcguardto_cfggvid, map_functo_tgtguard, showlog=True)
     Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
-    map_tgtpred = Builder.getTargetPredecessorsGuard(cfggraph_dict, map_funcguardto_cfgnode, map_functo_tgtgvid)
+    map_tgtpredgvid = Builder.getTargetPredecessorsGuard(cfggraph_dict, map_funcguardto_cfggvid, map_functo_tgtguard)
     sch = Scheduler.Scheduler()
+    sch.all_target = len(map_functo_tgtguard)
     for k in map_functo_cgnode.keys():
         sch.map_functo_guard[k] = USE_INITMAXNUM
 
     print("{} Directed Target Sequence...".format(getTime()))
-    Builder.printTargetSeq(map_functo_tgtgvid)
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_functo_tgtgvid, showlog=True)
+    Builder.printTargetSeq(map_functo_tgtguard)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_functo_tgtguard, map_tgtpredgvid, showlog=True)
 
 
 
@@ -89,21 +91,24 @@ def mainFuzzer():
         sch.addq(SCH_LOOP_SEED,
                  [StructSeed(path_mutseeds + AUTO_SEED, Mutator.getFillStr(64), SEED_INIT, set()), ])
 
+    # Create Memory Share.
+    ana = Analyzer.Analyzer()
+    create_seed = sch.selectOneSeed(
+        SCH_THISMUT_SEED, StructSeed(path_mutseeds + AUTO_SEED, Mutator.getFillStr(64), SEED_INIT, set()))
+    create_stdout, create_stderr = Executor.run(fuzz_command.replace('@@', create_seed.filename))
+    ana.getShm(create_stdout[0:16])
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), create_seed.content)
+
     '''Fuzzing Cycle'''
     print("{} Fuzzing Loop...".format(getTime()))
-    ana = Analyzer.Analyzer()
     vis = Visualizer.Visualizer()
     vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
-    time.sleep(5)
-    vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
-    time.sleep(5)
+    # time.sleep(5)
+    # vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
+    # time.sleep(5)
+
     while not sch.seedq.empty():
         vis.loop += 1
-        # First run to collect information.
-        init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
-        init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
-        ana.getShm(init_stdout[0:16])
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content)
 
         # # Guard
         # ana.sendCmpid("Guard")
@@ -116,6 +121,8 @@ def mainFuzzer():
         # vis.num_pcguard = guard_total
 
         ana.sendCmpid("None")
+        # First run to collect information.
+        init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         # cmpcov_list = ana.getRpt(init_interlen)
@@ -169,6 +176,7 @@ def mainFuzzer():
                 sch.quitFuzz()
         '''ld <-'''
 
+        '''2 cmp filter -> Select compare instructions which close the target block. '''
         ana.sendCmpid("Guard")
         # Reset the init_seed
         init_seed = sch.selectOneSeed(SCH_THIS_SEED, b4ld_seed)
@@ -184,11 +192,14 @@ def mainFuzzer():
         init_guardcov_list = ana.getRpt(init_interlen)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), init_guardcov_list, sch.map_functo_guard)
         guard_set, guard_total = ana.getGuardNum(init_guardcov_list)
-        ana.traceGuardAnalysis(init_guardcov_list, sch)
         sch.coverage_path = guard_set
         vis.num_pcguard = guard_total
+        ana.traceGuardAnalysis(init_guardcov_list, sch)
+        tarcmp_dict = sch.selectConstraint()
+
         # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
         # init_cmpset = set(init_cmp_dict)
+        '''cf'''
 
         # print(init_seed.content)
         # Get the length of seed, transform it to num array.

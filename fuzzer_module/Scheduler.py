@@ -31,6 +31,9 @@ class Scheduler:
         self.file_crash_csv = None
         self.path_crashseeds = None
 
+        self.cur_target = 0
+        self.all_target = USE_INITNUM
+
         self.map_functo_guard = {}
         self.map_functo_symbol = {}
 
@@ -72,6 +75,8 @@ class Scheduler:
             elif mode == SCH_MUT_SEED:
                 self.mutateq.put(each)
 
+    def selectConstraint(self):
+        return {}
 
     def deleteSeeds(self, mode):
         """
@@ -95,7 +100,6 @@ class Scheduler:
                     except Exception as e:
                         pass
 
-
     def saveCrash(self, seed: StructSeed, stdout, stderr, start_time, last_time):
         """
         To facilitate analysis, save all the crash seed information in a csv file
@@ -116,7 +120,8 @@ class Scheduler:
                         # GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
                         linestr = str(name) + "," + datetime.datetime.strftime(start_time, "%Y-%m-%d_%H:%M:%S") + "," \
                                   + last_time + "," + str(seed.content).replace(',', 'comma') + "," \
-                                  + str(stdout).replace(',', 'comma') + "," + str(stderr).replace(',', 'comma') + ",,,\n"
+                                  + str(stdout).replace(',', 'comma') + "," + str(stderr).replace(',',
+                                                                                                  'comma') + ",,,\n"
                         cf.write(linestr)
                     # write seed
                     saveAsFile(seed.content, self.path_crashseeds + name)
@@ -127,6 +132,3 @@ class Scheduler:
         self.deleteSeeds(SCH_THIS_SEED)
         self.deleteSeeds(SCH_THISMUT_SEED)
         sys.exit(0)
-
-    def selectConstraint(self):
-        pass

@@ -154,10 +154,7 @@ class Analyzer:
                 guard_total = trace[2]
         return guard_set, guard_total
 
-    def traceGuardAnalysis(self, guardcov_list, sch):
-        """
-        Perform a trace of the compare instruction execution path if necessary.
-        """
+    def updateGuardSymbol(self, guardcov_list, sch):
         # Iterate through the trace report to get the corresponding information
         for trace_i in guardcov_list:
             trace = trace_i[1:]
@@ -176,7 +173,17 @@ class Analyzer:
                     if guard_num < sch.map_functo_guard[sch.map_functo_symbol[guard_funcname]]:
                         sch.map_functo_guard[sch.map_functo_symbol[guard_funcname]] = guard_num
 
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.map_functo_symbol, sch.map_functo_guard)
+    def traceGuardAnalysis(self, guardcov_list, sch):
+        """
+        Perform a trace of the compare instruction execution path if necessary.
+        """
+        if len(sch.map_functo_symbol) == 0 or len(sch.map_functo_guard) == 0:
+            self.updateGuardSymbol(guardcov_list, sch)
+
+
+
+
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.map_functo_symbol, sch.map_functo_guard, showlog=True)
         return
 
     '''

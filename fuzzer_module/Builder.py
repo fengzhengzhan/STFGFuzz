@@ -78,7 +78,7 @@ def getCFG(cfglist, map_numTofuncasm):
     @param cfglist:
     @return:
     """
-    map_funcguardto_cfgnode: '{funcname:{guardnum:node_j}}' = {}
+    map_funcguardto_cfggvid: '{funcname:{guardnum:node_j}}' = {}
     map_functo_tgtnode: '{funcname:[id,nodeid,node_j]}' = {}
     cfggraph_dict = {}
     for jsonfile_i in cfglist:
@@ -87,8 +87,8 @@ def getCFG(cfglist, map_numTofuncasm):
             data = json.load(f)
             # print(data)
             graphname = data[BUI_NAME].split(" ")[-2][1:-1]  # That also is the function name.
-            if graphname not in map_funcguardto_cfgnode:
-                map_funcguardto_cfgnode[graphname] = {}
+            if graphname not in map_funcguardto_cfggvid:
+                map_funcguardto_cfggvid[graphname] = {}
 
             # for k, v in data.items():
             #     print(k,"->", v)
@@ -115,7 +115,7 @@ def getCFG(cfglist, map_numTofuncasm):
                 for one in guard_res:
                     temp_guardnum = int(int(one, 10) / BUI_LOC_INTERVAL)
                     temp_intlist.append(temp_guardnum)
-                    map_funcguardto_cfgnode[graphname][temp_guardnum] = node_j[BUI_NODE_NUM]
+                    map_funcguardto_cfggvid[graphname][temp_guardnum] = node_j[BUI_NODE_NUM]
 
                 nodes_list.append((node_j[BUI_NODE_NUM],
                                    {BUI_NODE_NUM: node_j[BUI_NODE_NUM],
@@ -160,7 +160,7 @@ def getCFG(cfglist, map_numTofuncasm):
             cfggraph = Graph(graphname, nodes_list, edges_list)
             cfggraph_dict[graphname] = cfggraph
 
-    return cfggraph_dict, map_funcguardto_cfgnode, map_functo_tgtnode
+    return cfggraph_dict, map_funcguardto_cfggvid, map_functo_tgtnode
 
 
 def getPredecessorsGvid(G, map_funcguardto_gvid, nodegvid):
@@ -187,12 +187,12 @@ def getPredecessorsGvid(G, map_funcguardto_gvid, nodegvid):
 
 def getTargetPredecessorsGuard(cfggraph_dict, map_funcguardto_gvid, map_functo_tgtnode):
     LOG(LOG_DEBUG, LOG_FUNCINFO(), cfggraph_dict, map_functo_tgtnode, showlog=True)
-    map_tgtpred = {}
+    map_tgtpredgvid = {}
     for tgtnum_i in map_functo_tgtnode:  # Select target numbers.
-        map_tgtpred[tgtnum_i] = {}
+        map_tgtpredgvid[tgtnum_i] = {}
         for tgtfunc_j in map_functo_tgtnode[tgtnum_i]:
             if tgtfunc_j not in cfggraph_dict or tgtfunc_j not in map_funcguardto_gvid:
-                map_tgtpred[tgtnum_i][tgtfunc_j] = {0:0, }
+                map_tgtpredgvid[tgtnum_i][tgtfunc_j] = {0:0, }
             else:
                 for tgtlist_k in map_functo_tgtnode[tgtnum_i][tgtfunc_j]:
                     tgtidx = tgtlist_k[0]
@@ -204,12 +204,12 @@ def getTargetPredecessorsGuard(cfggraph_dict, map_funcguardto_gvid, map_functo_t
                         tgtfunc_j, tgtidx, tgtloc_list, tgtnodegvid, predis_dict, map_funcguardto_gvid, showlog=True)
                     # for k, v in predis_dict.items():
                     #     print(k, cfggraph_dict[tgtfunc_j].dg.nodes(data=True)[k], v)
-                    if tgtfunc_j not in map_tgtpred[tgtnum_i]:
-                        map_tgtpred[tgtnum_i][tgtfunc_j] = {}
-                    map_tgtpred[tgtnum_i][tgtfunc_j].update(predis_dict)
+                    if tgtfunc_j not in map_tgtpredgvid[tgtnum_i]:
+                        map_tgtpredgvid[tgtnum_i][tgtfunc_j] = {}
+                    map_tgtpredgvid[tgtnum_i][tgtfunc_j].update(predis_dict)
                     # print(predis_dict)
-    # print(map_tgtpred)
-    return map_tgtpred
+    # print(map_tgtpredgvid)
+    return map_tgtpredgvid
 
 
 def printTargetSeq(map_numfuncTotgtnode):
