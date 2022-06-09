@@ -154,38 +154,6 @@ class Analyzer:
                 guard_total = trace[2]
         return guard_set, guard_total
 
-    def updateGuardSymbol(self, guardcov_list, sch):
-        # Iterate through the trace report to get the corresponding information
-        for trace_i in guardcov_list:
-            trace = trace_i[1:]
-            if trace[IDX_CMPTYPE] == EACH_PC_GUARD:
-                guard_funcname = delBrackets(trace[1])
-                guard_num = trace[2]
-                # Map execute function name to symbol function name.
-                if guard_funcname not in sch.map_functo_symbol:
-                    for bin_kj in sch.map_functo_guard.keys():
-                        findres = bin_kj.find(guard_funcname)
-                        if findres != -1:
-                            sch.map_functo_symbol[guard_funcname] = bin_kj
-
-                # Change guard start number from symbol function name which use execute function name map it.
-                if guard_funcname in sch.map_functo_symbol:
-                    if guard_num < sch.map_functo_guard[sch.map_functo_symbol[guard_funcname]]:
-                        sch.map_functo_guard[sch.map_functo_symbol[guard_funcname]] = guard_num
-
-    def traceGuardAnalysis(self, guardcov_list, sch):
-        """
-        Perform a trace of the compare instruction execution path if necessary.
-        """
-        if len(sch.map_functo_symbol) == 0 or len(sch.map_functo_guard) == 0:
-            self.updateGuardSymbol(guardcov_list, sch)
-
-
-
-
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.map_functo_symbol, sch.map_functo_guard, showlog=True)
-        return
-
     '''
     Tracking Comparison Module.
     '''

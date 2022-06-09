@@ -195,7 +195,7 @@ def mainFuzzer():
         sch.coverage_path = guard_set
         vis.num_pcguard = guard_total
         ana.traceGuardAnalysis(init_guardcov_list, sch)
-        tarcmp_dict = sch.selectConstraint()
+        tarcmp_dict = sch.selectConstraint(init_guardcov_list, sch)
 
         # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
         # init_cmpset = set(init_cmp_dict)
