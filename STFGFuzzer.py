@@ -27,7 +27,7 @@ def mainFuzzer():
     print("{} Start Directed Fuzzing...".format(getTime()))
     stdout, stderr = Executor.run("cat /proc/sys/kernel/randomize_va_space")
     if stdout != b'0\n':
-        raise Exception("Please turn off address randomization")
+        raise Exception("Please turn off address randomization -> echo 0 > /proc/sys/kernel/randomize_va_space")
 
     # Receive command line parameters.
     program_name, patchtype, fuzz_command = Generator.genTerminal()
@@ -59,10 +59,11 @@ def mainFuzzer():
     cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
     cggraph, map_functo_cgnode = Builder.getCG(cglist)
     cfggraph_dict, map_funcguardto_cfggvid, map_functo_tgtguard = Builder.getCFG(cfglist, map_numto_funcasm)
+    '''All node transfrom to the gvid to convenient calculation and expression.'''
+    '''All the function name transfrom to the static symbol function name.'''
     # map_functo_tgtguard {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_funcguardto_cfggvid, map_functo_tgtguard, showlog=True)
     Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
-    map_tgtpredgvid = Builder.getTargetPredecessorsGuard(cfggraph_dict, map_funcguardto_cfggvid, map_functo_tgtguard)
+    map_tgtpredgvid_dis = Builder.getTargetPredecessorsGuard(cfggraph_dict, map_funcguardto_cfggvid, map_functo_tgtguard)
     sch = Scheduler.Scheduler()
     sch.all_target = len(map_functo_tgtguard)
     for k in map_functo_cgnode.keys():
@@ -70,7 +71,7 @@ def mainFuzzer():
 
     print("{} Directed Target Sequence...".format(getTime()))
     Builder.printTargetSeq(map_functo_tgtguard)
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_functo_tgtguard, map_tgtpredgvid, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_funcguardto_cfggvid, map_functo_tgtguard, map_tgtpredgvid_dis, showlog=True)
 
 
 
@@ -194,8 +195,7 @@ def mainFuzzer():
         guard_set, guard_total = ana.getGuardNum(init_guardcov_list)
         sch.coverage_path = guard_set
         vis.num_pcguard = guard_total
-        ana.traceGuardAnalysis(init_guardcov_list, sch)
-        tarcmp_dict = sch.selectConstraint(init_guardcov_list, sch)
+        tarcmp_dict = sch.selectConstraint(init_guardcov_list, map_functo_tgtguard, map_tgtpredgvid_dis)
 
         # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
         # init_cmpset = set(init_cmp_dict)

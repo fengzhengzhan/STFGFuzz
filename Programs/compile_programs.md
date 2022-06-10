@@ -4,17 +4,16 @@
 
 ## LAVA-1
 
-### lava-4961
+### lava-13796
 ```bash
 sudo apt-get install autoconf automake libtool
 # Do not change folder permissions, as CRASH_INPUT may not be generated.
 su root
 cd lava_corpus/LAVA-1/
 # ./validate.sh
-cp -r file-5.22/ file4961
-cd file4961
-git checkout 4961_R_0x12345678-0x22345678
-cd file../
+cp -r file-5.22/ file13796
+cd file13796
+git checkout 13796_R_0x12345678-0x22345678
 
 # wllvm-sanity-checker
 export FORCE_UNSAFE_CONFIGURE=1
@@ -26,7 +25,7 @@ make install
 cd lava-install/bin/
 extract-bc file
 
-sudo clang -lz -fsanitize=address -Wl,--whole-archive -L../../llvm_mode/ClangSanitizer -lcmpcov -Wl,--no-whole-archive code_IR/lava4961.o -o code_Bin/lava4961
+sudo clang -lz -fsanitize=address -Wl,--whole-archive -L../../llvm_mode/ClangSanitizer -lcmpcov -Wl,--no-whole-archive code_IR/lava13796.o -o code_Bin/lava13796
 ```
 
 ## LAVA-M

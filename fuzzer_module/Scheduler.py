@@ -47,6 +47,7 @@ class Scheduler:
     '''
     Seed Operation
     '''
+
     def selectOneSeed(self, mode: int, mutseed=None) -> StructSeed:
         temp_one = None
         if mode == SCH_LOOP_SEED:
@@ -156,13 +157,21 @@ class Scheduler:
                     if guard_num < self.map_functo_guard[self.map_functo_symbol[guard_funcname]]:
                         self.map_functo_guard[self.map_functo_symbol[guard_funcname]] = guard_num
 
-
-    def selectConstraint(self, guardcov_list):
+    def selectConstraint(self, guardcov_list, map_functo_tgtguard, map_tgtpredgvid_dis):
         """
         Perform a trace of the compare instruction execution path if necessary.
         """
+        # If map location is empty, then first to run it to collect information.
+        # If map is not empty, then run it when can not find in map.
         if len(self.map_functo_symbol) == 0 or len(self.map_functo_guard) == 0:
             self.updateGuardSymbol(guardcov_list)
+
+        # Select compare and add it to priority queue.
+        # According target number to determine the direction of mutation.
+        maptgt_functo_tgtguard = map_functo_tgtguard[self.cur_target]
+        maptgt_tgtpredgvid_dis = map_tgtpredgvid_dis[self.cur_target]
+
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), maptgt_functo_tgtguard, maptgt_tgtpredgvid_dis, showlog=True)
 
         LOG(LOG_DEBUG, LOG_FUNCINFO(), self.map_functo_symbol, self.map_functo_guard, showlog=True)
         return {}
