@@ -191,14 +191,14 @@ def mainFuzzer():
         # Binary files each function blocks from 0.
         # Execution files each function blocks from n.
         # Get the offset of the address block.
-        tarcmp_dict = {}  # Save cmpid for the next explore
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         init_guardcov_list = ana.getRpt(init_interlen)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), init_guardcov_list, sch.map_symbol_initguard)
         guard_set, guard_total = ana.getGuardNum(init_guardcov_list)
         sch.coverage_path = guard_set
         vis.num_pcguard = guard_total
-        tarcmp_dict = sch.selectConstraint(init_guardcov_list, map_target, map_tgtpredgvid_dis, map_guard_gvid)
+        # Update sch priority queue. Save cmpid for the next explore
+        sch.selectConstraint(vis.loop, init_guardcov_list, map_target, map_tgtpredgvid_dis, map_guard_gvid)
 
         # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
         # init_cmpset = set(init_cmp_dict)
@@ -212,6 +212,10 @@ def mainFuzzer():
 
         '''3 cmp type'''
         '''st -> Constraints Analysis'''
+        # You can always add elements to the priority queue.
+        # If the number covered changes, it is considered to have passed this constraint,
+        # so it enters the next round of comparison instruction recognition
+
         # Compare instruction type speculation based on input mapping,
         # then try to pass the corresponding constraint (1-2 rounds).
         vis.cmptotal = len(cmpmaploc_dict)

@@ -2,18 +2,19 @@
 # -*- coding: utf-8 -*-
 import re
 from queue import Queue
+from queue import PriorityQueue
 
 from fuzzer_module.Fuzzconfig import *
 
 
 class Scheduler:
     def __init__(self):
-        self.seedq: Queue[StructSeed] = Queue(maxsize=0)
-        self.mutateq: Queue[StructSeed] = Queue(maxsize=0)
-        self.importantq: Queue[StructSeed] = Queue(maxsize=0)
-        self.delq: Queue[StructSeed] = Queue(maxsize=0)
-        self.delmutq: Queue[StructSeed] = Queue(maxsize=0)
-        self.strategyq: Queue[StructStrategy] = Queue(maxsize=0)
+        self.seedq: Queue[StructSeed] = Queue()
+        self.mutateq: Queue[StructSeed] = Queue()
+        self.importantq: Queue[StructSeed] = Queue()
+        self.delq: Queue[StructSeed] = Queue()
+        self.delmutq: Queue[StructSeed] = Queue()
+        self.strategyq: Queue[StructStrategy] = Queue()
 
         self.loc_coarse_list: 'list[int]' = []
         self.slid_window: int = SCH_SLID_WINDOW
@@ -33,6 +34,7 @@ class Scheduler:
 
         self.cur_target = 0
         self.all_target = USE_INITNUM
+        self.target_cmp = PriorityQueue()
 
         self.map_symbol_initguard = {}
         self.map_func_symbol = {}
@@ -157,7 +159,7 @@ class Scheduler:
                     if guard_num < self.map_symbol_initguard[self.map_func_symbol[guard_funcname]]:
                         self.map_symbol_initguard[self.map_func_symbol[guard_funcname]] = guard_num
 
-    def selectConstraint(self, guardcov_list, map_target, map_tgtpredgvid_dis, map_guard_gvid):
+    def selectConstraint(self, loopnum, guardcov_list, map_target, map_tgtpredgvid_dis, map_guard_gvid):
         """
         Perform a trace of the compare instruction execution path if necessary.
         """
@@ -193,9 +195,7 @@ class Scheduler:
                 if gvid in map_curtgtpredgvid_dis[symbol]:
                     distance = map_curtgtpredgvid_dis[symbol][gvid]
                     # The smaller the distance, the higher the priority.
+                    self.target_cmp.put((distance-loopnum, cmpid))
 
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), symbol, transguard, gvid, trace_i, showlog=True)
 
-
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), self.map_func_symbol, self.map_symbol_initguard, showlog=True)
-        return {}
