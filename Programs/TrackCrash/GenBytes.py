@@ -184,8 +184,8 @@ numToHexChar(i)
 hexToNum('6475616c')
 numToHexChar(i)
 
-numToHexChar(305419896)
-numToHexChar(573855352)
+numToHexChar(3883718427)
+numToHexChar(467107047)
 
 
 # for i, one in enumerate(BYTES_ASCII):

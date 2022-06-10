@@ -69,7 +69,7 @@ def getDirectedNodeLoc(binline_dict: dict, target_dict: 'dict[target_num:StructT
     map_numTofuncasm: '{targetnum:{funcname:[[id,asm],[id,asm],...]}}' = {}
     for tgt_k, tgt_v in target_dict.items():
         # print(tgt_v.ttrace, tgt_v.tfunc, tgt_v.tline)
-        functo_asm = {}
+        func_asm = {}
         tgttrace = tgt_v.tgttrace
         for each in tgttrace:
             ttrace, tfunc, tline = each[0], each[1], each[2]
@@ -87,11 +87,11 @@ def getDirectedNodeLoc(binline_dict: dict, target_dict: 'dict[target_num:StructT
                     # {'I': '', 'F': '_Z3bugv', 'C': '7', 'N': '', 'D': ''}
                     tempfunc = binline_dict[tempbin_kj][tline][COM_BINFUNC]
                     tempins = binline_dict[tempbin_kj][tline][COM_BININS]
-                    if tempfunc not in functo_asm:
-                        functo_asm[tempfunc] = [[ttrace, tempins]]
-                    elif tempfunc in functo_asm:
-                        functo_asm[tempfunc].append([ttrace, tempins])
-        map_numTofuncasm[tgt_k] = functo_asm
+                    if tempfunc not in func_asm:
+                        func_asm[tempfunc] = [[ttrace, tempins]]
+                    elif tempfunc in func_asm:
+                        func_asm[tempfunc].append([ttrace, tempins])
+        map_numTofuncasm[tgt_k] = func_asm
     LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm, showlog=True)
     return map_numTofuncasm
 

@@ -34,8 +34,8 @@ class Scheduler:
         self.cur_target = 0
         self.all_target = USE_INITNUM
 
-        self.map_functo_guard = {}
-        self.map_functo_symbol = {}
+        self.map_symbol_initguard = {}
+        self.map_func_symbol = {}
 
     def initEachloop(self, vis):
         self.loc_coarse_list = []
@@ -146,32 +146,56 @@ class Scheduler:
                 guard_funcname = delBrackets(trace[1])
                 guard_num = trace[2]
                 # Map execute function name to symbol function name.
-                if guard_funcname not in self.map_functo_symbol:
-                    for bin_kj in self.map_functo_guard.keys():
+                if guard_funcname not in self.map_func_symbol:
+                    for bin_kj in self.map_symbol_initguard.keys():
                         findres = bin_kj.find(guard_funcname)
                         if findres != -1:
-                            self.map_functo_symbol[guard_funcname] = bin_kj
+                            self.map_func_symbol[guard_funcname] = bin_kj
 
                 # Change guard start number from symbol function name which use execute function name map it.
-                if guard_funcname in self.map_functo_symbol:
-                    if guard_num < self.map_functo_guard[self.map_functo_symbol[guard_funcname]]:
-                        self.map_functo_guard[self.map_functo_symbol[guard_funcname]] = guard_num
+                if guard_funcname in self.map_func_symbol:
+                    if guard_num < self.map_symbol_initguard[self.map_func_symbol[guard_funcname]]:
+                        self.map_symbol_initguard[self.map_func_symbol[guard_funcname]] = guard_num
 
-    def selectConstraint(self, guardcov_list, map_functo_tgtguard, map_tgtpredgvid_dis):
+    def selectConstraint(self, guardcov_list, map_target, map_tgtpredgvid_dis, map_guard_gvid):
         """
         Perform a trace of the compare instruction execution path if necessary.
         """
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_target, map_tgtpredgvid_dis, map_guard_gvid, showlog=True)
         # If map location is empty, then first to run it to collect information.
         # If map is not empty, then run it when can not find in map.
-        if len(self.map_functo_symbol) == 0 or len(self.map_functo_guard) == 0:
+        if len(self.map_func_symbol) == 0 or len(self.map_symbol_initguard) == 0:
             self.updateGuardSymbol(guardcov_list)
 
         # Select compare and add it to priority queue.
         # According target number to determine the direction of mutation.
-        maptgt_functo_tgtguard = map_functo_tgtguard[self.cur_target]
-        maptgt_tgtpredgvid_dis = map_tgtpredgvid_dis[self.cur_target]
+        map_curtarget = map_target[self.cur_target]
+        map_curtgtpredgvid_dis = map_tgtpredgvid_dis[self.cur_target]
 
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), maptgt_functo_tgtguard, maptgt_tgtpredgvid_dis, showlog=True)
+        for trace_i in guardcov_list:
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i)
+            cmpid = trace_i[0]
+            cmptype = trace_i[1]
+            if cmptype != EACH_PC_GUARD:
+                func, guard, cmpnum = trace_i[2].split("+")
+                if func == '':
+                    continue
+                # Lazy to update
+                if func not in self.map_func_symbol:
+                    self.updateGuardSymbol(guardcov_list)
+                symbol = self.map_func_symbol[func]
+                if symbol not in map_guard_gvid:
+                    continue
+                transguard = int(guard) - self.map_symbol_initguard[symbol]
+                if transguard not in map_guard_gvid[symbol]:
+                    continue
+                gvid = map_guard_gvid[symbol][transguard]
+                if gvid in map_curtgtpredgvid_dis[symbol]:
+                    distance = map_curtgtpredgvid_dis[symbol][gvid]
+                    # The smaller the distance, the higher the priority.
 
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), self.map_functo_symbol, self.map_functo_guard, showlog=True)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), symbol, transguard, gvid, trace_i, showlog=True)
+
+
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), self.map_func_symbol, self.map_symbol_initguard, showlog=True)
         return {}

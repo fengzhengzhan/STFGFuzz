@@ -49,7 +49,7 @@ def getCG(cglist):
         # for k, v in data.items():
         #     print(k,"->", v)
         # Constructing directed graph.
-        map_functo_cgnode = {}
+        map_func_cgnode = {}
         # Nodes
         nodes_list = []
         for node in data[BUI_NODES]:
@@ -58,7 +58,7 @@ def getCG(cglist):
                                 BUI_NODE_NAME: node[BUI_NODE_NAME],
                                 BUI_NODE_LABEL: node[BUI_NODE_LABEL],
                                 BUI_NODE_DISTANCE: USE_INITNUM}))
-            map_functo_cgnode[node[BUI_NODE_LABEL][1:-1]] = node[BUI_NODE_NAME]
+            map_func_cgnode[node[BUI_NODE_LABEL][1:-1]] = node[BUI_NODE_NAME]
         # Edges
         edges_list = []
         for edge in data[BUI_EDGES]:
@@ -69,17 +69,17 @@ def getCG(cglist):
         LOG(LOG_DEBUG, LOG_FUNCINFO(), nodes_list, edges_list)
         cggraph = Graph(data[BUI_NAME].split(" ")[-1], nodes_list, edges_list)
 
-    return cggraph, map_functo_cgnode
+    return cggraph, map_func_cgnode
 
 
-def getCFG(cfglist, map_numTofuncasm):
+def getCFG(cfglist, map_num_asm):
     """
     Get the
     @param cfglist:
     @return:
     """
-    map_funcguardto_cfggvid: '{funcname:{guardnum:node_j}}' = {}
-    map_functo_tgtnode: '{funcname:[id,nodeid,node_j]}' = {}
+    map_guard_gvid: '{funcname:{guardnum:node_j}}' = {}
+    map_target: '{funcname:[id,nodeid,node_j]}' = {}
     cfggraph_dict = {}
     for jsonfile_i in cfglist:
         # funcname = jsonfile_i.split(os.sep)[-1][1:-9]
@@ -87,8 +87,8 @@ def getCFG(cfglist, map_numTofuncasm):
             data = json.load(f)
             # print(data)
             graphname = data[BUI_NAME].split(" ")[-2][1:-1]  # That also is the function name.
-            if graphname not in map_funcguardto_cfggvid:
-                map_funcguardto_cfggvid[graphname] = {}
+            if graphname not in map_guard_gvid:
+                map_guard_gvid[graphname] = {}
 
             # for k, v in data.items():
             #     print(k,"->", v)
@@ -115,7 +115,7 @@ def getCFG(cfglist, map_numTofuncasm):
                 for one in guard_res:
                     temp_guardnum = int(int(one, 10) / BUI_LOC_INTERVAL)
                     temp_intlist.append(temp_guardnum)
-                    map_funcguardto_cfggvid[graphname][temp_guardnum] = node_j[BUI_NODE_NUM]
+                    map_guard_gvid[graphname][temp_guardnum] = node_j[BUI_NODE_NUM]
 
                 nodes_list.append((node_j[BUI_NODE_NUM],
                                    {BUI_NODE_NUM: node_j[BUI_NODE_NUM],
@@ -125,24 +125,24 @@ def getCFG(cfglist, map_numTofuncasm):
                                     BUI_NODE_ST: []}))
 
                 # Find target
-                for tarnum_k in map_numTofuncasm:  # target nums
+                for tarnum_k in map_num_asm:  # target nums
                     # print(map_numTofuncasm[0], graphname)
                     # if graphname == "file_magicfind" or graphname == "match":
                     #     print(graphname, node_j[BUI_NODE_LABEL])
-                    if graphname in map_numTofuncasm[tarnum_k]:
-                        for target_l in map_numTofuncasm[tarnum_k].get(graphname):  # [tgtnumid, asm]
+                    if graphname in map_num_asm[tarnum_k]:
+                        for target_l in map_num_asm[tarnum_k].get(graphname):  # [tgtnumid, asm]
                             tgtid = target_l[0]
                             res = node_j[BUI_NODE_LABEL].replace(' ', '').replace('\\l', '') \
                                 .find(target_l[1].replace(' ', ''))
 
                             if res != -1:
-                                if tarnum_k not in map_functo_tgtnode:
-                                    map_functo_tgtnode[tarnum_k] = {}
-                                if graphname not in map_functo_tgtnode[tarnum_k]:
-                                    map_functo_tgtnode[tarnum_k][graphname] = [
+                                if tarnum_k not in map_target:
+                                    map_target[tarnum_k] = {}
+                                if graphname not in map_target[tarnum_k]:
+                                    map_target[tarnum_k][graphname] = [
                                         [tgtid, temp_intlist, node_j[BUI_NODE_NUM]]]
                                 else:
-                                    map_functo_tgtnode[tarnum_k][graphname].append(
+                                    map_target[tarnum_k][graphname].append(
                                         [tgtid, temp_intlist, node_j[BUI_NODE_NUM]])
 
             # Excluding the single node_j case.
@@ -160,7 +160,7 @@ def getCFG(cfglist, map_numTofuncasm):
             cfggraph = Graph(graphname, nodes_list, edges_list)
             cfggraph_dict[graphname] = cfggraph
 
-    return cfggraph_dict, map_funcguardto_cfggvid, map_functo_tgtnode
+    return cfggraph_dict, map_guard_gvid, map_target
 
 
 def getPredecessorsGvid(G, map_funcguardto_gvid, nodegvid):
@@ -212,8 +212,8 @@ def getTargetPredecessorsGuard(cfggraph_dict, map_funcguardto_gvid, map_functo_t
     return map_tgtpredgvid
 
 
-def printTargetSeq(map_numfuncTotgtnode):
-    copy_map = map_numfuncTotgtnode.copy()
+def printTargetSeq(map_target):
+    copy_map = map_target.copy()
     tgtnum = list(copy_map.keys())
     tgtnum.sort()
     for tgtnum_i in tgtnum:
