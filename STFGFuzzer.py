@@ -206,9 +206,11 @@ def mainFuzzer():
 
         # print(init_seed.content)
         # Get the length of seed, transform it to num array.
-        for loci in range(0, len(init_seed.content)):
-            if loci not in sch.freeze_bytes:
-                sch.loc_coarse_list.append(loci)
+        if len(init_seed.content) != len(sch.loc_coarse_list):
+            sch.loc_coarse_list = []
+            for loci in range(0, len(init_seed.content)):
+                if loci not in sch.freeze_bytes:
+                    sch.loc_coarse_list.append(loci)
 
         '''3 cmp type'''
         '''st -> Constraints Analysis'''
@@ -218,8 +220,14 @@ def mainFuzzer():
 
         # Compare instruction type speculation based on input mapping,
         # then try to pass the corresponding constraint (1-2 rounds).
-        vis.cmptotal = len(cmpmaploc_dict)
-        for stcmpid_ki, stlocset_vi in cmpmaploc_dict.items():
+        reselect = False
+        if sch.target_cmp.empty():
+            reselect = True
+
+        vis.cmptotal = sch.target_cmp.qsize()
+        while not reselect and not sch.target_cmp.empty():
+            stcmpid_ki = sch.target_cmp.get()
+        # for stcmpid_ki, stlocset_vi in cmpmaploc_dict.items():
             vis.cmpnum += 1
 
             '''sd -> Sliding Window Detection O(n/step)'''
