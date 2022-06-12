@@ -212,8 +212,7 @@ def mainFuzzer():
                 if loci not in sch.freeze_bytes:
                     sch.loc_coarse_list.append(loci)
 
-        '''3 cmp type'''
-        '''st -> Constraints Analysis'''
+
         # You can always add elements to the priority queue.
         # If the number covered changes, it is considered to have passed this constraint,
         # so it enters the next round of comparison instruction recognition
@@ -225,10 +224,35 @@ def mainFuzzer():
             reselect = True
 
         vis.cmptotal = sch.target_cmp.qsize()
-        while not reselect and not sch.target_cmp.empty():
-            stcmpid_ki = sch.target_cmp.get()
+        sch.slid_window = max(len(sch.loc_coarse_list) // SCH_SLID_COUNT, SCH_SLID_MIN)
         # for stcmpid_ki, stlocset_vi in cmpmaploc_dict.items():
+        '''3 cmp type'''
+        '''st -> Constraints Analysis'''
+        while not reselect and not sch.target_cmp.empty():
+            stcmpid = sch.target_cmp.get()
+            stcmpid_weight, stcmpid_ki = stcmpid[0], stcmpid[1]
+
+            # fixme
+            # filterl = ["c0x4f972b0x4f9aac0x4fbd23"]
+            # ff = False
+            # loc = [0,1,2,3]
+            # for one in loc:
+            #     if one not in stlocset_vi:
+            #         ff = True
+            # if stcmpid_ki not in filterl or ff:
+            #     continue
+
             vis.cmpnum += 1
+            ana.sendCmpid(stcmpid_ki)
+            # False positive comparison if all input bytes are covered
+            # if len(stloclist_v) == len(init_seed.content):
+            #     continue
+
+            # First run init seed after cmp filter.
+            init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
+            init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
+            init_cmpcov_list = ana.getRpt(init_interlen)
+            init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
 
             '''sd -> Sliding Window Detection O(n/step)'''
             # Get a report on changes to comparison instructions. # todo multiprocessing
@@ -241,8 +265,8 @@ def mainFuzzer():
                 sdloc_list = sch.loc_coarse_list[coarse_head:coarse_head + sch.slid_window]
                 # print(sdloc_list)
                 coarse_head += sch.slid_window // 2
-                sd_seed = Mutator.mutSelectChar(init_seed.content, path_mutseeds, COARSE_STR + str(vis.loop),
-                                                sdloc_list)
+                sd_seed = Mutator.mutSelectChar(
+                    init_seed.content, path_mutseeds, COARSE_STR + str(vis.loop), sdloc_list)
                 sd_seed = sch.selectOneSeed(SCH_THISMUT_SEED, sd_seed)
                 sd_stdout, sd_stderr = Executor.run(fuzz_command.replace('@@', sd_seed.filename))
                 sch.saveCrash(sd_seed, sd_stdout, sd_stderr, vis.start_time, vis.last_time)
@@ -252,7 +276,7 @@ def mainFuzzer():
                 sd_cmpcov_list = ana.getRpt(sd_interlen)  # report
 
                 sd_cmp_dict = ana.traceAyalysis(sd_cmpcov_list, sch.skip_cmpidset)
-                sd_diffcmp_set = ana.compareRptToLoc(init_cmp_dict, sd_cmp_dict)
+                sd_diffcmp_set = ana.compareOneRptToLoc(init_cmp_dict, sd_cmp_dict)
 
                 # LOG(LOG_DEBUG, LOG_FUNCINFO(), init_cmp_dict, sd_cmp_dict, sd_diffcmp_set)
 
@@ -278,23 +302,10 @@ def mainFuzzer():
             # raise Exception()
             '''sd <-'''
 
-            # fixme
-            # filterl = ["c0x4f972b0x4f9aac0x4fbd23"]
-            # ff = False
-            # loc = [0,1,2,3]
-            # for one in loc:
-            #     if one not in stlocset_vi:
-            #         ff = True
-            # if stcmpid_ki not in filterl or ff:
-            #     continue
-
-            vis.total += 3
-            ana.sendCmpid(stcmpid_ki)
-            # False positive comparison if all input bytes are covered
-            # if len(stloclist_v) == len(init_seed.content):
-            #     continue
-
             '''Type detect and Generate Mutation strategy'''
+            if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == 0:
+                continue
+            stlocset_vi = cmpmaploc_dict[stcmpid_ki]
             stloclist_v = list(stlocset_vi)
             stloclist_v.sort()
             ststart_seed = StructSeed(

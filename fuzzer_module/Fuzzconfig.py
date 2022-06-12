@@ -279,7 +279,10 @@ SCH_SAVEASFILE = True
 SCH_EXPAND_MULTI = 2  # Seed expansion factor per round
 SCH_EXPAND_SIZE = 64 // SCH_EXPAND_MULTI
 
-SCH_SLID_WINDOW = 8
+# The count of sliding windows is multiple of SCH_SLID_COUNT.
+# Recommond 1024/16 = 64
+SCH_SLID_MIN = 8  # 8 bit
+SCH_SLID_COUNT = 16
 
 '''Visualizer'''
 # Red for frozen bytes.

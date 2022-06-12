@@ -17,7 +17,7 @@ class Scheduler:
         self.strategyq: Queue[StructStrategy] = Queue()
 
         self.loc_coarse_list: 'list[int]' = []
-        self.slid_window: int = SCH_SLID_WINDOW
+        self.slid_window: int = SCH_SLID_COUNT
         self.freeze_bytes = set()
         self.skip_cmpidset = set()  # freeze or ignore
 
@@ -41,7 +41,7 @@ class Scheduler:
 
     def initEachloop(self, vis):
         self.loc_coarse_list = []
-        self.slid_window = SCH_SLID_WINDOW
+        self.slid_window = SCH_SLID_COUNT
         self.mutlocnums = 0
         vis.cmpnum, vis.cmptotal = 0, 0
         self.expand_size *= SCH_EXPAND_MULTI

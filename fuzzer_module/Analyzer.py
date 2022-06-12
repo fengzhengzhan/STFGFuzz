@@ -158,7 +158,34 @@ class Analyzer:
     Tracking Comparison Module.
     '''
 
-    def compareRptToLoc(self, b4cmp_dict, cmp_dict):
+    def compareOneRptToLoc(self, b4cmp_dict, cmp_dict):
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), b4cmp_dict, cmp_dict, showlog=True)
+        b4cmpset = set(b4cmp_dict)
+        cmpset = set(cmp_dict)
+        interset = b4cmpset & cmpset  # Intersection set
+        # symdiffset = b4cmpset ^ cmpset  # Symmetric Difference set
+        symdiffset = cmpset - b4cmpset  # Symmetric Difference set
+        diffcmp_set = set()
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), interset, symdiffset)
+
+        # Intersection set
+        # compare whether the parameters of the same constraint are different.
+        # Faster comparisons can be achieved by using arrays instead of structures.
+        for key_i in interset:
+            if len(b4cmp_dict[key_i]) != len(cmp_dict[key_i]):
+                diffcmp_set.add(key_i)
+            else:
+                for idx in range(0, len(b4cmp_dict[key_i])):
+                    if b4cmp_dict[key_i][idx][IDX_ARG:] != cmp_dict[key_i][idx][IDX_ARG:]:
+                        diffcmp_set.add(key_i)
+                        break
+
+        # Symmetric Difference set
+        for key_i in symdiffset:
+            diffcmp_set.add(key_i)
+        return diffcmp_set
+
+    def compareMoreRptToLoc(self, b4cmp_dict, cmp_dict):
         b4cmpset = set(b4cmp_dict)
         cmpset = set(cmp_dict)
         interset = b4cmpset & cmpset  # Intersection set
