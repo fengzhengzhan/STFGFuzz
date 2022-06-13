@@ -71,12 +71,11 @@ def mainFuzzer():
     sch = Scheduler.Scheduler()
     sch.all_tgtnum = len(map_target)
     for k in map_functo_cgnode.keys():
-        sch.map_symbol_initguard[k] = USE_INITMAXNUM
+        sch.trans_symbol_initguard[k] = USE_INITMAXNUM
 
     print("{} Directed Target Sequence...".format(getTime()))
     Builder.printTargetSeq(map_target)
     LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, map_tgtpredgvid_dis, showlog=True)
-
 
 
     sch.file_crash_csv = file_crash_csv
@@ -194,7 +193,7 @@ def mainFuzzer():
         # Get the offset of the address block.
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         init_guardcov_list = ana.getRpt(init_interlen)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_guardcov_list, sch.map_symbol_initguard)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_guardcov_list, sch.trans_symbol_initguard)
         guard_set, guard_total = ana.getGuardNum(init_guardcov_list)
         sch.coverage_path = guard_set
         vis.num_pcguard = guard_total

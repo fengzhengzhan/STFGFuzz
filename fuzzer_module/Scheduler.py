@@ -36,8 +36,8 @@ class Scheduler:
         self.all_tgtnum = USE_INITNUM
         self.target_cmp = PriorityQueue()
 
-        self.map_symbol_initguard = {}
-        self.map_func_symbol = {}
+        self.trans_symbol_initguard = {}
+        self.trans_func_symbol = {}
 
     def initEachloop(self, vis):
         self.loc_coarse_list = []
@@ -146,27 +146,27 @@ class Scheduler:
             trace = trace_i[1:]
             if trace[IDX_CMPTYPE] == EACH_PC_GUARD:
                 guard_funcname = delBrackets(trace[1])
-                guard_num = trace[2]
+                guard_num = int(trace[2])
                 # Map execute function name to symbol function name.
-                if guard_funcname not in self.map_func_symbol:
-                    for bin_kj in self.map_symbol_initguard.keys():
+                if guard_funcname not in self.trans_func_symbol:
+                    for bin_kj in self.trans_symbol_initguard.keys():
                         findres = bin_kj.find(guard_funcname)
                         if findres != -1:
-                            self.map_func_symbol[guard_funcname] = bin_kj
+                            self.trans_func_symbol[guard_funcname] = bin_kj
 
                 # Change guard start number from symbol function name which use execute function name map it.
-                if guard_funcname in self.map_func_symbol:
-                    if guard_num < self.map_symbol_initguard[self.map_func_symbol[guard_funcname]]:
-                        self.map_symbol_initguard[self.map_func_symbol[guard_funcname]] = guard_num
+                if guard_funcname in self.trans_func_symbol:
+                    if guard_num < self.trans_symbol_initguard[self.trans_func_symbol[guard_funcname]]:
+                        self.trans_symbol_initguard[self.trans_func_symbol[guard_funcname]] = guard_num
 
-    def selectConstraint(self, loopnum, guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid):
+    def selectConstraint(self, loopnum, guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, trans_guard_gvid):
         """
         Perform a trace of the compare instruction execution path if necessary.
         """
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, map_guard_gvid, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, trans_guard_gvid, showlog=True)
         # If map location is empty, then first to run it to collect information.
         # If map is not empty, then run it when can not find in map.
-        if len(self.map_func_symbol) == 0 or len(self.map_symbol_initguard) == 0:
+        if len(self.trans_func_symbol) == 0 or len(self.trans_symbol_initguard) == 0:
             self.updateGuardSymbol(guardcov_list)
 
         # Select compare and add it to priority queue.
@@ -177,34 +177,36 @@ class Scheduler:
         distance = SCH_DISTANCE
 
         for trace_i in guardcov_list:
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, showlog=True)
             cmpid = trace_i[0]
             cmptype = trace_i[1]
             if cmptype == EACH_PC_GUARD:
                 # pc_guard to update the Calibration Distance.
-                func = trace_i[2]
+                func = delBrackets(trace_i[2])
                 realguard = trace_i[3]
                 # According offset to determine the distance.
                 if func not in curtgtpred_offset:
                     continue
                 # Lazy to update
-                if func not in self.map_func_symbol:
+                if func not in self.trans_func_symbol:
                     self.updateGuardSymbol(guardcov_list)
                 # Get the static symbol function name.
-                symbol = self.map_func_symbol[func]
-                if symbol not in map_guard_gvid:
+                symbol = self.trans_func_symbol[func]
+                if symbol not in trans_guard_gvid:
                     continue
+
                 # Transform the pc_guard to sub the value.
-                transguard = int(realguard) - self.map_symbol_initguard[symbol]
-                if transguard not in map_guard_gvid[symbol]:
+                transguard = int(realguard) - self.trans_symbol_initguard[symbol]
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, trans_guard_gvid[symbol], self.trans_symbol_initguard[symbol], showlog=True)
+                if transguard not in trans_guard_gvid[symbol]:
                     continue
                 # Get the networkx node gvid to get it.
-                gvid = map_guard_gvid[symbol][transguard]
+                gvid = trans_guard_gvid[symbol][transguard]
                 if symbol in map_curtgtpredgvid_dis and gvid in map_curtgtpredgvid_dis[symbol]:
                     distance = curtgtpred_offset[func] + map_curtgtpredgvid_dis[symbol][gvid]
                 elif symbol in map_curtgtpredgvid_dis and gvid not in map_curtgtpredgvid_dis[symbol]:
                     distance = SCH_DISTANCE
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), symbol, realguard, transguard, gvid, trace_i, showlog=True)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, gvid, distance, showlog=True)
             else:
                 # func, realguard, cmpnum = trace_i[2].split("+")
                 # if func == '':
@@ -212,7 +214,7 @@ class Scheduler:
                 if distance != SCH_DISTANCE:
                     # The smaller the distance, the higher the priority.
                     self.target_cmp.put((distance - loopnum, cmpid))
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), distance-loopnum, cmpid, trace_i, showlog=True)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), distance-loopnum, cmpid, trace_i, showlog=True)
 
 
 
