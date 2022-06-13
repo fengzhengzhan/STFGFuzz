@@ -223,9 +223,9 @@ def mainFuzzer():
         if sch.target_cmp.empty():
             reselect = True
         LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_cmp, showlog=True)
-        while not sch.target_cmp.empty():
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_cmp.get(), showlog=True)
-        raise Exception()
+        # while not sch.target_cmp.empty():
+        #     LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_cmp.get(), showlog=True)
+        # raise Exception()
 
         vis.cmptotal = sch.target_cmp.qsize()
         sch.slid_window = max(len(sch.loc_coarse_list) // SCH_SLID_COUNT, SCH_SLID_MIN)
