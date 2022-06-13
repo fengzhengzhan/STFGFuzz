@@ -199,7 +199,7 @@ def mainFuzzer():
         sch.coverage_path = guard_set
         vis.num_pcguard = guard_total
         # Update sch priority queue. Save cmpid for the next explore
-        sch.selectConstraint(vis.loop, init_guardcov_list, map_target, map_tgtpredgvid_dis, map_guard_gvid)
+        sch.selectConstraint(vis.loop, init_guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
 
         # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
         # init_cmpset = set(init_cmp_dict)

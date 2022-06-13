@@ -159,11 +159,11 @@ class Scheduler:
                     if guard_num < self.map_symbol_initguard[self.map_func_symbol[guard_funcname]]:
                         self.map_symbol_initguard[self.map_func_symbol[guard_funcname]] = guard_num
 
-    def selectConstraint(self, loopnum, guardcov_list, map_target, map_tgtpredgvid_dis, map_guard_gvid):
+    def selectConstraint(self, loopnum, guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid):
         """
         Perform a trace of the compare instruction execution path if necessary.
         """
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_target, map_tgtpredgvid_dis, map_guard_gvid, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, map_guard_gvid, showlog=True)
         # If map location is empty, then first to run it to collect information.
         # If map is not empty, then run it when can not find in map.
         if len(self.map_func_symbol) == 0 or len(self.map_symbol_initguard) == 0:
@@ -171,7 +171,7 @@ class Scheduler:
 
         # Select compare and add it to priority queue.
         # According target number to determine the direction of mutation.
-        map_curtarget = map_target[self.cur_tgtnum]
+        curtgtpred_offset = tgtpred_offset[self.cur_tgtnum]
         map_curtgtpredgvid_dis = map_tgtpredgvid_dis[self.cur_tgtnum]
         LOG(LOG_DEBUG, LOG_FUNCINFO(), map_curtgtpredgvid_dis)
         distance = SCH_DISTANCE
@@ -184,21 +184,27 @@ class Scheduler:
                 # pc_guard to update the Calibration Distance.
                 func = trace_i[2]
                 realguard = trace_i[3]
+                # According offset to determine the distance.
+                if func not in curtgtpred_offset:
+                    continue
                 # Lazy to update
                 if func not in self.map_func_symbol:
                     self.updateGuardSymbol(guardcov_list)
+                # Get the static symbol function name.
                 symbol = self.map_func_symbol[func]
                 if symbol not in map_guard_gvid:
                     continue
+                # Transform the pc_guard to sub the value.
                 transguard = int(realguard) - self.map_symbol_initguard[symbol]
                 if transguard not in map_guard_gvid[symbol]:
                     continue
+                # Get the networkx node gvid to get it.
                 gvid = map_guard_gvid[symbol][transguard]
                 if symbol in map_curtgtpredgvid_dis and gvid in map_curtgtpredgvid_dis[symbol]:
-                    distance = map_curtgtpredgvid_dis[symbol][gvid]
+                    distance = curtgtpred_offset[func] + map_curtgtpredgvid_dis[symbol][gvid]
                 elif symbol in map_curtgtpredgvid_dis and gvid not in map_curtgtpredgvid_dis[symbol]:
                     distance = SCH_DISTANCE
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), symbol, transguard, gvid, trace_i, showlog=True)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), symbol, realguard, transguard, gvid, trace_i, showlog=True)
             else:
                 # func, realguard, cmpnum = trace_i[2].split("+")
                 # if func == '':

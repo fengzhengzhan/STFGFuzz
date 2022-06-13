@@ -243,10 +243,10 @@ def getFuncOffset(map_tgtpredgvid_dis, map_target):
         offset = 0
         for order in ordernode:
             func = tgtnode[order]
-            tgtpred_offset[tgtnum_ki][func] += offset
-            offset = tgtpred_offset[tgtnum_ki][func]
+            temp = tgtpred_offset[tgtnum_ki][func]
+            tgtpred_offset[tgtnum_ki][func] = offset
+            offset += temp
     LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, showlog=True)
-
     return tgtpred_offset
 
 
