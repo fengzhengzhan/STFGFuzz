@@ -32,8 +32,8 @@ class Scheduler:
         self.file_crash_csv = None
         self.path_crashseeds = None
 
-        self.cur_target = 0
-        self.all_target = USE_INITNUM
+        self.cur_tgtnum = 0
+        self.all_tgtnum = USE_INITNUM
         self.target_cmp = PriorityQueue()
 
         self.map_symbol_initguard = {}
@@ -171,31 +171,42 @@ class Scheduler:
 
         # Select compare and add it to priority queue.
         # According target number to determine the direction of mutation.
-        map_curtarget = map_target[self.cur_target]
-        map_curtgtpredgvid_dis = map_tgtpredgvid_dis[self.cur_target]
+        map_curtarget = map_target[self.cur_tgtnum]
+        map_curtgtpredgvid_dis = map_tgtpredgvid_dis[self.cur_tgtnum]
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_curtgtpredgvid_dis)
+        distance = SCH_DISTANCE
 
         for trace_i in guardcov_list:
             LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i)
             cmpid = trace_i[0]
             cmptype = trace_i[1]
-            if cmptype != EACH_PC_GUARD:
-                func, guard, cmpnum = trace_i[2].split("+")
-                if func == '':
-                    continue
+            if cmptype == EACH_PC_GUARD:
+                # pc_guard to update the Calibration Distance.
+                func = trace_i[2]
+                realguard = trace_i[3]
                 # Lazy to update
                 if func not in self.map_func_symbol:
                     self.updateGuardSymbol(guardcov_list)
                 symbol = self.map_func_symbol[func]
                 if symbol not in map_guard_gvid:
                     continue
-                transguard = int(guard) - self.map_symbol_initguard[symbol]
+                transguard = int(realguard) - self.map_symbol_initguard[symbol]
                 if transguard not in map_guard_gvid[symbol]:
                     continue
                 gvid = map_guard_gvid[symbol][transguard]
-                if gvid in map_curtgtpredgvid_dis[symbol]:
+                if symbol in map_curtgtpredgvid_dis and gvid in map_curtgtpredgvid_dis[symbol]:
                     distance = map_curtgtpredgvid_dis[symbol][gvid]
-                    # The smaller the distance, the higher the priority.
-                    self.target_cmp.put((distance-loopnum, cmpid))
-
+                elif symbol in map_curtgtpredgvid_dis and gvid not in map_curtgtpredgvid_dis[symbol]:
+                    distance = SCH_DISTANCE
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), symbol, transguard, gvid, trace_i, showlog=True)
+            else:
+                # func, realguard, cmpnum = trace_i[2].split("+")
+                # if func == '':
+                #     continue
+                if distance != SCH_DISTANCE:
+                    # The smaller the distance, the higher the priority.
+                    self.target_cmp.put((distance - loopnum, cmpid))
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), distance-loopnum, cmpid, trace_i, showlog=True)
+
+
 

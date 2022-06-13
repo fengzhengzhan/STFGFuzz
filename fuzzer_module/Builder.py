@@ -212,6 +212,44 @@ def getTargetPredecessorsGuard(cfggraph_dict, map_funcguardto_gvid, map_functo_t
     return map_tgtpredgvid
 
 
+def getFuncOffset(map_tgtpredgvid_dis, map_target):
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, map_target, showlog=True)
+    tgtpred_offset = {}
+    for tgtnum_ki, func_vi in map_tgtpredgvid_dis.items():
+        if tgtnum_ki not in tgtpred_offset:
+            tgtpred_offset[tgtnum_ki] = {}
+        for func_kj, preddict_vj in func_vi.items():
+            if func_kj not in tgtpred_offset[tgtnum_ki]:
+                tgtpred_offset[tgtnum_ki][func_kj] = len(preddict_vj)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, showlog=True)
+
+    for tgtnum_ki, func_ki in tgtpred_offset.items():
+        if tgtnum_ki not in map_target:
+            continue
+        tgtnode = {}
+        for func_kj, orderlist_vj in map_target[tgtnum_ki].items():
+            for node_k in map_target[tgtnum_ki][func_kj]:
+                nid = int(node_k[0]) * BUI_ORDER_MULTI
+                if nid not in tgtnode:
+                    tgtnode[nid] = func_kj
+                else:
+                    while nid in tgtnode:
+                        nid += 1
+                    tgtnode[nid] = func_kj
+
+        ordernode = list(tgtnode.keys())
+        ordernode.sort()
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtnode, ordernode, showlog=True)
+        offset = 0
+        for order in ordernode:
+            func = tgtnode[order]
+            tgtpred_offset[tgtnum_ki][func] += offset
+            offset = tgtpred_offset[tgtnum_ki][func]
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, showlog=True)
+
+    return tgtpred_offset
+
+
 def printTargetSeq(map_target):
     copy_map = map_target.copy()
     tgtnum = list(copy_map.keys())

@@ -284,6 +284,8 @@ SCH_EXPAND_SIZE = 64 // SCH_EXPAND_MULTI
 SCH_SLID_MIN = 8  # 8 bit
 SCH_SLID_COUNT = 16
 
+SCH_DISTANCE = 1024
+
 '''Visualizer'''
 # Red for frozen bytes.
 # Yellow is the change bytes.

@@ -67,8 +67,9 @@ def mainFuzzer():
     # map_target {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}
     Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
     map_tgtpredgvid_dis = Builder.getTargetPredecessorsGuard(cfggraph_dict, map_guard_gvid, map_target)
+    tgtpred_offset = Builder.getFuncOffset(map_tgtpredgvid_dis, map_target)
     sch = Scheduler.Scheduler()
-    sch.all_target = len(map_target)
+    sch.all_tgtnum = len(map_target)
     for k in map_functo_cgnode.keys():
         sch.map_symbol_initguard[k] = USE_INITMAXNUM
 
@@ -222,6 +223,10 @@ def mainFuzzer():
         reselect = False
         if sch.target_cmp.empty():
             reselect = True
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_cmp, showlog=True)
+        while not sch.target_cmp.empty():
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_cmp.get(), showlog=True)
+        raise Exception()
 
         vis.cmptotal = sch.target_cmp.qsize()
         sch.slid_window = max(len(sch.loc_coarse_list) // SCH_SLID_COUNT, SCH_SLID_MIN)
