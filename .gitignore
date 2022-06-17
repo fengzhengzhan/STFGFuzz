@@ -27,6 +27,8 @@ EachFuzzer/
 code_Bin
 code_IR
 data_graph
+data_patchloc
+seeds_init
 seeds_crash
 seeds_mutate
 Programs/base64/crashinfo.txt/

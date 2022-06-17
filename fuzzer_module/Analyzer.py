@@ -159,7 +159,7 @@ class Analyzer:
     '''
 
     def compareOneRptToLoc(self, b4cmp_dict, cmp_dict):
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), b4cmp_dict, cmp_dict, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), b4cmp_dict, cmp_dict)
         b4cmpset = set(b4cmp_dict)
         cmpset = set(cmp_dict)
         interset = b4cmpset & cmpset  # Intersection set

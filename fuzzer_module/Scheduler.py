@@ -163,7 +163,7 @@ class Scheduler:
         """
         Perform a trace of the compare instruction execution path if necessary.
         """
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, trans_guard_gvid, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, trans_guard_gvid)
         # If map location is empty, then first to run it to collect information.
         # If map is not empty, then run it when can not find in map.
         if len(self.trans_func_symbol) == 0 or len(self.trans_symbol_initguard) == 0:
@@ -177,7 +177,7 @@ class Scheduler:
         distance = SCH_DISTANCE
 
         for trace_i in guardcov_list:
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, showlog=True)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i)
             cmpid = trace_i[0]
             cmptype = trace_i[1]
             if cmptype == EACH_PC_GUARD:
@@ -197,7 +197,7 @@ class Scheduler:
 
                 # Transform the pc_guard to sub the value.
                 transguard = int(realguard) - self.trans_symbol_initguard[symbol]
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, trans_guard_gvid[symbol], self.trans_symbol_initguard[symbol], showlog=True)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, trans_guard_gvid[symbol], self.trans_symbol_initguard[symbol])
                 if transguard not in trans_guard_gvid[symbol]:
                     continue
                 # Get the networkx node gvid to get it.
@@ -206,7 +206,7 @@ class Scheduler:
                     distance = curtgtpred_offset[func] + map_curtgtpredgvid_dis[symbol][gvid]
                 elif symbol in map_curtgtpredgvid_dis and gvid not in map_curtgtpredgvid_dis[symbol]:
                     distance = SCH_DISTANCE
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, gvid, distance, showlog=True)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, gvid, distance)
             else:
                 # func, realguard, cmpnum = trace_i[2].split("+")
                 # if func == '':
@@ -214,7 +214,7 @@ class Scheduler:
                 if distance != SCH_DISTANCE:
                     # The smaller the distance, the higher the priority.
                     self.target_cmp.put((distance - loopnum, cmpid))
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), distance-loopnum, cmpid, trace_i, showlog=True)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), distance-loopnum, cmpid, trace_i)
 
 
 

@@ -17,7 +17,7 @@ from fuzzer_module.Fuzzconfig import *
 # python3.7 STFGFuzzer.py -n md5sum -- ./Programs/md5sum/code_Bin/md5sum -c @@
 # python3.7 STFGFuzzer.py -n uniq -- ./Programs/uniq/code_Bin/uniq @@
 # python3.7 STFGFuzzer.py -n who -- ./Programs/who/code_Bin/who @@
-# python3.7 STFGFuzzer.py -n lava4961 -t sanitizer -- Programs/lava4961/code_Bin/lava4961 @@
+# python3.7 STFGFuzzer.py -n lava13796 -t sanitizer -- Programs/lava13796/code_Bin/lava13796 @@
 
 def mainFuzzer():
     """
@@ -53,13 +53,13 @@ def mainFuzzer():
     map_numto_funcasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
     del target_dict
     del binline_dict
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numto_funcasm, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numto_funcasm)
     # Graph Information
     print("{} Build Graph Information...".format(getTime()))
     cglist, cfglist = Generator.createDotJsonFile(program_name, path_codeIR + program_name + GEN_TRACEBC_SUFFIX)
     cggraph, map_functo_cgnode = Builder.getCG(cglist)
     cfggraph_dict, map_guard_gvid, map_target = Builder.getCFG(cfglist, map_numto_funcasm)
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target)
     '''All node transfrom to the gvid to convenient calculation and expression.'''
     '''All the function name transfrom to the static symbol function name.'''
     '''Dynamic:guard  Static:gvid'''
@@ -75,7 +75,7 @@ def mainFuzzer():
 
     print("{} Directed Target Sequence...".format(getTime()))
     Builder.printTargetSeq(map_target)
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, map_tgtpredgvid_dis, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, map_tgtpredgvid_dis)
 
 
     sch.file_crash_csv = file_crash_csv
@@ -222,9 +222,9 @@ def mainFuzzer():
         reselect = False
         if sch.target_cmp.empty():
             reselect = True
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_cmp, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_cmp)
         # while not sch.target_cmp.empty():
-        #     LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_cmp.get(), showlog=True)
+        #     LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_cmp.get())
         # raise Exception()
 
         vis.cmptotal = sch.target_cmp.qsize()
@@ -302,7 +302,7 @@ def mainFuzzer():
                 vis.showGraph(path_graph, cggraph, cfggraph_dict['main'])
                 if res == VIS_Q:
                     sch.quitFuzz()
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict, showlog=True)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict)
             # raise Exception()
             '''sd <-'''
 

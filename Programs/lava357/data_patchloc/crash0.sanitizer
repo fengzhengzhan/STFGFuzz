@@ -12,3 +12,4 @@ AddressSanitizer: memcpy-param-overlap: memory ranges [0x7fffffffd320,0x80007856
     #10 0x41c58d in _start (/home/fzz/Desktop/STFGFuzz/Programs/lava357/code_Bin/lava357+0x41c58d)
 SUMMARY: AddressSanitizer: memcpy-param-overlap /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:810:5 in __interceptor_memcpy.part.0
 ==875000==ABORTING
+
