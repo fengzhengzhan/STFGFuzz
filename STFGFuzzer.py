@@ -25,7 +25,7 @@ def mainFuzzer():
     @return:
     """
     print("{} Start Directed Fuzzing...".format(getTime()))
-    stdout, stderr = Executor.run("cat /proc/sys/kernel/randomize_va_space")
+    stdout, stderr = Executor.run("cat /proc/sys/kernel/randomize_va_space")  # Default 2
     if stdout != b'0\n':
         raise Exception("Please turn off address randomization -> echo 0 > /proc/sys/kernel/randomize_va_space")
 
@@ -224,7 +224,7 @@ def mainFuzzer():
             reselect = True
         LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_cmp)
         # while not sch.target_cmp.empty():
-        #     LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_cmp.get())
+        #     LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_cmp.get(), showlog=True)
         # raise Exception()
 
         vis.cmptotal = sch.target_cmp.qsize()
@@ -237,7 +237,7 @@ def mainFuzzer():
             stcmpid_weight, stcmpid_ki = stcmpid[0], stcmpid[1]
 
             # fixme
-            # filterl = ["c0x4f972b0x4f9aac0x4fbd23"]
+            filter = ["g0x4f99810x52a8b80x529492"]
             # ff = False
             # loc = [0,1,2,3]
             # for one in loc:
@@ -245,6 +245,10 @@ def mainFuzzer():
             #         ff = True
             # if stcmpid_ki not in filterl or ff:
             #     continue
+            print(".", end="")
+            if stcmpid not in filter:
+                continue
+            print(stcmpid)
 
             vis.cmpnum += 1
             ana.sendCmpid(stcmpid_ki)

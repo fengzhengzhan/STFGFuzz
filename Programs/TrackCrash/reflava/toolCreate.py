@@ -14,6 +14,7 @@ lava_branch = ['292_R_0x12345678-0x12545678', '357_R_0x12345678-0x12345678',
                '13796_R_0x12345678-0x22345678', '14324_R_0x12345678-0x12545678',
                '16689_R_0x12345678-0x123456f8', '17222_R_0x12345678-0x123456f8']
 
+
 def createDir():
     # Adjust path of location.
     print(os.getcwd())
@@ -24,20 +25,22 @@ def createDir():
         # if not os.path.exists(dirname):
         #     os.makedirs(dirname)
 
-        patchname = "lava"+str(one)+"/data_patchloc/"+"crash0.sanitizer"
+        patchname = "lava" + str(one) + "/data_patchloc/" + "crash0.sanitizer"
         with open(patchname, "a+") as f:
             f.write("\n")
         # if not os.path.exists(patchname):
         #     os.makedirs(patchname)
 
+
 def createBC():
     # createBC.sh
     pass
 
+
 def cpFiles():
     for idx in range(0, len(lava_branch)):
         lavadirname = "file-5.22." + lava_branch[idx]
-        dirname = "lava"+str(lava_list[idx])
+        dirname = "lava" + str(lava_list[idx])
 
         # cmd = "cp /home/fzz/Desktop/STFGFuzz/dataset/datav5/lava_corpus/LAVA-1/"+lavadirname+"/lava-install/bin/file.bc /home/fzz/Desktop/STFGFuzz/Programs/"+dirname+"/code_sources/"+dirname+".bc"
         # print(cmd)
@@ -52,14 +55,20 @@ def cpFiles():
 
         cmd = "cp /home/fzz/Desktop/STFGFuzz/dataset/datav5/lava_corpus/LAVA-1/" + lavadirname + "/CRASH_INPUT /home/fzz/Desktop/STFGFuzz/Programs/" + dirname + "/seeds_crash/crash.seed"
         print(cmd)
+        os.system(cmd)
+
+        # cmd = "cp /home/fzz/Desktop/STFGFuzz/rand.seed /home/fzz/Desktop/STFGFuzz/Programs/" + dirname + "/seeds_init/rand.seed"
+        # print(cmd)
         # os.system(cmd)
 
 
 def printFuzz():
     for one in lava_list:
         dirname = "lava" + str(one)
-        # print("python3.7 STFGFuzzer.py -n "+dirname+" -t sanitizer -- Programs/"+dirname+"/code_Bin/"+dirname+" @@")
-        print(dirname+"/code_Bin/"+dirname+" "+dirname+"/seeds_crash/crash.seed")
+        # print(dirname + "/code_Bin/" + dirname + " " + dirname + "/seeds_crash/crash.seed")
+        print("python3.7 STFGFuzzer.py -n " + dirname + " -t sanitizer -- Programs/" + dirname + "/code_Bin/" + dirname + " @@")
+        print()
+
 
 if __name__ == '__main__':
     # createDir()

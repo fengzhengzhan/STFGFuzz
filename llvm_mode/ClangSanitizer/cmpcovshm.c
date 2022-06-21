@@ -252,7 +252,7 @@ void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int
 
 void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     // Called before a switch statement.
-    // Val is the switch value.
+    // Val is the switch value. Operation Num.
     // Cases[0] is the number of case constants.
     // Cases[1] is the size of Val in bits.
     // Cases[2:] are the case constants.

@@ -91,6 +91,8 @@ make installcheck
 ## /usr/bin/ld: ../boot/a6le/kernel.o: relocation R_X86_64_32S against `.rodata' can not be used when making a PIE object; recompile with -fPIE
 LDFLAGS=-no-pie ./configure
 # -fsanitize-recover=address
+# fatal error: 'zlib.h' file not found
+apt-get install zlib1g-dev
 ```
 
  

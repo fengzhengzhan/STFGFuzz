@@ -215,6 +215,8 @@ class Scheduler:
                     # The smaller the distance, the higher the priority.
                     self.target_cmp.put((distance - loopnum, cmpid))
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), distance-loopnum, cmpid, trace_i)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, self.trans_symbol_initguard, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, trans_guard_gvid, showlog=True)
 
 
 

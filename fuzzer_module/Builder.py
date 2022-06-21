@@ -213,6 +213,10 @@ def getTargetPredecessorsGuard(cfggraph_dict, map_funcguardto_gvid, map_functo_t
 
 
 def getFuncOffset(map_tgtpredgvid_dis, map_target):
+    """
+
+    @return:
+    """
     LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, map_target, showlog=True)
     tgtpred_offset = {}
     for tgtnum_ki, func_vi in map_tgtpredgvid_dis.items():

@@ -181,11 +181,15 @@ i = hexToNum('2822dc14')  # 673373204
 numToHexChar(i)
 
 # 1818326624
-hexToNum('6475616c')
+i = hexToNum('7f454c46')
+i = hexToNum('464c45')
 numToHexChar(i)
-
+#
+numToHexChar(3883718427)
 numToHexChar(305419896)
 numToHexChar(573855352)
+numToHexChar(305419896)
+# numToHexChar(573855352)
 
 
 # for i, one in enumerate(BYTES_ASCII):
