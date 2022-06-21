@@ -1,15 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from fuzzer_module.Tools import *
+
 
 '''Key Structure'''
 # map_funcTocgname
 # map_guardTofuncname
+from fuzzer_module.Fuzzconfig import *
 
 '''Struct'''
 class StructPath:
-    def __init__(self):
-        pass
+    def __init__(self, program_name):
+        self.code_Bin = PROGRAMS + os.sep + program_name + os.sep + CODEBIN + os.sep
+        self.code_IR = PROGRAMS + os.sep + program_name + os.sep + CODEIR + os.sep
+        self.code_sources = PROGRAMS + os.sep + program_name + os.sep + CODESOURCES + os.sep
+        self.data_graph = PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH + os.sep
+        self.data_patchloc = PROGRAMS + os.sep + program_name + os.sep + DATAPATCHLOC + os.sep
+        self.seeds_crash = PROGRAMS + os.sep + program_name + os.sep + SEEDSCRASH + os.sep
+        self.seeds_init = PROGRAMS + os.sep + program_name + os.sep + SEEDSINIT + os.sep
+        self.seeds_mutate = PROGRAMS + os.sep + program_name + os.sep + SEEDSMUTATE + os.sep
+
 
 class StructTarget:
     def __init__(self, tgttrace: list, tgtinfo: int):

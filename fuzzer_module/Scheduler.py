@@ -5,7 +5,7 @@ from queue import Queue
 from queue import PriorityQueue
 
 from fuzzer_module.Fuzzconfig import *
-
+from .Structures import *
 
 class Scheduler:
     def __init__(self):
@@ -35,6 +35,8 @@ class Scheduler:
         self.cur_tgtnum = 0
         self.all_tgtnum = USE_INITNUM
         self.target_cmp = PriorityQueue()
+
+        self.cur_nearlydis = USE_INITMAXNUM
 
         self.trans_symbol_initguard = {}
         self.trans_func_symbol = {}

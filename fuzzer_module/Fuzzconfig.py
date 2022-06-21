@@ -4,7 +4,7 @@ import logging
 import os
 import sys
 
-from fuzzer_module.Structures import *
+from fuzzer_module.Tools import *
 
 # Program information.
 '''Main Fuzzer'''
@@ -12,7 +12,7 @@ FUZZNAME = "STFGFuzzer"
 FUZZPRINTLOG = FUZZNAME + "_show.log"
 FILEREPLACE = "@@"
 USE_INITNUM = -1
-USE_INITMAXNUM = 2147483648
+USE_INITMAXNUM = 0x7fffffff
 USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
@@ -210,9 +210,9 @@ COM_BINDIR = 'D'
 
 '''Generator'''
 PROGRAMS = "Programs"
-CODESOURCES = "code_sources"
 CODEBIN = "code_Bin"
 CODEIR = "code_IR"
+CODESOURCES = "code_sources"
 DATAGRAPH = "data_graph"
 DATAPATCHLOC = "data_patchloc"
 SEEDSINIT = "seeds_init"

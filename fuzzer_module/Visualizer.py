@@ -11,6 +11,7 @@ import networkx as nx
 from PIL import Image  # Read .png format images.
 
 from fuzzer_module.Fuzzconfig import *
+from .Structures import *
 
 
 class Visualizer:

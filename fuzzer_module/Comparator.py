@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import re
 from fuzzer_module.Fuzzconfig import *
+from .Structures import *
 
 
 def getTarget(path_patchloc, patchtype:list):

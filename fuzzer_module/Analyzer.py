@@ -7,7 +7,7 @@ import json
 from ctypes import *
 
 from fuzzer_module.Fuzzconfig import *
-
+from .Structures import *
 
 # The operation of Memory Shared.
 # 1. Find the memory share id

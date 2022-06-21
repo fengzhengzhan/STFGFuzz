@@ -7,7 +7,7 @@ import networkx as nx
 from queue import Queue
 
 from fuzzer_module.Fuzzconfig import *
-
+from .Structures import *
 
 class Graph:
     def __init__(self, dgname, nodes_list, edges_list):

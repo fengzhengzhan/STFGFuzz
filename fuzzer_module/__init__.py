@@ -9,5 +9,6 @@ __all__ = [
     'Mutator',
     'Parser',
     'Scheduler',
-    'Visualizer'
+    'Structures',
+    'Visualizer',
 ]

@@ -5,7 +5,7 @@ import getopt
 from shutil import copy
 
 from fuzzer_module.Fuzzconfig import *
-
+from .Structures import *
 
 class StructPath:
     def __init__(self, path_codeBin, path_codeIR, path_codesources, path_datagraph, path_datapatchloc,

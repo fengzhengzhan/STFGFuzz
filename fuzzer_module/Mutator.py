@@ -3,6 +3,7 @@
 import random
 
 from fuzzer_module.Fuzzconfig import *
+from .Structures import *
 
 
 def getFillStr(length: int) -> bytes:

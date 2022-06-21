@@ -3,7 +3,7 @@
 import random
 
 from fuzzer_module.Fuzzconfig import *
-
+from .Structures import *
 
 # Convert bytes to a corresponding PAR_CONVER_BIT-bit integer
 def bytesConverNum(value) -> int:
