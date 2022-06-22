@@ -228,10 +228,15 @@ if __name__ == "__main__":
     ana = Analyzer()
     ana.getShm("D124816Z\n")
 
-    # ana.sendCmpid("abcde")
-    # ana.sendCmpid("None")
-    # ana.sendCmpid("Guard")
-    ana.sendCmpid("m0x49e319")
+
+    # ana.sendCmpid(TRACE_NULL)
+    ana.sendCmpid(TRACE_GUARD)
+    # ana.sendCmpid(TRACE_GUARDSYMBOL)
+    # ana.sendCmpid(TRACE_CMPFILTER)
+    # ana.sendCmpid(TRACE_CMP)
+    # ana.sendCmpid(TRACE_CMPGUARD)
+    # ana.sendCmpid(TRACE_CMPGUARDSYMBOL)
+    # ana.sendCmpid("m0x49e319")
     # while True:
     #     addr = ana.getAddr("D124816Z\n")
     #     interlen = ana.getInterlen(addr)

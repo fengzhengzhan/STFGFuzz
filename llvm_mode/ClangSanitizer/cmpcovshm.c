@@ -390,7 +390,7 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
     // This function is a part of the sanitizer run-time.
     // To use it, link with AddressSanitizer or other sanitizer.
     // sprintf(eachcmpid, "G%p", GET_FUNC_PC);
-    sprintf(eachcmpid, "G");
+    sprintf(eachcmpid, "Guard");
     flag = retSame(eachcmpid);
     if (flag == LEVEL_GUARD || flag == LEVEL_CMPGUARD) {
         // This function is a part of the sanitizer run-time.
