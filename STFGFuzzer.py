@@ -121,6 +121,7 @@ def mainFuzzer():
 
         ana.sendCmpid("None")
         # First run to collect information.
+        vis.total += 1
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
@@ -146,7 +147,7 @@ def mainFuzzer():
             ld_seed = Mutator.mutAddLength(b4ld_seed.content, path.seeds_mutate, LENGTH_STR, LD_EXPAND)
             ld_seed = sch.selectOneSeed(SCH_THISMUT_SEED, ld_seed)
             ld_stdout, ld_stderr = Executor.run(fuzz_command.replace('@@', ld_seed.filename))
-            sch.saveCrash(ld_seed, ld_stdout, ld_stderr, vis.start_time, vis.last_time)
+            sch.saveCrash(ld_seed, ld_stdout, ld_stderr, vis)
 
             # 1 seed inputs
             ld_interlen, ld_covernum = ana.getShm(ld_stdout[0:16])
@@ -159,6 +160,7 @@ def mainFuzzer():
                 # Current seed.
                 ld_cmpcov_list = ana.getRpt(ld_interlen)  # report
                 # Before seed.
+                vis.total += 1
                 b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace('@@', b4ld_seed.filename))
                 b4ld_interlen, b4ld_covernum = ana.getShm(b4ld_stdout[0:16])
                 b4ld_cmpcov_list = ana.getRpt(b4ld_interlen)
@@ -169,7 +171,7 @@ def mainFuzzer():
                 else:
                     break
 
-            res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, "LengthDetect", len(sch.coverage_path))
+            res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, "LengthDetect", len(sch.coverage_path), sch)
             vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
@@ -178,9 +180,10 @@ def mainFuzzer():
         '''2 cmp filter -> Select compare instructions which close the target block. '''
         ana.sendCmpid("Guard")
         # Reset the init_seed
+        vis.total += 1
         init_seed = sch.selectOneSeed(SCH_THIS_SEED, b4ld_seed)
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
-        sch.saveCrash(init_seed, init_stdout, init_stderr, vis.start_time, vis.last_time)
+        sch.saveCrash(init_seed, init_stdout, init_stderr, vis)
 
         # Get all the constraints.
         # Binary files each function blocks from 0.
@@ -231,113 +234,107 @@ def mainFuzzer():
 
         '''3 cmp type'''
         '''st -> Constraints Analysis'''
+        # Select one stcmpid_tuples.
         # for stcmpid_ki, stlocset_vi in cmpmaploc_dict.items():
         while not sch.target_cmp.empty():
-            stcmpid = sch.target_cmp.get()
-            stcmpid_weight, stcmpid_ki = stcmpid[0], stcmpid[1]
+            stcmpid_tuples = sch.target_cmp.get()
+            stcmpid_weight, stcmpid_ki = stcmpid_tuples[0], stcmpid_tuples[1]
             vis.cmpnum += 1
             ana.sendCmpid(stcmpid_ki)
 
             # Debug
             # filter = ["g0x4f99810x52a8b80x529492"]
-            # ff = False
-            # loc = [0,1,2,3]
-            # for one in loc:
-            #     if one not in stlocset_vi:
-            #         ff = True
-            # if stcmpid_ki not in filterl or ff:
-            #     continue
             # print(".", end="")
-            # if stcmpid not in filter:
+            # if stcmpid_tuples not in filter:
             #     continue
-            # print(stcmpid)
+            # print(stcmpid_tuples)
 
             # First run init seed after cmp filter.
+            vis.total += 1
             init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
             init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
             init_cmpcov_list = ana.getRpt(init_interlen)
-            init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
-
-            # todo 位置可能存在问题，因为每一个cmpid可能包含多次比较。
-            '''sd -> Sliding Window Detection O(n/step)'''
-            # Get a report on changes to comparison instructions. # todo multiprocessing
-            before_sdloc_list = []
-            coarse_head = 0
-            cmpmaploc_dict = {}
-            while coarse_head < len(sch.loc_coarse_list):
-                vis.total += 1
-                # 1 seed inputs
-                sdloc_list = sch.loc_coarse_list[coarse_head:coarse_head + sch.slid_window]
-                # print(sdloc_list)
-                coarse_head += sch.slid_window // 2
-                sd_seed = Mutator.mutSelectChar(
-                    init_seed.content, path.seeds_mutate, COARSE_STR + str(vis.loop), sdloc_list)
-                sd_seed = sch.selectOneSeed(SCH_THISMUT_SEED, sd_seed)
-                sd_stdout, sd_stderr = Executor.run(fuzz_command.replace('@@', sd_seed.filename))
-                sch.saveCrash(sd_seed, sd_stdout, sd_stderr, vis.start_time, vis.last_time)
-
-                # 1 seed inputs
-                sd_interlen, sd_covernum = ana.getShm(sd_stdout[0:16])
-                sd_cmpcov_list = ana.getRpt(sd_interlen)  # report
-
-                sd_cmp_dict = ana.traceAyalysis(sd_cmpcov_list, sch.skip_cmpidset)
-                sd_diffcmp_set = ana.compareOneRptToLoc(init_cmp_dict, sd_cmp_dict)
-
-                # Add number of bytes.
-                for cmpid_key in sd_diffcmp_set:  # Determine if the dictionary is empty.
-                    if cmpid_key not in sch.skip_cmpidset:
-                        if cmpid_key not in cmpmaploc_dict:
-                            cmpmaploc_dict[cmpid_key] = set(before_sdloc_list) | set(sdloc_list)
-                        else:
-                            cmpmaploc_dict[cmpid_key] |= set(sdloc_list)
-
-                before_sdloc_list = sdloc_list
-
-                # 5 visualize
-                res = vis.display(sd_seed, set(sdloc_list), sd_stdout, sd_stderr, "SlidingDetect",
-                                  len(sch.coverage_path))
-                vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
-                if res == VIS_Q:
-                    sch.quitFuzz()
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict)
-            # raise Exception()
-            '''sd <-'''
-            # False positive comparison if all input bytes are covered
-            # if len(stloclist_v) == len(init_seed.content):
-            #     continue
-
-
-            '''Type detect and Generate Mutation strategy'''
-            if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == 0:
-                continue
-            stlocset_vi = cmpmaploc_dict[stcmpid_ki]
-            stloclist_v = list(stlocset_vi)
-            stloclist_v.sort()
-            ststart_seed = Structures.StructSeed(
-                path.seeds_mutate + getMutfilename(ST_STR + str(vis.loop)), init_seed.content, SEED_INIT, set())
-            ststart_seed = sch.selectOneSeed(SCH_THIS_SEED, ststart_seed)
-            ststart_stdout, ststart_stderr = Executor.run(fuzz_command.replace('@@', ststart_seed.filename))
-
-            ststart_interlen, ststart_covernum = ana.getShm(ststart_stdout[0:16])
-            ststart_cmpcov_list = ana.getRpt(ststart_interlen)
-
-            # Removal of unmapped changes
-            repeat_seed = Structures.StructSeed(
-                path.seeds_mutate + getMutfilename(REPEAT_STR + str(vis.loop)), init_seed.content, SEED_INIT, set())
-            repeat_seed = sch.selectOneSeed(SCH_THIS_SEED, repeat_seed)
-            repeat_stdout, repeat_stderr = Executor.run(fuzz_command.replace('@@', repeat_seed.filename))
-
-            repeat_interlen, repeat_covernum = ana.getShm(repeat_stdout[0:16])
-            repeat_cmpcov_list = ana.getRpt(repeat_interlen)
-
-            if ana.compareRptDiff(ststart_cmpcov_list, repeat_cmpcov_list, -1):
-                continue
+            # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
 
             # Only the corresponding list data is retained, no parsing is required
-            cmp_len = len(ststart_cmpcov_list)
+            cmp_len = len(init_cmpcov_list)
             # Separate comparisons for each comparison instruction.
             for cmporder_j in range(0, cmp_len):
+
+                '''sd -> Sliding Window Detection O(n/step)'''
+                # Get a report on changes to comparison instructions. # todo multiprocessing
+                before_sdloc_list = []
+                coarse_head = 0
+                cmpmaploc_dict = {}
+                while coarse_head < len(sch.loc_coarse_list):
+                    vis.total += 1
+                    # 1 seed inputs
+                    sdloc_list = sch.loc_coarse_list[coarse_head:coarse_head + sch.slid_window]
+                    # print(sdloc_list)
+                    coarse_head += sch.slid_window // 2
+                    sd_seed = Mutator.mutSelectChar(
+                        init_seed.content, path.seeds_mutate, COARSE_STR + str(vis.loop), sdloc_list)
+                    sd_seed = sch.selectOneSeed(SCH_THISMUT_SEED, sd_seed)
+                    sd_stdout, sd_stderr = Executor.run(fuzz_command.replace('@@', sd_seed.filename))
+                    sch.saveCrash(sd_seed, sd_stdout, sd_stderr, vis)
+
+                    # 1 seed inputs
+                    sd_interlen, sd_covernum = ana.getShm(sd_stdout[0:16])
+                    sd_cmpcov_list = ana.getRpt(sd_interlen)  # report
+
+                    # Add number of bytes.
+                    if len(sd_cmpcov_list) == 0 or ana.compareRptDiff(init_cmpcov_list, sd_cmpcov_list, cmporder_j):
+                        # Determine if the dictionary is empty.
+                        if stcmpid_ki not in sch.skip_cmpidset:
+                            if stcmpid_ki not in cmpmaploc_dict:
+                                cmpmaploc_dict[stcmpid_ki] = set(before_sdloc_list) | set(sdloc_list)
+                            else:
+                                cmpmaploc_dict[stcmpid_ki] |= set(sdloc_list)
+
+                    before_sdloc_list = sdloc_list
+
+                    # 5 visualize
+                    res = vis.display(sd_seed, set(sdloc_list), sd_stdout, sd_stderr, "SlidingDetect",
+                                      len(sch.coverage_path), sch)
+                    vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
+                    if res == VIS_Q:
+                        sch.quitFuzz()
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict)
+                # raise Exception()
+                '''sd <-'''
+                # False positive comparison if all input bytes are covered
+                # if len(stloclist_v) == len(init_seed.content):
+                #     continue
+
+                '''Type detect and Generate Mutation strategy'''
+                if stcmpid_ki not in cmpmaploc_dict:
+                    continue
+                stlocset_vi = cmpmaploc_dict[stcmpid_ki]
+                stloclist_v = list(stlocset_vi)
+                stloclist_v.sort()
+
                 vis.total += 1
+                ststart_seed = Structures.StructSeed(
+                    path.seeds_mutate + getMutfilename(ST_STR + str(vis.loop)), init_seed.content, SEED_INIT, set())
+                ststart_seed = sch.selectOneSeed(SCH_THIS_SEED, ststart_seed)
+                ststart_stdout, ststart_stderr = Executor.run(fuzz_command.replace('@@', ststart_seed.filename))
+
+                ststart_interlen, ststart_covernum = ana.getShm(ststart_stdout[0:16])
+                ststart_cmpcov_list = ana.getRpt(ststart_interlen)
+
+                # # Removal of unmapped changes
+                # vis.total += 1
+                # repeat_seed = Structures.StructSeed(
+                #     path.seeds_mutate + getMutfilename(REPEAT_STR + str(vis.loop)), init_seed.content, SEED_INIT, set())
+                # repeat_seed = sch.selectOneSeed(SCH_THIS_SEED, repeat_seed)
+                # repeat_stdout, repeat_stderr = Executor.run(fuzz_command.replace('@@', repeat_seed.filename))
+                #
+                # repeat_interlen, repeat_covernum = ana.getShm(repeat_stdout[0:16])
+                # repeat_cmpcov_list = ana.getRpt(repeat_interlen)
+                #
+                # if ana.compareRptDiff(ststart_cmpcov_list, repeat_cmpcov_list, -1):
+                #     continue
+
                 '''bd -> Byte Detection O(m)'''
                 # Single-byte comparison in order
                 st_cmploc = []
@@ -348,18 +345,18 @@ def mainFuzzer():
                                                  bdloc_list)
                     bd_seed = sch.selectOneSeed(SCH_THISMUT_SEED, bd_seed)
                     bd_stdout, bd_stderr = Executor.run(fuzz_command.replace('@@', bd_seed.filename))
-                    sch.saveCrash(bd_seed, bd_stdout, bd_stderr, vis.start_time, vis.last_time)
+                    sch.saveCrash(bd_seed, bd_stdout, bd_stderr, vis)
 
                     bd_interlen, bd_covernum = ana.getShm(bd_stdout[0:16])
                     bd_cmpcov_list = ana.getRpt(bd_interlen)
 
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), ststart_cmpcov_list, bd_cmpcov_list, cmporder_j)
-                    if ana.compareRptDiff(ststart_cmpcov_list, bd_cmpcov_list, cmporder_j):
+                    if len(bd_cmpcov_list) != 0 and ana.compareRptDiff(ststart_cmpcov_list, bd_cmpcov_list, cmporder_j):
                         st_cmploc.append(one_loc)
                     # 5 visualize
                     res = vis.display(
                         bd_seed, set(st_cmploc), bd_stdout, bd_stderr,
-                        "Byte", len(sch.coverage_path),
+                        "Byte", len(sch.coverage_path), sch
                     )
                     vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                     if res == VIS_Q:
@@ -370,16 +367,18 @@ def mainFuzzer():
                 ana.sendCmpid(stcmpid_ki)
                 # Identification Type and Update opt seed (in Random change)
                 # init_seed opt_seed
+                vis.total += 1
                 opt_seed = sch.selectOneSeed(SCH_THIS_SEED, init_seed)
                 opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
                 opt_interlen, opt_covernum = ana.getShm(opt_stdout[0:16])
                 opt_cmpcov_list = ana.getRpt(opt_interlen)
 
+                vis.total += 1
                 st_seed = Mutator.mutSelectCharRand(
                     init_seed.content, path.seeds_mutate, ST_STR + str(vis.loop), st_cmploc)
                 st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
                 st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
-                sch.saveCrash(st_seed, st_stdout, st_stderr, vis.start_time, vis.last_time)
+                sch.saveCrash(st_seed, st_stdout, st_stderr, vis)
                 st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
                 st_cmpcov_list = ana.getRpt(st_interlen)
 
@@ -401,7 +400,7 @@ def mainFuzzer():
                 #                                  {1:b'\x65',2:b'\x65', 3:b'\x65'})
                 # opt_seed = sch.selectOneSeed(SCH_THIS_SEED, opt_seed)
                 # opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
-                # sch.saveCrash(opt_seed, opt_stdout, opt_stderr, vis.start_time, vis.last_time)
+                # sch.saveCrash(opt_seed, opt_stdout, opt_stderr, vis)
                 #
                 # opt_interlen, opt_covernum = ana.getShm(opt_stdout[0:16])
                 # opt_cmpcov_list = ana.getRpt(opt_interlen)
@@ -417,6 +416,7 @@ def mainFuzzer():
                             sch.skip_cmpidset.add(stcmpid_ki)
                             # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
                             sch.recsol_cmpset.add(stcmpid_ki)
+                            vis.total += 1
                             opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
                             if len(opt_stderr) == 0:
                                 sch.addq(SCH_LOOP_SEED, [opt_seed, ])
@@ -447,8 +447,9 @@ def mainFuzzer():
                                     opt_seed, opt_seed.content, path.seeds_mutate, ST_STR + str(vis.loop), locmapdet_dict
                                 )
                                 st_seed = sch.selectOneSeed(SCH_THISMUT_SEED, st_seed)
+                            vis.total += 1
                             st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
-                            sch.saveCrash(st_seed, st_stdout, st_stderr, vis.start_time, vis.last_time)
+                            sch.saveCrash(st_seed, st_stdout, st_stderr, vis)
 
                             # 2 cmp instruction
                             # Generate analysis reports.
@@ -466,7 +467,7 @@ def mainFuzzer():
                             # 5 visualize
                             res = vis.display(
                                 opt_seed, set(st_cmploc), st_stdout, st_stderr,
-                                "Strategy", len(sch.coverage_path),
+                                "Strategy", len(sch.coverage_path), sch
                             )
                             vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                             if res == VIS_Q:
@@ -478,6 +479,7 @@ def mainFuzzer():
                                 sch.skip_cmpidset.add(stcmpid_ki)
                                 # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
                                 sch.recsol_cmpset.add(stcmpid_ki)
+                                vis.total += 1
                                 opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
                                 if len(opt_stderr) == 0:
                                     sch.addq(SCH_LOOP_SEED, [opt_seed, ])
@@ -509,5 +511,5 @@ if __name__ == "__main__":
     # ulimit -c unlimited
     # python3 -X faulthandler my.py
 
-    # std_out, std_err = runothercmd("./Programs/base64/code_Bin/base64 -d Programs/base64/seeds_crash/validate_inputs/utmp-fuzzed-222.b64")
+    # std_out, std_err = Executor.run("./Programs/base64/code_Bin/base64 -d Programs/base64/seeds_crash/validate_inputs/utmp-fuzzed-222.b64")
     # print(std_out, std_err)

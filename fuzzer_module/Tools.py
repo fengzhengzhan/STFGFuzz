@@ -84,27 +84,10 @@ def getProjectPath():
     return project_path
 
 
-def runothercmd(cmd: str) -> (int, str, str):
-    """
-    run cmd to get information from executable files or other tools
-    @param cmd:
-    @return:
-    """
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    # timeout kill child process
-    try:
-        stdout, stderr = process.communicate()
-    except Exception as e:
-        process.kill()
-        raise Exception("Error cmd ")
-    ret_code = 128 - process.returncode
-    # print(ret_code, stdout, stderr)
-    return stdout, stderr
-
 
 if __name__ == "__main__":
     # print(delBrackets("bug"))
-    # std_out, std_err = runothercmd("./Programs/base64/code_Bin/base64 -d Programs/base64/seeds_crash/validate_inputs/utmp-fuzzed-222.b64")
+    # std_out, std_err = run("./Programs/base64/code_Bin/base64 -d Programs/base64/seeds_crash/validate_inputs/utmp-fuzzed-222.b64")
     # print(std_out, std_err)
     # cont = readContent("/home/fzz/Desktop/STFGFuzz/Programs/base64/seeds_init/rand.seed")
     # print(cont)

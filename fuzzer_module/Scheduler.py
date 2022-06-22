@@ -105,7 +105,7 @@ class Scheduler:
                     except Exception as e:
                         pass
 
-    def saveCrash(self, seed: StructSeed, stdout, stderr, start_time, last_time):
+    def saveCrash(self, seed: StructSeed, stdout, stderr, vis):
         """
         To facilitate analysis, save all the crash seed information in a csv file
         @return:
@@ -119,12 +119,14 @@ class Scheduler:
                 except Exception as e:
                     crashid = str(stderr)[-16:-3]  #
                 if crashid not in self.recunique_crash:
+                    vis.crash_num += 1
+                    vis.last_crash_time = vis.last_time
                     self.recunique_crash.add(crashid)
                     # write csv
                     with open(self.file_crash_csv, "a+", encoding="utf-8") as cf:
                         # GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
-                        linestr = str(name) + "," + datetime.datetime.strftime(start_time, "%Y-%m-%d_%H:%M:%S") + "," \
-                                  + last_time + "," + str(seed.content).replace(',', 'comma') + "," \
+                        linestr = str(name) + "," + datetime.datetime.strftime(vis.start_time, "%Y-%m-%d_%H:%M:%S") + "," \
+                                  + vis.last_time + "," + str(seed.content).replace(',', 'comma') + "," \
                                   + str(stdout).replace(',', 'comma') + "," + str(stderr).replace(',',
                                                                                                   'comma') + ",,,\n"
                         cf.write(linestr)

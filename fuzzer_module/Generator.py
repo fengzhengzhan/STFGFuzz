@@ -6,6 +6,7 @@ from shutil import copy
 
 from fuzzer_module.Fuzzconfig import *
 from .Structures import *
+from .Executor import *
 
 class StructPath:
     def __init__(self, path_codeBin, path_codeIR, path_codesources, path_datagraph, path_datapatchloc,
@@ -123,8 +124,8 @@ def createDotJsonFile(program_name: str, bc_file: str) -> (list, list):
     # Change path to generator graph in the directed file.
     proj_path = os.getcwd()
     os.chdir(temp_graphpath)
-    std_out, std_err = runothercmd(GEN_DOTCALLGRAPH + os.path.basename(bc_file))
-    std_out, std_err = runothercmd(GEN_DOTCFG + os.path.basename(bc_file))
+    std_out, std_err = run(GEN_DOTCALLGRAPH + os.path.basename(bc_file))
+    std_out, std_err = run(GEN_DOTCFG + os.path.basename(bc_file))
 
     temp_filelist = os.listdir()
     os.chdir(proj_path)
@@ -145,13 +146,13 @@ def createDotJsonFile(program_name: str, bc_file: str) -> (list, list):
     cfglist = []
     for each in cgdotlist:
         temp_path = each + ".json"
-        std_out, std_err = runothercmd(GEN_DOTJSON + each + GEN_OVERLAY + temp_path)
+        std_out, std_err = run(GEN_DOTJSON + each + GEN_OVERLAY + temp_path)
         if not std_err:
             cglist.append(temp_path)
 
     for each in cfgdotlist:
         temp_path = each + ".json"
-        std_out, std_err = runothercmd(GEN_DOTJSON + each + GEN_OVERLAY + temp_path)
+        std_out, std_err = run(GEN_DOTJSON + each + GEN_OVERLAY + temp_path)
         if not std_err:
             cfglist.append(temp_path)
 

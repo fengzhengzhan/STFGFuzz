@@ -21,6 +21,8 @@ class Visualizer:
         self.showgraph_switch = VIS_SHOWGRAPH
         self.start_time = datetime.datetime.now()
         self.last_time: str = "0:0:0:0"
+        self.crash_num = 0
+        self.last_crash_time = "0:0:0:0"
         self.loop = 0
         self.total = 0
         self.num_pcguard = USE_INITNUM
@@ -45,12 +47,12 @@ class Visualizer:
             curses.init_pair(7, curses.COLOR_WHITE, -1)
             curses.init_pair(8, curses.COLOR_YELLOW, -1)
 
-    # def __del__(self):
-    #     try:
-    #         if self.stdscr is not None:
-    #             curses.endwin()
-    #     except Exception as e:
-    #         pass
+    def __del__(self):
+        try:
+            if self.stdscr is not None:
+                curses.endwin()
+        except Exception as e:
+            pass
 
     def charoperation(self, char, layout_x):
         if char == VIS_X:
@@ -64,7 +66,7 @@ class Visualizer:
         elif char == VIS_Q:
             self.retflag = VIS_Q
 
-    def display(self, seed: StructSeed, input_loc: set, stdout, stderr, stagestr, covernum) -> int:
+    def display(self, seed: StructSeed, input_loc: set, stdout, stderr, stagestr, covernum, sch) -> int:
         """
         This function use to show state during fuzzing on the terminal.
         @return:
@@ -83,7 +85,7 @@ class Visualizer:
             # Title.
             self.stdscr.erase()
             self.stdscr.noutrefresh()
-            self.stdscr.addstr(0, 0, " {} {}".format(FUZZNAME, xnum), curses.color_pair(VIS_BLUE))
+            self.stdscr.addstr(0, 0, " {}(^_^)# {}".format(FUZZNAME, xnum), curses.color_pair(VIS_BLUE))
 
             # self.stdscr.refresh()
 
@@ -111,10 +113,18 @@ class Visualizer:
             self.terminal_status.hline(4, 1, curses.ACS_HLINE, curse_len)
 
             #
-            self.terminal_status.addstr(4, 3, "Info", curses.color_pair(VIS_CYAN))
-            self.terminal_status.addstr(5, 1, "   Stage: {}".format(stagestr))
-            self.terminal_status.addstr(6, 1, "Coverage: {} / {}".format(covernum, self.num_pcguard))
-            self.terminal_status.addstr(7, 1, "Cmp Nums: {} / {}".format(self.cmpnum, self.cmptotal))
+            self.terminal_status.addstr(4, 3,  "Info", curses.color_pair(VIS_CYAN))
+            self.terminal_status.addstr(5, 1,  "   Current Target: {} / {}".format(sch.cur_tgtnum, sch.all_tgtnum))
+            self.terminal_status.addstr(6, 1,  "Distance(cur/min): {} / {}".format(covernum, self.num_pcguard))
+            self.terminal_status.addstr(7, 1,  "            Stage: {}".format(stagestr))
+            self.terminal_status.addstr(8, 1,  "         Coverage: {} / {}".format(covernum, self.num_pcguard))
+            self.terminal_status.addstr(9, 1,  "         Cmp Nums: {} / {}".format(self.cmpnum, self.cmptotal))
+            self.terminal_status.addstr(10, 1,  "       Crash Nums: {}".format(self.crash_num))
+            self.terminal_status.addstr(11, 1, "  Last Crash Time: {}".format(self.last_crash_time))
+
+            #
+            self.terminal_status.addstr(4, 42, "Trace", curses.color_pair(VIS_CYAN))
+            self.terminal_status.vline(5, 38, curses.ACS_VLINE, 9)
 
             self.terminal_status.addstr(ter_high - 1, 2, "Q", curses.color_pair(VIS_YELLOW))
             self.terminal_status.addstr(ter_high - 1, 3, "uit")
@@ -175,9 +185,9 @@ class Visualizer:
             self.terminal_seeds.addstr(high + 2 - 1, 8, "down")
 
             self.terminal_seeds.addstr(high + 2 - 1, 54, "Len:")
-            self.terminal_seeds.addstr(high + 2 - 1, 54 + 5, "{}".format(seed_len), curses.color_pair(VIS_YELLOW))
+            self.terminal_seeds.addstr(high + 2 - 1, 54 + 5, "{}".format(seed_len), curses.color_pair(VIS_GREEN))
             self.terminal_seeds.addstr(high + 2 - 1, 65, "Lines:")
-            self.terminal_seeds.addstr(high + 2 - 1, 65 + 7, "{}".format(layout_x), curses.color_pair(VIS_YELLOW))
+            self.terminal_seeds.addstr(high + 2 - 1, 65 + 7, "{}".format(layout_x), curses.color_pair(VIS_GREEN))
             self.terminal_seeds.noutrefresh()
 
             # Show the program output
@@ -193,20 +203,20 @@ class Visualizer:
             self.terminal_outs.border()
             self.terminal_outs.addstr(0, 3, "Output", curses.color_pair(VIS_CYAN))  # (y ->, x |V)
 
-            self.terminal_outs.addstr(1, 0, "O", curses.color_pair(VIS_YELLOW))
+            self.terminal_outs.addstr(1, 0, "O", curses.color_pair(VIS_GREEN))
             for x_i in range(0, out_high):
                 self.terminal_outs.addstr(x_i + 1, 2,
                                           "{}".format(stdout[(curse_len - 2) * x_i: (curse_len - 2) * (x_i + 1)]))
 
-            self.terminal_outs.addstr(out_high + 1, 0, "E", curses.color_pair(VIS_YELLOW))
+            self.terminal_outs.addstr(out_high + 1, 0, "E", curses.color_pair(VIS_GREEN))
             for x_i in range(0, err_high):
                 self.terminal_outs.addstr(
                     out_high + x_i + 1, 2, "{}".format(stderr[(curse_len - 2) * x_i: (curse_len - 2) * (x_i + 1)])
                 )
 
-            self.terminal_outs.addstr(output_high - 1, 2, "O", curses.color_pair(VIS_YELLOW))
+            self.terminal_outs.addstr(output_high - 1, 2, "O", curses.color_pair(VIS_GREEN))
             self.terminal_outs.addstr(output_high - 1, 3, "utput")
-            self.terminal_outs.addstr(output_high - 1, 10, "E", curses.color_pair(VIS_YELLOW))
+            self.terminal_outs.addstr(output_high - 1, 10, "E", curses.color_pair(VIS_GREEN))
             self.terminal_outs.addstr(output_high - 1, 11, "rror")
             self.terminal_outs.noutrefresh()
 

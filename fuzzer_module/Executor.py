@@ -6,7 +6,7 @@ import sys
 from fuzzer_module.Fuzzconfig import *
 
 
-def run(cmd: str) -> (int, str, str):
+def run(cmd: str) -> (str, str):
     """
     run cmd to get information from executable files or other tools
     @param cmd:

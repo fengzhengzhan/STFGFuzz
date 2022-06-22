@@ -7,7 +7,6 @@ import json
 from ctypes import *
 
 from fuzzer_module.Fuzzconfig import *
-from .Structures import *
 
 # The operation of Memory Shared.
 # 1. Find the memory share id
@@ -157,8 +156,7 @@ class Analyzer:
     '''
     Tracking Comparison Module.
     '''
-
-    def compareOneRptToLoc(self, b4cmp_dict, cmp_dict):
+    def compareOneRptToLoc(self, init_cmpcov_list, sd_cmpcov_list, cmporder_j):
         LOG(LOG_DEBUG, LOG_FUNCINFO(), b4cmp_dict, cmp_dict)
         b4cmpset = set(b4cmp_dict)
         cmpset = set(cmp_dict)
@@ -214,10 +212,8 @@ class Analyzer:
 
     def compareRptDiff(self, b4_cmpcov_list, cmpcov_list, pos: int):
         """
-        @return: Same or cmpcov_list==null is False, Different is True.
+        @return: Same is False, Different is True.
         """
-        if len(cmpcov_list) == 0:
-            return False
         if pos == -1:
             if b4_cmpcov_list != cmpcov_list:
                 return True
@@ -234,8 +230,8 @@ if __name__ == "__main__":
 
     # ana.sendCmpid("abcde")
     # ana.sendCmpid("None")
-    ana.sendCmpid("Guard")
-    # ana.sendCmpid("m0x49e319")
+    # ana.sendCmpid("Guard")
+    ana.sendCmpid("m0x49e319")
     # while True:
     #     addr = ana.getAddr("D124816Z\n")
     #     interlen = ana.getInterlen(addr)
@@ -244,6 +240,8 @@ if __name__ == "__main__":
     interlen, covernum = ana.getShm("D124816Z\n")
     print(interlen, covernum)
     cmpcovshm_list = ana.getRpt(interlen)
+    # print(cmpcovshm_list)
+    print(len(cmpcovshm_list))
     with open("../Programs/TrackCrash/crashinfo/info", "w") as f:
         f.write(str(cmpcovshm_list))
     # print(cmpcovshm_list)
