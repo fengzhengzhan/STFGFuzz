@@ -117,6 +117,7 @@ int retSame(char* each){
     if(sendlen == 0) {
         same = 0;
     } else if (sendlen == TRACE_LEN) {
+        // printf("%d", sendcmpid[0] == TRACE_NULL);
         if (sendcmpid[0] == TRACE_NULL) { same = LEVEL_NULL; } 
         else if (sendcmpid[0] == TRACE_GUARD) { same = LEVEL_GUARD; } 
         else if (sendcmpid[0] == TRACE_GUARDSYMBOL) { same = LEVEL_GUARDSYMBOL; } 
@@ -392,6 +393,7 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
     // sprintf(eachcmpid, "G%p", GET_FUNC_PC);
     sprintf(eachcmpid, "Guard");
     flag = retSame(eachcmpid);
+    // printf("%d", flag);
     if (flag == LEVEL_GUARD || flag == LEVEL_CMPGUARD) {
         // This function is a part of the sanitizer run-time.
         // To use it, link with AddressSanitizer or other sanitizer.
@@ -419,7 +421,7 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
         }
 
         // printf("guard:%s\n", PcDescr);
-        sprintf(buf, "['G%p','G','%s',%d],", GET_FUNC_PC, PcDescr, *guard);
+        sprintf(buf, "['G%p','G',%d,'%s'],", GET_FUNC_PC, *guard, PcDescr);
         // printf("['G%p','G','%s',%d],", GET_FUNC_PC, PcDescr, *guard);
         strcpy(data + interlen, buf);
         interlen += strlen(buf);

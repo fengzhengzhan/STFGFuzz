@@ -228,9 +228,6 @@ class Scheduler:
 
 
     def findNearDistance(self):
-        pass
-
-
 
 
 
