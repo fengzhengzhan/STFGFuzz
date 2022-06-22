@@ -494,6 +494,7 @@ def mainFuzzer():
                                                                  getLocInputValue(opt_seed.content, st_cmploc))
                                 # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
                                 vis.total += 1
+                                ana.sendCmpid("None")
                                 opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
                                 if len(opt_stderr) == 0:
                                     sch.addq(SCH_LOOP_SEED, [opt_seed, ])

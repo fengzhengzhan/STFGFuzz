@@ -70,7 +70,19 @@
 //// Maximum length memory/string buffer for strcmp(), strncmp() and memcmp() functions.
 //const uint8_t maxCmpLen = 32;
 
+// Define trace levels
+#define LEVEL_NULL 0
+#define LEVEL_GUARD 1
+#define LEVEL_GUARDSYMBOL 2
+#define LEVEL_CMPFILTER 3
+#define LEVEL_CMP 4
+#define LEVEL_CMPGUARD 5
+#define LEVEL_CMPGUARDSYMBOL 6
+
+// Define the size of memory size.
 #define SHMGET_SIZE 2147483648  // 2*1024*1024*1024  2GB
+
+// Set variable.
 char* data = NULL;
 int filterlen = 128;
 int savelen = 144;
@@ -86,7 +98,7 @@ char *cover;
 int covernum = 0;
 char PcDescr[1024];
 
-int i, idx;
+int i, idx, flag;
 
 int retSame(char* each){
     int same = -1;

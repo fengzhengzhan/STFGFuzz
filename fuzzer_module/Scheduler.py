@@ -227,4 +227,8 @@ class Scheduler:
         del disdup_cmpidset
 
 
+    def findNearDistance(self):
+
+
+
 
