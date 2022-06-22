@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import ast
+import collections
 import re
 import json
 import networkx as nx
@@ -258,11 +259,11 @@ def printTargetSeq(map_target):
     copy_map = map_target.copy()
     tgtnum = list(copy_map.keys())
     tgtnum.sort()
-    trace_list = {}
+    trace_orderdict = {}
     for tgtnum_i in tgtnum:
         print("=={}==".format(tgtnum_i))
-        if tgtnum_i not in trace_list:
-            trace_list[tgtnum_i] = []
+        if tgtnum_i not in trace_orderdict:
+            trace_orderdict[tgtnum_i] = collections.OrderedDict()
         funcs = copy_map[tgtnum_i].keys()
         tgtnode = {}
         for func_j in funcs:
@@ -278,13 +279,14 @@ def printTargetSeq(map_target):
         ordernode = list(tgtnode.keys())
         ordernode.sort(reverse=True)
         for order_j in ordernode:
+            # 8 main [91]  94
             print("# {} {} {} {}".format(tgtnode[order_j][0], tgtnode[order_j][1],
                                          tgtnode[order_j][2], tgtnode[order_j][3]))
-            trace_list[tgtnum_i].append([tgtnode[order_j][0], tgtnode[order_j][1], tgtnode[order_j][2], -1, ])
+            trace_orderdict[tgtnum_i][tgtnode[order_j][1]] = [tgtnode[order_j][0], tgtnode[order_j][2], [], ]
 
         print()
         # print(tgtnode)
-    return trace_list
+    return trace_orderdict
 
 
 def searchRoot(G):

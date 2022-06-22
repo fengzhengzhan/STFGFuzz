@@ -24,12 +24,13 @@ class Visualizer:
         self.crash_num = 0
         self.last_crash_time = "0:0:0:0"
         self.cur_min_dis = USE_INITMAXNUM
-        self.trace_list = {}  # order:function:constract:curlocation
+        self.trace_orderdict = {}  # order:function:constract:curlocation
 
         self.loop = 0
         self.total = 0
         self.num_pcguard = USE_INITNUM
         self.seedline = 0
+        self.traceline = 0
         self.retflag = USE_INITNUM
         self.cmpnum = USE_INITNUM
         self.cmptotal = USE_INITNUM
@@ -57,7 +58,7 @@ class Visualizer:
     #     except Exception as e:
     #         pass
 
-    def charoperation(self, char, layout_x):
+    def charoperation(self, char, layout_x, trace_len):
         if char == VIS_X:
             self.seedline = self.seedline + 1 if self.seedline < layout_x else self.seedline
         elif char == VIS_Z:
@@ -68,6 +69,10 @@ class Visualizer:
             self.showgraph_switch = False
         elif char == VIS_Q:
             self.retflag = VIS_Q
+        elif char == VIS_D:
+            self.traceline = self.traceline - 1 if self.traceline > 0 else 0
+        elif char == VIS_F:
+            self.traceline = self.traceline + 1 if self.traceline < trace_len else self.traceline
 
     def display(self, seed: StructSeed, input_loc: set, stdout, stderr, stagestr, covernum, cur_distance, sch) -> int:
         """
@@ -118,17 +123,35 @@ class Visualizer:
             #
             self.terminal_status.addstr(4, 3,  "Info", curses.color_pair(VIS_CYAN))
             self.terminal_status.addstr(5, 1,  "   Current Target: {} / {}".format(sch.cur_tgtnum, sch.all_tgtnum))
-            self.terminal_status.addstr(6, 1,  "Distance(cur/min): {} / {}".format(cur_distance, self.cur_min_dis))
+            self.terminal_status.addstr(6, 1,  "         Coverage: {} / {}".format(covernum, self.num_pcguard))
             self.terminal_status.addstr(7, 1,  "            Stage: {}".format(stagestr))
-            self.terminal_status.addstr(8, 1,  "         Coverage: {} / {}".format(covernum, self.num_pcguard))
+            self.terminal_status.addstr(8, 1,  "Distance(cur/min): {} / {}".format(cur_distance, self.cur_min_dis))
             self.terminal_status.addstr(9, 1,  "         Cmp Nums: {} / {}".format(self.cmpnum, self.cmptotal))
-            self.terminal_status.addstr(10, 1,  "       Crash Nums: {}".format(self.crash_num))
-            self.terminal_status.addstr(11, 1, "  Last Crash Time: {}".format(self.last_crash_time))
+
+            self.terminal_status.addstr(11, 1,  "       Crash Nums: {}".format(self.crash_num))
+            self.terminal_status.addstr(12, 1, "  Last Crash Time: {}".format(self.last_crash_time))
 
             #
-            self.terminal_status.addstr(4, 42, "Trace", curses.color_pair(VIS_CYAN))
+            self.terminal_status.addstr(4, 41, "Trace", curses.color_pair(VIS_CYAN))
             self.terminal_status.vline(5, 38, curses.ACS_VLINE, 9)
 
+            trace_len = len(self.trace_orderdict[sch.cur_tgtnum])
+            traceloc = 0
+            idx = 0
+            for func_k, trace_v in self.trace_orderdict[sch.cur_tgtnum].items():
+                if self.traceline <= idx < trace_len:
+                    traceloc += 1
+                    self.terminal_status.addstr(4 + traceloc, 40, "{} {} {} {}".format(
+                        trace_v[0], func_k[0:15], trace_v[1], trace_v[2]))
+                idx += 1
+
+            self.terminal_status.addstr(ter_high - 1, 40, "D", curses.color_pair(VIS_YELLOW))
+            self.terminal_status.addstr(ter_high - 1, 41, "up")
+            self.terminal_status.addstr(ter_high - 1, 45, "F", curses.color_pair(VIS_YELLOW))
+            self.terminal_status.addstr(ter_high - 1, 46, "down")
+
+
+            #
             self.terminal_status.addstr(ter_high - 1, 2, "Q", curses.color_pair(VIS_YELLOW))
             self.terminal_status.addstr(ter_high - 1, 3, "uit")
             self.terminal_status.addstr(ter_high - 1, 8, "S", curses.color_pair(VIS_YELLOW))
@@ -223,7 +246,7 @@ class Visualizer:
             self.terminal_outs.addstr(output_high - 1, 11, "rror")
             self.terminal_outs.noutrefresh()
 
-            self.charoperation(self.stdscr.getch(), layout_x)
+            self.charoperation(self.stdscr.getch(), layout_x, trace_len)
 
         return self.retflag
 

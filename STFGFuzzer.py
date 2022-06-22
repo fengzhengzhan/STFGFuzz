@@ -68,10 +68,8 @@ def mainFuzzer():
         sch.trans_symbol_initguard[k] = USE_INITMAXNUM
 
     print("{} Directed Target Sequence...".format(getTime()))
-    vis = Visualizer.Visualizer()
-    # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
-    trace_list = Builder.printTargetSeq(map_target)
-    vis.trace_list = trace_list
+    trace_orderdict = Builder.printTargetSeq(map_target)
+
     LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, map_tgtpredgvid_dis)
 
     sch.file_crash_csv = file_crash_csv
@@ -104,12 +102,14 @@ def mainFuzzer():
 
     '''Fuzzing Cycle'''
     print("{} Fuzzing Loop...".format(getTime()))
-
+    vis = Visualizer.Visualizer()
+    vis.trace_orderdict = trace_orderdict
+    # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
     while not sch.seedq.empty():
         vis.loop += 1
 
         # # Guard
-        # ana.sendCmpid("Guard")
+        # ana.sendCmpid(TRACE_CMPGUARD)
         # init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         # sch.saveCrash(init_seed, init_stdout, init_stderr, vis.start_time, vis.last_time)
         # init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
@@ -118,7 +118,7 @@ def mainFuzzer():
         # sch.coveragepath = guard_set
         # vis.num_pcguard = guard_total
 
-        ana.sendCmpid("None")
+        ana.sendCmpid(TRACE_CMP)
         # First run to collect information.
         vis.total += 1
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
@@ -177,7 +177,7 @@ def mainFuzzer():
         '''ld <-'''
 
         '''2 cmp filter -> Select compare instructions which close the target block. '''
-        ana.sendCmpid("Guard")
+        ana.sendCmpid(TRACE_CMPGUARDSYMBOL)
         # Reset the init_seed
         vis.total += 1
         init_seed = sch.selectOneSeed(SCH_THIS_SEED, b4ld_seed)
@@ -194,6 +194,7 @@ def mainFuzzer():
         guard_set, guard_total = ana.getGuardNum(init_guardcov_list)
         sch.coverage_path = guard_set
         vis.num_pcguard = guard_total
+
         # Update sch priority queue. Save cmpid for the next explore
         sch.selectConstraint(init_guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid, vis)
 
@@ -494,10 +495,11 @@ def mainFuzzer():
                                                                  getLocInputValue(opt_seed.content, st_cmploc))
                                 # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
                                 vis.total += 1
-                                ana.sendCmpid("None")
+                                ana.sendCmpid(TRACE_GUARD)
                                 opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
                                 if len(opt_stderr) == 0:
                                     sch.addq(SCH_LOOP_SEED, [opt_seed, ])
+                                ana.sendCmpid(stcmpid_ki)
                                 break
                             elif len(locmapdet_dict) == 0 or exe_status == DIST_FAIL:
                                 pass

@@ -172,6 +172,8 @@ class Scheduler:
         if len(self.trans_func_symbol) == 0 or len(self.trans_symbol_initguard) == 0:
             self.updateGuardSymbol(guardcov_list)
 
+        # Update vis.trace_orderdict trace information
+
         # Select compare and add it to priority queue.
         # According target number to determine the direction of mutation.
         curtgtpred_offset = tgtpred_offset[self.cur_tgtnum]
@@ -228,6 +230,6 @@ class Scheduler:
 
 
     def findNearDistance(self):
-
+        pass
 
 
