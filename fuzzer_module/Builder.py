@@ -111,16 +111,16 @@ def getCFG(cfglist, map_num_asm):
                     #     LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_LABEL], showlog=True)
 
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), guard_res)
-                temp_intlist = []
+                temp_guardlist = []
                 for one in guard_res:
                     temp_guardnum = int(int(one, 10) / BUI_LOC_INTERVAL)
-                    temp_intlist.append(temp_guardnum)
+                    temp_guardlist.append(temp_guardnum)
                     map_guard_gvid[graphname][temp_guardnum] = node_j[BUI_NODE_NUM]
 
                 nodes_list.append((node_j[BUI_NODE_NUM],
                                    {BUI_NODE_NUM: node_j[BUI_NODE_NUM],
                                     BUI_NODE_NAME: node_j[BUI_NODE_NAME],
-                                    BUI_NODE_LABEL: temp_intlist,
+                                    BUI_NODE_LABEL: temp_guardlist,
                                     BUI_NODE_DISTANCE: USE_INITNUM,
                                     BUI_NODE_ST: []}))
 
@@ -140,10 +140,10 @@ def getCFG(cfglist, map_num_asm):
                                     map_target[tarnum_k] = {}
                                 if graphname not in map_target[tarnum_k]:
                                     map_target[tarnum_k][graphname] = [
-                                        [tgtid, temp_intlist, node_j[BUI_NODE_NUM]]]
+                                        [tgtid, temp_guardlist, node_j[BUI_NODE_NUM]]]
                                 else:
                                     map_target[tarnum_k][graphname].append(
-                                        [tgtid, temp_intlist, node_j[BUI_NODE_NUM]])
+                                        [tgtid, temp_guardlist, node_j[BUI_NODE_NUM]])
 
             # Excluding the single node_j case.
             if BUI_EDGES not in data:
@@ -258,8 +258,11 @@ def printTargetSeq(map_target):
     copy_map = map_target.copy()
     tgtnum = list(copy_map.keys())
     tgtnum.sort()
+    trace_list = {}
     for tgtnum_i in tgtnum:
         print("=={}==".format(tgtnum_i))
+        if tgtnum_i not in trace_list:
+            trace_list[tgtnum_i] = []
         funcs = copy_map[tgtnum_i].keys()
         tgtnode = {}
         for func_j in funcs:
@@ -277,9 +280,11 @@ def printTargetSeq(map_target):
         for order_j in ordernode:
             print("# {} {} {} {}".format(tgtnode[order_j][0], tgtnode[order_j][1],
                                          tgtnode[order_j][2], tgtnode[order_j][3]))
+            trace_list[tgtnum_i].append([tgtnode[order_j][0], tgtnode[order_j][1], tgtnode[order_j][2], -1, ])
 
         print()
         # print(tgtnode)
+    return trace_list
 
 
 def searchRoot(G):

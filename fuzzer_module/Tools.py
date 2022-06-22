@@ -83,7 +83,14 @@ def getProjectPath():
     project_path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     return project_path
 
+def getCmpidOrder(cmpid, order):
+    return str(cmpid) + "+" + str(order)
 
+def getLocInputValue(content, location):
+    loc_input = {}
+    for one_loc in location:
+        loc_input[one_loc] = content[one_loc:one_loc+1]
+    return loc_input
 
 if __name__ == "__main__":
     # print(delBrackets("bug"))

@@ -52,13 +52,13 @@ class StructSeed:
 #         self.stargs = stargs  # arg1, arg2, arg3 ...
 
 class StructCmpInfo:
-    def __init__(self, cmptype, inputmap: list, ansvalue, startguard, endguardtrue, endguardfalse):
-        self.cmptype = cmptype
-        self.inputmap = inputmap  # Compare the input bytes involved in the instruction.
-        self.ansvalue = ansvalue
-        self.startguard = startguard
-        self.endguardtrue = endguardtrue
-        self.endguardfalse = endguardfalse
+    def __init__(self, cmpid, order, map_input):
+        self.cmpid = cmpid
+        self.order = order
+        self.inputmap = map_input  # Compare the input bytes involved in the instruction.
+        # self.startguard = startguard
+        # self.endguardtrue = endguardtrue
+        # self.endguardfalse = endguardfalse
 
 
 class StructStrategy:

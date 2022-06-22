@@ -23,6 +23,9 @@ class Visualizer:
         self.last_time: str = "0:0:0:0"
         self.crash_num = 0
         self.last_crash_time = "0:0:0:0"
+        self.cur_min_dis = USE_INITMAXNUM
+        self.trace_list = {}  # order:function:constract:curlocation
+
         self.loop = 0
         self.total = 0
         self.num_pcguard = USE_INITNUM
@@ -47,12 +50,12 @@ class Visualizer:
             curses.init_pair(7, curses.COLOR_WHITE, -1)
             curses.init_pair(8, curses.COLOR_YELLOW, -1)
 
-    def __del__(self):
-        try:
-            if self.stdscr is not None:
-                curses.endwin()
-        except Exception as e:
-            pass
+    # def __del__(self):
+    #     try:
+    #         if self.stdscr is not None:
+    #             curses.endwin()
+    #     except Exception as e:
+    #         pass
 
     def charoperation(self, char, layout_x):
         if char == VIS_X:
@@ -66,7 +69,7 @@ class Visualizer:
         elif char == VIS_Q:
             self.retflag = VIS_Q
 
-    def display(self, seed: StructSeed, input_loc: set, stdout, stderr, stagestr, covernum, sch) -> int:
+    def display(self, seed: StructSeed, input_loc: set, stdout, stderr, stagestr, covernum, cur_distance, sch) -> int:
         """
         This function use to show state during fuzzing on the terminal.
         @return:
@@ -115,7 +118,7 @@ class Visualizer:
             #
             self.terminal_status.addstr(4, 3,  "Info", curses.color_pair(VIS_CYAN))
             self.terminal_status.addstr(5, 1,  "   Current Target: {} / {}".format(sch.cur_tgtnum, sch.all_tgtnum))
-            self.terminal_status.addstr(6, 1,  "Distance(cur/min): {} / {}".format(covernum, self.num_pcguard))
+            self.terminal_status.addstr(6, 1,  "Distance(cur/min): {} / {}".format(cur_distance, self.cur_min_dis))
             self.terminal_status.addstr(7, 1,  "            Stage: {}".format(stagestr))
             self.terminal_status.addstr(8, 1,  "         Coverage: {} / {}".format(covernum, self.num_pcguard))
             self.terminal_status.addstr(9, 1,  "         Cmp Nums: {} / {}".format(self.cmpnum, self.cmptotal))

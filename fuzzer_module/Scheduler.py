@@ -19,7 +19,7 @@ class Scheduler:
         self.loc_coarse_list: 'list[int]' = []
         self.slid_window: int = SCH_SLID_COUNT
         self.freeze_bytes = set()
-        self.skip_cmpidset = set()  # freeze or ignore
+        self.pass_cmp_dict:dict = {}  # Though cmpid, record information with dict
 
         self.coverage_path = set()
 
@@ -27,7 +27,6 @@ class Scheduler:
         self.expand_size = SCH_EXPAND_SIZE
 
         self.recunique_crash = set()
-        self.recsol_cmpset = set()  # Record data, do not use
 
         self.file_crash_csv = None
         self.path_crashseeds = None
@@ -163,7 +162,7 @@ class Scheduler:
                     if guard_num < self.trans_symbol_initguard[self.trans_func_symbol[guard_funcname]]:
                         self.trans_symbol_initguard[self.trans_func_symbol[guard_funcname]] = guard_num
 
-    def selectConstraint(self, loopnum, guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, trans_guard_gvid):
+    def selectConstraint(self, guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, trans_guard_gvid, vis):
         """
         Perform a trace of the compare instruction execution path if necessary.
         """
@@ -178,7 +177,8 @@ class Scheduler:
         curtgtpred_offset = tgtpred_offset[self.cur_tgtnum]
         map_curtgtpredgvid_dis = map_tgtpredgvid_dis[self.cur_tgtnum]
         LOG(LOG_DEBUG, LOG_FUNCINFO(), map_curtgtpredgvid_dis)
-        distance = SCH_DISTANCE
+        distance = USE_INITMAXNUM
+        disdup_cmpidset = set()
 
         for trace_i in guardcov_list:
             LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i)
@@ -209,18 +209,22 @@ class Scheduler:
                 if symbol in map_curtgtpredgvid_dis and gvid in map_curtgtpredgvid_dis[symbol]:
                     distance = curtgtpred_offset[func] + map_curtgtpredgvid_dis[symbol][gvid]
                 elif symbol in map_curtgtpredgvid_dis and gvid not in map_curtgtpredgvid_dis[symbol]:
-                    distance = SCH_DISTANCE
+                    distance = USE_INITMAXNUM
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, gvid, distance)
             else:
                 # func, realguard, cmpnum = trace_i[2].split("+")
                 # if func == '':
                 #     continue
-                if distance != SCH_DISTANCE:
+                if distance != USE_INITMAXNUM and cmpid not in disdup_cmpidset:
                     # The smaller the distance, the higher the priority.
-                    self.target_cmp.put((distance - loopnum, cmpid))
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), distance-loopnum, cmpid, trace_i)
+                    # self.target_cmp.put((distance - vis.loop, cmpid))
+                    vis.cur_min_dis = min(vis.cur_min_dis, distance)
+                    self.target_cmp.put((distance, cmpid))
+                    disdup_cmpidset.add(cmpid)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), distance-vis.loop, cmpid, trace_i)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, self.trans_symbol_initguard, showlog=True)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, trans_guard_gvid, showlog=True)
+        del disdup_cmpidset
 
 
 
