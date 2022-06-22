@@ -70,14 +70,23 @@
 //// Maximum length memory/string buffer for strcmp(), strncmp() and memcmp() functions.
 //const uint8_t maxCmpLen = 32;
 
-// Define trace levels
-#define LEVEL_NULL 0
+// Define trace levels  O P Q R S T U
+#define LEVEL_NULL 0 
 #define LEVEL_GUARD 1
 #define LEVEL_GUARDSYMBOL 2
 #define LEVEL_CMPFILTER 3
 #define LEVEL_CMP 4
 #define LEVEL_CMPGUARD 5
 #define LEVEL_CMPGUARDSYMBOL 6
+
+#define TRACE_LEN 1
+#define TRACE_NULL 'O'
+#define TRACE_GUARD 'P'
+#define TRACE_GUARDSYMBOL 'Q'
+#define TRACE_CMPFILTER 'R'
+#define TRACE_CMP 'S'
+#define TRACE_CMPGUARD 'T'
+#define TRACE_CMPGUARDSYMBOL 'U'
 
 // Define the size of memory size.
 #define SHMGET_SIZE 2147483648  // 2*1024*1024*1024  2GB
@@ -90,8 +99,6 @@ int interlen = 160;  // 128+16+16
 char buf[1024*1024];
 char sendcmpid[128];
 char eachcmpid[128];
-char* defaultcmpid = "None";
-char* guard = "Guard";
 int blocknum = -1;
 int blockcmpcount = 0;
 char *cover;
@@ -109,28 +116,14 @@ int retSame(char* each){
     // int scmp1 = strcmp(sendcmpid, each);
     if(sendlen == 0) {
         same = 0;
-    } else if (sendlen == strlen(defaultcmpid)) {
-        int judge = 1;
-        for (idx = 0; idx < sendlen; idx ++){
-            if(sendcmpid[idx] != defaultcmpid[idx]){
-                judge = 0;
-                break;
-            }
-        }
-        if (judge == 1){
-            same = 0;
-        }  
-    } else if (sendlen == strlen(guard)) {
-        int judge = 1;
-        for (idx = 0; idx < sendlen; idx ++){
-            if(sendcmpid[idx] != guard[idx]){
-                judge = 0;
-                break;
-            }
-        }
-        if (judge == 1){
-            same = 1;
-        }  
+    } else if (sendlen == TRACE_LEN) {
+        if (sendcmpid[0] == TRACE_NULL) { same = LEVEL_NULL; } 
+        else if (sendcmpid[0] == TRACE_GUARD) { same = LEVEL_GUARD; } 
+        else if (sendcmpid[0] == TRACE_GUARDSYMBOL) { same = LEVEL_GUARDSYMBOL; } 
+        else if (sendcmpid[0] == TRACE_CMPFILTER) { same = LEVEL_CMPFILTER; } 
+        else if (sendcmpid[0] == TRACE_CMP) { same = LEVEL_CMP; } 
+        else if (sendcmpid[0] == TRACE_CMPGUARD) { same = LEVEL_CMPGUARD; } 
+        else if (sendcmpid[0] == TRACE_CMPGUARDSYMBOL) { same = LEVEL_CMPGUARDSYMBOL; } 
     } else if (sendlen == eachlen) {
         int judge = 1;
         for (idx = 0; idx < sendlen; idx ++){
@@ -140,7 +133,7 @@ int retSame(char* each){
             }
         }
         if (judge == 1){
-            same = 0;
+            same = LEVEL_CMPFILTER;
         } 
     }
 
@@ -152,7 +145,7 @@ int retSame(char* each){
 void saveCovOnEnd() {
     sprintf(eachcmpid, "Eend");
     // printf("%s %s\n", sendcmpid, eachcmpid);
-    if(retSame(eachcmpid) >= 0) {
+    if(retSame(eachcmpid) > LEVEL_GUARDSYMBOL) {
         // printf("\nE %p Z\n", GET_FUNC_PC);
         // Add dataflow analysis information.
 
@@ -178,7 +171,7 @@ void saveCovOnEnd() {
 void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
     sprintf(eachcmpid, "%c%p%p%p", funcinfo, GET_FUNC_PC, GET_CALLER_PC, GET_BLOCK_PC);
     // printf("%s %s\n", sendcmpid, eachcmpid);
-    if(retSame(eachcmpid) >= 0) {
+    if(retSame(eachcmpid) > LEVEL_GUARDSYMBOL) {
         // uintptr_t PC = reinterpret_cast<uintptr_t>(GET_FUNC_PC);
 
         // printf("\n%c %p %lu %lu %d Z\n", funcinfo, GET_FUNC_PC, arg1, arg2, arg_len);
@@ -197,7 +190,7 @@ void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
 void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char funcinfo) {
     // printf("%p", called_pc);  called_pc stored PC (program counter) address of the original call.
     sprintf(eachcmpid, "%c%p", funcinfo, called_pc);
-    if (retSame(eachcmpid) >= 0) {
+    if (retSame(eachcmpid) > LEVEL_GUARDSYMBOL) {
         // The length of each string.
         int n1;
         int n2;
@@ -273,7 +266,7 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     }
 
     sprintf(eachcmpid, "%c%p%p%p", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, GET_BLOCK_PC);
-    if(retSame(eachcmpid) >= 0) {
+    if(retSame(eachcmpid) > LEVEL_GUARDSYMBOL) {
 
         // printf("\n%c %p %lu %lu", COV_TRACE_SWITCH, GET_FUNC_PC, Cases[0], Cases[1]);
         sprintf(buf, "['%c%p%p%p','%c','%s+%d+%d',%lu,%lu,%lu", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, GET_BLOCK_PC, COV_TRACE_SWITCH, PcDescr, blocknum, blockcmpcount, Cases[0], Cases[1], Val);
@@ -350,7 +343,7 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     cover = (char *)malloc(N*sizeof(char));
 
     sprintf(eachcmpid, "I%p", GET_FUNC_PC);
-    if(retSame(eachcmpid) >= 0) {
+    if(retSame(eachcmpid) > LEVEL_GUARDSYMBOL) {
 
         sprintf(buf, "['I%p','I','%s+%d+%d',%lu,'%p','%p'],", GET_FUNC_PC, PcDescr, blocknum, blockcmpcount, N, start, stop);
         blockcmpcount++;
@@ -398,7 +391,22 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
     // To use it, link with AddressSanitizer or other sanitizer.
     // sprintf(eachcmpid, "G%p", GET_FUNC_PC);
     sprintf(eachcmpid, "G");
-    if (retSame(eachcmpid) == 1) {
+    flag = retSame(eachcmpid);
+    if (flag == LEVEL_GUARD || flag == LEVEL_CMPGUARD) {
+        // This function is a part of the sanitizer run-time.
+        // To use it, link with AddressSanitizer or other sanitizer.
+        // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
+
+        // printf("guard:%s\n", PcDescr);
+        sprintf(buf, "['G%p','G',%d,'%s'],", GET_FUNC_PC, *guard, PcDescr);
+        // printf("['G%p','G','%s',%d],", GET_FUNC_PC, PcDescr, *guard);
+        strcpy(data + interlen, buf);
+        interlen += strlen(buf);
+        // Update interlen
+        sprintf(buf, "L%dZ", interlen);
+        strcpy(data + filterlen, buf);
+    }
+    else if (flag == LEVEL_GUARDSYMBOL || flag == LEVEL_CMPGUARDSYMBOL) {
         // This function is a part of the sanitizer run-time.
         // To use it, link with AddressSanitizer or other sanitizer.
         // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));

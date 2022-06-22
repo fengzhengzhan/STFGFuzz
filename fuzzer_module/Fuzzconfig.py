@@ -108,6 +108,15 @@ FLAG_DICT = {
     'E': "PROGRAM_END",
 }
 
+# Trace level
+TRACE_NULL = 'O'
+TRACE_GUARD = 'P'
+TRACE_GUARDSYMBOL = 'Q'
+TRACE_CMPFILTER = 'R'
+TRACE_CMP = 'S'
+TRACE_CMPGUARD = 'T'
+TRACE_CMPGUARDSYMBOL = 'U'
+
 # Hex for visible characters
 # bytes.fromhex(HEX_ASCII[n])
 # bytes.fromhex("".join(HEX_ASCII[n1:n2])

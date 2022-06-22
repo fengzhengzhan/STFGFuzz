@@ -148,8 +148,8 @@ class Scheduler:
         for trace_i in guardcov_list:
             trace = trace_i[1:]
             if trace[IDX_CMPTYPE] == EACH_PC_GUARD:
-                guard_funcname = delBrackets(trace[1])
-                guard_num = int(trace[2])
+                guard_num = int(trace[1])
+                guard_funcname = delBrackets(trace[2])
                 # Map execute function name to symbol function name.
                 if guard_funcname not in self.trans_func_symbol:
                     for bin_kj in self.trans_symbol_initguard.keys():
@@ -186,8 +186,8 @@ class Scheduler:
             cmptype = trace_i[1]
             if cmptype == EACH_PC_GUARD:
                 # pc_guard to update the Calibration Distance.
-                func = delBrackets(trace_i[2])
-                realguard = trace_i[3]
+                realguard = trace_i[2]
+                func = delBrackets(trace_i[3])
                 # According offset to determine the distance.
                 if func not in curtgtpred_offset:
                     continue
@@ -228,6 +228,8 @@ class Scheduler:
 
 
     def findNearDistance(self):
+        pass
+
 
 
 
