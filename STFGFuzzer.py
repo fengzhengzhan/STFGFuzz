@@ -63,7 +63,8 @@ def mainFuzzer():
     map_tgtpredgvid_dis = Builder.getTargetPredecessorsGuard(cfggraph_dict, map_guard_gvid, map_target)
     tgtpred_offset = Builder.getFuncOffset(map_tgtpredgvid_dis, map_target)
     sch = Scheduler.Scheduler()
-    sch.all_tgtnum = len(map_target)
+    if len(map_target) != 0:
+        sch.all_tgtnum = len(map_target)
     for k in map_functo_cgnode.keys():
         sch.trans_symbol_initguard[k] = USE_INITMAXNUM
 
@@ -104,7 +105,7 @@ def mainFuzzer():
     vis = Visualizer.Visualizer()
     vis.trace_orderdict = trace_orderdict
     # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
-    while not sch.seedq.empty():
+    while sch.cur_tgtnum < sch.all_tgtnum and not sch.seedq.empty():
         eaexit = False
         vis.loop += 1
 
@@ -496,13 +497,16 @@ def mainFuzzer():
                                 vis.total += 1
                                 ana.sendCmpid(TRACE_GUARDFAST)
                                 trace_stdout, trace_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
-                                sch.saveCrash(opt_seed, trace_stdout, trace_stderr, vis)
+                                tgtsan = sch.saveCrash(opt_seed, trace_stdout, trace_stderr, vis)
 
                                 trace_interlen, trace_covernum = ana.getShm(trace_stdout[0:16])
                                 trace_guard_list = ana.getRpt(trace_interlen)
                                 near_dis = sch.findNearDistance(
                                     trace_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
+
                                 if near_dis < sch.cur_nearlydis:
+                                    eaexit = True
+                                if tgtsan == True:
                                     eaexit = True
 
                                 if len(opt_stderr) == 0:
@@ -524,6 +528,12 @@ def mainFuzzer():
         # Mutual mapping relationship
         # Key: cmpid  Value: branch_order cmp_type input_bytes branches
         # 4 branches
+
+    sch.deleteSeeds(SCH_THIS_SEED)
+    sch.deleteSeeds(SCH_THISMUT_SEED)
+    for info in sch.target_crashinfo:
+        print(info)
+    print("(^_^)# Target vulnerability successfully reproduced.")
 
 
 if __name__ == "__main__":

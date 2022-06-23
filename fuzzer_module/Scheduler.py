@@ -40,6 +40,8 @@ class Scheduler:
         self.trans_symbol_initguard = {}
         self.trans_func_symbol = {}
 
+        self.target_crashinfo = []
+
     def initEachloop(self, vis):
         self.loc_coarse_list = []
         self.slid_window = SCH_SLID_COUNT
@@ -109,6 +111,7 @@ class Scheduler:
         To facilitate analysis, save all the crash seed information in a csv file
         @return:
         """
+        tgtsan = False
         if self.file_crash_csv != None and self.path_crashseeds != None:
             path, name = os.path.split(seed.filename)
             if not os.path.exists(self.path_crashseeds + name) and len(stderr) != 0:
@@ -133,6 +136,8 @@ class Scheduler:
                     saveAsFile(seed.content, self.path_crashseeds + name)
         else:
             raise Exception(LOG_FUNCINFO() + "Error Path")
+
+        return tgtsan
 
     def quitFuzz(self):
         self.deleteSeeds(SCH_THIS_SEED)
