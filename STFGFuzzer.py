@@ -45,9 +45,16 @@ def mainFuzzer():
     binline_dict = Builder.getBinaryInfo(path.data_graph)
     target_dict = Comparator.getTarget(path.data_patchloc, patchtype)
     map_numto_funcasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
+    sch = Scheduler.Scheduler()
+
+    for tgt_ki, stu_vi in target_dict.items():
+        sch.target_dict[tgt_ki] = set()
+        for info_j in stu_vi.tgttrace:
+            sch.target_dict[tgt_ki].add(str(info_j[1])+str(info_j[2]))
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), target_dict[0].tgtinfolen, map_numto_funcasm, sch.target_dict)
     del target_dict
     del binline_dict
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numto_funcasm)
+
     # Graph Information
     print("{} Build Graph Information...".format(getTime()))
     cglist, cfglist = Generator.createDotJsonFile(program_name, path.code_IR + program_name + GEN_TRACEBC_SUFFIX)
@@ -62,7 +69,7 @@ def mainFuzzer():
     Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
     map_tgtpredgvid_dis = Builder.getTargetPredecessorsGuard(cfggraph_dict, map_guard_gvid, map_target)
     tgtpred_offset = Builder.getFuncOffset(map_tgtpredgvid_dis, map_target)
-    sch = Scheduler.Scheduler()
+
     if len(map_target) != 0:
         sch.all_tgtnum = len(map_target)
     for k in map_functo_cgnode.keys():
@@ -138,7 +145,7 @@ def mainFuzzer():
         # If there is a change in the increase length then increase the length.
         b4ld_seed = init_seed
         b4ld_interlen = init_interlen
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content, ana.getRpt(init_interlen))
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content, ana.getRpt(init_interlen), showlog=True)
         while len(b4ld_seed.content) < sch.expand_size:
             vis.total += 1
             sch.expandnums += 1
@@ -191,7 +198,7 @@ def mainFuzzer():
         # Get the offset of the address block.
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         init_guardcov_list = ana.getRpt(init_interlen)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_guardcov_list, sch.trans_symbol_initguard)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_guardcov_list, sch.trans_symbol_initguard, showlog=True)
         guard_set, guard_total = ana.getGuardNum(init_guardcov_list)
         sch.coverage_set = sch.coverage_set | guard_set
         vis.num_pcguard = guard_total
@@ -241,6 +248,7 @@ def mainFuzzer():
 
             stcmpid_tuples = sch.targetcmp_pq.get()
             stcmpid_weight, stcmpid_ki = stcmpid_tuples[0], stcmpid_tuples[1]
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki, showlog=True)
             vis.cmpnum += 1
             # limiter
             if stcmpid_weight - sch.cur_nearlydis >= LIMITER:
@@ -311,14 +319,14 @@ def mainFuzzer():
                     vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                     if res == VIS_Q:
                         sch.quitFuzz()
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict, showlog=True)
                 # raise Exception()
                 '''sd <-'''
                 # False positive comparison if all input bytes are covered
                 # if len(stloclist_v) == len(init_seed.content):
                 #     continue
 
-                '''Type detect and Generate Mutation strategy'''
+                # Skip fix cmp
                 if stcmpid_ki not in cmpmaploc_dict:
                     continue
                 stlocset_vi = cmpmaploc_dict[stcmpid_ki]
@@ -370,7 +378,7 @@ def mainFuzzer():
                     vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                     if res == VIS_Q:
                         sch.quitFuzz()
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), ststart_cmpcov_list[cmporder_j], st_cmploc, cmp_len, cmporder_j)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), ststart_cmpcov_list[cmporder_j], st_cmploc, cmp_len, cmporder_j, showlog=True)
                 '''bd <-'''
 
                 ana.sendCmpid(stcmpid_ki)
@@ -393,6 +401,7 @@ def mainFuzzer():
 
                 # 3 cmp type
                 # Return cmp type and mutate strategy according to typeDetect
+                '''Type detect and Generate Mutation strategy'''
                 strategy_flag, cmp_flag, bytes_flag = Parser.typeDetect(
                     opt_cmpcov_list, st_cmpcov_list, cmporder_j)
                 infer_strategy = Parser.devStrategy(
@@ -402,7 +411,7 @@ def mainFuzzer():
                 if bytes_flag == PAR_FIXAFIX:
                     continue
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy_flag, bytes_flag, opt_cmpcov_list, ststart_cmpcov_list)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy_flag, bytes_flag, opt_cmpcov_list, ststart_cmpcov_list, showlog=True)
 
                 # fixme
                 # opt_seed = Mutator.mutLocFromMap(opt_seed, opt_seed.content, path.seeds_mutate, ST_STR + str(vis.loop),
@@ -417,10 +426,12 @@ def mainFuzzer():
                 '''Mutation strategy and Compare distance'''
                 while not eaexit and not sch.strategyq.empty():
                     strategy = sch.strategyq.get()
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy, showlog=True)
                     # Type Detection and Breaking the Constraint Cycle (At lease 1 loops)
                     while not eaexit and strategy.curloop < strategy.endloop:
                         strategy.curloop += 1
                         strategy.curnum = 0
+                        LOG(LOG_DEBUG, LOG_FUNCINFO(), eaexit, showlog=True)
                         if strategy.strategytype == STAT_FIN:
                             cmpidorder = getCmpidOrder(stcmpid_ki, cmporder_j)
                             if cmpidorder not in sch.pass_cmp_dict:
@@ -434,7 +445,7 @@ def mainFuzzer():
                                 sch.addq(SCH_LOOP_SEED, [opt_seed, ])
                             break
 
-                        while strategy.curnum < strategy.endnum:
+                        while not eaexit and strategy.curnum < strategy.endnum:
                             vis.total += 1
 
                             if strategy.curnum == 0:
@@ -444,7 +455,7 @@ def mainFuzzer():
                                 locmapdet_dict = Parser.solveChangeMap(
                                     strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_j)
                             LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, locmapdet_dict,
-                                opt_seed.content, st_seed.content)
+                                opt_seed.content, st_seed.content, showlog=True)
                             # The next mutate seed
                             # Passing the constraint based on the number of cycles and the distance between comparisons.
                             if len(locmapdet_dict) == 0:
@@ -498,19 +509,19 @@ def mainFuzzer():
                                 ana.sendCmpid(TRACE_GUARDFAST)
                                 trace_stdout, trace_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
                                 tgtsan = sch.saveCrash(opt_seed, trace_stdout, trace_stderr, vis)
-
-                                trace_interlen, trace_covernum = ana.getShm(trace_stdout[0:16])
-                                trace_guard_list = ana.getRpt(trace_interlen)
-                                near_dis = sch.findNearDistance(
-                                    trace_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
-
-                                if near_dis < sch.cur_nearlydis:
-                                    eaexit = True
-                                if tgtsan == True:
+                                if tgtsan:
                                     eaexit = True
 
+                                LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtsan, eaexit, sch.cur_tgtnum, showlog=True)
                                 if len(opt_stderr) == 0:
+                                    trace_interlen, trace_covernum = ana.getShm(trace_stdout[0:16])
+                                    trace_guard_list = ana.getRpt(trace_interlen)
+                                    near_dis = sch.findNearDistance(
+                                        trace_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
+                                    if near_dis < sch.cur_nearlydis:
+                                        eaexit = True
                                     sch.addq(SCH_LOOP_SEED, [opt_seed, ])
+
                                 ana.sendCmpid(stcmpid_ki)
                                 break
                             elif len(locmapdet_dict) == 0 or exe_status == DIST_FAIL:

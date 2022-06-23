@@ -40,6 +40,7 @@ class Scheduler:
         self.trans_symbol_initguard = {}
         self.trans_func_symbol = {}
 
+        self.target_dict:'{tgtnum:{funcline,funcline}}' = {}
         self.target_crashinfo = []
 
     def initEachloop(self, vis):
@@ -118,8 +119,23 @@ class Scheduler:
                 try:
                     re_str = "#0 (.*?) in"
                     crashid = re.search(re_str, str(stderr)).group(1)
+                    # Compare sanitizer similarity
+                    re_str = "#(.*?) 0x.*? in (.*?) .*?:(.*?):"
+                    re_cont = re.findall(re_str, str(stderr))
+                    # LOG(LOG_DEBUG, LOG_FUNCINFO(), re_cont, showlog=True)
+                    cinfo_num = 0
+                    for c in re_cont:
+                        # LOG(LOG_DEBUG, LOG_FUNCINFO(), delBrackets(c[1])+c[2], self.target_dict[self.cur_tgtnum], showlog=True)
+                        if delBrackets(c[1])+c[2] in self.target_dict[self.cur_tgtnum]:
+                            cinfo_num += 1
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), cinfo_num, len(self.target_dict[self.cur_tgtnum]), showlog=True)
+                    if len(self.target_dict[self.cur_tgtnum]) - cinfo_num < SCH_CRASH_SIMI:
+                        tgtsan = True
+                        self.cur_tgtnum += 1
+                    # LOG(LOG_DEBUG, LOG_FUNCINFO(), self.cur_tgtnum, showlog=True)
                 except Exception as e:
                     crashid = str(stderr)[-16:-3]  #
+
                 if crashid not in self.recunique_crash:
                     vis.crash_num += 1
                     vis.last_crash_time = vis.last_time

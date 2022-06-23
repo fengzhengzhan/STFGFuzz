@@ -21,9 +21,9 @@ class StructPath:
 
 
 class StructTarget:
-    def __init__(self, tgttrace: list, tgtinfo: int):
+    def __init__(self, tgttrace: list, tgtinfolen: int):
         self.tgttrace: list = tgttrace
-        self.tgtinfo: int = tgtinfo
+        self.tgtinfolen: int = tgtinfolen
 
     def addone(self, ttrace, tfunc, tline):
         self.tgttrace.append([ttrace, tfunc, tline])
