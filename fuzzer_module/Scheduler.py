@@ -21,7 +21,7 @@ class Scheduler:
         self.freeze_bytes = set()
         self.pass_cmp_dict:dict = {}  # Though cmpid, record information with dict
 
-        self.coverage_path = set()
+        self.coverage_set = set()
 
         self.expandnums = 0
         self.expand_size = SCH_EXPAND_SIZE
@@ -232,13 +232,27 @@ class Scheduler:
     def selectBranch(self):
         pass
 
-    def findNearDistance(self, trace_guard_list):
+    def findNearDistance(self, trace_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid):
         """
         From pc_guard set find the BFS location.
         @return:
         """
         near_dis = USE_INITMAXNUM
-        
+        trace_guard_set = set(trace_guard_list)
+        self.coverage_set = self.coverage_set | trace_guard_set
+        map_curtgtpredgvid_dis = map_tgtpredgvid_dis[self.cur_tgtnum]
+        curtgtpred_offset = tgtpred_offset[self.cur_tgtnum]
+        reverseto_gvid_guard = {}
+        for func_ki, map_kj in map_guard_gvid.items():
+            reverseto_gvid_guard[func_ki] = {v: k for k, v in map_kj.items()}
+
+        # Traverse to find the shortest distance.
+        for func_ki, disdict_vi in map_curtgtpredgvid_dis.items():
+            for gvid_kj, dis_vj in disdict_vi.items():
+                if reverseto_gvid_guard[func_ki][gvid_kj] in trace_guard_set:
+                    distance = curtgtpred_offset[func_ki] + dis_vj
+                    near_dis = min(near_dis, distance)
+
         return near_dis
 
 

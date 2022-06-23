@@ -75,7 +75,6 @@ def mainFuzzer():
     sch.file_crash_csv = file_crash_csv
     sch.path_crashseeds = path.seeds_crash
     # Init Loop Variables
-    before_coverage = sch.coverage_path
 
     # Init seed lists
     print("{} Init Seed lists...".format(getTime()))
@@ -106,7 +105,7 @@ def mainFuzzer():
     vis.trace_orderdict = trace_orderdict
     # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
     while not sch.seedq.empty():
-        erexit = False
+        eaexit = False
         vis.loop += 1
 
         # # Guard
@@ -171,7 +170,7 @@ def mainFuzzer():
                 else:
                     break
 
-            res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, STG_LD, len(sch.coverage_path), -1, sch)
+            res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, STG_LD, -1, sch)
             vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
@@ -193,11 +192,13 @@ def mainFuzzer():
         init_guardcov_list = ana.getRpt(init_interlen)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), init_guardcov_list, sch.trans_symbol_initguard)
         guard_set, guard_total = ana.getGuardNum(init_guardcov_list)
-        sch.coverage_path = guard_set
+        sch.coverage_set = sch.coverage_set | guard_set
         vis.num_pcguard = guard_total
 
         # Update sch priority queue. Save cmpid for the next explore
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
         sch.selectConstraint(init_guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid, vis)
+        # raise Exception()
 
         # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
         # init_cmpset = set(init_cmp_dict)
@@ -235,7 +236,7 @@ def mainFuzzer():
         '''st -> Constraints Analysis'''
         # Select one stcmpid_tuples.
         # for stcmpid_ki, stlocset_vi in cmpmaploc_dict.items():
-        while not erexit and not sch.targetcmp_pq.empty():
+        while not eaexit and not sch.targetcmp_pq.empty():
 
             stcmpid_tuples = sch.targetcmp_pq.get()
             stcmpid_weight, stcmpid_ki = stcmpid_tuples[0], stcmpid_tuples[1]
@@ -264,7 +265,7 @@ def mainFuzzer():
             cmp_len = len(init_cmpcov_list)
             # Separate comparisons for each comparison instruction.
             for cmporder_j in range(0, cmp_len):
-                if erexit:
+                if eaexit:
                     break
 
                 if getCmpidOrder(stcmpid_ki, cmporder_j) in sch.pass_cmp_dict:
@@ -305,8 +306,7 @@ def mainFuzzer():
                     before_sdloc_list = sdloc_list
 
                     # 5 visualize
-                    res = vis.display(sd_seed, set(sdloc_list), sd_stdout, sd_stderr, STG_SD,
-                                      len(sch.coverage_path), stcmpid_weight, sch)
+                    res = vis.display(sd_seed, set(sdloc_list), sd_stdout, sd_stderr, STG_SD, stcmpid_weight, sch)
                     vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                     if res == VIS_Q:
                         sch.quitFuzz()
@@ -365,10 +365,7 @@ def mainFuzzer():
                     if len(bd_cmpcov_list) != 0 and ana.compareRptDiff(ststart_cmpcov_list, bd_cmpcov_list, cmporder_j):
                         st_cmploc.append(one_loc)
                     # 5 visualize
-                    res = vis.display(
-                        bd_seed, set(st_cmploc), bd_stdout, bd_stderr,
-                        STG_BD, len(sch.coverage_path), stcmpid_weight, sch
-                    )
+                    res = vis.display(bd_seed, set(st_cmploc), bd_stdout, bd_stderr, STG_BD, stcmpid_weight, sch)
                     vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                     if res == VIS_Q:
                         sch.quitFuzz()
@@ -417,10 +414,10 @@ def mainFuzzer():
                 # opt_cmpcov_list = ana.getRpt(opt_interlen)
 
                 '''Mutation strategy and Compare distance'''
-                while not erexit and not sch.strategyq.empty():
+                while not eaexit and not sch.strategyq.empty():
                     strategy = sch.strategyq.get()
                     # Type Detection and Breaking the Constraint Cycle (At lease 1 loops)
-                    while not erexit and strategy.curloop < strategy.endloop:
+                    while not eaexit and strategy.curloop < strategy.endloop:
                         strategy.curloop += 1
                         strategy.curnum = 0
                         if strategy.strategytype == STAT_FIN:
@@ -482,9 +479,7 @@ def mainFuzzer():
 
                             # 5 visualize
                             res = vis.display(
-                                opt_seed, set(st_cmploc), st_stdout, st_stderr,
-                                STG_ST, len(sch.coverage_path), stcmpid_weight, sch
-                            )
+                                opt_seed, set(st_cmploc), st_stdout, st_stderr, STG_ST, stcmpid_weight, sch)
                             vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                             if res == VIS_Q:
                                 sch.quitFuzz()
@@ -505,9 +500,10 @@ def mainFuzzer():
 
                                 trace_interlen, trace_covernum = ana.getShm(trace_stdout[0:16])
                                 trace_guard_list = ana.getRpt(trace_interlen)
-                                near_dis = sch.findNearDistance(trace_guard_list)
+                                near_dis = sch.findNearDistance(
+                                    trace_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
                                 if near_dis < sch.cur_nearlydis:
-                                    erexit = True
+                                    eaexit = True
 
                                 if len(opt_stderr) == 0:
                                     sch.addq(SCH_LOOP_SEED, [opt_seed, ])

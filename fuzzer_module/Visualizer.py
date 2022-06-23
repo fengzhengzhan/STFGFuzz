@@ -74,7 +74,7 @@ class Visualizer:
         elif char == VIS_F:
             self.traceline = self.traceline + 1 if self.traceline < trace_len else self.traceline
 
-    def display(self, seed: StructSeed, input_loc: set, stdout, stderr, stagestr, covernum, cur_distance, sch) -> int:
+    def display(self, seed: StructSeed, input_loc: set, stdout, stderr, stagestr, cur_distance, sch) -> int:
         """
         This function use to show state during fuzzing on the terminal.
         @return:
@@ -123,7 +123,7 @@ class Visualizer:
             #
             self.terminal_status.addstr(4, 3,  "Info", curses.color_pair(VIS_CYAN))
             self.terminal_status.addstr(5, 1,  "   Current Target: {} / {}".format(sch.cur_tgtnum, sch.all_tgtnum))
-            self.terminal_status.addstr(6, 1,  "         Coverage: {} / {}".format(covernum, self.num_pcguard))
+            self.terminal_status.addstr(6, 1,  "         Coverage: {} / {}".format(len(sch.coverage_set), self.num_pcguard))
             self.terminal_status.addstr(7, 1,  "            Stage: {}".format(stagestr))
             self.terminal_status.addstr(8, 1,  "Distance(cur/min): {} / {}".format(cur_distance, self.cur_min_dis))
             self.terminal_status.addstr(9, 1,  "         Cmp Nums: {} / {}".format(self.cmpnum, self.cmptotal))
