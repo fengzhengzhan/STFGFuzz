@@ -17,7 +17,6 @@ class Scheduler:
         self.strategyq: Queue[StructStrategy] = Queue()
 
         self.loc_coarse_list: 'list[int]' = []
-        self.slid_window: int = SCH_SLID_COUNT
         self.freeze_bytes = set()
         self.pass_cmp_dict:dict = {}  # Though cmpid, record information with dict
 
@@ -45,7 +44,7 @@ class Scheduler:
 
     def initEachloop(self, vis):
         self.loc_coarse_list = []
-        self.slid_window = SCH_SLID_COUNT
+        self.slid_window = SCH_SLID_SLICE
         self.mutlocnums = 0
         vis.cmpnum, vis.cmptotal = 0, 0
         self.expand_size *= SCH_EXPAND_MULTI

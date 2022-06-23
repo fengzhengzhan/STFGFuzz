@@ -233,7 +233,6 @@ def mainFuzzer():
 
         '''Init status parameters.'''
         vis.cmptotal = sch.targetcmp_pq.qsize()
-        sch.slid_window = max(len(sch.loc_coarse_list) // SCH_SLID_COUNT, SCH_SLID_MIN)
         # Update the min distance of target.
         if not sch.targetcmp_pq.empty():
             tempcmpid = sch.targetcmp_pq.get()
@@ -284,43 +283,56 @@ def mainFuzzer():
                     )
                     break
                 '''sd -> Sliding Window Detection O(n/step)'''
-                # Get a report on changes to comparison instructions. # todo multiprocessing
-                before_sdloc_list = []
-                coarse_head = 0
+                # Get a report on changes to comparison instructions.
+                slid_list = sch.loc_coarse_list
+                slid_window = max(len(slid_list) // SCH_SLID_SLICE, SCH_SLID_MIN)
+                # before_sdloc_list = []
                 cmpmaploc_dict = {}
-                while coarse_head < len(sch.loc_coarse_list):
-                    vis.total += 1
-                    # 1 seed inputs
-                    sdloc_list = sch.loc_coarse_list[coarse_head:coarse_head + sch.slid_window]
-                    # print(sdloc_list)
-                    coarse_head += sch.slid_window // 2
-                    sd_seed = Mutator.mutSelectChar(
-                        init_seed.content, path.seeds_mutate, COARSE_STR + str(vis.loop), sdloc_list)
-                    sd_seed = sch.selectOneSeed(SCH_THISMUT_SEED, sd_seed)
-                    sd_stdout, sd_stderr = Executor.run(fuzz_command.replace('@@', sd_seed.filename))
-                    # 5 visualize
-                    res = vis.display(sd_seed, set(sdloc_list), sd_stdout, sd_stderr, STG_SD, stcmpid_weight, sch)
-                    vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
-                    if res == VIS_Q:
-                        sch.quitFuzz()
-                    eaexit = sch.saveCrash(sd_seed, sd_stdout, sd_stderr, vis)
+                # multiprocessing multi slidling windows.
+                while slid_window >= SCH_SLID_MIN:
+                    coarse_head = 0
+                    cmpmaploc_dict = {}
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), slid_window, cmpmaploc_dict, slid_list, showlog=True)
+                    while coarse_head < len(slid_list):
+                        vis.total += 1
+                        # 1 seed inputs
+                        sdloc_list = slid_list[coarse_head:coarse_head + slid_window]
+                        # print(sdloc_list)
+                        coarse_head += slid_window // 2
+                        sd_seed = Mutator.mutSelectChar(
+                            init_seed.content, path.seeds_mutate, COARSE_STR + str(vis.loop), sdloc_list)
+                        sd_seed = sch.selectOneSeed(SCH_THISMUT_SEED, sd_seed)
+                        sd_stdout, sd_stderr = Executor.run(fuzz_command.replace('@@', sd_seed.filename))
+                        # 5 visualize
+                        res = vis.display(sd_seed, set(sdloc_list), sd_stdout, sd_stderr, STG_SD, stcmpid_weight, sch)
+                        vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
+                        if res == VIS_Q:
+                            sch.quitFuzz()
+                        eaexit = sch.saveCrash(sd_seed, sd_stdout, sd_stderr, vis)
 
-                    # 1 seed inputs
-                    sd_interlen, sd_covernum = ana.getShm(sd_stdout[0:16])
-                    sd_cmpcov_list = ana.getRpt(sd_interlen)  # report
+                        # 1 seed inputs
+                        sd_interlen, sd_covernum = ana.getShm(sd_stdout[0:16])
+                        sd_cmpcov_list = ana.getRpt(sd_interlen)  # report
 
-                    # Add number of bytes.
-                    if len(sd_cmpcov_list) == 0 or ana.compareRptDiff(init_cmpcov_list, sd_cmpcov_list, cmporder_j):
-                        # Determine if the dictionary is empty.
-                        if stcmpid_ki not in cmpmaploc_dict:
-                            cmpmaploc_dict[stcmpid_ki] = set(before_sdloc_list) | set(sdloc_list)
-                        else:
-                            cmpmaploc_dict[stcmpid_ki] |= set(sdloc_list)
+                        # Add number of bytes.
+                        if len(sd_cmpcov_list) == 0 or ana.compareRptDiff(init_cmpcov_list, sd_cmpcov_list, cmporder_j):
+                            # Determine if the dictionary is empty.
+                            if stcmpid_ki not in cmpmaploc_dict:
+                                # cmpmaploc_dict[stcmpid_ki] = set(before_sdloc_list) | set(sdloc_list)
+                                cmpmaploc_dict[stcmpid_ki] = set(sdloc_list)
+                            else:
+                                cmpmaploc_dict[stcmpid_ki] |= set(sdloc_list)
+                    if stcmpid_ki in cmpmaploc_dict:
+                        slid_list = list(cmpmaploc_dict[stcmpid_ki])
+                        slid_list.sort()
+                    if len(slid_list) == sch.loc_coarse_list or stcmpid_ki not in cmpmaploc_dict:
+                        break
 
-                    before_sdloc_list = sdloc_list
-
-
+                    slid_window = max(len(slid_list) // SCH_SLID_SLICE, SCH_SLID_MIN-1)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), slid_window, cmpmaploc_dict, slid_list, showlog=True)
+                    # before_sdloc_list = sdloc_list
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict, showlog=True)
+
                 # raise Exception()
                 '''sd <-'''
                 # False positive comparison if all input bytes are covered
