@@ -72,21 +72,23 @@
 
 // Define trace levels  O P Q R S T U
 #define LEVEL_NULL 0 
-#define LEVEL_GUARD 1
-#define LEVEL_GUARDSYMBOL 2
-#define LEVEL_CMPFILTER 3
-#define LEVEL_CMP 4
-#define LEVEL_CMPGUARD 5
-#define LEVEL_CMPGUARDSYMBOL 6
+#define LEVEL_GUARDFAST 1
+#define LEVEL_GUARD 2
+#define LEVEL_GUARDSYMBOL 3
+#define LEVEL_CMPFILTER 4
+#define LEVEL_CMP 5
+#define LEVEL_CMPGUARD 6
+#define LEVEL_CMPGUARDSYMBOL 7
 
 #define TRACE_LEN 1
 #define TRACE_NULL 'O'
-#define TRACE_GUARD 'P'
-#define TRACE_GUARDSYMBOL 'Q'
-#define TRACE_CMPFILTER 'R'
-#define TRACE_CMP 'S'
-#define TRACE_CMPGUARD 'T'
-#define TRACE_CMPGUARDSYMBOL 'U'
+#define TRACE_GUARDFAST 'P'
+#define TRACE_GUARD 'Q'
+#define TRACE_GUARDSYMBOL 'R'
+#define TRACE_CMPFILTER 'S'
+#define TRACE_CMP 'T'
+#define TRACE_CMPGUARD 'U'
+#define TRACE_CMPGUARDSYMBOL 'V'
 
 // Define the size of memory size.
 #define SHMGET_SIZE 2147483648  // 2*1024*1024*1024  2GB
@@ -119,6 +121,7 @@ int retSame(char* each){
     } else if (sendlen == TRACE_LEN) {
         // printf("%d", sendcmpid[0] == TRACE_NULL);
         if (sendcmpid[0] == TRACE_NULL) { same = LEVEL_NULL; } 
+        else if (sendcmpid[0] == TRACE_GUARDFAST) { same = LEVEL_GUARDFAST; } 
         else if (sendcmpid[0] == TRACE_GUARD) { same = LEVEL_GUARD; } 
         else if (sendcmpid[0] == TRACE_GUARDSYMBOL) { same = LEVEL_GUARDSYMBOL; } 
         else if (sendcmpid[0] == TRACE_CMPFILTER) { same = LEVEL_CMPFILTER; } 
@@ -394,7 +397,15 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
     sprintf(eachcmpid, "Guard");
     flag = retSame(eachcmpid);
     // printf("%d", flag);
-    if (flag == LEVEL_GUARD || flag == LEVEL_CMPGUARD) {
+    if (flag == LEVEL_GUARDFAST) {
+        sprintf(buf, "%d,", *guard);
+        strcpy(data + interlen, buf);
+        interlen += strlen(buf);
+        // Update interlen
+        sprintf(buf, "L%dZ", interlen);
+        strcpy(data + filterlen, buf);
+    }
+    else if (flag == LEVEL_GUARD || flag == LEVEL_CMPGUARD) {
         // This function is a part of the sanitizer run-time.
         // To use it, link with AddressSanitizer or other sanitizer.
         // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));

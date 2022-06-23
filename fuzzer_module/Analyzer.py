@@ -230,6 +230,7 @@ if __name__ == "__main__":
 
 
     # ana.sendCmpid(TRACE_NULL)
+    # ana.sendCmpid(TRACE_GUARDFAST)
     # ana.sendCmpid(TRACE_GUARD)
     # ana.sendCmpid(TRACE_GUARDSYMBOL)
     # ana.sendCmpid(TRACE_CMPFILTER)

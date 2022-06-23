@@ -33,7 +33,7 @@ class Scheduler:
 
         self.cur_tgtnum = 0
         self.all_tgtnum = USE_INITNUM
-        self.target_cmp = PriorityQueue()
+        self.targetcmp_pq = PriorityQueue()
 
         self.cur_nearlydis = USE_INITMAXNUM
 
@@ -221,7 +221,7 @@ class Scheduler:
                     # The smaller the distance, the higher the priority.
                     # self.target_cmp.put((distance - vis.loop, cmpid))
                     vis.cur_min_dis = min(vis.cur_min_dis, distance)
-                    self.target_cmp.put((distance, cmpid))
+                    self.targetcmp_pq.put((distance, cmpid))
                     disdup_cmpidset.add(cmpid)
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), distance-vis.loop, cmpid, trace_i)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, self.trans_symbol_initguard, showlog=True)
@@ -229,7 +229,16 @@ class Scheduler:
         del disdup_cmpidset
 
 
-    def findNearDistance(self):
+    def selectBranch(self):
         pass
+
+    def findNearDistance(self, trace_guard_list):
+        """
+        From pc_guard set find the BFS location.
+        @return:
+        """
+        near_dis = USE_INITMAXNUM
+        
+        return near_dis
 
 

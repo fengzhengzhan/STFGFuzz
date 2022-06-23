@@ -34,6 +34,11 @@ REPEAT_STR = "repeat"
 LENGTH_STR = "length"
 LD_EXPAND = 128
 
+STG_LD = "LengthDetect"
+STG_SD = "SlidingDetect"
+STG_BD = "ByteDetect"
+STG_ST = "Strategy"
+
 # The fisrt character represent the type of compare instruction.
 # In order to save space, using one character as the flag to mark.
 # The meaning of the parameters following the flags is described in the comments.
@@ -110,12 +115,13 @@ FLAG_DICT = {
 
 # Trace level
 TRACE_NULL = 'O'
-TRACE_GUARD = 'P'
-TRACE_GUARDSYMBOL = 'Q'
-TRACE_CMPFILTER = 'R'
-TRACE_CMP = 'S'
-TRACE_CMPGUARD = 'T'
-TRACE_CMPGUARDSYMBOL = 'U'
+TRACE_GUARDFAST = 'P'
+TRACE_GUARD = 'Q'
+TRACE_GUARDSYMBOL = 'R'
+TRACE_CMPFILTER = 'S'
+TRACE_CMP = 'T'
+TRACE_CMPGUARD = 'U'
+TRACE_CMPGUARDSYMBOL = 'V'
 
 # Hex for visible characters
 # bytes.fromhex(HEX_ASCII[n])
