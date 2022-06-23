@@ -122,17 +122,21 @@ class Scheduler:
                     # Compare sanitizer similarity
                     re_str = "#(.*?) 0x.*? in (.*?) .*?:(.*?):"
                     re_cont = re.findall(re_str, str(stderr))
-                    # LOG(LOG_DEBUG, LOG_FUNCINFO(), re_cont, showlog=True)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), re_cont, showlog=True)
                     cinfo_num = 0
+                    crash_infostr = ""
                     for c in re_cont:
-                        # LOG(LOG_DEBUG, LOG_FUNCINFO(), delBrackets(c[1])+c[2], self.target_dict[self.cur_tgtnum], showlog=True)
+                        LOG(LOG_DEBUG, LOG_FUNCINFO(), delBrackets(c[1])+c[2], self.target_dict[self.cur_tgtnum], showlog=True)
                         if delBrackets(c[1])+c[2] in self.target_dict[self.cur_tgtnum]:
+                            crash_infostr += delBrackets(c[1])+c[2] + " -> "
                             cinfo_num += 1
+
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), cinfo_num, len(self.target_dict[self.cur_tgtnum]), showlog=True)
                     if len(self.target_dict[self.cur_tgtnum]) - cinfo_num < SCH_CRASH_SIMI:
                         tgtsan = True
                         self.cur_tgtnum += 1
-                    # LOG(LOG_DEBUG, LOG_FUNCINFO(), self.cur_tgtnum, showlog=True)
+                        self.target_crashinfo.append(crash_infostr)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtsan, self.cur_tgtnum, showlog=True)
                 except Exception as e:
                     crashid = str(stderr)[-16:-3]  #
 

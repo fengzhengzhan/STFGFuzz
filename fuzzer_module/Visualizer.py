@@ -51,12 +51,19 @@ class Visualizer:
             curses.init_pair(7, curses.COLOR_WHITE, -1)
             curses.init_pair(8, curses.COLOR_YELLOW, -1)
 
-    # def __del__(self):
-    #     try:
-    #         if self.stdscr is not None:
-    #             curses.endwin()
-    #     except Exception as e:
-    #         pass
+    def visquit(self):
+        try:
+            if self.stdscr is not None:
+                curses.endwin()
+        except Exception as e:
+            pass
+
+    def __del__(self):
+        try:
+            if self.stdscr is not None:
+                curses.endwin()
+        except Exception as e:
+            pass
 
     def charoperation(self, char, layout_x, trace_len):
         if char == VIS_X:
