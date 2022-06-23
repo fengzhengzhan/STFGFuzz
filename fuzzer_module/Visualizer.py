@@ -157,6 +157,7 @@ class Visualizer:
             self.terminal_status.addstr(ter_high - 1, 45, "F", curses.color_pair(VIS_YELLOW))
             self.terminal_status.addstr(ter_high - 1, 46, "down")
 
+            self.terminal_status.addstr(ter_high - 1, 54, "id:name:guard:distance", curses.color_pair(VIS_GREEN))
 
             #
             self.terminal_status.addstr(ter_high - 1, 2, "Q", curses.color_pair(VIS_YELLOW))

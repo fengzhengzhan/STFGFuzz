@@ -198,6 +198,7 @@ class Scheduler:
             self.updateGuardSymbol(guardcov_list)
 
         # Update vis.trace_orderdict trace information
+        # vis.trace_orderdict[self.cur_tgtnum]
 
         # Select compare and add it to priority queue.
         # According target number to determine the direction of mutation.
@@ -234,7 +235,13 @@ class Scheduler:
                 # Get the networkx node gvid to get it.
                 gvid = trans_guard_gvid[symbol][transguard]
                 if symbol in map_curtgtpredgvid_dis and gvid in map_curtgtpredgvid_dis[symbol]:
-                    distance = curtgtpred_offset[func] + map_curtgtpredgvid_dis[symbol][gvid]
+                    # Set distance for priority queue.
+                    distance = curtgtpred_offset[symbol] + map_curtgtpredgvid_dis[symbol][gvid]
+                    # Update visualizer's trace_orderdict
+                    # print(vis.trace_orderdict[self.cur_tgtnum])
+                    if str(symbol) in vis.trace_orderdict[self.cur_tgtnum]:
+                        vis.trace_orderdict[self.cur_tgtnum][symbol][2] = \
+                            min(vis.trace_orderdict[self.cur_tgtnum][symbol][2], map_curtgtpredgvid_dis[symbol][gvid])
                 elif symbol in map_curtgtpredgvid_dis and gvid not in map_curtgtpredgvid_dis[symbol]:
                     distance = USE_INITMAXNUM
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, gvid, distance)

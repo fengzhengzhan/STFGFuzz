@@ -320,7 +320,7 @@ def mainFuzzer():
                     before_sdloc_list = sdloc_list
 
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict, showlog=True)
                 # raise Exception()
                 '''sd <-'''
                 # False positive comparison if all input bytes are covered
@@ -328,7 +328,7 @@ def mainFuzzer():
                 #     continue
 
                 # Skip fix cmp
-                if stcmpid_ki not in cmpmaploc_dict:
+                if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content):
                     continue
                 stlocset_vi = cmpmaploc_dict[stcmpid_ki]
                 stloclist_v = list(stlocset_vi)
@@ -380,7 +380,7 @@ def mainFuzzer():
                     if len(bd_cmpcov_list) != 0 and ana.compareRptDiff(ststart_cmpcov_list, bd_cmpcov_list, cmporder_j):
                         st_cmploc.append(one_loc)
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), ststart_cmpcov_list[cmporder_j], st_cmploc, cmp_len, cmporder_j)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), ststart_cmpcov_list[cmporder_j], st_cmploc, cmp_len, cmporder_j, showlog=True)
                 '''bd <-'''
 
                 ana.sendCmpid(stcmpid_ki)
@@ -410,10 +410,11 @@ def mainFuzzer():
                     opt_cmpcov_list, cmporder_j, strategy_flag, cmp_flag, bytes_flag, st_cmploc)
                 sch.strategyq.put(infer_strategy)
 
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, PAR_FIXAFIX, eaexit, stcmpid_weight, sch.cur_nearlydis, showlog=True)
                 if bytes_flag == PAR_FIXAFIX:
                     continue
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy_flag, bytes_flag, opt_cmpcov_list, ststart_cmpcov_list)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy_flag, bytes_flag, opt_cmpcov_list, ststart_cmpcov_list, showlog=True)
 
                 # fixme
                 # opt_seed = Mutator.mutLocFromMap(opt_seed, opt_seed.content, path.seeds_mutate, ST_STR + str(vis.loop),
@@ -546,6 +547,7 @@ def mainFuzzer():
     sch.deleteSeeds(SCH_THISMUT_SEED)
     vis.visquit()
     time.sleep(1)
+    print()
     for info in sch.target_crashinfo:
         print("-- {}".format(info))
     print("{} (^_^)# Target vulnerability successfully reproduced.".format(getTime()))
