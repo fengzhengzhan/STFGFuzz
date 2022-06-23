@@ -286,13 +286,15 @@ def mainFuzzer():
                 # Get a report on changes to comparison instructions.
                 slid_list = sch.loc_coarse_list
                 slid_window = max(len(slid_list) // SCH_SLID_SLICE, SCH_SLID_MIN)
+                b4_slid_window = max(len(slid_list) // SCH_SLID_SLICE, SCH_SLID_MIN) + SLID_GAP + 1
                 # before_sdloc_list = []
                 cmpmaploc_dict = {}
                 # multiprocessing multi slidling windows.
-                while slid_window >= SCH_SLID_MIN:
+                while b4_slid_window - slid_window > SLID_GAP:
                     coarse_head = 0
                     cmpmaploc_dict = {}
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), slid_window, cmpmaploc_dict, slid_list, showlog=True)
+                    b4_slid_window = slid_window
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), b4_slid_window, slid_window, cmpmaploc_dict, slid_list, showlog=True)
                     while coarse_head < len(slid_list):
                         vis.total += 1
                         # 1 seed inputs
@@ -328,7 +330,7 @@ def mainFuzzer():
                     if len(slid_list) == sch.loc_coarse_list or stcmpid_ki not in cmpmaploc_dict:
                         break
 
-                    slid_window = max(len(slid_list) // SCH_SLID_SLICE, SCH_SLID_MIN-1)
+                    slid_window = max(len(slid_list) // SCH_SLID_SLICE, SCH_SLID_MIN)
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), slid_window, cmpmaploc_dict, slid_list, showlog=True)
                     # before_sdloc_list = sdloc_list
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict, showlog=True)
