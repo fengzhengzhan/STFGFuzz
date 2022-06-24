@@ -93,7 +93,7 @@ def getDirectedNodeLoc(binline_dict: dict, target_dict: 'dict[target_num:StructT
                     elif tempfunc in func_asm:
                         func_asm[tempfunc].append([ttrace, tempins])
         map_numTofuncasm[tgt_k] = func_asm
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm, showlog=True)
+    # LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm, showlog=True)
     return map_numTofuncasm
 
 

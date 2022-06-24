@@ -218,7 +218,7 @@ def getFuncOffset(map_tgtpredgvid_dis, map_target):
 
     @return:
     """
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, map_target, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, map_target)
     tgtpred_offset = {}
     for tgtnum_ki, func_vi in map_tgtpredgvid_dis.items():
         if tgtnum_ki not in tgtpred_offset:
@@ -244,14 +244,14 @@ def getFuncOffset(map_tgtpredgvid_dis, map_target):
 
         ordernode = list(tgtnode.keys())
         ordernode.sort()
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtnode, ordernode, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtnode, ordernode)
         offset = 0
         for order in ordernode:
             func = tgtnode[order]
             temp = tgtpred_offset[tgtnum_ki][func]
             tgtpred_offset[tgtnum_ki][func] = offset
             offset += temp
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset)
     return tgtpred_offset
 
 

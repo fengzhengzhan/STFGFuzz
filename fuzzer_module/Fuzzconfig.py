@@ -22,6 +22,9 @@ LIMITER = 100000
 FUZZ_DIRECTED = 60
 FUZZ_GERYBOX = 61
 
+
+EXP_MODE = False
+# EXP_MODE = True
 VIS_TERM = True
 # VIS_TERM = False
 # VIS_SHOWGRAPH = True
@@ -381,7 +384,7 @@ def retLogStr(funcinfo, *args):
 
 
 def LOG(loggingtype, funcinfo, *args, showlog=False) -> None:
-    if showlog:
+    if not EXP_MODE and showlog:
         logstr = retLogStr(funcinfo, *args)
         with open(PROGRAMS + os.sep + FUZZPRINTLOG, "a+") as f:
             f.write("\n" + logstr + "\n")

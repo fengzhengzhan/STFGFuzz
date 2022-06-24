@@ -60,12 +60,12 @@ class Visualizer:
         except Exception as e:
             pass
 
-    def __del__(self):
-        try:
-            if self.stdscr is not None:
-                curses.endwin()
-        except Exception as e:
-            pass
+    # def __del__(self):
+    #     try:
+    #         if self.stdscr is not None:
+    #             curses.endwin()
+    #     except Exception as e:
+    #         pass
 
     def charoperation(self, char, layout_x, trace_len):
         if char == VIS_X:
@@ -200,7 +200,7 @@ class Visualizer:
                     if seed_index in seed.location:
                         color_pair = curses.color_pair(VIS_YELLOW)
                     if seed_index in input_loc:
-                        color_pair = curses.color_pair(VIS_RED)
+                        color_pair = curses.color_pair(VIS_YELLOW)
                     # LOG(LOG_DEBUG, LOG_FUNCINFO(), show_char, ord(show_char), hex(ord(show_char)))
                     # The part of hex numbers.
                     try:

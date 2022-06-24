@@ -252,8 +252,8 @@ class Scheduler:
                     self.targetcmp_pq.put((distance, cmpid))
                     disdup_cmpidset.add(cmpid)
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), distance-vis.loop, cmpid, trace_i)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, self.trans_symbol_initguard, showlog=True)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, trans_guard_gvid, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, self.trans_symbol_initguard)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, trans_guard_gvid)
         del disdup_cmpidset
 
 
