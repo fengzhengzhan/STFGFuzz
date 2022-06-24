@@ -43,9 +43,6 @@ class Scheduler:
         self.target_crashinfo = []
 
     def initEachloop(self, vis):
-        self.loc_coarse_list = []
-        self.slid_window = SCH_SLID_SLICE
-        self.mutlocnums = 0
         vis.cmpnum, vis.cmptotal = 0, 0
         self.expand_size *= SCH_EXPAND_MULTI
 
@@ -127,7 +124,7 @@ class Scheduler:
                     for c in re_cont:
                         LOG(LOG_DEBUG, LOG_FUNCINFO(), delBrackets(c[1])+c[2], self.target_dict[self.cur_tgtnum], showlog=True)
                         if delBrackets(c[1])+c[2] in self.target_dict[self.cur_tgtnum]:
-                            crash_infostr += delBrackets(c[1])+c[2] + " -> "
+                            crash_infostr += delBrackets(c[1])+c[2] + " >> "
                             cinfo_num += 1
 
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), cinfo_num, len(self.target_dict[self.cur_tgtnum]), showlog=True)

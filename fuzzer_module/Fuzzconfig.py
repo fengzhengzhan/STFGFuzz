@@ -22,8 +22,8 @@ LIMITER = 100000
 FUZZ_DIRECTED = 60
 FUZZ_GERYBOX = 61
 
-# VIS_TERM = True
-VIS_TERM = False
+VIS_TERM = True
+# VIS_TERM = False
 # VIS_SHOWGRAPH = True
 VIS_SHOWGRAPH = False
 
@@ -304,7 +304,7 @@ SCH_EXPAND_SIZE = 64 // SCH_EXPAND_MULTI
 # The count of sliding windows is multiple of SCH_SLID_COUNT.
 # Recommond 1024/16 = 64
 SCH_SLID_MIN = 8  # 8 bit
-SCH_SLID_SLICE = 12  # 16 slices.
+SCH_SLID_SLICE = 4  # 16 slices.
 
 SCH_CRASH_SIMI = 2
 

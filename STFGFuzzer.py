@@ -111,6 +111,7 @@ def mainFuzzer():
     print("{} Fuzzing Loop...".format(getTime()))
     vis = Visualizer.Visualizer()
     vis.trace_orderdict = trace_orderdict
+    vis.show_pname = program_name
     # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
     while sch.cur_tgtnum < sch.all_tgtnum and not sch.seedq.empty():
         eaexit = False
@@ -210,6 +211,12 @@ def mainFuzzer():
 
         # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
         # init_cmpset = set(init_cmp_dict)
+        # Compare instruction type speculation based on input mapping,
+        # then try to pass the corresponding constraint (1-2 rounds).
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.targetcmp_pq)
+        # while not sch.targetcmp_pq.empty():
+        #     LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.targetcmp_pq.get(), showlog=True)
+        # raise Exception()
         '''cf'''
 
         # print(init_seed.content)
@@ -224,12 +231,6 @@ def mainFuzzer():
         # If the number covered changes, it is considered to have passed this constraint,
         # so it enters the next round of comparison instruction recognition
 
-        # Compare instruction type speculation based on input mapping,
-        # then try to pass the corresponding constraint (1-2 rounds).
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.targetcmp_pq)
-        # while not sch.target_cmp.empty():
-        #     LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_cmp.get())
-        # raise Exception()
 
         '''Init status parameters.'''
         vis.cmptotal = sch.targetcmp_pq.qsize()
@@ -249,6 +250,7 @@ def mainFuzzer():
             stcmpid_weight, stcmpid_ki = stcmpid_tuples[0], stcmpid_tuples[1]
             LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki)
             vis.cmpnum += 1
+            vis.cmporder = 0
             # limiter
             if stcmpid_weight - sch.cur_nearlydis >= LIMITER:
                 break
@@ -273,6 +275,7 @@ def mainFuzzer():
             cmp_len = len(init_cmpcov_list)
             # Separate comparisons for each comparison instruction.
             for cmporder_j in range(0, cmp_len):
+                vis.cmporder += 1
                 if eaexit:
                     break
 
@@ -300,7 +303,8 @@ def mainFuzzer():
                         # 1 seed inputs
                         sdloc_list = slid_list[coarse_head:coarse_head + slid_window]
                         # print(sdloc_list)
-                        coarse_head += slid_window // 2
+                        # coarse_head += slid_window // 2
+                        coarse_head += slid_window
                         sd_seed = Mutator.mutSelectChar(
                             init_seed.content, path.seeds_mutate, COARSE_STR + str(vis.loop), sdloc_list)
                         sd_seed = sch.selectOneSeed(SCH_THISMUT_SEED, sd_seed)
@@ -562,9 +566,12 @@ def mainFuzzer():
     vis.visquit()
     time.sleep(1)
     print()
-    for info in sch.target_crashinfo:
-        print("-- {}".format(info))
-    print("{} (^_^)# Target vulnerability successfully reproduced.".format(getTime()))
+    if len(sch.target_crashinfo) == 0:
+        print("{} No Target.".format(getTime()))
+    else:
+        for idx, info in enumerate(sch.target_crashinfo):
+            print("-{}-> {}".format(idx, info))
+        print("{} (^_^)# Target vulnerability successfully reproduced.".format(getTime()))
     print()
 
 

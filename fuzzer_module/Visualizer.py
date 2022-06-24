@@ -26,6 +26,7 @@ class Visualizer:
         self.cur_min_dis = USE_INITMAXNUM
         self.trace_orderdict = {}  # order:function:constract:curlocation
 
+        self.show_pname = USE_INITSTR
         self.loop = 0
         self.total = 0
         self.num_pcguard = USE_INITNUM
@@ -33,6 +34,7 @@ class Visualizer:
         self.traceline = 0
         self.retflag = USE_INITNUM
         self.cmpnum = USE_INITNUM
+        self.cmporder = USE_INITNUM
         self.cmptotal = USE_INITNUM
 
         if self.terminal_switch:
@@ -51,12 +53,12 @@ class Visualizer:
             curses.init_pair(7, curses.COLOR_WHITE, -1)
             curses.init_pair(8, curses.COLOR_YELLOW, -1)
 
-    # def visquit(self):
-    #     try:
-    #         if self.stdscr is not None:
-    #             curses.endwin()
-    #     except Exception as e:
-    #         pass
+    def visquit(self):
+        try:
+            if self.stdscr is not None:
+                curses.endwin()
+        except Exception as e:
+            pass
 
     def __del__(self):
         try:
@@ -129,14 +131,15 @@ class Visualizer:
 
             #
             self.terminal_status.addstr(4, 3,  "Info", curses.color_pair(VIS_CYAN))
-            self.terminal_status.addstr(5, 1,  "   Current Target: {} / {}".format(sch.cur_tgtnum, sch.all_tgtnum))
-            self.terminal_status.addstr(6, 1,  "         Coverage: {} / {}".format(len(sch.coverage_set), self.num_pcguard))
-            self.terminal_status.addstr(7, 1,  "            Stage: {}".format(stagestr))
-            self.terminal_status.addstr(8, 1,  "Distance(cur/min): {} / {}".format(cur_distance, self.cur_min_dis))
-            self.terminal_status.addstr(9, 1,  "         Cmp Nums: {} / {}".format(self.cmpnum, self.cmptotal))
+            self.terminal_status.addstr(5, 1,  "     Program name: {}".format(self.show_pname))
+            self.terminal_status.addstr(6, 1,  "   Current Target: {} / {}".format(sch.cur_tgtnum, sch.all_tgtnum))
+            self.terminal_status.addstr(7, 1,  "         Coverage: {} / {}".format(len(sch.coverage_set), self.num_pcguard))
+            self.terminal_status.addstr(8, 1,  "            Stage: {}".format(stagestr))
+            self.terminal_status.addstr(9, 1,  "Distance(cur/min): {} / {}".format(cur_distance, self.cur_min_dis))
+            self.terminal_status.addstr(10, 1,  "         Cmp Nums: {}-{} / {}".format(self.cmpnum, self.cmporder, self.cmptotal))
 
-            self.terminal_status.addstr(11, 1,  "       Crash Nums: {}".format(self.crash_num))
-            self.terminal_status.addstr(12, 1, "  Last Crash Time: {}".format(self.last_crash_time))
+            self.terminal_status.addstr(12, 1,  "       Crash Nums: {}".format(self.crash_num))
+            self.terminal_status.addstr(13, 1, "  Last Crash Time: {}".format(self.last_crash_time))
 
             #
             self.terminal_status.addstr(4, 41, "Trace", curses.color_pair(VIS_CYAN))

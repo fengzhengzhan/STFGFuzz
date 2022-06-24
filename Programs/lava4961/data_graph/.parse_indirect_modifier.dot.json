@@ -7,7 +7,7 @@
   "objects": [
     {
       "_gvid": 0,
-      "name": "Node0x55555594a850",
+      "name": "Node0x55555594a880",
       "color": "#3d50c3ff",
       "fillcolor": "#ead5c970",
       "label": "{%3:\\l  %4 = alloca i32, align 4\\l  %5 = alloca %struct.magic_set*, align 8\\l  %6 = alloca %struct.magic*, align 8\\l  %7 = alloca i8**, align 8\\l  %8 = alloca i8*, align 8\\l  call void @__sanitizer_cov_trace_pc_guard(i32* getelementptr inbounds ([10 x\\l... i32], [10 x i32]* @__sancov_gen_.91, i32 0, i32 0)) #11, !dbg !1210\\l  store %struct.magic_set* %0, %struct.magic_set** %5, align 8\\l  call void @llvm.dbg.declare(metadata %struct.magic_set** %5, metadata !1211,\\l... metadata !DIExpression()), !dbg !1212\\l  store %struct.magic* %1, %struct.magic** %6, align 8\\l  call void @llvm.dbg.declare(metadata %struct.magic** %6, metadata !1213,\\l... metadata !DIExpression()), !dbg !1214\\l  store i8** %2, i8*** %7, align 8\\l  call void @llvm.dbg.declare(metadata i8*** %7, metadata !1215, metadata\\l... !DIExpression()), !dbg !1216\\l  call void @llvm.dbg.declare(metadata i8** %8, metadata !1217, metadata\\l... !DIExpression()), !dbg !1218\\l  %9 = load i8**, i8*** %7, align 8, !dbg !1219\\l  %10 = load i8*, i8** %9, align 8, !dbg !1220\\l  store i8* %10, i8** %8, align 8, !dbg !1218\\l  br label %11, !dbg !1221\\l}",
@@ -16,7 +16,7 @@
     },
     {
       "_gvid": 1,
-      "name": "Node0x55555594a980",
+      "name": "Node0x55555594a9b0",
       "color": "#b70d28ff",
       "fillcolor": "#b70d2870",
       "label": "{%11:\\l11:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.91 to i64), i64 4) to i32*)) #11, !dbg\\l... !1222\\l  %12 = call i16** @__ctype_b_loc() #12, !dbg !1222\\l  %13 = load i16*, i16** %12, align 8, !dbg !1222\\l  %14 = load i8*, i8** %8, align 8, !dbg !1222\\l  %15 = getelementptr inbounds i8, i8* %14, i32 1, !dbg !1222\\l  store i8* %15, i8** %8, align 8, !dbg !1222\\l  %16 = load i8, i8* %15, align 1, !dbg !1222\\l  %17 = zext i8 %16 to i32, !dbg !1222\\l  %18 = sext i32 %17 to i64, !dbg !1222\\l  %19 = getelementptr inbounds i16, i16* %13, i64 %18, !dbg !1222\\l  %20 = load i16, i16* %19, align 2, !dbg !1222\\l  %21 = zext i16 %20 to i32, !dbg !1222\\l  %22 = and i32 %21, 8192, !dbg !1222\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 0, i32 %22), !dbg !1223\\l  %23 = icmp ne i32 %22, 0, !dbg !1223\\l  %24 = xor i1 %23, true, !dbg !1223\\l  br i1 %24, label %25, label %52, !dbg !1221\\l|{<s0>T|<s1>F}}",
@@ -25,7 +25,7 @@
     },
     {
       "_gvid": 2,
-      "name": "Node0x55555594a9d0",
+      "name": "Node0x55555594aa00",
       "color": "#b70d28ff",
       "fillcolor": "#bb1b2c70",
       "label": "{%25:\\l25:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.91 to i64), i64 8) to i32*)) #11, !dbg\\l... !1224\\l  %26 = load i8*, i8** %8, align 8, !dbg !1224\\l  %27 = load i8, i8* %26, align 1, !dbg !1225\\l  %28 = sext i8 %27 to i32, !dbg !1225\\l  %29 = zext i32 %28 to i64, !dbg !1226\\l  call void @__sanitizer_cov_trace_switch(i64 %29, i64* getelementptr inbounds\\l... ([3 x i64], [3 x i64]* @__sancov_gen_cov_switch_values.92, i32 0, i32 0)),\\l... !dbg !1226\\l  switch i32 %28, label %37 [\\l    i32 114, label %30\\l  ], !dbg !1226\\l|{<s0>def|<s1>114}}",
@@ -34,7 +34,7 @@
     },
     {
       "_gvid": 3,
-      "name": "Node0x55555594abb0",
+      "name": "Node0x55555594abe0",
       "color": "#3d50c3ff",
       "fillcolor": "#cedaeb70",
       "label": "{%52:\\l52:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.91 to i64), i64 32) to i32*)) #11, !dbg\\l... !1248\\l  %53 = load i8*, i8** %8, align 8, !dbg !1248\\l  %54 = load i8**, i8*** %7, align 8, !dbg !1249\\l  store i8* %53, i8** %54, align 8, !dbg !1250\\l  store i32 0, i32* %4, align 4, !dbg !1251\\l  br label %55, !dbg !1251\\l}",
@@ -43,7 +43,7 @@
     },
     {
       "_gvid": 4,
-      "name": "Node0x55555594aa70",
+      "name": "Node0x55555594aaa0",
       "color": "#3d50c3ff",
       "fillcolor": "#cbd8ee70",
       "label": "{%37:\\l37:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.91 to i64), i64 16) to i32*)) #11, !dbg\\l... !1232\\l  %38 = load %struct.magic_set*, %struct.magic_set** %5, align 8, !dbg !1232\\l  %39 = getelementptr inbounds %struct.magic_set, %struct.magic_set* %38, i32\\l... 0, i32 5, !dbg !1234\\l  %40 = load i32, i32* %39, align 8, !dbg !1234\\l  %41 = and i32 %40, 64, !dbg !1235\\l  call void @__sanitizer_cov_trace_const_cmp4(i32 0, i32 %41), !dbg !1235\\l  %42 = icmp ne i32 %41, 0, !dbg !1235\\l  br i1 %42, label %43, label %48, !dbg !1236\\l|{<s0>T|<s1>F}}",
@@ -52,7 +52,7 @@
     },
     {
       "_gvid": 5,
-      "name": "Node0x55555594aa20",
+      "name": "Node0x55555594aa50",
       "color": "#b70d28ff",
       "fillcolor": "#bb1b2c70",
       "label": "{%30:\\l30:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.91 to i64), i64 12) to i32*)) #11, !dbg\\l... !1227\\l  %31 = load %struct.magic*, %struct.magic** %6, align 8, !dbg !1227\\l  %32 = getelementptr inbounds %struct.magic, %struct.magic* %31, i32 0, i32\\l... 14, !dbg !1229\\l  %33 = bitcast %union.anon* %32 to %struct.anon*, !dbg !1229\\l  %34 = getelementptr inbounds %struct.anon, %struct.anon* %33, i32 0, i32 1,\\l... !dbg !1229\\l  %35 = load i32, i32* %34, align 4, !dbg !1230\\l  %36 = or i32 %35, 1, !dbg !1230\\l  store i32 %36, i32* %34, align 4, !dbg !1230\\l  br label %51, !dbg !1231\\l}",
@@ -61,7 +61,7 @@
     },
     {
       "_gvid": 6,
-      "name": "Node0x55555594ab60",
+      "name": "Node0x55555594ab90",
       "color": "#b70d28ff",
       "fillcolor": "#bb1b2c70",
       "label": "{%51:\\l51:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.91 to i64), i64 28) to i32*)) #11, !dbg\\l... !1221\\l  br label %11, !dbg !1221, !llvm.loop !1245\\l}",
@@ -70,7 +70,7 @@
     },
     {
       "_gvid": 7,
-      "name": "Node0x55555594aac0",
+      "name": "Node0x55555594aaf0",
       "color": "#3d50c3ff",
       "fillcolor": "#abc8fd70",
       "label": "{%43:\\l43:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.91 to i64), i64 20) to i32*)) #11, !dbg\\l... !1237\\l  %44 = load %struct.magic_set*, %struct.magic_set** %5, align 8, !dbg !1237\\l  %45 = load i8*, i8** %8, align 8, !dbg !1238\\l  %46 = load i8, i8* %45, align 1, !dbg !1239\\l  %47 = sext i8 %46 to i32, !dbg !1239\\l  call void (%struct.magic_set*, i8*, ...) @file_magwarn(%struct.magic_set*\\l... %44, i8* getelementptr inbounds ([31 x i8], [31 x i8]* @.str.52.241, i64 0,\\l... i64 0), i32 %47), !dbg !1240\\l  br label %48, !dbg !1240\\l}",
@@ -79,7 +79,7 @@
     },
     {
       "_gvid": 8,
-      "name": "Node0x55555594ab10",
+      "name": "Node0x55555594ab40",
       "color": "#3d50c3ff",
       "fillcolor": "#cbd8ee70",
       "label": "{%48:\\l48:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.91 to i64), i64 24) to i32*)) #11, !dbg\\l... !1241\\l  %49 = load i8*, i8** %8, align 8, !dbg !1241\\l  %50 = load i8**, i8*** %7, align 8, !dbg !1242\\l  store i8* %49, i8** %50, align 8, !dbg !1243\\l  store i32 -1, i32* %4, align 4, !dbg !1244\\l  br label %55, !dbg !1244\\l}",
@@ -88,7 +88,7 @@
     },
     {
       "_gvid": 9,
-      "name": "Node0x55555594ac00",
+      "name": "Node0x55555594ac30",
       "color": "#3d50c3ff",
       "fillcolor": "#ead5c970",
       "label": "{%55:\\l55:                                               \\l  call void @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\\l... ptrtoint ([10 x i32]* @__sancov_gen_.91 to i64), i64 36) to i32*)) #11, !dbg\\l... !1252\\l  %56 = load i32, i32* %4, align 4, !dbg !1252\\l  ret i32 %56, !dbg !1252\\l}",

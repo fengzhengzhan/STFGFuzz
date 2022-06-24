@@ -21,15 +21,30 @@ def createDir():
     os.chdir('/home/fzz/Desktop/STFGFuzz/Programs')
     print(os.getcwd())
     for one in lava_list:
-        # dirname = "lava"+str(one)+"/"+"code_sources"
+        dirname = "lava" + str(one)
         # if not os.path.exists(dirname):
         #     os.makedirs(dirname)
-
-        patchname = "lava" + str(one) + "/data_patchloc/" + "crash0.sanitizer"
-        with open(patchname, "a+") as f:
-            f.write("\n")
+        #
+        # sourcename = "lava"+str(one)+"/"+"code_sources"
+        # if not os.path.exists(sourcename):
+        #     os.makedirs(sourcename)
+        #
+        # patchname = "lava" + str(one) + "/data_patchloc/"
         # if not os.path.exists(patchname):
         #     os.makedirs(patchname)
+
+        crashname = "lava" + str(one) + "/seeds_crash/"
+        if not os.path.exists(crashname):
+            os.makedirs(crashname)
+
+        initname = "lava" + str(one) + "/seeds_init/"
+        if not os.path.exists(initname):
+            os.makedirs(initname)
+
+        # patchfile = "lava" + str(one) + "/data_patchloc/" + "crash0.sanitizer"
+        # with open(patchfile, "a+") as f:
+        #     f.write("\n")
+
 
 
 def createBC():
@@ -45,21 +60,26 @@ def cpFiles():
         # cmd = "cp /home/fzz/Desktop/STFGFuzz/dataset/datav5/lava_corpus/LAVA-1/"+lavadirname+"/lava-install/bin/file.bc /home/fzz/Desktop/STFGFuzz/Programs/"+dirname+"/code_sources/"+dirname+".bc"
         # print(cmd)
         # os.system(cmd)
-        #
-        # chdirname = "/home/fzz/Desktop/STFGFuzz/Programs"
-        # os.chdir(chdirname)
-        #
-        # buildcmd = "./build.sh -n "+dirname+" clang"
-        # print(buildcmd)
-        # os.system(buildcmd)
+
+
 
         cmd = "cp /home/fzz/Desktop/STFGFuzz/dataset/datav5/lava_corpus/LAVA-1/" + lavadirname + "/CRASH_INPUT /home/fzz/Desktop/STFGFuzz/Programs/" + dirname + "/seeds_crash/crash.seed"
         print(cmd)
         os.system(cmd)
 
-        # cmd = "cp /home/fzz/Desktop/STFGFuzz/rand.seed /home/fzz/Desktop/STFGFuzz/Programs/" + dirname + "/seeds_init/rand.seed"
-        # print(cmd)
-        # os.system(cmd)
+        cmd = "cp /home/fzz/Desktop/STFGFuzz/rand.seed /home/fzz/Desktop/STFGFuzz/Programs/" + dirname + "/seeds_init/rand.seed"
+        print(cmd)
+        os.system(cmd)
+
+def buildFiles():
+    print(os.getcwd())
+    os.chdir('/home/fzz/Desktop/STFGFuzz/Programs')
+    print(os.getcwd())
+    for idx in range(0, len(lava_branch)):
+        dirname = "lava" + str(lava_list[idx])
+        buildcmd = "./build.sh -n "+dirname+" clang"
+        print(buildcmd)
+        os.system(buildcmd)
 
 
 def printFuzz():
@@ -70,7 +90,16 @@ def printFuzz():
         print()
 
 
+
 if __name__ == '__main__':
+    # 0
+    # ./createBC.sh
+
+    # 1
     # createDir()
+    # 2
     # cpFiles()
-    printFuzz()
+    # 3 root
+    # buildFiles()
+    # 4
+    # printFuzz()

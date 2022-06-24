@@ -247,7 +247,7 @@ if __name__ == "__main__":
     interlen, covernum = ana.getShm("D124816Z\n")
     print(interlen, covernum)
     cmpcovshm_list = ana.getRpt(interlen)
-    print(cmpcovshm_list)
+    # print(cmpcovshm_list)
     print(len(cmpcovshm_list))
     with open("../Programs/TrackCrash/crashinfo/info", "w") as f:
         f.write(str(cmpcovshm_list))
