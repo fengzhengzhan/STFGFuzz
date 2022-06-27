@@ -163,6 +163,14 @@ class Scheduler:
     '''
     Cmp Operation
     '''
+    def extensionLocation(self, location):
+        exloc_list = []
+        exloc_list.append(location)
+        for outside in range(1, SCH_EXLOC+1):
+            exloc_list.append(location+outside)
+            exloc_list.append(location-outside)
+        exloc_list.sort()
+        return exloc_list
 
     def updateGuardSymbol(self, guardcov_list):
         # Iterate through the trace report to get the corresponding information
@@ -202,7 +210,7 @@ class Scheduler:
         map_curtgtpredgvid_dis = map_tgtpredgvid_dis[self.cur_tgtnum]
         LOG(LOG_DEBUG, LOG_FUNCINFO(), map_curtgtpredgvid_dis)
         distance = USE_INITMAXNUM
-        disdup_cmpidset = set()
+        disdup_cmpiddict = {}
 
         for trace_i in guardcov_list:
             LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i)
@@ -245,16 +253,21 @@ class Scheduler:
                 # func, realguard, cmpnum = trace_i[2].split("+")
                 # if func == '':
                 #     continue
-                if distance != USE_INITMAXNUM and cmpid not in disdup_cmpidset:
+
+                if cmpid not in disdup_cmpiddict:
+                    disdup_cmpiddict[cmpid] = 0
+                else:
+                    disdup_cmpiddict[cmpid] += 1
+                # if distance != USE_INITMAXNUM and cmpid not in disdup_cmpiddict:
+                if distance != USE_INITMAXNUM:
                     # The smaller the distance, the higher the priority.
                     # self.target_cmp.put((distance - vis.loop, cmpid))
                     vis.cur_min_dis = min(vis.cur_min_dis, distance)
-                    self.targetcmp_pq.put((distance, cmpid))
-                    disdup_cmpidset.add(cmpid)
+                    self.targetcmp_pq.put((distance, cmpid, disdup_cmpiddict[cmpid]))
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), distance-vis.loop, cmpid, trace_i)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, self.trans_symbol_initguard)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, trans_guard_gvid)
-        del disdup_cmpidset
+        del disdup_cmpiddict
 
 
     def selectBranch(self):

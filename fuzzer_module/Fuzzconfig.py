@@ -309,7 +309,9 @@ SCH_EXPAND_SIZE = 64 // SCH_EXPAND_MULTI
 SCH_SLID_MIN = 8  # 8 bit
 SCH_SLID_SLICE = 4  # 16 slices.
 
+SCH_EXLOC = 0
 SCH_CRASH_SIMI = 2
+
 
 
 '''Visualizer'''

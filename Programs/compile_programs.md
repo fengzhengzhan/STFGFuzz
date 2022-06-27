@@ -69,19 +69,25 @@ clang -fsanitize=address -Wl,--whole-archive -L./ClangSanitizer -lcmpcov -Wl,--n
 
 ```bash
 apt install build-essential
+
 # install libacl
 apt-get install libacl1-dev
+
 # xlocale.h file not found
 ln -s /usr/include/locale.h /usr/include/xlocale.h
+
 # selinux/context.h file not found
 apt-get install libselinux-dev 
 apt install selinux selinux-utils selinux-basics auditd audispd-plugins
 apt-get install libcap-dev
 apt-get install libgmp3-dev
+
 # configure: error: C compiler cannot create executables
 apt-get install gcc libc6-dev
+
 # fatal error: zlib.h: No such file or directory
 apt-get install zlib1g-dev
+
 # install check
 ./configure
 make
@@ -90,9 +96,18 @@ make install then
 make installcheck 
 ## /usr/bin/ld: ../boot/a6le/kernel.o: relocation R_X86_64_32S against `.rodata' can not be used when making a PIE object; recompile with -fPIE
 LDFLAGS=-no-pie ./configure
+
 # -fsanitize-recover=address
+
 # fatal error: 'zlib.h' file not found
 apt-get install zlib1g-dev
+
+# ImportError: No module named 'typing'
+wget https://bootstrap.pypa.io/pip/3.7/get-pip.py
+python3 get-pip.py
+
+# makeinfo: not found
+sudo apt-get install texinfo
 ```
 
  

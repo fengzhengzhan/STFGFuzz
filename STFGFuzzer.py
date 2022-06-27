@@ -247,7 +247,7 @@ def mainFuzzer():
         while not eaexit and not sch.targetcmp_pq.empty():
 
             stcmpid_tuples = sch.targetcmp_pq.get()
-            stcmpid_weight, stcmpid_ki = stcmpid_tuples[0], stcmpid_tuples[1]
+            stcmpid_weight, stcmpid_ki, stcmpid_loci = stcmpid_tuples[0], stcmpid_tuples[1], stcmpid_tuples[2]
             LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki)
             vis.cmpnum += 1
             vis.cmporder = 0
@@ -273,8 +273,13 @@ def mainFuzzer():
 
             # Only the corresponding list data is retained, no parsing is required
             cmp_len = len(init_cmpcov_list)
+            exloc_list = sch.extensionLocation(stcmpid_loci)
             # Separate comparisons for each comparison instruction.
-            for cmporder_j in range(0, cmp_len):
+            # for cmporder_j in range(0, cmp_len):
+            for cmporder_j in exloc_list:
+                if cmporder_j < 0 or cmporder_j >= cmp_len:
+                    continue
+
                 vis.cmporder += 1
                 if eaexit:
                     break
