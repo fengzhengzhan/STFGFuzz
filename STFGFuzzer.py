@@ -18,6 +18,7 @@ from fuzzer_module.Fuzzconfig import *
 # python3.7 STFGFuzzer.py -n uniq -- ./Programs/uniq/code_Bin/uniq @@
 # python3.7 STFGFuzzer.py -n who -- ./Programs/who/code_Bin/who @@
 # python3.7 STFGFuzzer.py -n lava13796 -t sanitizer -- Programs/lava13796/code_Bin/lava13796 @@
+# python3.7 STFGFuzzer.py -n CVE-2016-4487 -t sanitizer -- Programs/CVE-2016-4487/code_Bin/CVE-2016-4487 @@
 
 def mainFuzzer():
     """
@@ -248,12 +249,15 @@ def mainFuzzer():
 
             stcmpid_tuples = sch.targetcmp_pq.get()
             stcmpid_weight, stcmpid_ki, stcmpid_loci = stcmpid_tuples[0], stcmpid_tuples[1], stcmpid_tuples[2]
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki, stcmpid_loci, showlog=True)
             vis.cmpnum += 1
             vis.cmporder = 0
             # limiter
             if stcmpid_weight - sch.cur_nearlydis >= LIMITER:
                 break
+            # Cyclic independent comparison
+            if stcmpid_ki in sch.skipcmp_dict and sch.skipcmp_dict[stcmpid_ki] >= SCH_SKIP_COUNT:
+                continue
 
             ana.sendCmpid(stcmpid_ki)
 
@@ -269,6 +273,7 @@ def mainFuzzer():
             init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
             init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
             init_cmpcov_list = ana.getRpt(init_interlen)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), init_cmpcov_list, showlog=True)
             # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
 
             # Only the corresponding list data is retained, no parsing is required
@@ -302,7 +307,7 @@ def mainFuzzer():
                     coarse_head = 0
                     cmpmaploc_dict = {}
                     b4_slid_window = slid_window
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), b4_slid_window, slid_window, cmpmaploc_dict, slid_list, showlog=True)
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), b4_slid_window, slid_window, cmpmaploc_dict, slid_list)
                     while coarse_head < len(slid_list):
                         vis.total += 1
                         # 1 seed inputs
@@ -352,7 +357,15 @@ def mainFuzzer():
 
                 # Skip fix cmp
                 if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content):
+                    if stcmpid_ki not in sch.skipcmp_dict:
+                        sch.skipcmp_dict[stcmpid_ki] = 1
+                    else:
+                        sch.skipcmp_dict[stcmpid_ki] += 1
                     continue
+
+                if stcmpid_ki in sch.skipcmp_dict:
+                    sch.skipcmp_dict[stcmpid_ki] = 0
+
                 stlocset_vi = cmpmaploc_dict[stcmpid_ki]
                 stloclist_v = list(stlocset_vi)
                 stloclist_v.sort()

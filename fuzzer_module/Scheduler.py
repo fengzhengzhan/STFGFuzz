@@ -33,6 +33,7 @@ class Scheduler:
         self.cur_tgtnum = 0
         self.all_tgtnum = USE_INITNUM
         self.targetcmp_pq = PriorityQueue()
+        self.skipcmp_dict = {}
 
         self.cur_nearlydis = USE_INITMAXNUM
 
@@ -124,11 +125,11 @@ class Scheduler:
                     for c in re_cont:
                         LOG(LOG_DEBUG, LOG_FUNCINFO(), delBrackets(c[1])+c[2], self.target_dict[self.cur_tgtnum], showlog=True)
                         if delBrackets(c[1])+c[2] in self.target_dict[self.cur_tgtnum]:
-                            crash_infostr += delBrackets(c[1])+c[2] + " >> "
+                            crash_infostr += delBrackets(c[1])+":"+c[2] + " >> "
                             cinfo_num += 1
 
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), cinfo_num, len(self.target_dict[self.cur_tgtnum]), showlog=True)
-                    if len(self.target_dict[self.cur_tgtnum]) - cinfo_num < SCH_CRASH_SIMI:
+                    if len(self.target_dict[self.cur_tgtnum]) - cinfo_num <= SCH_CRASH_SIMI:
                         tgtsan = True
                         self.cur_tgtnum += 1
                         self.target_crashinfo.append(crash_infostr)

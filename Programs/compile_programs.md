@@ -19,11 +19,32 @@ git checkout 13796_R_0x12345678-0x22345678
 export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
 autoreconf -f -i
-CC=wllvm WLLVM_CONFIGURE_ONLY=1 CFLAGS="-g -O0 -fvisibility=default" LIBS="-lacl" ./configure --enable-static --disable-shared --prefix=`pwd`/lava-install
+# WLLVM_CONFIGURE_ONLY=1
+CC=wllvm CFLAGS="-g -O0 -fvisibility=default" LIBS="-lacl" ./configure --enable-static --disable-shared --prefix=`pwd`/lava-install
 make -j$(nproc)  # -j Depends on the number of computer processes.
 make install
 cd lava-install/bin/
 extract-bc file
+
+sudo clang -lz -fsanitize=address -Wl,--whole-archive -L../../llvm_mode/ClangSanitizer -lcmpcov -Wl,--no-whole-archive code_IR/lava13796.o -o code_Bin/lava13796
+```
+
+## CVE-2016-4487
+
+```
+git clone git://sourceware.org/git/binutils-gdb.git cxxfilt-CVE-2016-4487
+cd cxxfilt-CVE-2016-4487
+git checkout 2c49145
+
+# wllvm-sanity-checker
+export FORCE_UNSAFE_CONFIGURE=1
+export LLVM_COMPILER=clang
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fvisibility=default" LIBS="-lacl" ./configure --enable-static --disable-shared --prefix=`pwd`/lava-install
+make -j$(nproc)  # -j Depends on the number of computer processes.
+make install
+cd lava-install/bin/
+extract-bc file
+
 
 sudo clang -lz -fsanitize=address -Wl,--whole-archive -L../../llvm_mode/ClangSanitizer -lcmpcov -Wl,--no-whole-archive code_IR/lava13796.o -o code_Bin/lava13796
 ```
@@ -108,6 +129,9 @@ python3 get-pip.py
 
 # makeinfo: not found
 sudo apt-get install texinfo
+
+# bison: not found
+sudo apt-get install flex bison
 ```
 
  

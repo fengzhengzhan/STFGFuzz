@@ -1,5 +1,8 @@
 #!/bin/bash
 
+time=$(date "+%Y-%m-%d %H:%M:%S")
+echo "${time}"
+
 if [ $1 == "-n" ]
 then
 	PROGRAMNAME=$2
@@ -135,5 +138,7 @@ then
 else
 	echo "Usage: ./build.sh [-n <program_name> <clang|clang++> <runseeds>] [-rm] [-rma]"
 fi
+
+echo "${time}"
 
 
