@@ -23,6 +23,22 @@ def getFillStr(length: int) -> bytes:
                             fill_bytes += c_i * (4 - cent) + c_j * cent
     return fill_bytes
 
+def getExpandFillStr(length: int) -> bytes:
+    fill_bytes = b''
+    if length <= 64:
+        default_str = b'0001000200030004000500060007000800091110111211131114111511161117'
+        fill_bytes = default_str[0:length]
+    else:
+        while len(fill_bytes) <= length:
+            for cent in range(1, 4):
+                for c_i in BYTES_ASCII[48:58]:
+                    if len(fill_bytes) >= length:  # Each 100 characters judge it.
+                        return fill_bytes[0:length]
+                    for c_j in BYTES_ASCII[48:58]:
+                        if c_i != c_j:
+                            fill_bytes += c_i * (4 - cent) + c_j * cent
+    return fill_bytes
+
 
 def mutSeeds(seedcont: bytes, filepath: str, label: str) -> 'list[StructSeed]':
     """
@@ -115,7 +131,7 @@ def mutLocFromMap(seed, seedcont: bytes, filepath: str, label: str, locmapdet_di
 
 
 def mutAddLength(seedcont: bytes, filepath: str, label: str, expand_len):
-    multicont = seedcont + getFillStr(expand_len)
+    multicont = seedcont + getExpandFillStr(expand_len)
     loc_set = set([i for i in range(len(seedcont), len(multicont))])
     temp_one = StructSeed(filepath + getTimeStr() + EXPAND_SEED, multicont, MUT_SEED_INSERT, loc_set)
     return temp_one
@@ -130,4 +146,5 @@ if __name__ == "__main__":
     # print(mutate_seed_list)
     # mutate_seed_list = mutOneChar("1245678123456789", "", "", set([1]))
     # print(mutate_seed_list.content)
-    print(getFillStr(118280))
+    # print(getFillStr(118280))
+    print(getExpandFillStr(118280))

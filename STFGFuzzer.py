@@ -120,13 +120,13 @@ def mainFuzzer():
         sch.addq(SCH_LOOP_SEED, temp_listq)
     else:
         sch.addq(SCH_LOOP_SEED,
-                 [Structures.StructSeed(path.seeds_mutate + AUTO_SEED, USE_INITCONTENT, SEED_INIT, set()), ])
+                 [Structures.StructSeed(path.seeds_mutate + AUTO_SEED, Mutator.getExpandFillStr(128), SEED_INIT, set()), ])
 
     # Create Memory Share.
     ana = Analyzer.Analyzer()
     create_seed = sch.selectOneSeed(
         SCH_THISMUT_SEED,
-        Structures.StructSeed(path.seeds_mutate + AUTO_SEED, Mutator.getFillStr(64), SEED_INIT, set()))
+        Structures.StructSeed(path.seeds_mutate + AUTO_SEED, Mutator.getExpandFillStr(128), SEED_INIT, set()))
     create_stdout, create_stderr = Executor.run(fuzz_command.replace('@@', create_seed.filename))
     ana.getShm(create_stdout[0:16])
     LOG(LOG_DEBUG, LOG_FUNCINFO(), create_seed.content)
