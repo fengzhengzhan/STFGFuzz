@@ -5,14 +5,15 @@ from fuzzer_module.Fuzzconfig import *
 from .Structures import *
 
 
-def getTarget(path_patchloc, patchtype:list):
+def getTarget(path_patchloc, patchtype: list):
     """
     Get the required number of lines of directed functions corresponding to the binary block position.
     There are three types: git patch, sanitizer, manual.
     @return:
     """
     target_num = 0
-    target_dict: 'dict[target_num:StructTarget]' = {}
+    # [[0, 'bug', 18], [1, 'main', 109], [2, '__libc_start_main', 308]]
+    target_dict: 'dict[target_num:[[ttrace, tfunc, tline]]]' = {}
     for file_i in os.listdir(path_patchloc):
         file_split = file_i.split(".")
         fname, ext = file_split[0], file_split[-1]
@@ -22,7 +23,7 @@ def getTarget(path_patchloc, patchtype:list):
 
         if ext == COM_SANITIZER and ext in patchtype:  # sanitizer
             sanitizer_cont = getFileList(path_patchloc + file_i)
-            target_dict[target_num] = StructTarget([], 3)
+            target_dict[target_num] = []
 
             for cont_i in sanitizer_cont:
                 line = str(cont_i).replace('\n', '')
@@ -32,10 +33,10 @@ def getTarget(path_patchloc, patchtype:list):
                 if re_cont is not None:
                     cont_groups = re_cont.groups()
                     # print(cont_groups)
-                    target_dict[target_num].addone(int(cont_groups[0]), delBrackets(cont_groups[1]),
-                                                    int(cont_groups[2]))
+                    target_dict[target_num].append([int(cont_groups[0]), delBrackets(cont_groups[1]),
+                                                    int(cont_groups[2])])
             target_num += 1
-            # print(target_dict[0].tgttrace)
+            # print(target_dict[0])
 
         if ext == COM_MANUAL and ext in patchtype:  # manual design
             # target:stack:funcname:line
@@ -49,15 +50,15 @@ def getTarget(path_patchloc, patchtype:list):
                     continue
                 numid = int(line[0])
                 if numid not in nums:
-                    nums[numid] = StructTarget([], 3).addone(int(line[1]), delBrackets(line[2]), int(line[3]))
+                    nums[numid] = []
+                    nums[numid].append([int(line[1]), delBrackets(line[2]), int(line[3])])
                 else:
-                    nums[numid].addone(int(line[1]), delBrackets(line[2]), int(line[3]))
+                    nums[numid].append([int(line[1]), delBrackets(line[2]), int(line[3])])
 
             for man_k, man_v in nums.items():
                 target_dict[target_num] = man_v
                 target_num += 1
 
-    # print(target_dict, target_dict[2].ttrace, target_dict[2].tfunc, target_dict[2].tline)
     return target_dict
 
 
@@ -71,8 +72,7 @@ def getDirectedNodeLoc(binline_dict: dict, target_dict: 'dict[target_num:StructT
     for tgt_k, tgt_v in target_dict.items():
         # print(tgt_v.ttrace, tgt_v.tfunc, tgt_v.tline)
         func_asm = {}
-        tgttrace = tgt_v.tgttrace
-        for each in tgttrace:
+        for each in tgt_v:
             ttrace, tfunc, tline = each[0], each[1], each[2]
             # print(ttrace, tfunc, tline)
             # Find the real key in CG Symbols.
@@ -95,6 +95,22 @@ def getDirectedNodeLoc(binline_dict: dict, target_dict: 'dict[target_num:StructT
         map_numTofuncasm[tgt_k] = func_asm
     # LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm, showlog=True)
     return map_numTofuncasm
+
+
+def compareTargetDiff(before_path, target_dict):
+    """
+    If the targets are different that return True.
+    @return:
+    """
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), before_path, showlog=True)
+    cmptgt = True
+    before_target_file = before_path + B4TGT_FILE
+    if os.path.exists(before_target_file):
+        before_target_dict = loadFromPkl(before_target_file)
+        if before_target_dict == target_dict:
+            cmptgt = False
+    saveAsPkl(before_target_file, target_dict)
+    return cmptgt
 
 
 def reeHistorySTFG():

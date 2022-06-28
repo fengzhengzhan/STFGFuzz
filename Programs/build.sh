@@ -1,7 +1,7 @@
 #!/bin/bash
 
 time=$(date "+%Y-%m-%d %H:%M:%S")
-echo "${time}"
+echo "[+] Start time: ${time}"
 
 if [ $1 == "-n" ]
 then
@@ -21,7 +21,7 @@ then
 	SANPATH="llvm_mode/ClangSanitizer"
 	SUFFIX="bc"
 	
-	echo "ProgramName: <${PROGRAMNAME}>"
+	echo "[+] ProgramName: <${PROGRAMNAME}>"
 	
 	# Create Files
 	cd ${PROGRAMNAME}
@@ -57,11 +57,11 @@ then
 	# Clear files.
 	if [ $4 ] && [ $4 == "-rm" ]
 	then
-		echo "-rm"
-		echo "rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME_TRACE}.${SUFFIX}"
-		echo "rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME_PASS}.${SUFFIX}"
-		echo "rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME}.o"
-		echo "rm -f ./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME}"
+		echo "[-] -rm"
+		echo "[-] rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME_TRACE}.${SUFFIX}"
+		echo "[-] rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME_PASS}.${SUFFIX}"
+		echo "[-] rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME}.o"
+		echo "[-] rm -f ./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME}"
 		rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME_TRACE}.${SUFFIX}
 		rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME_PASS}.${SUFFIX}
 		rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME}.o
@@ -69,13 +69,13 @@ then
 
 	elif [ $4 ] && [ $4 == "-rma" ]
 	then
-		echo "-rma"
-		echo "${SANPATH}  make clean"
-		echo "rm -rf llvm_mode/Build/*"
-		echo "rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME_TRACE}.${SUFFIX}"
-		echo "rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME_PASS}.${SUFFIX}"
-		echo "rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME}.o"
-		echo "rm -f ./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME}"
+		echo "[-] -rma"
+		echo "[-] ${SANPATH}  make clean"
+		echo "[-] rm -rf llvm_mode/Build/*"
+		echo "[-] rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME_TRACE}.${SUFFIX}"
+		echo "[-] rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME_PASS}.${SUFFIX}"
+		echo "[-] rm -f ./${PROGRAMS}/${PROGRAMNAME}/${IR}/${PROGRAMNAME}.o"
+		echo "[-] rm -f ./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME}"
 		cd ${SANPATH}
 		make clean
 		cd ../..
@@ -116,7 +116,7 @@ then
 		# Run
 		if [ $5 ]
 		then
-			echo -e "\n------- ${PROGRAMNAME} -------"
+			echo -e "\n[+] ------- ${PROGRAMNAME} -------"
 			if [ $5 == "rand.seed" ]
 			then
 				./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME} $4 "${PROGRAMS}/${PROGRAMNAME}/seeds_init/rand.seed"
@@ -124,21 +124,22 @@ then
 			then
 				./${PROGRAMS}/${PROGRAMNAME}/${BIN}/${PROGRAMNAME} $4 "${PROGRAMS}/${PROGRAMNAME}/seeds_crash/crash.seed"
 			else
-				echo "Usage: ./build.sh -n demo clang++ -f rand.seed"
-				echo "Usage: ./build.sh -n base64 clang -d crash.seed"
+				echo "[!] Usage: ./build.sh -n demo clang++ -f rand.seed"
+				echo "[!] Usage: ./build.sh -n base64 clang -d crash.seed"
 			fi
+			echo -e ""
 		fi
 		
-		echo -e "\n"
 	else
-		echo "Usage: ./build.sh -n demo clang++ -rma"
-		echo "Usage: ./build.sh -n base64 clang -rma"
+		echo "[!] Usage: ./build.sh -n demo clang++ -rma"
+		echo "[!] Usage: ./build.sh -n base64 clang -rma"
 	fi
 
 else
-	echo "Usage: ./build.sh [-n <program_name> <clang|clang++> <runseeds>] [-rm] [-rma]"
+	echo "[!] Usage: ./build.sh [-n <program_name> <clang|clang++> <runseeds>] [-rm] [-rma]"
 fi
 
-echo "${time}"
+time=$(date "+%Y-%m-%d %H:%M:%S")
+echo "[+] End time: ${time}"
 
 

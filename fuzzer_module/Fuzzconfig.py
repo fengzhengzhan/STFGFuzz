@@ -47,6 +47,8 @@ STG_ST = "Strategy"
 
 SLID_GAP = 2
 
+B4TGT_FILE = ".before_target_dict.pkl"
+
 # The fisrt character represent the type of compare instruction.
 # In order to save space, using one character as the flag to mark.
 # The meaning of the parameters following the flags is described in the comments.

@@ -17,6 +17,7 @@ from fuzzer_module.Fuzzconfig import *
 # python3.7 STFGFuzzer.py -n md5sum -- ./Programs/md5sum/code_Bin/md5sum -c @@
 # python3.7 STFGFuzzer.py -n uniq -- ./Programs/uniq/code_Bin/uniq @@
 # python3.7 STFGFuzzer.py -n who -- ./Programs/who/code_Bin/who @@
+# python3.7 STFGFuzzer.py -n lava660 -t sanitizer -- Programs/lava660/code_Bin/lava660 @@
 # python3.7 STFGFuzzer.py -n lava13796 -t sanitizer -- Programs/lava13796/code_Bin/lava13796 @@
 # python3.7 STFGFuzzer.py -n CVE-2016-4487 -t sanitizer -- Programs/CVE-2016-4487/code_Bin/CVE-2016-4487 @@
 
@@ -43,33 +44,55 @@ def mainFuzzer():
 
     # Directed Location
     print("{} Build Directional Position...".format(getTime()))
-    binline_dict = Builder.getBinaryInfo(path.data_graph)
     target_dict = Comparator.getTarget(path.data_patchloc, patchtype)
-    map_numto_funcasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
-    sch = Scheduler.Scheduler()
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), target_dict, showlog=True)
 
+    sch = Scheduler.Scheduler()
     for tgt_ki, stu_vi in target_dict.items():
         sch.target_dict[tgt_ki] = set()
-        for info_j in stu_vi.tgttrace:
-            sch.target_dict[tgt_ki].add(str(info_j[1])+str(info_j[2]))
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), target_dict[0].tgtinfolen, map_numto_funcasm, sch.target_dict)
-    del target_dict
-    del binline_dict
+        for info_j in stu_vi:
+            sch.target_dict[tgt_ki].add(str(info_j[1]) + str(info_j[2]))
 
-    # Graph Information
-    print("{} Build Graph Information...".format(getTime()))
-    cglist, cfglist = Generator.createDotJsonFile(program_name, path.code_IR + program_name + GEN_TRACEBC_SUFFIX)
-    cggraph, map_functo_cgnode = Builder.getCG(cglist)
-    cfggraph_dict, map_guard_gvid, map_target = Builder.getCFG(cfglist, map_numto_funcasm)
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target)
-    '''All node transfrom to the gvid to convenient calculation and expression.'''
-    '''All the function name transfrom to the static symbol function name.'''
-    '''Dynamic:guard  Static:gvid'''
-    '''Dynamic:func  Static:symbol'''
-    # map_target {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}
-    Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
-    map_tgtpredgvid_dis = Builder.getTargetPredecessorsGuard(cfggraph_dict, map_guard_gvid, map_target)
-    tgtpred_offset = Builder.getFuncOffset(map_tgtpredgvid_dis, map_target)
+    # If it is repeated, it is not loaded.
+    cmptgt = Comparator.compareTargetDiff(path.data_patchloc, target_dict)
+    if cmptgt:
+        binline_dict = Builder.getBinaryInfo(path.data_graph)
+        map_numto_funcasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), target_dict, map_numto_funcasm, sch.target_dict, showlog=True)
+
+        # Graph Information
+        print("{} Build Graph Information...".format(getTime()))
+        cglist, cfglist = Generator.createDotJsonFile(program_name, path.code_IR + program_name + GEN_TRACEBC_SUFFIX)
+        cggraph, map_functo_cgnode = Builder.getCG(cglist)
+        cfggraph_dict, map_guard_gvid, map_target = Builder.getCFG(cfglist, map_numto_funcasm)
+        # map_target {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, map_functo_cgnode)
+        '''All node transfrom to the gvid to convenient calculation and expression.'''
+        '''All the function name transfrom to the static symbol function name.'''
+        '''Dynamic:guard  Static:gvid'''
+        '''Dynamic:func  Static:symbol'''
+        # map_target {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}
+        Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
+        map_tgtpredgvid_dis = Builder.getTargetPredecessorsGuard(cfggraph_dict, map_guard_gvid, map_target)
+        tgtpred_offset = Builder.getFuncOffset(map_tgtpredgvid_dis, map_target)
+
+        print("{} Save as pkl files...".format(getTime()))
+        saveAsPkl(path.data_graph+".map_functo_cgnode.pkl", map_functo_cgnode)
+        saveAsPkl(path.data_graph+".map_guard_gvid.pkl", map_guard_gvid)
+        saveAsPkl(path.data_graph+".map_target.pkl", map_target)
+        saveAsPkl(path.data_graph+".map_tgtpredgvid_dis.pkl", map_tgtpredgvid_dis)
+        saveAsPkl(path.data_graph+".tgtpred_offset.pkl", tgtpred_offset)
+
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_functo_cgnode, map_guard_gvid, map_target, map_tgtpredgvid_dis, tgtpred_offset, showlog=True)
+    else:
+        # Load variables from PKL files Load variables.
+        print("{} Target unchanged, load From pkl files...".format(getTime()))
+        map_functo_cgnode = loadFromPkl(path.data_graph+".map_functo_cgnode.pkl")
+        map_guard_gvid = loadFromPkl(path.data_graph+".map_guard_gvid.pkl")
+        map_target = loadFromPkl(path.data_graph+".map_target.pkl")
+        map_tgtpredgvid_dis = loadFromPkl(path.data_graph+".map_tgtpredgvid_dis.pkl")
+        tgtpred_offset = loadFromPkl(path.data_graph+".tgtpred_offset.pkl")
+
 
     if len(map_target) != 0:
         sch.all_tgtnum = len(map_target)
@@ -181,7 +204,7 @@ def mainFuzzer():
                     break
 
             res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, STG_LD, -1, sch)
-            vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
+            # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
         '''ld <-'''
@@ -321,7 +344,7 @@ def mainFuzzer():
                         sd_stdout, sd_stderr = Executor.run(fuzz_command.replace('@@', sd_seed.filename))
                         # 5 visualize
                         res = vis.display(sd_seed, set(sdloc_list), sd_stdout, sd_stderr, STG_SD, stcmpid_weight, sch)
-                        vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
+                        # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                         if res == VIS_Q:
                             sch.quitFuzz()
                         eaexit = sch.saveCrash(sd_seed, sd_stdout, sd_stderr, vis)
@@ -404,7 +427,7 @@ def mainFuzzer():
                     bd_stdout, bd_stderr = Executor.run(fuzz_command.replace('@@', bd_seed.filename))
                     # 5 visualize
                     res = vis.display(bd_seed, set(st_cmploc), bd_stdout, bd_stderr, STG_BD, stcmpid_weight, sch)
-                    vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
+                    # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                     if res == VIS_Q:
                         sch.quitFuzz()
                     eaexit = sch.saveCrash(bd_seed, bd_stdout, bd_stderr, vis)
@@ -515,7 +538,7 @@ def mainFuzzer():
                             # 5 visualize
                             res = vis.display(
                                 opt_seed, set(st_cmploc), st_stdout, st_stderr, STG_ST, stcmpid_weight, sch)
-                            vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
+                            # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                             if res == VIS_Q:
                                 sch.quitFuzz()
                             eaexit = sch.saveCrash(st_seed, st_stdout, st_stderr, vis)

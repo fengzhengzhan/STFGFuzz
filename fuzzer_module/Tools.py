@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import datetime
+import pickle
 import re
-import subprocess
 import time
 import os
 
@@ -16,6 +16,17 @@ def saveAsFile(content: bytes, filename: str):
     """
     with open(filename, "wb") as f:
         f.write(content)
+
+
+def saveAsPkl(filename, data):
+    with open(filename, 'wb') as f:
+        pickle.dump(data, f)
+
+
+def loadFromPkl(filename):
+    with open(filename, 'rb') as f:
+        data = pickle.load(f)
+    return data
 
 
 def readContent(filename: str) -> bytes:
@@ -56,9 +67,11 @@ def getFileList(filepathname: str) -> list:
         file_list = f.readlines()
     return file_list
 
+
 def getTime():
     t = str(time.strftime("[%H:%M:%S]", time.localtime(time.time())))
     return t
+
 
 def getTimeStr():
     t = str(time.strftime("%Y%m%d%H%M%S", time.localtime(time.time())))
@@ -83,14 +96,17 @@ def getProjectPath():
     project_path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     return project_path
 
+
 def getCmpidOrder(cmpid, order):
     return str(cmpid) + "+" + str(order)
+
 
 def getLocInputValue(content, location):
     loc_input = {}
     for one_loc in location:
-        loc_input[one_loc] = content[one_loc:one_loc+1]
+        loc_input[one_loc] = content[one_loc:one_loc + 1]
     return loc_input
+
 
 if __name__ == "__main__":
     # print(delBrackets("bug"))

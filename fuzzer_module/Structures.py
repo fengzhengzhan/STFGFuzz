@@ -20,17 +20,17 @@ class StructPath:
         self.seeds_mutate = PROGRAMS + os.sep + program_name + os.sep + SEEDSMUTATE + os.sep
 
 
-class StructTarget:
-    def __init__(self, tgttrace: list, tgtinfolen: int):
-        self.tgttrace: list = tgttrace
-        self.tgtinfolen: int = tgtinfolen
-
-    def addone(self, ttrace, tfunc, tline):
-        self.tgttrace.append([ttrace, tfunc, tline])
-
-    def additem(self, ttrace, tfunc, tline):
-        for one_i in range(0, len(ttrace)):
-            self.tgttrace.append([ttrace[one_i], tfunc[one_i], tline[one_i]])
+# class StructTarget:
+#     def __init__(self, tgttrace: list, tgtinfolen: int):
+#         self.tgttrace: list = tgttrace
+#         self.tgtinfolen: int = tgtinfolen
+#
+#     def addone(self, ttrace, tfunc, tline):
+#         self.tgttrace.append([ttrace, tfunc, tline])
+#
+#     def additem(self, ttrace, tfunc, tline):
+#         for one_i in range(0, len(ttrace)):
+#             self.tgttrace.append([ttrace[one_i], tfunc[one_i], tline[one_i]])
 
 
 # The structure stores information about the seed file.

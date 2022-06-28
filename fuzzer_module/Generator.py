@@ -124,8 +124,8 @@ def createDotJsonFile(program_name: str, bc_file: str) -> (list, list):
     # Change path to generator graph in the directed file.
     proj_path = os.getcwd()
     os.chdir(temp_graphpath)
-    std_out, std_err = run(GEN_DOTCALLGRAPH + os.path.basename(bc_file))
-    std_out, std_err = run(GEN_DOTCFG + os.path.basename(bc_file))
+    run(GEN_DOTCALLGRAPH + os.path.basename(bc_file))
+    run(GEN_DOTCFG + os.path.basename(bc_file))
 
     temp_filelist = os.listdir()
     os.chdir(proj_path)

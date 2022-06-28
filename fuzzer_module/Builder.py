@@ -28,7 +28,7 @@ def getBinaryInfo(path_graph: str) -> 'dict[str:dict[int:dict[str:str]]]':
     binary_graph = path_graph + BUI_PATCHFILE
     patchline_info = getFileContent(binary_graph)
     pattern = re.compile(r"\s+")
-    patchline_sub = re.sub(pattern, ' ', patchline_info)
+    patchline_sub = re.sub(pattern, '', patchline_info)  # Whitespace removed
 
     # print(patchline_info)
     binline_dict = ast.literal_eval(patchline_sub)
@@ -79,6 +79,11 @@ def getCFG(cfglist, map_num_asm):
     @param cfglist:
     @return:
     """
+    # dot_list = []
+    # G = nx.DiGraph()
+    # for dot in dot_list:
+    #     G.update(nx.DiGraph(nx.drawing.nx_pydot.read_dot(dot)))
+
     map_guard_gvid: '{funcname:{guardnum:node_j}}' = {}
     map_target: '{funcname:[id,nodeid,node_j]}' = {}
     cfggraph_dict = {}
