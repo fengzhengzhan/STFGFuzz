@@ -28,12 +28,12 @@ def getTarget(path_patchloc, patchtype: list):
                 line = str(cont_i).replace('\n', '')
                 re_str = "#(.*?) 0x.*? in (.*?) .*?:(.*?):(.*)"
                 re_cont = re.search(re_str, line)
-                if int(re_cont.groups()[0]) == 0:
-                    target_num += 1
-                    target_dict[target_num] = []
                 # print(re_cont)
                 if re_cont is not None:
                     cont_groups = re_cont.groups()
+                    if int(cont_groups[0]) == 0:
+                        target_num += 1
+                        target_dict[target_num] = []
                     # print(cont_groups)
                     target_dict[target_num].append([int(cont_groups[0]), delBrackets(cont_groups[1]),
                                                     int(cont_groups[2])])

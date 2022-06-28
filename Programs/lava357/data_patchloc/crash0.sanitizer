@@ -1,5 +1,5 @@
 =================================================================
-==2064545==ERROR: AddressSanitizer: memcpy-param-overlap: memory ranges [0x7fffffffd370,0x800078560982) and [0x7ffff4f1d800, 0x80006d480e12) overlap
+==643636==ERROR: AddressSanitizer: memcpy-param-overlap: memory ranges [0x7fffffffd370,0x800078560982) and [0x7ffff4f1d800, 0x80006d480e12) overlap
     #0 0x43700e in __interceptor_memcpy.part.0 /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:810:5
     #1 0x52e700 in cdf_read /home/fzz/Desktop/STFGFuzz/dataset/datav5/lava_corpus/LAVA-1/file-5.22.357_R_0x12345678-0x12345678/src/cdf.c:298:9
     #2 0x52e34f in cdf_read_header /home/fzz/Desktop/STFGFuzz/dataset/datav5/lava_corpus/LAVA-1/file-5.22.357_R_0x12345678-0x12345678/src/cdf.c:317:6
@@ -11,6 +11,17 @@
     #8 0x4fb0a8 in main /home/fzz/Desktop/STFGFuzz/dataset/datav5/lava_corpus/LAVA-1/file-5.22.357_R_0x12345678-0x12345678/src/file.c:370:9
     #9 0x7ffff7c1f082 in __libc_start_main /build/glibc-SzIz7B/glibc-2.31/csu/../csu/libc-start.c:308:16
     #10 0x41c58d in _start (/home/fzz/Desktop/STFGFuzz/Programs/lava357/code_Bin/lava357+0x41c58d)
+
+Address 0x7fffffffd370 is located in stack of thread T0
+0x7ffff4f5d841 is located 0 bytes to the right of 262209-byte region [0x7ffff4f1d800,0x7ffff4f5d841)
+allocated by thread T0 here:
+    #0 0x4c20ff in malloc /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/asan_malloc_linux.cpp:145:3
+    #1 0x4fccd2 in file_or_fd /home/fzz/Desktop/STFGFuzz/dataset/datav5/lava_corpus/LAVA-1/file-5.22.357_R_0x12345678-0x12345678/src/magic.c:374:13
+    #2 0x4fd9ad in magic_file /home/fzz/Desktop/STFGFuzz/dataset/datav5/lava_corpus/LAVA-1/file-5.22.357_R_0x12345678-0x12345678/src/magic.c:353:9
+    #3 0x4fbeaf in process /home/fzz/Desktop/STFGFuzz/dataset/datav5/lava_corpus/LAVA-1/file-5.22.357_R_0x12345678-0x12345678/src/file.c:497:9
+    #4 0x4fb0a8 in main /home/fzz/Desktop/STFGFuzz/dataset/datav5/lava_corpus/LAVA-1/file-5.22.357_R_0x12345678-0x12345678/src/file.c:370:9
+    #5 0x7ffff7c1f082 in __libc_start_main /build/glibc-SzIz7B/glibc-2.31/csu/../csu/libc-start.c:308:16
+
 SUMMARY: AddressSanitizer: memcpy-param-overlap /home/fzz/Desktop/STFGFuzz/LLVM/llvm/projects/compiler-rt/lib/asan/../sanitizer_common/sanitizer_common_interceptors.inc:810:5 in __interceptor_memcpy.part.0
-==2064545==ABORTING
+==643636==ABORTING
 

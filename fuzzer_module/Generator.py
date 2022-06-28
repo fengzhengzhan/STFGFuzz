@@ -53,14 +53,16 @@ def genTerminal():
             print()
             print("Options:")
             print(" -n <program_name>   Specify the name of the program item to be mutated.")
-            print(" -t ['patch','sanitizer','manual']   Specify the target location file type.")
+            print(" -t sanitizer,patch,manual   Specify the target location file type.")
             print()
             sys.exit()
         elif opt == "-n":
             program_name = arg
         elif opt == "-t":
-            patchtype.append(arg)
-
+            patcharg = arg.split(",")
+            for one in patcharg:
+                patchtype.append(one)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), patchtype)
     return program_name, patchtype, fuzz_command
 
 

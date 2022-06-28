@@ -24,8 +24,8 @@ FUZZ_GERYBOX = 61
 
 EXP_MODE = False
 # EXP_MODE = True
-VIS_TERM = True
-# VIS_TERM = False
+# VIS_TERM = True
+VIS_TERM = False
 # VIS_SHOWGRAPH = True
 VIS_SHOWGRAPH = False
 

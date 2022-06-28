@@ -83,7 +83,6 @@ def mainFuzzer():
         saveAsPkl(path.data_graph+".map_tgtpredgvid_dis.pkl", map_tgtpredgvid_dis)
         saveAsPkl(path.data_graph+".tgtpred_offset.pkl", tgtpred_offset)
 
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_functo_cgnode, map_guard_gvid, map_target, map_tgtpredgvid_dis, tgtpred_offset, showlog=True)
     else:
         # Load variables from PKL files Load variables.
         print("{} Target unchanged, load From pkl files...".format(getTime()))
@@ -92,7 +91,8 @@ def mainFuzzer():
         map_target = loadFromPkl(path.data_graph+".map_target.pkl")
         map_tgtpredgvid_dis = loadFromPkl(path.data_graph+".map_tgtpredgvid_dis.pkl")
         tgtpred_offset = loadFromPkl(path.data_graph+".tgtpred_offset.pkl")
-
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_functo_cgnode, map_guard_gvid, map_target, map_tgtpredgvid_dis, tgtpred_offset,
+        showlog=True)
 
     if len(map_target) != 0:
         sch.all_tgtnum = len(map_target)
