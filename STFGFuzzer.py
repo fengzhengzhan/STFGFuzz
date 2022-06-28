@@ -111,7 +111,7 @@ def mainFuzzer():
     # Init seed lists
     print("{} Init Seed lists...".format(getTime()))
     init_seeds_list = Generator.prepareEnv(program_name)
-    if len(init_seeds_list) > 0:
+    if len(init_seeds_list) > 1:
         temp_listq = []
         for each in init_seeds_list:
             temp_listq.append(
@@ -254,7 +254,6 @@ def mainFuzzer():
         # You can always add elements to the priority queue.
         # If the number covered changes, it is considered to have passed this constraint,
         # so it enters the next round of comparison instruction recognition
-
 
         '''Init status parameters.'''
         vis.cmptotal = sch.targetcmp_pq.qsize()

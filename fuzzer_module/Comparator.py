@@ -11,7 +11,7 @@ def getTarget(path_patchloc, patchtype: list):
     There are three types: git patch, sanitizer, manual.
     @return:
     """
-    target_num = 0
+    target_num = -1
     # [[0, 'bug', 18], [1, 'main', 109], [2, '__libc_start_main', 308]]
     target_dict: 'dict[target_num:[[ttrace, tfunc, tline]]]' = {}
     for file_i in os.listdir(path_patchloc):
@@ -23,19 +23,20 @@ def getTarget(path_patchloc, patchtype: list):
 
         if ext == COM_SANITIZER and ext in patchtype:  # sanitizer
             sanitizer_cont = getFileList(path_patchloc + file_i)
-            target_dict[target_num] = []
 
             for cont_i in sanitizer_cont:
                 line = str(cont_i).replace('\n', '')
                 re_str = "#(.*?) 0x.*? in (.*?) .*?:(.*?):(.*)"
                 re_cont = re.search(re_str, line)
+                if int(re_cont.groups()[0]) == 0:
+                    target_num += 1
+                    target_dict[target_num] = []
                 # print(re_cont)
                 if re_cont is not None:
                     cont_groups = re_cont.groups()
                     # print(cont_groups)
                     target_dict[target_num].append([int(cont_groups[0]), delBrackets(cont_groups[1]),
                                                     int(cont_groups[2])])
-            target_num += 1
             # print(target_dict[0])
 
         if ext == COM_MANUAL and ext in patchtype:  # manual design
@@ -56,8 +57,8 @@ def getTarget(path_patchloc, patchtype: list):
                     nums[numid].append([int(line[1]), delBrackets(line[2]), int(line[3])])
 
             for man_k, man_v in nums.items():
-                target_dict[target_num] = man_v
                 target_num += 1
+                target_dict[target_num] = man_v
 
     return target_dict
 
