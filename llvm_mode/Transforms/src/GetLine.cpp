@@ -27,9 +27,8 @@ bool GetLine::runOnFunction(Function &F){
         for(Instruction &In : BB){
             const DebugLoc &location = In.getDebugLoc();
             if (location){
-                // std::string str;
-                // llvm::raw_string_ostream rso(str);
-                // In.print(rso);
+                
+
                 outs() << location.getLine() << ":{"
                         << "\'I\':\'" << In << "\',"
                         << "\'F\':\'" << F.getName() << "\',"
@@ -38,6 +37,32 @@ bool GetLine::runOnFunction(Function &F){
                         << "\'D\':\'" << location->getDirectory() << "\',"
                         << "},";
                         // << "\'P\':\'" << location->isImplicitCode() << "\',"
+
+                // std::string str;
+                // llvm::raw_string_ostream rso(str);
+                // In.print(rso);
+
+                // std::string filename = std::string(location->getFilename());
+                // std::string ins = std::string(In);
+
+                // for (int i=size(filename)-1; i >= 0; --i) {
+                //     outs() << fs::path(filename).filename();
+                // }
+                // llvm::StringRef ins = In;
+                
+                // outs() << "{"
+                //         // << "\'D\':\'" << location->getDirectory() << "\',"
+                //         << "\'N\':\'" << location->getFilename() << "\',"
+                //         << "\'F\':\'" << F.getName() << "\',"
+                //         << "\'L\':\'" << location.getLine() << "\',"
+                //         << "\'C\':\'" << location.getCol() << "\',"
+                //         << "\'I\':\'" << In << "\',"
+                //         << "},";
+
+                        // << "\"" << In.getModule() << "\","
+                        // << "},";
+                        // << "\'P\':\'" << location->isImplicitCode() << "\',"
+                
             }
                 
         }

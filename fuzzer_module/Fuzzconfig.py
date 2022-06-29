@@ -24,8 +24,8 @@ FUZZ_GERYBOX = 61
 
 EXP_MODE = False
 # EXP_MODE = True
-# VIS_TERM = True
-VIS_TERM = False
+VIS_TERM = True
+# VIS_TERM = False
 # VIS_SHOWGRAPH = True
 VIS_SHOWGRAPH = False
 
@@ -193,7 +193,7 @@ ANA_SHM_INTERVAL = 1024 * 1024
 ANA_SHM_SIZE = 2147483648
 
 '''Builder'''
-BUI_PATCHFILE = "binaryline.info"
+BUI_PATCHFILE = "binaryline.json"
 BUI_NAME = "name"
 BUI_NODES = "objects"
 BUI_EDGES = "edges"
@@ -224,11 +224,14 @@ COM_SANITIZER = 'sanitizer'
 COM_MANUAL = 'manual'
 COM_PATCHSET = {USE_INITNUM, COM_PATCH, COM_SANITIZER, COM_MANUAL}
 
-COM_BININS = 'I'
-COM_BINFUNC = 'F'
-COM_BINCOL = 'C'
-COM_BINFILE = 'N'
 COM_BINDIR = 'D'
+COM_BINFILE = 'N'
+COM_BINFUNC = 'F'
+COM_BINLINE = 'L'
+COM_BINCOL = 'C'
+COM_BININS = 'I'
+
+
 
 '''Generator'''
 PROGRAMS = "Programs"

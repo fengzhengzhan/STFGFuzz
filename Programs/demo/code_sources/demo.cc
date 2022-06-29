@@ -18,6 +18,20 @@ void bug(){
     k = j / i;
 }
 
+void bug(int a){
+    int i = 0;
+    int j = 10;
+    int k;
+    k = j / i;
+}
+
+void bug(string a){
+    int i = 0;
+    int j = 10;
+    int k;
+    k = j / i;
+}
+
 int main(int argc, char *argv[]) {
 
     int opt, opt_index;
@@ -106,6 +120,9 @@ int main(int argc, char *argv[]) {
     }
 
     printf("Puzzle solved, Congratulations!\n");
+    bug("123");
+    bug(123);
     bug();
+    
     return 0;
 }

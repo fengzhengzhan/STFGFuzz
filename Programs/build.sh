@@ -17,7 +17,7 @@ then
 	BIN="code_Bin"
 
 	LLVMPASSPATH="llvm_mode/Build/LLVMObfuscator.so"
-	LINE_SAVE="data_graph/binaryline.info"
+	LINE_SAVE="data_graph/binaryline.json"
 	SANPATH="llvm_mode/ClangSanitizer"
 	SUFFIX="bc"
 	
@@ -100,6 +100,7 @@ then
 
 		# Compile the program
 		cd ${PROGRAMS}/${PROGRAMNAME}
+		# clang++ -g -emit-llvm -c code_sources/demo.cc -o code_sources/demo.bc
 		# clang -g -emit-llvm -c ${SOURCES}/${PROGRAMNAME}.cc -o ${IR}/${PROGRAMNAME}.${SUFFIX} # IR
 		# -fsanitize-recover=address,memory -fsanitize-coverage=bb,no-prune,trace-pc-guard  -fsanitize-coverage=edge,trace-pc-guard (default)
 		${COMPILER} -fsanitize-recover=address -fsanitize-coverage=bb,no-prune,trace-pc-guard,trace-cmp -emit-llvm -c ${SOURCES}/${PROGRAMNAME}.${SUFFIX} -o ${IR}/${PROGRAMNAME_TRACE}.${SUFFIX} 
