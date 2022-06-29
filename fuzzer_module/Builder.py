@@ -27,13 +27,13 @@ def getBinaryInfo(path_graph: str) -> 'dict[str:dict[int:dict[str:str]]]':
     # {'function_name':{line:{'':''},line:{'':''}}, }
     binary_graph = path_graph + BUI_PATCHFILE
     patchline_info = getFileContent(binary_graph)
-    pattern = re.compile(r"\s+")
-    patchline_sub = re.sub(pattern, '', patchline_info)  # Whitespace removed
+    # pattern = re.compile(r"\s+")
+    # patchline_sub = re.sub(pattern, '', patchline_info)  # Whitespace removed
 
     # print(patchline_info)
-    binline_dict = ast.literal_eval(patchline_sub)
+    binline_dict = ast.literal_eval(patchline_info)
     # print(binline_dict['main'])
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), patchline_info, patchline_sub, binline_dict, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), patchline_info, binline_dict, showlog=True)
     return binline_dict
 
 

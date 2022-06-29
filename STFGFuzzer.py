@@ -59,7 +59,6 @@ def mainFuzzer():
         binline_dict = Builder.getBinaryInfo(path.data_graph)
         map_numto_funcasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), binline_dict, target_dict, map_numto_funcasm, sch.target_dict, showlog=True)
-        raise Exception()
 
         # Graph Information
         print("{} Build Graph Information...".format(getTime()))

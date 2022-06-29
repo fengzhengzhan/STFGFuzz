@@ -8,6 +8,8 @@
 #include <string>
 #include <fstream>
 
+#define MAXLEN  128*1024*1024
+
 using namespace llvm;
 
 namespace{
@@ -27,14 +29,34 @@ bool GetLine::runOnFunction(Function &F){
         for(Instruction &In : BB){
             const DebugLoc &location = In.getDebugLoc();
             if (location){
-                
+                // Get the function filename.
+                std::string temp_name = std::string(location->getFilename());
+                std::string filename = "";
+                for (int i=size(temp_name)-1; i >= 0; --i) {
+                    if (temp_name[i] != '/') {
+                        filename = temp_name[i] + filename;
+                    }
+                    else {
+                        break;
+                    }
+                }
 
+                // Get the Asm remove space.
+                std::string ins;
+                llvm::raw_string_ostream(ins) << In;
+                ins.erase(std::remove_if(ins.begin(), ins.end(), isspace), ins.end());
+                // std::string blanks("\f\v\r\t\n ");
+                // ins.erase(0,ins.find_first_not_of(blanks));
+                // ins.erase(ins.find_last_not_of(blanks) + 1);
+
+                // Get the json file.
                 outs() << location.getLine() << ":{"
-                        << "\'I\':\'" << In << "\',"
+                        // << "\'D\':\'" << location->getDirectory() << "\',"
+                        << "\'N\':\'" << filename << "\',"
                         << "\'F\':\'" << F.getName() << "\',"
                         << "\'C\':\'" << location.getCol() << "\',"
-                        << "\'N\':\'" << location->getFilename() << "\',"
-                        << "\'D\':\'" << location->getDirectory() << "\',"
+                        // << "\'I\':\'" << In << "\',"
+                        << "\'I\':\'" << ins << "\',"
                         << "},";
                         // << "\'P\':\'" << location->isImplicitCode() << "\',"
 
@@ -49,7 +71,7 @@ bool GetLine::runOnFunction(Function &F){
                 //     outs() << fs::path(filename).filename();
                 // }
                 // llvm::StringRef ins = In;
-                
+
                 // outs() << "{"
                 //         // << "\'D\':\'" << location->getDirectory() << "\',"
                 //         << "\'N\':\'" << location->getFilename() << "\',"
