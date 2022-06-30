@@ -17,17 +17,67 @@ def getTarget(path_patchloc, patchtype: list):
     for file_i in os.listdir(path_patchloc):
         file_split = file_i.split(".")
         fname, ext = file_split[0], file_split[-1]
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), fname, ext, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), fname, ext)
 
+        # patch, manual each line as a target.
+        # sanitizer has trace information.
         if ext == COM_PATCH and ext in patchtype:  # github diff as patch
-            pass
+            patch_cont = getFileList(path_patchloc + file_i)
+
+            # diff --git a/Modules/demo.cc b/Modules/demo.cc
+            # index 5d295d3..79da8ba 100644
+            # --- a/Modules/demo.cc
+            # +++ b/Modules/demo.cc
+            # @@ -123,3 +123,3 @@ int main(int argc, char *argv[]) {
+            # -    // bug();
+            # -    bug("123");
+            # -    bug(123);
+            # +    bug();
+            # +    // bug("123");
+            # +    // bug(123);
+            # diff --git a/Modules/test.txt b/Modules/test.txt
+            # new file mode 100644
+            # index 0000000..e69de29
+            patch_list = []
+            idx = -1
+            for cont_i in patch_cont:
+                # line = str(cont_i).replace('\n', '')
+                # re_diffstartstr = r"diff --git .*"
+                # re_diffstart = re.search(re_diffstartstr, line)
+                # LOG(LOG_DEBUG, LOG_FUNCINFO(), line, re_diffstart, showlog=True)
+                # if re_diffstart is not None:
+                #     target_num += 1
+                #     target_dict[target_num] = []
+                #     target_dict[target_num].append([COM_PATCH, file_i, target_num])
+
+                # re_funcfile_str = r"\+\+\+ (.*)"
+                # re_funcfile = re.findall(re_funcfile_str, line)
+                # if len(re_funcfile) != 0:
+                #     funcfile = re_funcfile[0]
+
+                re_funcline_str = r"@@ -\d*?,\d*? \+(\d*?),\d*? @@"
+                re_funcline = re.findall(re_funcline_str, cont_i)
+                if len(re_funcline) != 0:
+                    funcline = int(re_funcline[0])
+                    re_funcname_str = r"@@.*?@@.* (.*?)\(.*"
+                    re_funcname = re.findall(re_funcname_str, cont_i)
+                    if len(re_funcname) != 0:
+                        idx += 1
+                        patch_list.append([idx, re_funcname[0], funcline])
+
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), patch_list, showlog=True)
+            for patch_i in patch_list:
+                target_num += 1
+                target_dict[target_num] = []
+                target_dict[target_num].append([COM_PATCH, file_i, target_num])
+                target_dict[target_num].append(patch_i)
 
         if ext == COM_SANITIZER and ext in patchtype:  # clang sanitizer
             sanitizer_cont = getFileList(path_patchloc + file_i)
 
             for cont_i in sanitizer_cont:
                 line = str(cont_i).replace('\n', '')
-                re_str = "#(.*?) 0x.*? in (.*?) .*?:(.*?):(.*)"
+                re_str = r"#(.*?) 0x.*? in (.*?) .*?:(.*?):(.*)"
                 re_cont = re.search(re_str, line)
                 # print(re_cont)
                 if re_cont is not None:
@@ -45,9 +95,6 @@ def getTarget(path_patchloc, patchtype: list):
             # filename:line
             # A blank line is required between the different targets of the manual mutation target.
             manual_cont = getFileList(path_patchloc + file_i)
-            target_num += 1
-            target_dict[target_num] = []
-            target_dict[target_num].append([COM_MANUAL, file_i, target_num])
 
             # Generate a dictionary of targets for easy finding and navigation.
             idx = -1
@@ -55,11 +102,13 @@ def getTarget(path_patchloc, patchtype: list):
                 line = str(cont_i).replace('\n', '').split(":")
                 if line[0] == '':
                     continue
+                target_num += 1
+                target_dict[target_num] = []
+                target_dict[target_num].append([COM_MANUAL, file_i, target_num])
                 idx += 1
                 target_dict[target_num].append([idx, line[0], int(line[1])])
 
     LOG(LOG_DEBUG, LOG_FUNCINFO(), target_dict, showlog=True)
-    raise Exception
     return target_dict
 
 
