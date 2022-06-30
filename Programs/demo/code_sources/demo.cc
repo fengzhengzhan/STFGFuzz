@@ -120,9 +120,9 @@ int main(int argc, char *argv[]) {
     }
 
     printf("Puzzle solved, Congratulations!\n");
+    bug();
     bug("123");
     bug(123);
-    bug();
     
     return 0;
 }

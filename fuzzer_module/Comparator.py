@@ -13,15 +13,16 @@ def getTarget(path_patchloc, patchtype: list):
     """
     target_num = -1
     # [[0, 'bug', 18], [1, 'main', 109], [2, '__libc_start_main', 308]]
-    target_dict: 'dict[target_num:[[ttrace, tfunc, tline]]]' = {}
+    target_dict: 'dict[target_num:[[ttrace, tfunc, tline]]]' = {}  # The first line determine the type of patch
     for file_i in os.listdir(path_patchloc):
         file_split = file_i.split(".")
         fname, ext = file_split[0], file_split[-1]
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), fname, ext)
-        if ext == COM_PATCH and ext in patchtype:  # github patch
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), fname, ext, showlog=True)
+
+        if ext == COM_PATCH and ext in patchtype:  # github diff as patch
             pass
 
-        if ext == COM_SANITIZER and ext in patchtype:  # sanitizer
+        if ext == COM_SANITIZER and ext in patchtype:  # clang sanitizer
             sanitizer_cont = getFileList(path_patchloc + file_i)
 
             for cont_i in sanitizer_cont:
@@ -34,32 +35,31 @@ def getTarget(path_patchloc, patchtype: list):
                     if int(cont_groups[0]) == 0:
                         target_num += 1
                         target_dict[target_num] = []
+                        target_dict[target_num].append([COM_SANITIZER, file_i, target_num])
                     # print(cont_groups)
                     target_dict[target_num].append([int(cont_groups[0]), delBrackets(cont_groups[1]),
                                                     int(cont_groups[2])])
             # print(target_dict[0])
 
         if ext == COM_MANUAL and ext in patchtype:  # manual design
-            # target:stack:funcname:line
+            # filename:line
             # A blank line is required between the different targets of the manual mutation target.
             manual_cont = getFileList(path_patchloc + file_i)
-            nums = {}
+            target_num += 1
+            target_dict[target_num] = []
+            target_dict[target_num].append([COM_MANUAL, file_i, target_num])
+
             # Generate a dictionary of targets for easy finding and navigation.
+            idx = -1
             for cont_i in manual_cont:
                 line = str(cont_i).replace('\n', '').split(":")
                 if line[0] == '':
                     continue
-                numid = int(line[0])
-                if numid not in nums:
-                    nums[numid] = []
-                    nums[numid].append([int(line[1]), delBrackets(line[2]), int(line[3])])
-                else:
-                    nums[numid].append([int(line[1]), delBrackets(line[2]), int(line[3])])
+                idx += 1
+                target_dict[target_num].append([idx, line[0], int(line[1])])
 
-            for man_k, man_v in nums.items():
-                target_num += 1
-                target_dict[target_num] = man_v
-
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), target_dict, showlog=True)
+    raise Exception
     return target_dict
 
 
