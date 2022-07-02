@@ -53,6 +53,7 @@ def mainFuzzer():
         for info_j in stu_vi:
             sch.target_dict[tgt_ki].add(str(info_j[1]) + str(info_j[2]))
 
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_dict)
     # If it is repeated, it is not loaded.
     cmptgt = Comparator.compareTargetDiff(path.data_patchloc, target_dict)
     if cmptgt:

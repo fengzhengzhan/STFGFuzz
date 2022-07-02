@@ -76,7 +76,7 @@ def getTarget(path_patchloc, patchtype: list):
             sanitizer_cont = getFileList(path_patchloc + file_i)
 
             for cont_i in sanitizer_cont:
-                line = str(cont_i).replace('\n', '')
+                line = delBrackets(str(cont_i).replace('\n', ''))
                 re_str = r"#(.*?) 0x.*? in (.*?) .*?:(.*?):(.*)"
                 re_cont = re.search(re_str, line)
                 # print(re_cont)
@@ -87,7 +87,9 @@ def getTarget(path_patchloc, patchtype: list):
                         target_dict[target_num] = []
                         target_dict[target_num].append([COM_SANITIZER, file_i, target_num])
                     # print(cont_groups)
-                    target_dict[target_num].append([int(cont_groups[0]), delBrackets(cont_groups[1]),
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), line, int(cont_groups[0]), cont_groups[1],
+                                                    cont_groups[2])
+                    target_dict[target_num].append([int(cont_groups[0]), cont_groups[1],
                                                     int(cont_groups[2])])
             # print(target_dict[0])
 
@@ -108,7 +110,6 @@ def getTarget(path_patchloc, patchtype: list):
                 idx += 1
                 target_dict[target_num].append([idx, line[0], int(line[1])])
 
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), target_dict, showlog=True)
     return target_dict
 
 
@@ -122,28 +123,34 @@ def getDirectedNodeLoc(binline_dict: dict, target_dict: 'dict[target_num:StructT
     for tgt_k, tgt_v in target_dict.items():
         # print(tgt_v.ttrace, tgt_v.tfunc, tgt_v.tline)
         func_asm = {}
-        for each in tgt_v:
-            ttrace, tfunc, tline = each[0], each[1], each[2]
-            # print(ttrace, tfunc, tline)
-            # Find the real key in CG Symbols.
-            temp_binkey = []
-            for bin_kj in binline_dict.keys():
-                findres = bin_kj.find(tfunc)
-                if findres != -1:
-                    temp_binkey.append(bin_kj)
-                # print(bin_kj, tfunc[each], findres)
-            # Get the asm instruction.
-            for tempbin_kj in temp_binkey:
-                if tempbin_kj in binline_dict and tline in binline_dict[tempbin_kj]:
-                    # {'I': '', 'F': '_Z3bugv', 'C': '7', 'N': '', 'D': ''}
-                    tempfunc = binline_dict[tempbin_kj][tline][COM_BINFUNC]
-                    tempins = binline_dict[tempbin_kj][tline][COM_BININS]
-                    if tempfunc not in func_asm:
-                        func_asm[tempfunc] = [[ttrace, tempins]]
-                    elif tempfunc in func_asm:
-                        func_asm[tempfunc].append([ttrace, tempins])
+        patchflag = tgt_v[0][0]
+        if patchflag == COM_SANITIZER or patchflag == COM_PATCH:
+            for each in tgt_v[1:]:  # Skip the first line for information describe.
+                ttrace, tfunc, tline = each[0], each[1], each[2]
+                # print(ttrace, tfunc, tline)
+                # Find the real key in CG Symbols.
+                temp_binkey = []
+                for bin_kj in binline_dict.keys():
+                    findres = bin_kj.find(tfunc)
+                    if findres != -1:
+                        temp_binkey.append(bin_kj)
+                    # print(bin_kj, tfunc[each], findres)
+                # Get the asm instruction.
+                for tempbin_kj in temp_binkey:
+                    if tline in binline_dict[tempbin_kj]:
+                        # {'I': '', 'F': '_Z3bugv', 'C': '7', 'N': '', 'D': ''}
+                        tempfunc = binline_dict[tempbin_kj][tline][COM_BINFUNC]
+                        tempins = binline_dict[tempbin_kj][tline][COM_BININS]
+                        if tempfunc not in func_asm:
+                            func_asm[tempfunc] = [[ttrace, tempins]]
+                        elif tempfunc in func_asm:
+                            func_asm[tempfunc].append([ttrace, tempins])
+        elif patchflag == COM_MANUAL:
+            pass
+
         map_numTofuncasm[tgt_k] = func_asm
-    # LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm, showlog=True)
+    raise Exception
     return map_numTofuncasm
 
 

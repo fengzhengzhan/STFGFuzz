@@ -33,7 +33,7 @@ def getBinaryInfo(path_graph: str) -> 'dict[str:dict[int:dict[str:str]]]':
     # print(patchline_info)
     binline_dict = ast.literal_eval(patchline_info)
     # print(binline_dict['main'])
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), patchline_info, binline_dict, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), patchline_info, binline_dict)
     return binline_dict
 
 
