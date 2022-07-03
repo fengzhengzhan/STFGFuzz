@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import random
 import re
 from fuzzer_module.Fuzzconfig import *
 from .Structures import *
@@ -129,28 +130,43 @@ def getDirectedNodeLoc(binline_dict: dict, target_dict: 'dict[target_num:StructT
                 ttrace, tfunc, tline = each[0], each[1], each[2]
                 # print(ttrace, tfunc, tline)
                 # Find the real key in CG Symbols.
-                temp_binkey = []
+                binkey = []
                 for bin_kj in binline_dict.keys():
                     findres = bin_kj.find(tfunc)
                     if findres != -1:
-                        temp_binkey.append(bin_kj)
+                        binkey.append(bin_kj)
                     # print(bin_kj, tfunc[each], findres)
                 # Get the asm instruction.
-                for tempbin_kj in temp_binkey:
-                    if tline in binline_dict[tempbin_kj]:
+                for bin_kj in binkey:
+                    if tline in binline_dict[bin_kj]:
                         # {'I': '', 'F': '_Z3bugv', 'C': '7', 'N': '', 'D': ''}
-                        tempfunc = binline_dict[tempbin_kj][tline][COM_BINFUNC]
-                        tempins = binline_dict[tempbin_kj][tline][COM_BININS]
+                        tempfunc = binline_dict[bin_kj][tline][COM_BINFUNC]
+                        tempins = binline_dict[bin_kj][tline][COM_BININS]
                         if tempfunc not in func_asm:
                             func_asm[tempfunc] = [[ttrace, tempins]]
                         elif tempfunc in func_asm:
                             func_asm[tempfunc].append([ttrace, tempins])
         elif patchflag == COM_MANUAL:
-            pass
+            for each in tgt_v[1:]:
+                ttrace, tfile, tline = each[0], each[1], each[2]
+                for binfunc_ki, binlineasm_vi in binline_dict.items():
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), binfunc_ki, binlineasm_vi)
+                    if len(binlineasm_vi) == 0:
+                        continue
+                    bininfo_dict = binlineasm_vi[random.sample(binlineasm_vi.keys(), 1)[0]]
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), bininfo_dict[COM_BINFUNC], bininfo_dict[COM_BINFILE], showlog=True)
+                    if tfile == bininfo_dict[COM_BINFILE]:
+                        if tline in binlineasm_vi:
+                            # {'I': '', 'F': '_Z3bugv', 'C': '7', 'N': '', 'D': ''}
+                            tempfunc = binlineasm_vi[tline][COM_BINFUNC]
+                            tempins = binlineasm_vi[tline][COM_BININS]
+                            if tempfunc not in func_asm:
+                                func_asm[tempfunc] = [[ttrace, tempins]]
+                            elif tempfunc in func_asm:
+                                func_asm[tempfunc].append([ttrace, tempins])
 
         map_numTofuncasm[tgt_k] = func_asm
     LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm, showlog=True)
-    raise Exception
     return map_numTofuncasm
 
 
