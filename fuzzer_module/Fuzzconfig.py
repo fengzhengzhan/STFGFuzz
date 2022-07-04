@@ -21,7 +21,6 @@ LIMITER = 100000
 FUZZ_DIRECTED = 60
 FUZZ_GERYBOX = 61
 
-
 EXP_MODE = False
 # EXP_MODE = True
 # VIS_TERM = True
@@ -208,11 +207,17 @@ BUI_EDGE_START_IDX = 0  # tail -> head
 BUI_EDGE_END_IDX = 1
 BUI_INIT_WEIGHT = 0
 # @__sanitizer_cov_trace_pc_guard(i32* inttoptr (i64 add (i64\l... ptrtoint ([78 x i32]* @__sancov_gen_.147 to i64), i64 56) to i32*))
-BUI_GUARD_RE = "@__sanitizer_cov_trace_pc_guard\(i32\* inttoptr \(i64 add \(i64\\\\l\.\.\. " \
-               "ptrtoint \(\[\d*? x i32\]\* @__sancov_gen_.\d*? to i64\), i64 (\d*?)\) to i32\*\)\)"
+# BUI_GUARD_RE = "@__sanitizer_cov_trace_pc_guard\(i32\* inttoptr \(i64 add \(i64\\\\l\.\.\. " \
+#                "ptrtoint \(\[\d*? x i32\]\* @__sancov_gen_.\d*? to i64\), i64 (\d*?)\) to i32\*\)\)"
+# "@__sanitizer_cov_trace_pc_guard(i32*inttoptr(i64add(i64...ptrtoint([36xi32]*@__sancov_gen_.4toi64),i64140)toi32*))"
+BUI_GUARD_RE = r"@__sanitizer_cov_trace_pc_guard\(i32\*inttoptr\(i64add\(i64\.\.\.ptrtoint\(\[\d*?xi32\]\*@__sancov_gen_\.\d*?toi64\),i64(\d*?)\)toi32\*\)\)"
+
 # @__sanitizer_cov_trace_pc_guard(i32* getelementptr inbounds ([20 x\l... i32], [20 x i32]* @__sancov_gen_.127, i32 0, i32 0))
-BUI_GUARD2_RE = "@__sanitizer_cov_trace_pc_guard\(i32\* getelementptr inbounds \(\[.*?\\\\l\.\.\. .*?i32\], " \
-                "\[\d*? x i32\]\* @__sancov_gen_\.\d*?, i32 (\d*?), i32 \d*?\)\)"
+# BUI_GUARD2_RE = "@__sanitizer_cov_trace_pc_guard\(i32\* getelementptr inbounds \(\[.*?\\\\l\.\.\. .*?i32\], " \
+#                 "\[\d*? x i32\]\* @__sancov_gen_\.\d*?, i32 (\d*?), i32 \d*?\)\)"
+# "@__sanitizer_cov_trace_pc_guard(i32*getelementptrinbounds([36x...i32],[36xi32]*@__sancov_gen_.4,i320,i320))"
+BUI_GUARD2_RE = r"@__sanitizer_cov_trace_pc_guard\(i32\*getelementptrinbounds\(\[.*?\.\.\..*?i32\],\[\d*?xi32\]\*@__sancov_gen_\.\d*?,i32(\d*?),i32\d*?\)\)"
+
 BUI_LOC_INTERVAL = 4
 BUI_NODE_ST = "nodest"
 
@@ -222,6 +227,7 @@ BUI_ORDER_MULTI = 10
 COM_PATCH = 'patch'
 COM_SANITIZER = 'sanitizer'
 COM_MANUAL = 'manual'
+COM_GREYBOX = 'greybox'
 COM_PATCHSET = {USE_INITNUM, COM_PATCH, COM_SANITIZER, COM_MANUAL}
 
 COM_BINDIR = 'D'
@@ -230,8 +236,6 @@ COM_BINFUNC = 'F'
 COM_BINLINE = 'L'
 COM_BINCOL = 'C'
 COM_BININS = 'I'
-
-
 
 '''Generator'''
 PROGRAMS = "Programs"
@@ -316,8 +320,6 @@ SCH_EXLOC = 0
 # Determine the similarity to the target-triggered Sanitizer
 # high:0   low:infinite
 SCH_CRASH_SIMI = 2
-
-
 
 '''Visualizer'''
 # Red for frozen bytes.

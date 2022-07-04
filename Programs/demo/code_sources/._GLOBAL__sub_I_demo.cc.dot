@@ -1,5 +1,0 @@
-digraph "CFG for '_GLOBAL__sub_I_demo.cc' function" {
-	label="CFG for '_GLOBAL__sub_I_demo.cc' function";
-
-	Node0x555555643c50 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870",label="{%0:\l  call void @__cxx_global_var_init(), !dbg !1044\l  ret void\l}"];
-}

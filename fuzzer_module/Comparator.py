@@ -111,6 +111,11 @@ def getTarget(path_patchloc, patchtype: list):
                 idx += 1
                 target_dict[target_num].append([idx, line[0], int(line[1])])
 
+    # Add Greybox fuzzing.
+    target_num += 1
+    target_dict[target_num] = []
+    target_dict[target_num].append([COM_GREYBOX, COM_GREYBOX, target_num])
+
     return target_dict
 
 
@@ -182,7 +187,6 @@ def compareTargetDiff(before_path, target_dict):
         before_target_dict = loadFromPkl(before_target_file)
         if before_target_dict == target_dict:
             cmptgt = False
-    saveAsPkl(before_target_file, target_dict)
     return cmptgt
 
 

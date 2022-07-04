@@ -59,6 +59,7 @@ def getCG(cglist):
                                 BUI_NODE_NAME: node[BUI_NODE_NAME],
                                 BUI_NODE_LABEL: node[BUI_NODE_LABEL],
                                 BUI_NODE_DISTANCE: USE_INITNUM}))
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), node[BUI_NODE_NUM], node[BUI_NODE_NAME], node[BUI_NODE_LABEL])
             map_func_cgnode[node[BUI_NODE_LABEL][1:-1]] = node[BUI_NODE_NAME]
         # Edges
         edges_list = []
@@ -73,7 +74,7 @@ def getCG(cglist):
     return cggraph, map_func_cgnode
 
 
-def getCFG(cfglist, map_num_asm):
+def getCFG(cfglist, map_num_asm, target_dict):
     """
     Get the
     @param cfglist:
@@ -92,6 +93,7 @@ def getCFG(cfglist, map_num_asm):
         with open(jsonfile_i, 'r') as f:
             data = json.load(f)
             # print(data)
+            # LOG(LOG_DEBUG, LOG_FUNCINFO(), data[BUI_NAME], showlog=True)
             graphname = data[BUI_NAME].split(" ")[-2][1:-1]  # That also is the function name.
             if graphname not in map_guard_gvid:
                 map_guard_gvid[graphname] = {}
@@ -103,16 +105,17 @@ def getCFG(cfglist, map_num_asm):
             # Nodes
             nodes_list = []
             for node_j in data[BUI_NODES]:
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_NAME], node_j[BUI_NODE_LABEL])
+                node_asm = re.sub(r"\s|\\l|\\", '', node_j[BUI_NODE_LABEL])
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_NAME], node_asm, showlog=True)
 
                 # Find Guard num node_j
                 pattern = re.compile(BUI_GUARD_RE)
-                guard_res = pattern.findall(node_j[BUI_NODE_LABEL])
+                guard_res = pattern.findall(node_asm)
                 # if graphname == "_Z3bugv":
                 #     print("_Z3bugv", node_j[BUI_NODE_LABEL])
                 if len(guard_res) == 0:
                     pattern = re.compile(BUI_GUARD2_RE)
-                    guard_res = pattern.findall(node_j[BUI_NODE_LABEL])
+                    guard_res = pattern.findall(node_asm)  # todo  test it
                     # if len(guard_res) == 0:
                     #     LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_LABEL], showlog=True)
 
@@ -129,27 +132,37 @@ def getCFG(cfglist, map_num_asm):
                                     BUI_NODE_LABEL: temp_guardlist,
                                     BUI_NODE_DISTANCE: USE_INITNUM,
                                     BUI_NODE_ST: []}))
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_NUM], node_j[BUI_NODE_NAME], temp_guardlist)
 
                 # Find target
                 for tarnum_k in map_num_asm:  # target nums
-                    # print(map_numTofuncasm[0], graphname)
-                    # if graphname == "file_magicfind" or graphname == "match":
-                    #     print(graphname, node_j[BUI_NODE_LABEL])
-                    if graphname in map_num_asm[tarnum_k]:
-                        for target_l in map_num_asm[tarnum_k].get(graphname):  # [tgtnumid, asm]
-                            tgtid = target_l[0]
-                            res = node_j[BUI_NODE_LABEL].replace(' ', '').replace('\\l', '') \
-                                .find(target_l[1].replace(' ', ''))
+                    if len(map_num_asm[tarnum_k]) == 0:
+                        # Greybox
+                        map_target[tarnum_k] = {}
+                        continue
 
-                            if res != -1:
-                                if tarnum_k not in map_target:
-                                    map_target[tarnum_k] = {}
-                                if graphname not in map_target[tarnum_k]:
-                                    map_target[tarnum_k][graphname] = [
-                                        [tgtid, temp_guardlist, node_j[BUI_NODE_NUM]]]
-                                else:
-                                    map_target[tarnum_k][graphname].append(
-                                        [tgtid, temp_guardlist, node_j[BUI_NODE_NUM]])
+                    patchflag = target_dict[tarnum_k][0][0]
+                    if patchflag == COM_SANITIZER or patchflag == COM_MANUAL or patchflag == COM_PATCH:
+                        # print(map_numTofuncasm[0], graphname)
+                        # if graphname == "file_magicfind" or graphname == "match":
+                        #     print(graphname, node_j[BUI_NODE_LABEL])
+                        if graphname in map_num_asm[tarnum_k]:
+                            for target_l in map_num_asm[tarnum_k].get(graphname):  # [tgtnumid, asm]
+                                tgtid = target_l[0]
+                                LOG(LOG_DEBUG, LOG_FUNCINFO(), node_asm, target_l[1])
+                                # res = node_j[BUI_NODE_LABEL].replace(' ', '').replace('\\l', '') \
+                                #     .find(target_l[1].replace(' ', ''))
+                                res = node_asm.find(target_l[1])
+
+                                if res != -1:
+                                    if tarnum_k not in map_target:
+                                        map_target[tarnum_k] = {}
+                                    if graphname not in map_target[tarnum_k]:
+                                        map_target[tarnum_k][graphname] = [
+                                            [tgtid, temp_guardlist, node_j[BUI_NODE_NUM]]]
+                                    else:
+                                        map_target[tarnum_k][graphname].append(
+                                            [tgtid, temp_guardlist, node_j[BUI_NODE_NUM]])
 
             # Excluding the single node_j case.
             if BUI_EDGES not in data:

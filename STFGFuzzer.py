@@ -51,6 +51,7 @@ def mainFuzzer():
     for tgt_ki, stu_vi in target_dict.items():
         sch.target_dict[tgt_ki] = set()
         for info_j in stu_vi:
+            print(info_j)
             sch.target_dict[tgt_ki].add(str(info_j[1]) + str(info_j[2]))
 
     LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_dict)
@@ -63,11 +64,13 @@ def mainFuzzer():
 
         # Graph Information
         print("{} Build Graph Information...".format(getTime()))
+        # Load the .dot file into networkx.
         cglist, cfglist = Generator.createDotJsonFile(program_name, path.code_IR + program_name + GEN_TRACEBC_SUFFIX)
         cggraph, map_functo_cgnode = Builder.getCG(cglist)
-        cfggraph_dict, map_guard_gvid, map_target = Builder.getCFG(cfglist, map_numto_funcasm)
+        cfggraph_dict, map_guard_gvid, map_target = Builder.getCFG(cfglist, map_numto_funcasm, target_dict)
         # map_target {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, map_functo_cgnode)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, map_numto_funcasm, target_dict, map_functo_cgnode, showlog=True)
+        raise Exception
         '''All node transfrom to the gvid to convenient calculation and expression.'''
         '''All the function name transfrom to the static symbol function name.'''
         '''Dynamic:guard  Static:gvid'''
@@ -83,7 +86,7 @@ def mainFuzzer():
         saveAsPkl(path.data_graph+".map_target.pkl", map_target)
         saveAsPkl(path.data_graph+".map_tgtpredgvid_dis.pkl", map_tgtpredgvid_dis)
         saveAsPkl(path.data_graph+".tgtpred_offset.pkl", tgtpred_offset)
-
+        saveAsPkl(path.data_patchloc + B4TGT_FILE, target_dict)  # Compare target.
     else:
         # Load variables from PKL files Load variables.
         print("{} Target unchanged, load From pkl files...".format(getTime()))
