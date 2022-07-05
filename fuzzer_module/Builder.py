@@ -10,6 +10,7 @@ from queue import Queue
 from fuzzer_module.Fuzzconfig import *
 from .Structures import *
 
+
 class Graph:
     def __init__(self, dgname, nodes_list, edges_list):
         self.dgname = dgname
@@ -217,6 +218,7 @@ def getPredecessorsGvid(G, nodegvid):
 
     return predis_dict
 
+
 def searchCGFuncNode(graph, funcname):
     """
     According funcname to find which function to call target function.
@@ -247,8 +249,20 @@ def searchCGFuncNode(graph, funcname):
     return ref_dict
 
 
-def searchCFGFuncNode():
-    pass
+def searchCFGFuncNode(graph, callfuncs_dict):
+    predgvid = {}
+
+    call_nodes = set()
+    for node in graph.dg.nodes.data():
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), node[0], node[1], callfuncs_dict,
+            callfuncs_dict.keys() & node[1][BUI_NODE_FUNCS], showlog=True)
+        if len(callfuncs_dict.keys() & node[1][BUI_NODE_FUNCS]) != 0:
+            call_nodes.add(node[0])
+
+    for cnode in call_nodes:
+        predgvid.update(getPredecessorsGvid(graph.dg, cnode))
+
+    return predgvid
 
 
 def getTargetPredecessorsGuard(cggraph, cfggraph_dict, map_guard_gvid, map_target, target_dict):
@@ -261,7 +275,7 @@ def getTargetPredecessorsGuard(cggraph, cfggraph_dict, map_guard_gvid, map_targe
             map_tgtpredgvid[tgtnum_i] = {}
             for tgtfunc_j in map_target[tgtnum_i]:
                 if tgtfunc_j not in cfggraph_dict or tgtfunc_j not in map_guard_gvid:
-                    map_tgtpredgvid[tgtnum_i][tgtfunc_j] = {0:0, }
+                    map_tgtpredgvid[tgtnum_i][tgtfunc_j] = {0: 0, }
                 else:
                     for tgtlist_k in map_target[tgtnum_i][tgtfunc_j]:
                         tgtidx = tgtlist_k[0]
@@ -282,17 +296,40 @@ def getTargetPredecessorsGuard(cggraph, cfggraph_dict, map_guard_gvid, map_targe
 
             # Find which function call target function and get the distance for target.
             callfuncs_dict = {}
+
             for tgtfunc_i in map_target[tgtnum_i]:
+                # Find the related calls.
                 ref_dict = searchCGFuncNode(cggraph, tgtfunc_i)
                 for ref_k, dis_v in ref_dict.items():
                     if ref_k not in callfuncs_dict.items():
                         callfuncs_dict[ref_k] = dis_v
                     elif callfuncs_dict[ref_k] > dis_v:
                         callfuncs_dict[ref_k] = dis_v
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), callfuncs_dict, showlog=True)
 
             # Reverse traversal to build map_tgtpredgvid.
             # Find which gvid(node) include callfuncs.
+            tgtpredgvid = {}
+            # First use target build PredecessorsGvid.
+            for tgtfunc_k, tgtloc_v in map_target[tgtnum_i].items():
+                for oneloc_j in tgtloc_v:
+                    if tgtfunc_k not in cfggraph_dict:
+                        tgtpredgvid[tgtfunc_k] = {0:0, }
+                    else:
+                        tgtpredgvid[tgtfunc_k] = getPredecessorsGvid(cfggraph_dict[tgtfunc_k].dg, oneloc_j[2])
 
+            # Find raleted call functions.
+            for funcname_k, graph_v in cfggraph_dict.items():
+                if funcname_k not in callfuncs_dict:
+                    continue
+                # Use call functions predecessors distance to update the target.
+                predgvid = searchCFGFuncNode(graph_v, callfuncs_dict)
+                if len(predgvid) != 0:
+                    if funcname_k not in tgtpredgvid:
+                        tgtpredgvid[funcname_k] = {}
+                    tgtpredgvid[funcname_k].update(predgvid)
+
+            map_tgtpredgvid[tgtnum_i] = tgtpredgvid
 
         elif patchflag == COM_GREYBOX:
             map_tgtpredgvid[tgtnum_i] = {}
@@ -303,10 +340,11 @@ def getTargetPredecessorsGuard(cggraph, cfggraph_dict, map_guard_gvid, map_targe
 
 def getFuncOffset(map_tgtpredgvid_dis, map_target):
     """
-
+    Calculating migration.
     @return:
     """
     LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, map_target)
+    # Calculating the length of each function.
     tgtpred_offset = {}
     for tgtnum_ki, func_vi in map_tgtpredgvid_dis.items():
         if tgtnum_ki not in tgtpred_offset:
@@ -315,6 +353,7 @@ def getFuncOffset(map_tgtpredgvid_dis, map_target):
             if func_kj not in tgtpred_offset[tgtnum_ki]:
                 tgtpred_offset[tgtnum_ki][func_kj] = len(preddict_vj)
     LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, showlog=True)
+
 
     for tgtnum_ki, func_ki in tgtpred_offset.items():
         if tgtnum_ki not in map_target:
@@ -370,7 +409,8 @@ def printTargetSeq(map_target):
             # 8 main guard:[91]  gvid:94
             print("# {} {} {} {}".format(tgtnode[order_j][0], tgtnode[order_j][1],
                                          tgtnode[order_j][2], tgtnode[order_j][3]))
-            trace_orderdict[tgtnum_i][tgtnode[order_j][1]] = [tgtnode[order_j][0], tgtnode[order_j][2], USE_INITMAXNUM, ]
+            trace_orderdict[tgtnum_i][tgtnode[order_j][1]] = [tgtnode[order_j][0], tgtnode[order_j][2],
+                                                              USE_INITMAXNUM, ]
 
         print()
         # print(tgtnode)

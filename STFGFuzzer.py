@@ -82,7 +82,6 @@ def mainFuzzer():
             cggraph, cfggraph_dict, map_guard_gvid, map_target, target_dict)
         tgtpred_offset = Builder.getFuncOffset(map_tgtpredgvid_dis, map_target)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, target_dict, map_tgtpredgvid_dis, tgtpred_offset, showlog=True)
-        raise Exception
 
         print("{} Save as pkl files...".format(getTime()))
         saveAsPkl(path.data_graph+".map_functo_cgnode.pkl", map_functo_cgnode)
