@@ -58,6 +58,7 @@ def mainFuzzer():
     # If it is repeated, it is not loaded.
     cmptgt = Comparator.compareTargetDiff(path.data_patchloc, target_dict)
     if cmptgt:
+        print("{} Build binary target information...".format(getTime()))
         binline_dict = Builder.getBinaryInfo(path.data_graph)
         map_numto_funcasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), binline_dict, target_dict, map_numto_funcasm, sch.target_dict, showlog=True)
@@ -70,15 +71,18 @@ def mainFuzzer():
         cfggraph_dict, map_guard_gvid, map_target = Builder.getCFG(cfglist, map_numto_funcasm, target_dict)
         # map_target {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}
         LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, map_numto_funcasm, target_dict, map_functo_cgnode, showlog=True)
-        raise Exception
         '''All node transfrom to the gvid to convenient calculation and expression.'''
         '''All the function name transfrom to the static symbol function name.'''
         '''Dynamic:guard  Static:gvid'''
         '''Dynamic:func  Static:symbol'''
+        print("{} Construct target distance information...".format(getTime()))
         # map_target {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}
         Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
-        map_tgtpredgvid_dis = Builder.getTargetPredecessorsGuard(cfggraph_dict, map_guard_gvid, map_target)
+        map_tgtpredgvid_dis = Builder.getTargetPredecessorsGuard(
+            cggraph, cfggraph_dict, map_guard_gvid, map_target, target_dict)
         tgtpred_offset = Builder.getFuncOffset(map_tgtpredgvid_dis, map_target)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, target_dict, map_tgtpredgvid_dis, tgtpred_offset, showlog=True)
+        raise Exception
 
         print("{} Save as pkl files...".format(getTime()))
         saveAsPkl(path.data_graph+".map_functo_cgnode.pkl", map_functo_cgnode)
