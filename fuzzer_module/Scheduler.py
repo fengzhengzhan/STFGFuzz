@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import random
 import re
 from queue import Queue
 from queue import PriorityQueue
@@ -197,6 +198,7 @@ class Scheduler:
         Perform a trace of the compare instruction execution path if necessary.
         """
         LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, trans_guard_gvid)
+
         # If map location is empty, then first to run it to collect information.
         # If map is not empty, then run it when can not find in map.
         if len(self.trans_func_symbol) == 0 or len(self.trans_symbol_initguard) == 0:
@@ -207,68 +209,81 @@ class Scheduler:
 
         # Select compare and add it to priority queue.
         # According target number to determine the direction of mutation.
-        curtgtpred_offset = tgtpred_offset[self.cur_tgtnum]
         map_curtgtpredgvid_dis = map_tgtpredgvid_dis[self.cur_tgtnum]
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_curtgtpredgvid_dis)
-        distance = USE_INITMAXNUM
         disdup_cmpiddict = {}
+        if len(map_curtgtpredgvid_dis) == 0:  # Greybox
+            for trace_i in guardcov_list:
+                cmpid = trace_i[0]
+                cmptype = trace_i[1]
+                if cmptype in CMPSET:
+                    if cmpid not in disdup_cmpiddict:
+                        disdup_cmpiddict[cmpid] = 0
+                    else:
+                        disdup_cmpiddict[cmpid] += 1
+                    self.targetcmp_pq.put((random.randint(0, LIMITER), cmpid, disdup_cmpiddict[cmpid]))
 
-        for trace_i in guardcov_list:
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i)
-            cmpid = trace_i[0]
-            cmptype = trace_i[1]
-            if cmptype == EACH_PC_GUARD:
-                # pc_guard to update the Calibration Distance.
-                realguard = trace_i[2]
-                func = delBrackets(trace_i[3])
-                # According offset to determine the distance.
-                if func not in curtgtpred_offset:
-                    continue
-                # Lazy to update
-                if func not in self.trans_func_symbol:
-                    self.updateGuardSymbol(guardcov_list)
-                # Get the static symbol function name.
-                symbol = self.trans_func_symbol[func]
-                if symbol not in trans_guard_gvid:
-                    continue
+        else:  # Directed
+            curtgtpred_offset = tgtpred_offset[self.cur_tgtnum]
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), map_curtgtpredgvid_dis)
+            distance = USE_INITMAXNUM
 
-                # Transform the pc_guard to sub the value.
-                transguard = int(realguard) - self.trans_symbol_initguard[symbol]
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, trans_guard_gvid[symbol], self.trans_symbol_initguard[symbol])
-                if transguard not in trans_guard_gvid[symbol]:
-                    continue
-                # Get the networkx node gvid to get it.
-                gvid = trans_guard_gvid[symbol][transguard]
-                if symbol in map_curtgtpredgvid_dis and gvid in map_curtgtpredgvid_dis[symbol]:
-                    # Set distance for priority queue.
-                    distance = curtgtpred_offset[symbol] + map_curtgtpredgvid_dis[symbol][gvid]
-                    # Update visualizer's trace_orderdict
-                    # print(vis.trace_orderdict[self.cur_tgtnum])
-                    if str(symbol) in vis.trace_orderdict[self.cur_tgtnum]:
-                        vis.trace_orderdict[self.cur_tgtnum][symbol][2] = \
-                            min(vis.trace_orderdict[self.cur_tgtnum][symbol][2], map_curtgtpredgvid_dis[symbol][gvid])
-                elif symbol in map_curtgtpredgvid_dis and gvid not in map_curtgtpredgvid_dis[symbol]:
-                    distance = USE_INITMAXNUM
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, gvid, distance)
-            else:
-                # func, realguard, cmpnum = trace_i[2].split("+")
-                # if func == '':
-                #     continue
+            for trace_i in guardcov_list:
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i)
+                cmpid = trace_i[0]
+                cmptype = trace_i[1]
+                if cmptype == EACH_PC_GUARD:
+                    # pc_guard to update the Calibration Distance.
+                    realguard = trace_i[2]
+                    func = delBrackets(trace_i[3])
+                    # According offset to determine the distance.
+                    if func not in curtgtpred_offset:
+                        continue
+                    # Lazy to update
+                    if func not in self.trans_func_symbol:
+                        self.updateGuardSymbol(guardcov_list)
+                    # Get the static symbol function name.
+                    symbol = self.trans_func_symbol[func]
+                    if symbol not in trans_guard_gvid:
+                        continue
 
-                if cmpid not in disdup_cmpiddict:
-                    disdup_cmpiddict[cmpid] = 0
+                    # Transform the pc_guard to sub the value.
+                    transguard = int(realguard) - self.trans_symbol_initguard[symbol]
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, trans_guard_gvid[symbol], self.trans_symbol_initguard[symbol])
+                    if transguard not in trans_guard_gvid[symbol]:
+                        continue
+                    # Get the networkx node gvid to get it.
+                    gvid = trans_guard_gvid[symbol][transguard]
+                    if symbol in map_curtgtpredgvid_dis and gvid in map_curtgtpredgvid_dis[symbol]:
+                        # Set distance for priority queue.
+                        distance = curtgtpred_offset[symbol] + map_curtgtpredgvid_dis[symbol][gvid]
+                        # Update visualizer's trace_orderdict
+                        # print(vis.trace_orderdict[self.cur_tgtnum])
+                        if str(symbol) in vis.trace_orderdict[self.cur_tgtnum]:
+                            vis.trace_orderdict[self.cur_tgtnum][symbol][2] = \
+                                min(vis.trace_orderdict[self.cur_tgtnum][symbol][2], map_curtgtpredgvid_dis[symbol][gvid])
+                    elif symbol in map_curtgtpredgvid_dis and gvid not in map_curtgtpredgvid_dis[symbol]:
+                        distance = USE_INITMAXNUM
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, gvid, distance)
                 else:
-                    disdup_cmpiddict[cmpid] += 1
-                # if distance != USE_INITMAXNUM and cmpid not in disdup_cmpiddict:
-                if distance != USE_INITMAXNUM:
-                    # The smaller the distance, the higher the priority.
-                    # self.target_cmp.put((distance - vis.loop, cmpid))
-                    vis.cur_min_dis = min(vis.cur_min_dis, distance)
-                    self.targetcmp_pq.put((distance, cmpid, disdup_cmpiddict[cmpid]))
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), distance-vis.loop, cmpid, trace_i)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, self.trans_symbol_initguard)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, trans_guard_gvid)
-        del disdup_cmpiddict
+                    # func, realguard, cmpnum = trace_i[2].split("+")
+                    # if func == '':
+                    #     continue
+
+                    if cmpid not in disdup_cmpiddict:
+                        disdup_cmpiddict[cmpid] = 0
+                    else:
+                        disdup_cmpiddict[cmpid] += 1
+                    # if distance != USE_INITMAXNUM and cmpid not in disdup_cmpiddict:
+                    if distance != USE_INITMAXNUM:
+                        # The smaller the distance, the higher the priority.
+                        # self.target_cmp.put((distance - vis.loop, cmpid))
+                        vis.cur_min_dis = min(vis.cur_min_dis, distance)
+                        if distance <= LIMITER:
+                            self.targetcmp_pq.put((distance, cmpid, disdup_cmpiddict[cmpid]))
+                        LOG(LOG_DEBUG, LOG_FUNCINFO(), distance-vis.loop, cmpid, trace_i)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, self.trans_symbol_initguard)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, trans_guard_gvid)
+            del disdup_cmpiddict
 
 
     def selectBranch(self):
@@ -280,20 +295,23 @@ class Scheduler:
         @return:
         """
         near_dis = USE_INITMAXNUM
-        trace_guard_set = set(trace_guard_list)
-        self.coverage_set = self.coverage_set | trace_guard_set
         map_curtgtpredgvid_dis = map_tgtpredgvid_dis[self.cur_tgtnum]
-        curtgtpred_offset = tgtpred_offset[self.cur_tgtnum]
-        reverseto_gvid_guard = {}
-        for func_ki, map_kj in map_guard_gvid.items():
-            reverseto_gvid_guard[func_ki] = {v: k for k, v in map_kj.items()}
+        if len(map_curtgtpredgvid_dis) == 0:
+            near_dis = USE_INITNUM
+        else:
+            trace_guard_set = set(trace_guard_list)
+            self.coverage_set = self.coverage_set | trace_guard_set
+            curtgtpred_offset = tgtpred_offset[self.cur_tgtnum]
+            reverseto_gvid_guard = {}
+            for func_ki, map_kj in map_guard_gvid.items():
+                reverseto_gvid_guard[func_ki] = {v: k for k, v in map_kj.items()}
 
-        # Traverse to find the shortest distance.
-        for func_ki, disdict_vi in map_curtgtpredgvid_dis.items():
-            for gvid_kj, dis_vj in disdict_vi.items():
-                if reverseto_gvid_guard[func_ki][gvid_kj] in trace_guard_set:
-                    distance = curtgtpred_offset[func_ki] + dis_vj
-                    near_dis = min(near_dis, distance)
+            # Traverse to find the shortest distance.
+            for func_ki, disdict_vi in map_curtgtpredgvid_dis.items():
+                for gvid_kj, dis_vj in disdict_vi.items():
+                    if reverseto_gvid_guard[func_ki][gvid_kj] in trace_guard_set:
+                        distance = curtgtpred_offset[func_ki] + dis_vj
+                        near_dis = min(near_dis, distance)
 
         return near_dis
 

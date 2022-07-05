@@ -138,8 +138,8 @@ class Visualizer:
             self.terminal_status.addstr(9, 1,  "Distance(cur/min): {} / {}".format(cur_distance, self.cur_min_dis))
             self.terminal_status.addstr(10, 1,  "         Cmp Nums: {}-{} / {}".format(self.cmpnum, self.cmporder, self.cmptotal))
 
-            self.terminal_status.addstr(12, 1,  "       Crash Nums: {}".format(self.crash_num))
-            self.terminal_status.addstr(13, 1, "  Last Crash Time: {}".format(self.last_crash_time))
+            self.terminal_status.addstr(12, 1,  "       Crash Nums: {}".format(self.crash_num), curses.color_pair(VIS_RED))
+            self.terminal_status.addstr(13, 1, "  Last Crash Time: {}".format(self.last_crash_time), curses.color_pair(VIS_RED))
 
             #
             self.terminal_status.addstr(4, 41, "Trace", curses.color_pair(VIS_CYAN))

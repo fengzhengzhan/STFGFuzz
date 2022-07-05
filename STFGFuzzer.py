@@ -9,10 +9,9 @@ from fuzzer_module import *
 from fuzzer_module.Fuzzconfig import *
 
 
-# Close Address Space Layout Randomization.
-# echo 0 > /proc/sys/kernel/randomize_va_space
-
+# python3.7 STFGFuzzer.py -n demo  -- ./Programs/demo/code_Bin/demo -f @@
 # python3.7 STFGFuzzer.py -n demo -t sanitizer -- ./Programs/demo/code_Bin/demo -f @@
+# python3.7 STFGFuzzer.py -n demo -t sanitizer,manual,patch -- ./Programs/demo/code_Bin/demo -f @@
 # python3.7 STFGFuzzer.py -n base64 -- ./Programs/base64/code_Bin/base64 -d @@
 # python3.7 STFGFuzzer.py -n md5sum -- ./Programs/md5sum/code_Bin/md5sum -c @@
 # python3.7 STFGFuzzer.py -n uniq -- ./Programs/uniq/code_Bin/uniq @@
@@ -27,6 +26,7 @@ def mainFuzzer():
     @return:
     """
     print("{} Start Directed Fuzzing...".format(getTime()))
+    # Close Address Space Layout Randomization.
     stdout, stderr = Executor.run("cat /proc/sys/kernel/randomize_va_space")  # Default 2
     if stdout != b'0\n':
         raise Exception("Please turn off address randomization -> echo 0 > /proc/sys/kernel/randomize_va_space")
@@ -51,7 +51,6 @@ def mainFuzzer():
     for tgt_ki, stu_vi in target_dict.items():
         sch.target_dict[tgt_ki] = set()
         for info_j in stu_vi:
-            print(info_j)
             sch.target_dict[tgt_ki].add(str(info_j[1]) + str(info_j[2]))
 
     LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_dict)
@@ -217,7 +216,10 @@ def mainFuzzer():
         '''ld <-'''
 
         '''2 cmp filter -> Select compare instructions which close the target block. '''
-        ana.sendCmpid(TRACE_CMPGUARDSYMBOL)
+        if len(map_tgtpredgvid_dis[sch.cur_tgtnum]) == 0:
+            ana.sendCmpid(TRACE_CMP)
+        else:
+            ana.sendCmpid(TRACE_CMPGUARDSYMBOL)
         # Reset the init_seed
         vis.total += 1
         init_seed = sch.selectOneSeed(SCH_THIS_SEED, b4ld_seed)
@@ -281,9 +283,11 @@ def mainFuzzer():
             LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki, stcmpid_loci, showlog=True)
             vis.cmpnum += 1
             vis.cmporder = 0
-            # limiter
-            if stcmpid_weight - sch.cur_nearlydis >= LIMITER:
-                break
+
+            # limiter Use it from select constraint.
+            # if stcmpid_weight - sch.cur_nearlydis >= LIMITER:
+            #     break
+
             # Cyclic independent comparison
             if stcmpid_ki in sch.skipcmp_dict and sch.skipcmp_dict[stcmpid_ki] >= SCH_SKIP_COUNT:
                 continue
