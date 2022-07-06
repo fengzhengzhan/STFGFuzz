@@ -267,11 +267,14 @@ def searchCFGFuncNode(graph, callfuncs_dict):
 
 def getTargetPredecessorsGuard(cggraph, cfggraph_dict, map_guard_gvid, map_target, target_dict):
     LOG(LOG_DEBUG, LOG_FUNCINFO(), cfggraph_dict, map_target, showlog=True)
+    map_callfuncs = {}
     map_tgtpredgvid = {}
+
     for tgtnum_i in map_target:  # Select target numbers.
         patchflag = target_dict[tgtnum_i][0][0]
         if patchflag == COM_SANITIZER:
             LOG(LOG_DEBUG, LOG_FUNCINFO(), patchflag, map_target[tgtnum_i], showlog=True)
+            map_callfuncs[tgtnum_i] = {}
             map_tgtpredgvid[tgtnum_i] = {}
             for tgtfunc_j in map_target[tgtnum_i]:
                 if tgtfunc_j not in cfggraph_dict or tgtfunc_j not in map_guard_gvid:
@@ -329,21 +332,24 @@ def getTargetPredecessorsGuard(cggraph, cfggraph_dict, map_guard_gvid, map_targe
                         tgtpredgvid[funcname_k] = {}
                     tgtpredgvid[funcname_k].update(predgvid)
 
+            map_callfuncs[tgtnum_i] = callfuncs_dict
             map_tgtpredgvid[tgtnum_i] = tgtpredgvid
 
         elif patchflag == COM_GREYBOX:
+            map_callfuncs[tgtnum_i] = {}
             map_tgtpredgvid[tgtnum_i] = {}
 
     # print(map_tgtpredgvid)
-    return map_tgtpredgvid
+    return map_tgtpredgvid, map_callfuncs
 
 
-def getFuncOffset(map_tgtpredgvid_dis, map_target):
+def getFuncOffset(map_tgtpredgvid_dis, map_target, map_callfuncs):
     """
     Calculating migration.
     @return:
     """
     LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, map_target)
+
     # Calculating the length of each function.
     tgtpred_offset = {}
     for tgtnum_ki, func_vi in map_tgtpredgvid_dis.items():
@@ -354,14 +360,29 @@ def getFuncOffset(map_tgtpredgvid_dis, map_target):
                 tgtpred_offset[tgtnum_ki][func_kj] = len(preddict_vj)
     LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, showlog=True)
 
-
+    # Calculating the offset of function.
     for tgtnum_ki, func_ki in tgtpred_offset.items():
         if tgtnum_ki not in map_target:
             continue
         tgtnode = {}
+        # Calculating the order of function from map_target to build a dict[number:func].
         for func_kj, orderlist_vj in map_target[tgtnum_ki].items():
             for node_k in map_target[tgtnum_ki][func_kj]:
                 nid = int(node_k[0]) * BUI_ORDER_MULTI
+                if nid not in tgtnode:
+                    tgtnode[nid] = func_kj
+                else:
+                    while nid in tgtnode:
+                        nid += 1
+                    tgtnode[nid] = func_kj
+
+        # Calculating the order of function from map_callfuncs.
+        if len(map_callfuncs[tgtnum_ki]) != 0:
+            target_values = set(tgtnode.values())
+            for func_kj, orderdis_vj in map_callfuncs[tgtnum_ki].items():
+                if func_kj in target_values:
+                    continue
+                nid = int(orderdis_vj) * BUI_ORDER_MULTI
                 if nid not in tgtnode:
                     tgtnode[nid] = func_kj
                 else:

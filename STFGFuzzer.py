@@ -77,10 +77,11 @@ def mainFuzzer():
         print("{} Construct target distance information...".format(getTime()))
         # map_target {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}
         Builder.buildBFSdistance(cggraph, cfggraph_dict)  # Build the distance between two nodes.
-        map_tgtpredgvid_dis = Builder.getTargetPredecessorsGuard(
+        map_tgtpredgvid_dis, map_callfuncs = Builder.getTargetPredecessorsGuard(
             cggraph, cfggraph_dict, map_guard_gvid, map_target, target_dict)
-        tgtpred_offset = Builder.getFuncOffset(map_tgtpredgvid_dis, map_target)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, target_dict, map_tgtpredgvid_dis, tgtpred_offset, showlog=True)
+        tgtpred_offset = Builder.getFuncOffset(map_tgtpredgvid_dis, map_target, map_callfuncs)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, target_dict, map_tgtpredgvid_dis, tgtpred_offset, map_callfuncs, showlog=True)
+        raise Exception
 
         print("{} Save as pkl files...".format(getTime()))
         saveAsPkl(path.data_graph+".map_functo_cgnode.pkl", map_functo_cgnode)
