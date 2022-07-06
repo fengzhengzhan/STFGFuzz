@@ -17,6 +17,7 @@ from fuzzer_module.Fuzzconfig import *
 # python3.7 STFGFuzzer.py -n uniq -- ./Programs/uniq/code_Bin/uniq @@
 # python3.7 STFGFuzzer.py -n who -- ./Programs/who/code_Bin/who @@
 # python3.7 STFGFuzzer.py -n lava660 -t sanitizer -- Programs/lava660/code_Bin/lava660 @@
+# python3.7 STFGFuzzer.py -n lava1199 -t sanitizer -- Programs/lava1199/code_Bin/lava1199 @@
 # python3.7 STFGFuzzer.py -n lava13796 -t sanitizer -- Programs/lava13796/code_Bin/lava13796 @@
 # python3.7 STFGFuzzer.py -n CVE-2016-4487 -t manual -- Programs/CVE-2016-4487/code_Bin/CVE-2016-4487 @@
 
@@ -127,13 +128,13 @@ def mainFuzzer():
         sch.addq(SCH_LOOP_SEED, temp_listq)
     else:
         sch.addq(SCH_LOOP_SEED,
-                 [Structures.StructSeed(path.seeds_mutate + AUTO_SEED, Mutator.getExpandFillStr(1024), SEED_INIT, set()), ])
+                 [Structures.StructSeed(path.seeds_mutate + AUTO_SEED, Mutator.getExpandFillStr(SCH_EXPAND_SIZE), SEED_INIT, set()), ])
 
     # Create Memory Share.
     ana = Analyzer.Analyzer()
     create_seed = sch.selectOneSeed(
         SCH_THISMUT_SEED,
-        Structures.StructSeed(path.seeds_mutate + AUTO_SEED, Mutator.getExpandFillStr(128), SEED_INIT, set()))
+        Structures.StructSeed(path.seeds_mutate + AUTO_SEED, Mutator.getExpandFillStr(SCH_EXPAND_SIZE), SEED_INIT, set()))
     create_stdout, create_stderr = Executor.run(fuzz_command.replace('@@', create_seed.filename))
     ana.getShm(create_stdout[0:16])
     LOG(LOG_DEBUG, LOG_FUNCINFO(), create_seed.content)
@@ -280,6 +281,11 @@ def mainFuzzer():
             sch.targetcmp_pq.put(tempcmpid)
             sch.cur_nearlydis = tempcmpid[0]
 
+        # Debug:
+        # while not sch.targetcmp_pq.empty():
+        #     LOG(LOG_DEBUG,LOG_FUNCINFO(), sch.targetcmp_pq.get(), showlog=True)
+        # raise Exception
+
         # print("{} st...".format(getTime()))
         '''3 cmp type'''
         '''st -> Constraints Analysis'''
@@ -304,6 +310,8 @@ def mainFuzzer():
             ana.sendCmpid(stcmpid_ki)
 
             # Debug
+            if stcmpid_ki == "g0x4f9aaf0x51c4a50x518557":
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), "g0x4f9aaf0x51c4a50x518557", showlog=True)
             # filter = ["g0x4f99810x52a8b80x529492"]
             # print(".", end="")
             # if stcmpid_tuples not in filter:
@@ -599,6 +607,7 @@ def mainFuzzer():
                                     trace_guard_list = ana.getRpt(trace_interlen)
                                     near_dis = sch.findNearDistance(
                                         trace_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
+                                    LOG(LOG_DEBUG, LOG_FUNCINFO(), near_dis, sch.cur_nearlydis, showlog=True)
                                     if near_dis < sch.cur_nearlydis:
                                         eaexit = True
                                     sch.addq(SCH_LOOP_SEED, [opt_seed, ])

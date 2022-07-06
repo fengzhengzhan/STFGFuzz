@@ -23,8 +23,8 @@ FUZZ_GERYBOX = 61
 
 EXP_MODE = False
 # EXP_MODE = True
-VIS_TERM = True
-# VIS_TERM = False
+# VIS_TERM = True
+VIS_TERM = False
 # VIS_SHOWGRAPH = True
 VIS_SHOWGRAPH = False
 
@@ -316,7 +316,7 @@ SCH_THISMUT_SEED = 224
 SCH_SAVEASFILE = True
 
 SCH_EXPAND_MULTI = 2  # Seed expansion factor per round
-SCH_EXPAND_SIZE = 1024 // SCH_EXPAND_MULTI
+SCH_EXPAND_SIZE = 128 // SCH_EXPAND_MULTI
 
 # The count of sliding windows is multiple of SCH_SLID_COUNT.
 # Recommond 1024/16 = 64

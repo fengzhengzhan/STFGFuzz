@@ -184,9 +184,13 @@ class Scheduler:
                 # Map execute function name to symbol function name.
                 if guard_funcname not in self.trans_func_symbol:
                     for bin_kj in self.trans_symbol_initguard.keys():
-                        findres = bin_kj.find(guard_funcname)
-                        if findres != -1:
+                        if guard_funcname == bin_kj:
                             self.trans_func_symbol[guard_funcname] = bin_kj
+                            break
+                        else:
+                            findres = bin_kj.find(guard_funcname)
+                            if findres != -1:
+                                self.trans_func_symbol[guard_funcname] = bin_kj
 
                 # Change guard start number from symbol function name which use execute function name map it.
                 if guard_funcname in self.trans_func_symbol:
@@ -242,7 +246,9 @@ class Scheduler:
                     if func not in self.trans_func_symbol:
                         self.updateGuardSymbol(guardcov_list)
                     # Get the static symbol function name.
+                    # todo Symbol inconsistency  file_strncmp<->file_strncmp16
                     symbol = self.trans_func_symbol[func]
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), func, symbol, self.trans_func_symbol)
                     if symbol not in trans_guard_gvid:
                         continue
 
@@ -258,7 +264,7 @@ class Scheduler:
                         distance = curtgtpred_offset[symbol] + map_curtgtpredgvid_dis[symbol][gvid]
                         # Update visualizer's trace_orderdict
                         # print(vis.trace_orderdict[self.cur_tgtnum])
-                        if str(symbol) in vis.trace_orderdict[self.cur_tgtnum]:
+                        if symbol in vis.trace_orderdict[self.cur_tgtnum]:
                             vis.trace_orderdict[self.cur_tgtnum][symbol][2] = \
                                 min(vis.trace_orderdict[self.cur_tgtnum][symbol][2], map_curtgtpredgvid_dis[symbol][gvid])
                     elif symbol in map_curtgtpredgvid_dis and gvid not in map_curtgtpredgvid_dis[symbol]:
@@ -299,6 +305,7 @@ class Scheduler:
         if len(map_curtgtpredgvid_dis) == 0:
             near_dis = USE_INITNUM
         else:
+            # pc_guard numbers.
             trace_guard_set = set(trace_guard_list)
             self.coverage_set = self.coverage_set | trace_guard_set
             curtgtpred_offset = tgtpred_offset[self.cur_tgtnum]
@@ -309,6 +316,7 @@ class Scheduler:
             # Traverse to find the shortest distance.
             for func_ki, disdict_vi in map_curtgtpredgvid_dis.items():
                 for gvid_kj, dis_vj in disdict_vi.items():
+                    # If pc_guard in trace_guard dynamic, then update it to near_dis.
                     if reverseto_gvid_guard[func_ki][gvid_kj] in trace_guard_set:
                         distance = curtgtpred_offset[func_ki] + dis_vj
                         near_dis = min(near_dis, distance)
