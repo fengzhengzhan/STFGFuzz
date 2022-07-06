@@ -100,6 +100,6 @@ if __name__ == '__main__':
     # 2
     # cpFiles()
     # 3 root
-    # buildFiles()
+    buildFiles()
     # 4
     # printFuzz()

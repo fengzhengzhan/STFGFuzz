@@ -18,7 +18,7 @@ from fuzzer_module.Fuzzconfig import *
 # python3.7 STFGFuzzer.py -n who -- ./Programs/who/code_Bin/who @@
 # python3.7 STFGFuzzer.py -n lava660 -t sanitizer -- Programs/lava660/code_Bin/lava660 @@
 # python3.7 STFGFuzzer.py -n lava13796 -t sanitizer -- Programs/lava13796/code_Bin/lava13796 @@
-# python3.7 STFGFuzzer.py -n CVE-2016-4487 -t sanitizer -- Programs/CVE-2016-4487/code_Bin/CVE-2016-4487 @@
+# python3.7 STFGFuzzer.py -n CVE-2016-4487 -t manual -- Programs/CVE-2016-4487/code_Bin/CVE-2016-4487 @@
 
 def mainFuzzer():
     """
@@ -81,7 +81,6 @@ def mainFuzzer():
             cggraph, cfggraph_dict, map_guard_gvid, map_target, target_dict)
         tgtpred_offset = Builder.getFuncOffset(map_tgtpredgvid_dis, map_target, map_callfuncs)
         LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, target_dict, map_tgtpredgvid_dis, tgtpred_offset, map_callfuncs, showlog=True)
-        raise Exception
 
         print("{} Save as pkl files...".format(getTime()))
         saveAsPkl(path.data_graph+".map_functo_cgnode.pkl", map_functo_cgnode)
@@ -118,7 +117,8 @@ def mainFuzzer():
     # Init seed lists
     print("{} Init Seed lists...".format(getTime()))
     init_seeds_list = Generator.prepareEnv(program_name)
-    if len(init_seeds_list) > 1:
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seeds_list, len(init_seeds_list,), showlog=True)
+    if len(init_seeds_list) > 0:
         temp_listq = []
         for each in init_seeds_list:
             temp_listq.append(
@@ -133,7 +133,7 @@ def mainFuzzer():
     ana = Analyzer.Analyzer()
     create_seed = sch.selectOneSeed(
         SCH_THISMUT_SEED,
-        Structures.StructSeed(path.seeds_mutate + AUTO_SEED, Mutator.getExpandFillStr(1024), SEED_INIT, set()))
+        Structures.StructSeed(path.seeds_mutate + AUTO_SEED, Mutator.getExpandFillStr(128), SEED_INIT, set()))
     create_stdout, create_stderr = Executor.run(fuzz_command.replace('@@', create_seed.filename))
     ana.getShm(create_stdout[0:16])
     LOG(LOG_DEBUG, LOG_FUNCINFO(), create_seed.content)
@@ -147,7 +147,7 @@ def mainFuzzer():
     while sch.cur_tgtnum < sch.all_tgtnum and not sch.seedq.empty():
         eaexit = False
         vis.loop += 1
-
+        print("{} loop...".format(getTime()))
         # # Guard
         # ana.sendCmpid(TRACE_CMPGUARD)
         # init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
@@ -165,13 +165,16 @@ def mainFuzzer():
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         # cmpcov_list = ana.getRpt(init_interlen)
-        # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch) todo
+        # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content, init_stdout, init_interlen, init_covernum, showlog=True)
+
 
         # Select the location to be mutated and add it to the location queue.
         sch.initEachloop(vis)
 
         '''Find correspondence: seed inputs -> cmp instruction -> cmp type (access method) -> braches'''
 
+        print("{} ld...".format(getTime()))
         '''ld -> Length Detection, Increase seed length'''
         # Increase the input length when the number of constraints does not change in the program.
         # If there is a change in the increase length then increase the length.
@@ -216,6 +219,7 @@ def mainFuzzer():
                 sch.quitFuzz()
         '''ld <-'''
 
+        print("{} cf...".format(getTime()))
         '''2 cmp filter -> Select compare instructions which close the target block. '''
         if len(map_tgtpredgvid_dis[sch.cur_tgtnum]) == 0:
             ana.sendCmpid(TRACE_CMP)
@@ -226,6 +230,7 @@ def mainFuzzer():
         init_seed = sch.selectOneSeed(SCH_THIS_SEED, b4ld_seed)
         init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
         eaexit = sch.saveCrash(init_seed, init_stdout, init_stderr, vis)
+        # print("{} eaexit...".format(getTime()))
 
         # Get all the constraints.
         # Binary files each function blocks from 0.
@@ -240,7 +245,9 @@ def mainFuzzer():
 
         # Update sch priority queue. Save cmpid for the next explore
         LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
+        # print("{} b4select...".format(getTime()))
         sch.selectConstraint(init_guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid, vis)
+        # print("{} select...".format(getTime()))
         # raise Exception()
 
         # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
@@ -273,6 +280,7 @@ def mainFuzzer():
             sch.targetcmp_pq.put(tempcmpid)
             sch.cur_nearlydis = tempcmpid[0]
 
+        # print("{} st...".format(getTime()))
         '''3 cmp type'''
         '''st -> Constraints Analysis'''
         # Select one stcmpid_tuples.
