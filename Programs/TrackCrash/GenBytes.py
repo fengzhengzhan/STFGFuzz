@@ -182,16 +182,18 @@ def hexToNum(num):
 
 # 1818326624
 # i = hexToNum('7f454c46')
-i = hexToNum('464c457f')
+# i = hexToNum('464c457f')
 # i = hexToNum('464c45')
 # i = hexToNum('454c46')
+i = hexToNum('123456F8')
 numToHexChar(i)
-#
+
 # numToHexChar(3883718427)
 # numToHexChar(305419896)
 # numToHexChar(573855352)
-# numToHexChar(305419896)
-numToHexChar(305420024)
+# numToHexChar(305420024)
+# numToHexChar(305419640)
+# numToHexChar(875770417)
 
 
 # for i, one in enumerate(BYTES_ASCII):

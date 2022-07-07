@@ -130,6 +130,8 @@ def handleMagicNum(st_cmploc, cont_list, strategy):
         strategy.curnum = 0
         strategy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
 
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, change_inputmap, showlog=True)
+
     return change_inputmap
 
 
@@ -282,6 +284,7 @@ def solveDistence(strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, 
 
         if st_one[IDX_ARG] == st_one[IDX_ARG + strategy.curloop]:
             exe_status = DIST_FINISH
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), exe_status, st_one[IDX_ARG], st_one[IDX_ARG + strategy.curloop], showlog=True)
 
     return ret_seed, ret_cmpcov_list, exe_status
 
@@ -390,10 +393,12 @@ def devStrategy(opt_cmpcov_list, cmporder_i, strategy_flag, cmp_flag, bytes_flag
         temp_stgy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)  # Can't reach.
 
     temp_stgy.curloop = 0
-    if strategy_flag == TYPE_MAGICNUM or strategy_flag == TYPE_CHECKNUM:
-        temp_stgy.endloop = 2
-    else:
-        temp_stgy.endloop = 1
+    temp_stgy.endloop = 1
+    # Use curnum to adjust the selection mutation stage, instead of curloop .
+    # if strategy_flag == TYPE_MAGICNUM or strategy_flag == TYPE_CHECKNUM:
+    #     temp_stgy.endloop = 1
+    # else:
+    #     temp_stgy.endloop = 1
 
     if cmporder_i < len(opt_cmpcov_list):
         opt_one = opt_cmpcov_list[cmporder_i][1:]
