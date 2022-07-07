@@ -17,7 +17,7 @@ from fuzzer_module.Fuzzconfig import *
 # python3.7 STFGFuzzer.py -n uniq -- ./Programs/uniq/code_Bin/uniq @@
 # python3.7 STFGFuzzer.py -n who -- ./Programs/who/code_Bin/who @@
 # python3.7 STFGFuzzer.py -n lava660 -t sanitizer -- Programs/lava660/code_Bin/lava660 @@
-# python3.7 STFGFuzzer.py -n lava1199 -t sanitizer -- Programs/lava1199/code_Bin/lava1199 @@
+# python3.7 STFGFuzzer.py -n lava2285 -t sanitizer -- Programs/lava2285/code_Bin/lava2285 @@
 # python3.7 STFGFuzzer.py -n lava13796 -t sanitizer -- Programs/lava13796/code_Bin/lava13796 @@
 # python3.7 STFGFuzzer.py -n CVE-2016-4487 -t manual -- Programs/CVE-2016-4487/code_Bin/CVE-2016-4487 @@
 
@@ -61,7 +61,7 @@ def mainFuzzer():
         print("{} Build binary target information...".format(getTime()))
         binline_dict = Builder.getBinaryInfo(path.data_graph)
         map_numto_funcasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), binline_dict, target_dict, map_numto_funcasm, sch.target_dict, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), binline_dict, target_dict, map_numto_funcasm, sch.target_dict)
 
         # Graph Information
         print("{} Build Graph Information...".format(getTime()))
@@ -406,20 +406,20 @@ def mainFuzzer():
                 #     continue
 
                 # Skip fix cmp
-                # if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content):
-                #     if stcmpid_ki not in sch.skipcmp_dict:
-                #         sch.skipcmp_dict[stcmpid_ki] = 1
-                #     else:
-                #         sch.skipcmp_dict[stcmpid_ki] += 1
-                #     continue
-                #
-                # if stcmpid_ki in sch.skipcmp_dict:
-                #     sch.skipcmp_dict[stcmpid_ki] = 0
+                if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content):
+                    if stcmpid_ki not in sch.skipcmp_dict:
+                        sch.skipcmp_dict[stcmpid_ki] = 1
+                    else:
+                        sch.skipcmp_dict[stcmpid_ki] += 1
+                    continue
 
-                if stcmpid_ki not in sch.skipcmp_dict:
-                    sch.skipcmp_dict[stcmpid_ki] = 1
-                else:
-                    sch.skipcmp_dict[stcmpid_ki] += 1
+                if stcmpid_ki in sch.skipcmp_dict:
+                    sch.skipcmp_dict[stcmpid_ki] = 0
+
+                # if stcmpid_ki not in sch.skipcmp_dict:
+                #     sch.skipcmp_dict[stcmpid_ki] = 1
+                # else:
+                #     sch.skipcmp_dict[stcmpid_ki] += 1
 
                 if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content):
                     continue

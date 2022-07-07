@@ -260,6 +260,7 @@ def solveDistence(strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, 
     ret_cmpcov_list = opt_cmpcov_list
     exe_status = DIST_CONTINUE
 
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), cmporder_num, len(opt_cmpcov_list), len(st_cmpcov_list), showlog=True)
     if cmporder_num < len(opt_cmpcov_list) and cmporder_num < len(st_cmpcov_list):
         opt_one = opt_cmpcov_list[cmporder_num][1:]
         st_one = st_cmpcov_list[cmporder_num][1:]
@@ -284,7 +285,11 @@ def solveDistence(strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, 
 
         if st_one[IDX_ARG] == st_one[IDX_ARG + strategy.curloop]:
             exe_status = DIST_FINISH
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), exe_status, st_one[IDX_ARG], st_one[IDX_ARG + strategy.curloop], showlog=True)
+            ret_seed = st_seed
+        if opt_one[IDX_ARG] == opt_one[IDX_ARG + strategy.curloop]:
+            exe_status = DIST_FINISH
+            ret_seed = opt_seed
+        # LOG(LOG_DEBUG, LOG_FUNCINFO(), exe_status, st_one[IDX_ARG], st_one[IDX_ARG + strategy.curloop], showlog=True)
 
     return ret_seed, ret_cmpcov_list, exe_status
 

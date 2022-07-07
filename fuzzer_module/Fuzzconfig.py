@@ -323,8 +323,8 @@ SCH_EXPAND_SIZE = 128 // SCH_EXPAND_MULTI
 SCH_SLID_MIN = 8  # 8 bit
 SCH_SLID_SLICE = 4  # 16 slices.
 
-# Determine the number of similar comparison instructions skipped.
-SCH_SKIP_COUNT = 1
+# Determine the number of the same comparison instructions skipped.
+SCH_SKIP_COUNT = 3
 # Determine the position of the loop comparison instruction
 SCH_EXLOC = 0
 # Determine the similarity to the target-triggered Sanitizer
