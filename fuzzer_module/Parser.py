@@ -54,8 +54,10 @@ def numToBytes(num, nlen, mode):
         for i in range(0, len(h)):
             b += BYTES_ASCII[ord(h[i:i+1])]
     elif mode == PAR_CONVDOUBLE:
-        if len(h) < nlen*2:
-            h = "0"*(nlen*2-len(h)) + h
+        # if len(h) < nlen * 2:
+        #     h = "0" * (nlen * 2 - len(h)) + h
+        if len(h) % 2 == 1:
+            h = "0" + h
         for i in range(0, len(h), 2):
             b += BYTES_ASCII[int(h[i:i + 2], 16)]
     return b
@@ -119,6 +121,7 @@ def handleMagicNum(st_cmploc, cont_list, strategy):
             change_inputmap[loc] = fixed_cont[idx:idx + 1]
     elif strategy.curnum == 2:
         fixed_cont = numToBytes(fixed_cont, len(st_cmploc), PAR_CONVDOUBLE)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), fixed_cont)
         for idx, loc in enumerate(st_cmploc[::1]):
             change_inputmap[loc] = fixed_cont[idx:idx + 1]
     elif strategy.curnum == 3:
@@ -260,7 +263,7 @@ def solveDistence(strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, 
     ret_cmpcov_list = opt_cmpcov_list
     exe_status = DIST_CONTINUE
 
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), cmporder_num, len(opt_cmpcov_list), len(st_cmpcov_list), showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), cmporder_num, len(opt_cmpcov_list), len(st_cmpcov_list))
     if cmporder_num < len(opt_cmpcov_list) and cmporder_num < len(st_cmpcov_list):
         opt_one = opt_cmpcov_list[cmporder_num][1:]
         st_one = st_cmpcov_list[cmporder_num][1:]

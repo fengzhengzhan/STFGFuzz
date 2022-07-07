@@ -70,7 +70,7 @@ def mainFuzzer():
         cggraph, map_functo_cgnode = Builder.getCG(cglist)
         cfggraph_dict, map_guard_gvid, map_target = Builder.getCFG(cfglist, map_numto_funcasm, target_dict)
         # map_target {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, map_numto_funcasm, target_dict, map_functo_cgnode, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, map_numto_funcasm, target_dict, map_functo_cgnode)
         '''All node transfrom to the gvid to convenient calculation and expression.'''
         '''All the function name transfrom to the static symbol function name.'''
         '''Dynamic:guard  Static:gvid'''
@@ -81,7 +81,7 @@ def mainFuzzer():
         map_tgtpredgvid_dis, map_callfuncs = Builder.getTargetPredecessorsGuard(
             cggraph, cfggraph_dict, map_guard_gvid, map_target, target_dict)
         tgtpred_offset = Builder.getFuncOffset(map_tgtpredgvid_dis, map_target, map_callfuncs)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, target_dict, map_tgtpredgvid_dis, tgtpred_offset, map_callfuncs, showlog=True)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, target_dict, map_tgtpredgvid_dis, tgtpred_offset, map_callfuncs)
 
         print("{} Save as pkl files...".format(getTime()))
         saveAsPkl(path.data_graph+".map_functo_cgnode.pkl", map_functo_cgnode)
@@ -98,8 +98,7 @@ def mainFuzzer():
         map_target = loadFromPkl(path.data_graph+".map_target.pkl")
         map_tgtpredgvid_dis = loadFromPkl(path.data_graph+".map_tgtpredgvid_dis.pkl")
         tgtpred_offset = loadFromPkl(path.data_graph+".tgtpred_offset.pkl")
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_functo_cgnode, map_guard_gvid, map_target, map_tgtpredgvid_dis, tgtpred_offset,
-        showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_functo_cgnode, map_guard_gvid, map_target, map_tgtpredgvid_dis, tgtpred_offset)
 
     if len(map_target) != 0:
         sch.all_tgtnum = len(map_target)
@@ -148,7 +147,7 @@ def mainFuzzer():
     while sch.cur_tgtnum < sch.all_tgtnum and not sch.seedq.empty():
         eaexit = False
         vis.loop += 1
-        print("{} loop...".format(getTime()))
+        # print("{} loop...".format(getTime()))
         # # Guard
         # ana.sendCmpid(TRACE_CMPGUARD)
         # init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
@@ -175,7 +174,7 @@ def mainFuzzer():
 
         '''Find correspondence: seed inputs -> cmp instruction -> cmp type (access method) -> braches'''
 
-        print("{} ld...".format(getTime()))
+        # print("{} ld...".format(getTime()))
         '''ld -> Length Detection, Increase seed length'''
         # Increase the input length when the number of constraints does not change in the program.
         # If there is a change in the increase length then increase the length.
@@ -194,8 +193,7 @@ def mainFuzzer():
 
             # 1 seed inputs
             ld_interlen, ld_covernum = ana.getShm(ld_stdout[0:16])
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), len(ld_seed.content), b4ld_interlen, ld_interlen)
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), ana.getRpt(ld_interlen))
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), len(ld_seed.content), b4ld_interlen, ld_interlen, ana.getRpt(ld_interlen))
             if b4ld_interlen != ld_interlen:
                 b4ld_seed = ld_seed
                 b4ld_interlen = ld_interlen
@@ -220,7 +218,7 @@ def mainFuzzer():
                 sch.quitFuzz()
         '''ld <-'''
 
-        print("{} cf...".format(getTime()))
+        # print("{} cf...".format(getTime()))
         '''2 cmp filter -> Select compare instructions which close the target block. '''
         if len(map_tgtpredgvid_dis[sch.cur_tgtnum]) == 0:
             ana.sendCmpid(TRACE_CMP)
@@ -295,7 +293,7 @@ def mainFuzzer():
 
             stcmpid_tuples = sch.targetcmp_pq.get()
             stcmpid_weight, stcmpid_ki, stcmpid_loci = stcmpid_tuples[0], stcmpid_tuples[1], stcmpid_tuples[2]
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki, stcmpid_loci, showlog=True)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki, stcmpid_loci)
             vis.cmpnum += 1
             vis.cmporder = 0
 
@@ -310,6 +308,9 @@ def mainFuzzer():
             ana.sendCmpid(stcmpid_ki)
 
             # Debug
+            # fixme switch instructions have trip in loop.
+            if stcmpid_ki[0] == 'i':
+                continue
             # if stcmpid_ki == "g0x4f9aaf0x51c4a50x518557":
             #     LOG(LOG_DEBUG, LOG_FUNCINFO(), "g0x4f9aaf0x51c4a50x518557", showlog=True)
             # filter = ["g0x4f99810x52a8b80x529492"]
@@ -406,23 +407,30 @@ def mainFuzzer():
                 #     continue
 
                 # Skip fix cmp
+                # if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content):
+                #     if stcmpid_ki not in sch.skipcmp_dict:
+                #         sch.skipcmp_dict[stcmpid_ki] = 1
+                #     else:
+                #         sch.skipcmp_dict[stcmpid_ki] += 1
+                #     continue
+                #
+                # if stcmpid_ki in sch.skipcmp_dict:
+                #     sch.skipcmp_dict[stcmpid_ki] = 0
+
+                if stcmpid_ki not in sch.skipcmp_dict:
+                    sch.skipcmp_dict[stcmpid_ki] = 1
+                else:
+                    sch.skipcmp_dict[stcmpid_ki] += 1
+
+                # LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_ki, cmpmaploc_dict[stcmpid_ki])
                 if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content):
-                    if stcmpid_ki not in sch.skipcmp_dict:
-                        sch.skipcmp_dict[stcmpid_ki] = 1
-                    else:
-                        sch.skipcmp_dict[stcmpid_ki] += 1
                     continue
 
-                if stcmpid_ki in sch.skipcmp_dict:
-                    sch.skipcmp_dict[stcmpid_ki] = 0
-
-                # if stcmpid_ki not in sch.skipcmp_dict:
-                #     sch.skipcmp_dict[stcmpid_ki] = 1
-                # else:
-                #     sch.skipcmp_dict[stcmpid_ki] += 1
-
-                if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content):
+                # fixme
+                if len(cmpmaploc_dict[stcmpid_ki]) > 16:
                     continue
+
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki, stcmpid_loci, showlog=True)
 
                 stlocset_vi = cmpmaploc_dict[stcmpid_ki]
                 stloclist_v = list(stlocset_vi)
@@ -560,13 +568,14 @@ def mainFuzzer():
                                 st_seed = st_seed
                             elif strategy.curnum == 0:
                                 st_seed = Mutator.mutLocFromMap(
-                                    st_seed, st_seed.content, path.seeds_mutate, ST_STR + str(vis.loop), locmapdet_dict
+                                    init_seed, st_seed, st_seed.content,
+                                    path.seeds_mutate, ST_STR + str(vis.loop), locmapdet_dict
                                 )
                                 st_seed = sch.selectOneSeed(SCH_THISMUT_SEED, st_seed)
                             else:
                                 st_seed = Mutator.mutLocFromMap(
-                                    opt_seed, opt_seed.content, path.seeds_mutate, ST_STR + str(vis.loop),
-                                    locmapdet_dict
+                                    init_seed, opt_seed, opt_seed.content,
+                                    path.seeds_mutate, ST_STR + str(vis.loop), locmapdet_dict
                                 )
                                 st_seed = sch.selectOneSeed(SCH_THISMUT_SEED, st_seed)
                             vis.total += 1

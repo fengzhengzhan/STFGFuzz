@@ -266,14 +266,14 @@ def searchCFGFuncNode(graph, callfuncs_dict):
 
 
 def getTargetPredecessorsGuard(cggraph, cfggraph_dict, map_guard_gvid, map_target, target_dict):
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), cfggraph_dict, map_target, showlog=True)
+    LOG(LOG_DEBUG, LOG_FUNCINFO(), cfggraph_dict, map_target)
     map_callfuncs = {}
     map_tgtpredgvid = {}
 
     for tgtnum_i in map_target:  # Select target numbers.
         patchflag = target_dict[tgtnum_i][0][0]
         if patchflag == COM_SANITIZER:
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), patchflag, map_target[tgtnum_i], showlog=True)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), patchflag, map_target[tgtnum_i])
             map_callfuncs[tgtnum_i] = {}
             map_tgtpredgvid[tgtnum_i] = {}
             for tgtfunc_j in map_target[tgtnum_i]:
@@ -287,7 +287,7 @@ def getTargetPredecessorsGuard(cggraph, cfggraph_dict, map_guard_gvid, map_targe
                         predis_dict = getPredecessorsGvid(
                             cfggraph_dict[tgtfunc_j].dg, tgtnodegvid)
                         LOG(LOG_DEBUG, LOG_FUNCINFO(),
-                            tgtfunc_j, tgtidx, tgtloc_list, tgtnodegvid, predis_dict, map_guard_gvid, showlog=True)
+                            tgtfunc_j, tgtidx, tgtloc_list, tgtnodegvid, predis_dict, map_guard_gvid)
                         # for k, v in predis_dict.items():
                         #     print(k, cfggraph_dict[tgtfunc_j].dg.nodes(data=True)[k], v)
                         if tgtfunc_j not in map_tgtpredgvid[tgtnum_i]:
@@ -295,7 +295,7 @@ def getTargetPredecessorsGuard(cggraph, cfggraph_dict, map_guard_gvid, map_targe
                         map_tgtpredgvid[tgtnum_i][tgtfunc_j].update(predis_dict)
                         # print(predis_dict)
         elif patchflag == COM_MANUAL or patchflag == COM_PATCH:
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), patchflag, map_target[tgtnum_i], showlog=True)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), patchflag, map_target[tgtnum_i])
 
             # Find which function call target function and get the distance for target.
             callfuncs_dict = {}

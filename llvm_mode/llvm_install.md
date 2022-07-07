@@ -16,7 +16,9 @@ sudo apt-get install xz-utils
 sudo apt-get install gcc automake autoconf libtool make
 sudo apt-get install build-essential
 sudo apt-get install python3.7
+sudo apt-get install wget
 mkdir LLVM
+cd LLVM
 # install cmake 3.21.1
 wget https://github.com/Kitware/CMake/releases/download/v3.21.1/cmake-3.21.1-linux-x86_64.tar.gz
 tar -zxvf cmake-3.21.1-linux-x86_64.tar.gz

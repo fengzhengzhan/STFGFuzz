@@ -301,11 +301,12 @@ class Scheduler:
         @return:
         """
         near_dis = USE_INITMAXNUM
-        map_curtgtpredgvid_dis = map_tgtpredgvid_dis[self.cur_tgtnum]
-        if len(map_curtgtpredgvid_dis) == 0:
+
+        if self.cur_tgtnum not in map_tgtpredgvid_dis or len(map_tgtpredgvid_dis[self.cur_tgtnum]) == 0:
             near_dis = USE_INITNUM
         else:
             # pc_guard numbers.
+            map_curtgtpredgvid_dis = map_tgtpredgvid_dis[self.cur_tgtnum]
             trace_guard_set = set(trace_guard_list)
             self.coverage_set = self.coverage_set | trace_guard_set
             curtgtpred_offset = tgtpred_offset[self.cur_tgtnum]
