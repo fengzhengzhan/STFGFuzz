@@ -293,7 +293,7 @@ def mainFuzzer():
 
             stcmpid_tuples = sch.targetcmp_pq.get()
             stcmpid_weight, stcmpid_ki, stcmpid_loci = stcmpid_tuples[0], stcmpid_tuples[1], stcmpid_tuples[2]
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki, stcmpid_loci)
+            LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki, stcmpid_loci, showlog=True)
             vis.cmpnum += 1
             vis.cmporder = 0
 
@@ -309,8 +309,8 @@ def mainFuzzer():
 
             # Debug
             # fixme switch instructions have trip in loop.
-            if stcmpid_ki[0] == 'i':
-                continue
+            # if stcmpid_ki[0] == 'i':
+            #     continue
             # if stcmpid_ki == "g0x4f9aaf0x51c4a50x518557":
             #     LOG(LOG_DEBUG, LOG_FUNCINFO(), "g0x4f9aaf0x51c4a50x518557", showlog=True)
             # filter = ["g0x4f99810x52a8b80x529492"]
@@ -330,6 +330,7 @@ def mainFuzzer():
             # Only the corresponding list data is retained, no parsing is required
             cmp_len = len(init_cmpcov_list)
             exloc_list = sch.extensionLocation(stcmpid_loci)
+            # LOG(LOG_DEBUG, LOG_FUNCINFO(), exloc_list, showlog=True)
             # Separate comparisons for each comparison instruction.
             # for cmporder_j in range(0, cmp_len):
             for cmporder_j in exloc_list:
@@ -389,14 +390,17 @@ def mainFuzzer():
                                 cmpmaploc_dict[stcmpid_ki] = set(sdloc_list)
                             else:
                                 cmpmaploc_dict[stcmpid_ki] |= set(sdloc_list)
+
+                        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_cmpcov_list, sd_cmpcov_list, cmporder_j, slid_window, len(cmpmaploc_dict), len(sdloc_list))
                     if stcmpid_ki in cmpmaploc_dict:
                         slid_list = list(cmpmaploc_dict[stcmpid_ki])
                         slid_list.sort()
+
                     if len(slid_list) == sch.loc_coarse_list or stcmpid_ki not in cmpmaploc_dict:
                         break
 
                     slid_window = max(len(slid_list) // SCH_SLID_SLICE, SCH_SLID_MIN)
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), slid_window, cmpmaploc_dict, slid_list)
+
                     # before_sdloc_list = sdloc_list
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict)
 
@@ -407,30 +411,30 @@ def mainFuzzer():
                 #     continue
 
                 # Skip fix cmp
-                # if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content):
-                #     if stcmpid_ki not in sch.skipcmp_dict:
-                #         sch.skipcmp_dict[stcmpid_ki] = 1
-                #     else:
-                #         sch.skipcmp_dict[stcmpid_ki] += 1
-                #     continue
-                #
-                # if stcmpid_ki in sch.skipcmp_dict:
-                #     sch.skipcmp_dict[stcmpid_ki] = 0
+                if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content):
+                    if stcmpid_ki not in sch.skipcmp_dict:
+                        sch.skipcmp_dict[stcmpid_ki] = 1
+                    else:
+                        sch.skipcmp_dict[stcmpid_ki] += 1
+                    continue
 
-                if stcmpid_ki not in sch.skipcmp_dict:
-                    sch.skipcmp_dict[stcmpid_ki] = 1
-                else:
-                    sch.skipcmp_dict[stcmpid_ki] += 1
+                if stcmpid_ki in sch.skipcmp_dict:
+                    sch.skipcmp_dict[stcmpid_ki] = 0
+
+                # if stcmpid_ki not in sch.skipcmp_dict:
+                #     sch.skipcmp_dict[stcmpid_ki] = 1
+                # else:
+                #     sch.skipcmp_dict[stcmpid_ki] += 1
 
                 # LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_ki, cmpmaploc_dict[stcmpid_ki])
-                if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content):
-                    continue
+                # if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content):
+                #     continue
 
                 # fixme
-                if len(cmpmaploc_dict[stcmpid_ki]) > 16:
-                    continue
+                # if len(cmpmaploc_dict[stcmpid_ki]) > 16:
+                #     continue
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki, stcmpid_loci, showlog=True)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki, stcmpid_loci)
 
                 stlocset_vi = cmpmaploc_dict[stcmpid_ki]
                 stloclist_v = list(stlocset_vi)

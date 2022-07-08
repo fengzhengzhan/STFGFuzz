@@ -11,9 +11,10 @@ apt-get install wget vim
 if [ ! -d "/LLVM" ]; then
   mkdir /LLVM
 fi
+CUR_DIR = $(pwd)
 cd LLVM
 
-# install cmake 3.21.1
+# link install cmake 3.21.1
 if [ ! -f "cmake-3.21.1-linux-x86_64.tar.gz" ]; then
   wget https://github.com/Kitware/CMake/releases/download/v3.21.1/cmake-3.21.1-linux-x86_64.tar.gz
 fi
@@ -23,7 +24,7 @@ mv cmake-3.21.1-linux-x86_64 /opt/cmake-3.21.1
 ln -sf /opt/cmake-3.21.1/bin/* /usr/bin/
 cmake --version
 
-# install clang, llvm, compiler-rt.
+# wget clang, llvm, compiler-rt.
 if [ ! -f "clang-12.0.1.src.tar.xz" ]; then
   wget https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/clang-12.0.1.src.tar.xz
 fi
@@ -37,7 +38,6 @@ fi
 tar -xf llvm-12.0.1.src.tar.xz
 rm -f llvm-12.0.1.src.tar.xz
 mv llvm-12.0.1.src llvm
-mkdir build
 
 if [ ! -f "compiler-rt-12.0.1.src.tar.xz" ]; then
   wget https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/compiler-rt-12.0.1.src.tar.xz
@@ -47,9 +47,10 @@ rm -f compiler-rt-12.0.1.src.tar.xz
 mv compiler-rt-12.0.1.src compiler-rt
 
 # Create build.sh file. The contents of this file.
+mkdir build
 echo "cd build
 cmake -G \"Unix Makefiles\" -DLLVM_ENABLE_PROJECTS=\"clang\" -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD=\"X86\" -DBUILD_SHARED_LIBS=On ../llvm
-make
+make -j8
 make install" > build.sh
 # vim build.sh
 # Build it.
@@ -57,11 +58,10 @@ make install" > build.sh
 clang -v
 
 # Build compiler-rt.
-
 mv compiler-rt llvm/projects/
 cd llvm/projects/compiler-rt
-cmake ../compiler-rt -DLLVM_CONFIG_PATH=PATH/LLVM/build/bin/llvm-config
-vim CMakeCache.txt
-# COMPILER_RT_INSTALL_PATH:PATH=/usr/local/lib/clang/12.0.1  # Replace path string.
-# make -j6
-# make install
+cmake ../compiler-rt -DLLVM_CONFIG_PATH=${CUR_DIR}/LLVM/build/bin/llvm-config
+# vim CMakeCache.txt  # COMPILER_RT_INSTALL_PATH:PATH=/usr/local/lib/clang/12.0.1  # Replace path string.
+find -name 'CMakeCache.txt' | xargs perl -pi -e 's|COMPILER_RT_INSTALL_PATH:PATH=/usr/local|COMPILER_RT_INSTALL_PATH:PATH=/usr/local/lib/clang/12.0.1|g'
+make -j8
+make install
