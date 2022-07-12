@@ -39,7 +39,9 @@ git checkout 2c49145
 # wllvm-sanity-checker
 export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
-CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fvisibility=default" LIBS="-lacl" ./configure --enable-static --disable-shared --prefix=`pwd`/lava-install
+# --disable-multilib 64-bit-only  CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fvisibility=default" LIBS="-lacl" ./configure --enable-static --disable-shared --prefix=`pwd`/lava-install
+# AFLGo: CFLAGS="-DFORTIFY_SOURCE=2 -fstack-protector-all -fno-omit-frame-pointer -g -Wno-error -flto -fuse-ld=gold" LDFLAGS="-ldl -lutil" ../configure --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" LDFLAGS="-lutil" ./configure --enable-static --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld --prefix=`pwd`/obj-bc
 make -j$(nproc)  # -j Depends on the number of computer processes.
 make install
 cd lava-install/bin/
@@ -132,6 +134,12 @@ sudo apt-get install texinfo
 
 # bison: not found
 sudo apt-get install flex bison
+
+# Building GCC requires GMP 4.2+, MPFR 2.4.0+ and MPC 0.8.0+.
+Install requires package.
+
+# configure: error: I suspect your system does not have 32-bit developement libraries (libc and headers). If you have them, rerun configure with --enable-multilib. If you do not have them, and want to build a 64-bit-only compiler, rerun configure with --disable-multilib.
+sudo apt-get install gcc-multilib
 ```
 
  

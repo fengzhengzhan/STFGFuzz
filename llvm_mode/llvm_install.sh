@@ -50,7 +50,7 @@ mv compiler-rt-12.0.1.src compiler-rt
 mkdir build
 echo "cd build
 cmake -G \"Unix Makefiles\" -DLLVM_ENABLE_PROJECTS=\"clang\" -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD=\"X86\" -DBUILD_SHARED_LIBS=On ../llvm
-make -j8
+make -j
 make install" > build.sh
 # vim build.sh
 # Build it.
@@ -63,5 +63,5 @@ cd llvm/projects/compiler-rt
 cmake ../compiler-rt -DLLVM_CONFIG_PATH=${CUR_DIR}/LLVM/build/bin/llvm-config
 # vim CMakeCache.txt  # COMPILER_RT_INSTALL_PATH:PATH=/usr/local/lib/clang/12.0.1  # Replace path string.
 find -name 'CMakeCache.txt' | xargs perl -pi -e 's|COMPILER_RT_INSTALL_PATH:PATH=/usr/local|COMPILER_RT_INSTALL_PATH:PATH=/usr/local/lib/clang/12.0.1|g'
-make -j8
+make -j
 make install

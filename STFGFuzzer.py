@@ -19,7 +19,7 @@ from fuzzer_module.Fuzzconfig import *
 # python3.7 STFGFuzzer.py -n lava660 -t sanitizer -- Programs/lava660/code_Bin/lava660 @@
 # python3.7 STFGFuzzer.py -n lava2285 -t sanitizer -- Programs/lava2285/code_Bin/lava2285 @@
 # python3.7 STFGFuzzer.py -n lava13796 -t sanitizer -- Programs/lava13796/code_Bin/lava13796 @@
-# python3.7 STFGFuzzer.py -n CVE-2016-4487 -t manual -- Programs/CVE-2016-4487/code_Bin/CVE-2016-4487 @@
+# python3.7 STFGFuzzer.py -n CVE-2016-4487 -t manual -- Programs/CVE-2016-4487/code_Bin/CVE-2016-4487 @@file@
 
 def mainFuzzer():
     """
@@ -134,7 +134,7 @@ def mainFuzzer():
     create_seed = sch.selectOneSeed(
         SCH_THISMUT_SEED,
         Structures.StructSeed(path.seeds_mutate + AUTO_SEED, Mutator.getExpandFillStr(SCH_EXPAND_SIZE), SEED_INIT, set()))
-    create_stdout, create_stderr = Executor.run(fuzz_command.replace('@@', create_seed.filename))
+    create_stdout, create_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, create_seed.filename))
     ana.getShm(create_stdout[0:16])
     LOG(LOG_DEBUG, LOG_FUNCINFO(), create_seed.content)
 
@@ -150,7 +150,7 @@ def mainFuzzer():
         # print("{} loop...".format(getTime()))
         # # Guard
         # ana.sendCmpid(TRACE_CMPGUARD)
-        # init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
+        # init_stdout, init_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, init_seed.filename))
         # eaexit = sch.saveCrash(init_seed, init_stdout, init_stderr, vis.start_time, vis.last_time)
         # init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         # init_guardcov_list = ana.getRpt(init_interlen)
@@ -162,7 +162,7 @@ def mainFuzzer():
         # First run to collect information.
         vis.total += 1
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
-        init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
+        init_stdout, init_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, init_seed.filename))
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         # cmpcov_list = ana.getRpt(init_interlen)
         # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch)
@@ -188,7 +188,7 @@ def mainFuzzer():
             # According fixed length to expand the content length of seed.
             ld_seed = Mutator.mutAddLength(b4ld_seed.content, path.seeds_mutate, LENGTH_STR, LD_EXPAND)
             ld_seed = sch.selectOneSeed(SCH_THISMUT_SEED, ld_seed)
-            ld_stdout, ld_stderr = Executor.run(fuzz_command.replace('@@', ld_seed.filename))
+            ld_stdout, ld_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, ld_seed.filename))
             eaexit = sch.saveCrash(ld_seed, ld_stdout, ld_stderr, vis)
 
             # 1 seed inputs
@@ -202,7 +202,7 @@ def mainFuzzer():
                 ld_cmpcov_list = ana.getRpt(ld_interlen)  # report
                 # Before seed.
                 vis.total += 1
-                b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace('@@', b4ld_seed.filename))
+                b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, b4ld_seed.filename))
                 b4ld_interlen, b4ld_covernum = ana.getShm(b4ld_stdout[0:16])
                 b4ld_cmpcov_list = ana.getRpt(b4ld_interlen)
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), b4ld_cmpcov_list)
@@ -227,7 +227,7 @@ def mainFuzzer():
         # Reset the init_seed
         vis.total += 1
         init_seed = sch.selectOneSeed(SCH_THIS_SEED, b4ld_seed)
-        init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
+        init_stdout, init_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, init_seed.filename))
         eaexit = sch.saveCrash(init_seed, init_stdout, init_stderr, vis)
         # print("{} eaexit...".format(getTime()))
 
@@ -321,7 +321,7 @@ def mainFuzzer():
 
             # First run init seed after cmp filter.
             vis.total += 1
-            init_stdout, init_stderr = Executor.run(fuzz_command.replace('@@', init_seed.filename))
+            init_stdout, init_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, init_seed.filename))
             init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
             init_cmpcov_list = ana.getRpt(init_interlen)
             LOG(LOG_DEBUG, LOG_FUNCINFO(), init_cmpcov_list)
@@ -370,7 +370,7 @@ def mainFuzzer():
                         sd_seed = Mutator.mutSelectChar(
                             init_seed.content, path.seeds_mutate, COARSE_STR + str(vis.loop), sdloc_list)
                         sd_seed = sch.selectOneSeed(SCH_THISMUT_SEED, sd_seed)
-                        sd_stdout, sd_stderr = Executor.run(fuzz_command.replace('@@', sd_seed.filename))
+                        sd_stdout, sd_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, sd_seed.filename))
                         # 5 visualize
                         res = vis.display(sd_seed, set(sdloc_list), sd_stdout, sd_stderr, STG_SD, stcmpid_weight, sch)
                         # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
@@ -444,7 +444,7 @@ def mainFuzzer():
                 ststart_seed = Structures.StructSeed(
                     path.seeds_mutate + getMutfilename(ST_STR + str(vis.loop)), init_seed.content, SEED_INIT, set())
                 ststart_seed = sch.selectOneSeed(SCH_THIS_SEED, ststart_seed)
-                ststart_stdout, ststart_stderr = Executor.run(fuzz_command.replace('@@', ststart_seed.filename))
+                ststart_stdout, ststart_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, ststart_seed.filename))
 
                 ststart_interlen, ststart_covernum = ana.getShm(ststart_stdout[0:16])
                 ststart_cmpcov_list = ana.getRpt(ststart_interlen)
@@ -454,7 +454,7 @@ def mainFuzzer():
                 # repeat_seed = Structures.StructSeed(
                 #     path.seeds_mutate + getMutfilename(REPEAT_STR + str(vis.loop)), init_seed.content, SEED_INIT, set())
                 # repeat_seed = sch.selectOneSeed(SCH_THIS_SEED, repeat_seed)
-                # repeat_stdout, repeat_stderr = Executor.run(fuzz_command.replace('@@', repeat_seed.filename))
+                # repeat_stdout, repeat_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, repeat_seed.filename))
                 #
                 # repeat_interlen, repeat_covernum = ana.getShm(repeat_stdout[0:16])
                 # repeat_cmpcov_list = ana.getRpt(repeat_interlen)
@@ -471,7 +471,7 @@ def mainFuzzer():
                     bd_seed = Mutator.mutOneChar(ststart_seed.content, path.seeds_mutate, FINE_STR + str(vis.loop),
                                                  bdloc_list)
                     bd_seed = sch.selectOneSeed(SCH_THISMUT_SEED, bd_seed)
-                    bd_stdout, bd_stderr = Executor.run(fuzz_command.replace('@@', bd_seed.filename))
+                    bd_stdout, bd_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, bd_seed.filename))
                     # 5 visualize
                     res = vis.display(bd_seed, set(st_cmploc), bd_stdout, bd_stderr, STG_BD, stcmpid_weight, sch)
                     # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
@@ -494,7 +494,7 @@ def mainFuzzer():
                 # init_seed opt_seed
                 vis.total += 1
                 opt_seed = sch.selectOneSeed(SCH_THIS_SEED, init_seed)
-                opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
+                opt_stdout, opt_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, opt_seed.filename))
                 opt_interlen, opt_covernum = ana.getShm(opt_stdout[0:16])
                 opt_cmpcov_list = ana.getRpt(opt_interlen)
 
@@ -502,7 +502,7 @@ def mainFuzzer():
                 st_seed = Mutator.mutSelectCharRand(
                     init_seed.content, path.seeds_mutate, ST_STR + str(vis.loop), st_cmploc)
                 st_seed = sch.selectOneSeed(SCH_THIS_SEED, st_seed)
-                st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
+                st_stdout, st_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, st_seed.filename))
                 eaexit = sch.saveCrash(st_seed, st_stdout, st_stderr, vis)
                 st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
                 st_cmpcov_list = ana.getRpt(st_interlen)
@@ -526,7 +526,7 @@ def mainFuzzer():
                 # opt_seed = Mutator.mutLocFromMap(opt_seed, opt_seed.content, path.seeds_mutate, ST_STR + str(vis.loop),
                 #                                  {1:b'\x65',2:b'\x65', 3:b'\x65'})
                 # opt_seed = sch.selectOneSeed(SCH_THIS_SEED, opt_seed)
-                # opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
+                # opt_stdout, opt_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, opt_seed.filename))
                 # eaexit = sch.saveCrash(opt_seed, opt_stdout, opt_stderr, vis)
                 #
                 # opt_interlen, opt_covernum = ana.getShm(opt_stdout[0:16])
@@ -549,7 +549,7 @@ def mainFuzzer():
                                                              getLocInputValue(opt_seed.content, st_cmploc))
                             # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
                             vis.total += 1
-                            opt_stdout, opt_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
+                            opt_stdout, opt_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, opt_seed.filename))
                             if len(opt_stderr) == 0:
                                 sch.addq(SCH_LOOP_SEED, [opt_seed, ])
                             break
@@ -583,7 +583,7 @@ def mainFuzzer():
                                 )
                                 st_seed = sch.selectOneSeed(SCH_THISMUT_SEED, st_seed)
                             vis.total += 1
-                            st_stdout, st_stderr = Executor.run(fuzz_command.replace('@@', st_seed.filename))
+                            st_stdout, st_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, st_seed.filename))
                             # 5 visualize
                             res = vis.display(
                                 opt_seed, set(st_cmploc), st_stdout, st_stderr, STG_ST, stcmpid_weight, sch)
@@ -619,7 +619,7 @@ def mainFuzzer():
                                 # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
                                 vis.total += 1
                                 ana.sendCmpid(TRACE_GUARDFAST)
-                                trace_stdout, trace_stderr = Executor.run(fuzz_command.replace('@@', opt_seed.filename))
+                                trace_stdout, trace_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, opt_seed.filename))
                                 LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_stdout, trace_stderr, showlog=True)
                                 eaexit = sch.saveCrash(opt_seed, trace_stdout, trace_stderr, vis)
 
