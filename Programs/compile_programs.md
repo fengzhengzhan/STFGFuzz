@@ -41,11 +41,13 @@ export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
 # --disable-multilib 64-bit-only  CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fvisibility=default" LIBS="-lacl" ./configure --enable-static --disable-shared --prefix=`pwd`/lava-install
 # AFLGo: CFLAGS="-DFORTIFY_SOURCE=2 -fstack-protector-all -fno-omit-frame-pointer -g -Wno-error -flto -fuse-ld=gold" LDFLAGS="-ldl -lutil" ../configure --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld
-CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" LDFLAGS="-lutil" ./configure --enable-static --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld --prefix=`pwd`/obj-bc
+CC=wllvm CXX=wllvm++ CFLAGS="-DFORTIFY_SOURCE=2 -fstack-protector-all -fno-omit-frame-pointer -g -O0 -Wno-error" LDFLAGS="-ldl -lutil" ./configure --enable-static --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld --prefix=`pwd`/obj-bc
+make clean
 make -j$(nproc)  # -j Depends on the number of computer processes.
 make install
-cd lava-install/bin/
-extract-bc file
+cd obj-bc/bin/
+extract-bc c++filt
+mv c++filt.bc PATH/Programs/CVE-2016-4487/code_sources/CVE-2016-4487.bc
 
 
 sudo clang -lz -fsanitize=address -Wl,--whole-archive -L../../llvm_mode/ClangSanitizer -lcmpcov -Wl,--no-whole-archive code_IR/lava13796.o -o code_Bin/lava13796
