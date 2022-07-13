@@ -48,6 +48,9 @@
 #define WEAK_HOOK_STRCMP 'o'
 #define WEAK_HOOK_STRNCASECMP 'p'
 #define WEAK_HOOK_STRCASECMP 'q'
+#define WEAK_HOOK_STRSTR 'r'
+#define WEAK_HOOK_STRCASESTR 's'
+#define WEAK_HOOK_MEMMEM 't'
 
 // return the stack of the function
 // __builtin_return_address(LEVEL)
@@ -191,20 +194,23 @@ void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
     }
 } 
 
-void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int result, char funcinfo) {
+void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int len1, int len2, char *result, char funcinfo) {
     // printf("%p", called_pc);  called_pc stored PC (program counter) address of the original call.
     sprintf(eachcmpid, "%c%p", funcinfo, called_pc);
     if (retSame(eachcmpid) > LEVEL_GUARDSYMBOL) {
         // The length of each string.
         int n1;
         int n2;
-        if (n == 0) {
+        if (n1 != 0) {
+            n1 = len1;
+        } else {
             n1 = strlen(s1);
+        }
+
+        if (n2 != 0) {
+            n2 = len2;
+        } else {
             n2 = strlen(s2);
-        } else if (n != 0)
-        {
-            n1 = n;
-            n2 = n;
         }
         
         // printf("\n%c %x ", funcinfo, *(int *)called_pc);
@@ -248,7 +254,7 @@ void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int n, int
         sprintf(buf+strlen(buf), "'");
         
         // printf("%d %d Z\n", n, result);
-        sprintf(buf+strlen(buf), ",%d,%d],", n, result);
+        sprintf(buf+strlen(buf), ",%d,%d,'%s'],", len1, len2, result);
         // printf("%s\n", buf);
         strcpy(data + interlen, buf);
         interlen += strlen(buf);
@@ -452,47 +458,75 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
 }
 
 void __sanitizer_cov_trace_cmp1(uint8_t Arg1, uint8_t Arg2) { 
-    handleTraceCmp(Arg1, Arg2, 1, COV_TRACE_CMP1); }
+    handleTraceCmp(Arg1, Arg2, 1, COV_TRACE_CMP1); 
+}
 void __sanitizer_cov_trace_cmp2(uint16_t Arg1, uint16_t Arg2) { 
-    handleTraceCmp(Arg1, Arg2, 2, COV_TRACE_CMP2); }
+    handleTraceCmp(Arg1, Arg2, 2, COV_TRACE_CMP2); 
+}
 void __sanitizer_cov_trace_cmp4(uint32_t Arg1, uint32_t Arg2) { 
-    handleTraceCmp(Arg1, Arg2, 4, COV_TRACE_CMP4); }
+    handleTraceCmp(Arg1, Arg2, 4, COV_TRACE_CMP4); 
+}
 void __sanitizer_cov_trace_cmp8(uint64_t Arg1, uint64_t Arg2) { 
-    handleTraceCmp(Arg1, Arg2, 8, COV_TRACE_CMP8); }
+    handleTraceCmp(Arg1, Arg2, 8, COV_TRACE_CMP8); 
+}
 
 void __sanitizer_cov_trace_const_cmp1(uint8_t Arg1, uint8_t Arg2) { 
-    handleTraceCmp(Arg1, Arg2, 1, COV_TRACE_CONST_CMP1); }
+    handleTraceCmp(Arg1, Arg2, 1, COV_TRACE_CONST_CMP1); 
+}
 void __sanitizer_cov_trace_const_cmp2(uint16_t Arg1, uint16_t Arg2) { 
-    handleTraceCmp(Arg1, Arg2, 2, COV_TRACE_CONST_CMP2); }
+    handleTraceCmp(Arg1, Arg2, 2, COV_TRACE_CONST_CMP2); 
+}
 void __sanitizer_cov_trace_const_cmp4(uint32_t Arg1, uint32_t Arg2) { 
-    handleTraceCmp(Arg1, Arg2, 4, COV_TRACE_CONST_CMP4); }
+    handleTraceCmp(Arg1, Arg2, 4, COV_TRACE_CONST_CMP4); 
+}
 void __sanitizer_cov_trace_const_cmp8(uint64_t Arg1, uint64_t Arg2) { 
-    handleTraceCmp(Arg1, Arg2, 8, COV_TRACE_CONST_CMP8);}
+    handleTraceCmp(Arg1, Arg2, 8, COV_TRACE_CONST_CMP8);
+}
 
 void __sanitizer_cov_trace_switch(uint64_t Val, uint64_t *Cases) { 
-    sanCovTraceSwitch(Val, Cases); }
+    sanCovTraceSwitch(Val, Cases); 
+}
 
-void __sanitizer_cov_trace_div4(uint32_t Val) { 
-    }
-void __sanitizer_cov_trace_div8(uint64_t Val) { 
-    }
-
-void __sanitizer_cov_trace_gep(uintptr_t Idx) { 
-    }
 
 void __sanitizer_weak_hook_memcmp(void *called_pc, const void *s1, const void *s2, size_t n, int result) { 
-    handleStrMemCmp(called_pc, (char *)s1, (char *)s2, n, result, WEAK_HOOK_MEMCMP); }
-
+    char covres = result + '\0';
+    handleStrMemCmp(called_pc, (char *)s1, (char *)s2, n, n, &covres, WEAK_HOOK_MEMCMP); 
+}
 void __sanitizer_weak_hook_strncmp(void *called_pc, const char *s1, const char *s2, size_t n, int result) { 
-    handleStrMemCmp(called_pc, s1, s2, n, result, WEAK_HOOK_STRNCMP); }
+    char covres = result + '\0';
+    handleStrMemCmp(called_pc, s1, s2, n, n, &covres, WEAK_HOOK_STRNCMP); 
+}
 void __sanitizer_weak_hook_strcmp(void *called_pc, const char *s1, const char *s2, int result) { 
-    handleStrMemCmp(called_pc, s1, s2, 0, result, WEAK_HOOK_STRCMP); }
+    char covres = result + '\0';
+    handleStrMemCmp(called_pc, s1, s2, 0, 0, &covres, WEAK_HOOK_STRCMP); 
+}
 void __sanitizer_weak_hook_strncasecmp(void *called_pc, const char *s1, const char *s2, size_t n, int result) { 
-    handleStrMemCmp(called_pc, s1, s2, n, result, WEAK_HOOK_STRNCASECMP); }
+    char covres = result + '\0';
+    handleStrMemCmp(called_pc, s1, s2, n, n, &covres, WEAK_HOOK_STRNCASECMP); 
+}
 void __sanitizer_weak_hook_strcasecmp(void *called_pc, const char *s1, const char *s2, int result) { 
-    handleStrMemCmp(called_pc, s1, s2, 0, result, WEAK_HOOK_STRCASECMP); }
+    char covres = result + '\0';
+    handleStrMemCmp(called_pc, s1, s2, 0, 0, &covres, WEAK_HOOK_STRCASECMP); 
+}
 
-void __dfsan_load_callback(dfsan_label Label, void* Addr);
-void __dfsan_store_callback(dfsan_label Label, void* Addr);
-void __dfsan_mem_transfer_callback(dfsan_label *Start, size_t Len);
-void __dfsan_cmp_callback(dfsan_label CombinedLabel);
+void __sanitizer_weak_hook_strstr(void *called_pc, const char *s1, const char *s2, char *result) {
+    handleStrMemCmp(called_pc, s1, s2, 0, 0, result, WEAK_HOOK_STRSTR); 
+}
+void __sanitizer_weak_hook_strcasestr(void *called_pc, const char *s1, const char *s2, char *result){
+    handleStrMemCmp(called_pc, s1, s2, 0, 0, result, WEAK_HOOK_STRCASESTR); 
+}
+void __sanitizer_weak_hook_memmem(void *called_pc, const void *s1, size_t len1, const void *s2, size_t len2, void *result){
+    handleStrMemCmp(called_pc, (char *)s1, (char *)s2, len1, len2, (char *)result, WEAK_HOOK_MEMMEM); 
+}
+
+// void __sanitizer_cov_trace_div4(uint32_t Val) { 
+// }
+// void __sanitizer_cov_trace_div8(uint64_t Val) { 
+// }
+// void __sanitizer_cov_trace_gep(uintptr_t Idx) { 
+// }
+
+// void __dfsan_load_callback(dfsan_label Label, void* Addr);
+// void __dfsan_store_callback(dfsan_label Label, void* Addr);
+// void __dfsan_mem_transfer_callback(dfsan_label *Start, size_t Len);
+// void __dfsan_cmp_callback(dfsan_label CombinedLabel);
