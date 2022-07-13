@@ -9,17 +9,19 @@ from fuzzer_module import *
 from fuzzer_module.Fuzzconfig import *
 
 
-# python3.7 STFGFuzzer.py -n demo  -- ./Programs/demo/code_Bin/demo -f @@
-# python3.7 STFGFuzzer.py -n demo -t sanitizer -- ./Programs/demo/code_Bin/demo -f @@
-# python3.7 STFGFuzzer.py -n demo -t sanitizer,manual,patch -- ./Programs/demo/code_Bin/demo -f @@
-# python3.7 STFGFuzzer.py -n base64 -- ./Programs/base64/code_Bin/base64 -d @@
-# python3.7 STFGFuzzer.py -n md5sum -- ./Programs/md5sum/code_Bin/md5sum -c @@
-# python3.7 STFGFuzzer.py -n uniq -- ./Programs/uniq/code_Bin/uniq @@
-# python3.7 STFGFuzzer.py -n who -- ./Programs/who/code_Bin/who @@
-# python3.7 STFGFuzzer.py -n lava660 -t sanitizer -- Programs/lava660/code_Bin/lava660 @@
-# python3.7 STFGFuzzer.py -n lava2285 -t sanitizer -- Programs/lava2285/code_Bin/lava2285 @@
-# python3.7 STFGFuzzer.py -n lava13796 -t sanitizer -- Programs/lava13796/code_Bin/lava13796 @@
-# python3.7 STFGFuzzer.py -n CVE-2016-4487 -t manual -- Programs/CVE-2016-4487/code_Bin/CVE-2016-4487 @@file@
+# python3.7 STFGFuzzer.py -n demo  -- ./Programs/demo/code_Bin/demo -f @seed@
+# python3.7 STFGFuzzer.py -n demo -t sanitizer -- ./Programs/demo/code_Bin/demo -f @seed@
+# python3.7 STFGFuzzer.py -n demo -t sanitizer,manual,patch -- ./Programs/demo/code_Bin/demo -f @seed@
+# python3.7 STFGFuzzer.py -n base64 -- ./Programs/base64/code_Bin/base64 -d @seed@
+# python3.7 STFGFuzzer.py -n md5sum -- ./Programs/md5sum/code_Bin/md5sum -c @seed@
+# python3.7 STFGFuzzer.py -n uniq -- ./Programs/uniq/code_Bin/uniq @seed@
+# python3.7 STFGFuzzer.py -n who -- ./Programs/who/code_Bin/who @seed@
+# python3.7 STFGFuzzer.py -n lava660 -t sanitizer -- Programs/lava660/code_Bin/lava660 @seed@
+# python3.7 STFGFuzzer.py -n lava2285 -t sanitizer -- Programs/lava2285/code_Bin/lava2285 @seed@
+# python3.7 STFGFuzzer.py -n lava13796 -t sanitizer -- Programs/lava13796/code_Bin/lava13796 @seed@
+# python3.7 STFGFuzzer.py -n CVE-2016-4487 -t manual -- Programs/CVE-2016-4487/code_Bin/CVE-2016-4487 @@seed@
+# python3.7 STFGFuzzer.py -n binutils-c++filt -- Programs/binutils-c++filt/code_Bin/binutils-c++filt @@seed@
+# python3.7 STFGFuzzer.py -n CVE-2016-4493 -t manual -- Programs/CVE-2016-4493/code_Bin/CVE-2016-4493 @@seed@
 
 def mainFuzzer():
     """
@@ -220,6 +222,7 @@ def mainFuzzer():
 
         # print("{} cf...".format(getTime()))
         '''2 cmp filter -> Select compare instructions which close the target block. '''
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.cur_tgtnum, showlog=True)
         if len(map_tgtpredgvid_dis[sch.cur_tgtnum]) == 0:
             ana.sendCmpid(TRACE_CMP)
         else:

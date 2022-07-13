@@ -87,6 +87,7 @@ then
 	
 	elif [ $3 == "clang" ] || [ $3 == "clang++" ]
 	then
+		echo "[+] Please wait a little longer..."
 		cd llvm_mode/ClangSanitizer
 		make
 		cd ../..

@@ -133,7 +133,7 @@ class Scheduler:
                     # fixme set value can not fixed.
                     if 'greybox0' not in self.target_dict[self.cur_tgtnum] and len(self.target_dict[self.cur_tgtnum]) - cinfo_num <= SCH_CRASH_SIMI:
                         tgtsan = True
-                        self.cur_tgtnum += 1
+                        # self.cur_tgtnum += 1
                         self.target_crashinfo.append(crash_infostr)
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtsan, self.cur_tgtnum)
                 except Exception as e:

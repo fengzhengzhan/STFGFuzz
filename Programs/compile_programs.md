@@ -2,9 +2,8 @@
 
 - Download LAVA-M Dataset: [Download](http://panda.moyix.net/~moyix/lava_corpus.tar.xz)
 
-## LAVA-1
+## lava-13796(LAVA-1)
 
-### lava-13796
 ```bash
 sudo apt-get install autoconf automake libtool
 # Do not change folder permissions, as CRASH_INPUT may not be generated.
@@ -47,15 +46,14 @@ make -j$(nproc)  # -j Depends on the number of computer processes.
 make install
 cd obj-bc/bin/
 extract-bc c++filt
-mv c++filt.bc PATH/Programs/CVE-2016-4487/code_sources/CVE-2016-4487.bc
 
+mv c++filt.bc PATH/Programs/CVE-2016-4487/code_sources/CVE-2016-4487.bc
+sudo ./build.sh -n binutils-c++filt clang
 
 sudo clang -lz -fsanitize=address -Wl,--whole-archive -L../../llvm_mode/ClangSanitizer -lcmpcov -Wl,--no-whole-archive code_IR/lava13796.o -o code_Bin/lava13796
 ```
 
-## LAVA-M
-
-### base64
+## base64(LAVA-M)
 
 ```bash
 # docker:ubuntu18.04
@@ -65,7 +63,7 @@ sudo docker run --restart=always --name=base64 -v /home/dataset:/root/dataset -i
 docker ps -a
 sudo docker exec -it ContainerID /bin/bash
 
-# root 
+# root
 apt-get install python3 python3-pip
 pip3 install wllvm
 
@@ -90,9 +88,17 @@ llc -filetype=obj base64_pass.bc -o base64.o
 clang -fsanitize=address -Wl,--whole-archive -L./ClangSanitizer -lcmpcov -Wl,--no-whole-archive base64.o -o base64
 ```
 
-### Problems
+## Self
 
 ```bash
+clang++ -g -emit-llvm -c code_sources/demo.cc -o code_sources/demo.bc
+./build.sh -n demo clang++
+```
+
+## Problems
+
+```bash
+# install environment
 apt install build-essential
 
 # install libacl
@@ -102,7 +108,7 @@ apt-get install libacl1-dev
 ln -s /usr/include/locale.h /usr/include/xlocale.h
 
 # selinux/context.h file not found
-apt-get install libselinux-dev 
+apt-get install libselinux-dev
 apt install selinux selinux-utils selinux-basics auditd audispd-plugins
 apt-get install libcap-dev
 apt-get install libgmp3-dev
@@ -118,7 +124,7 @@ apt-get install zlib1g-dev
 make
 make check
 make install then
-make installcheck 
+make installcheck
 ## /usr/bin/ld: ../boot/a6le/kernel.o: relocation R_X86_64_32S against `.rodata' can not be used when making a PIE object; recompile with -fPIE
 LDFLAGS=-no-pie ./configure
 
@@ -143,5 +149,3 @@ Install requires package.
 # configure: error: I suspect your system does not have 32-bit developement libraries (libc and headers). If you have them, rerun configure with --enable-multilib. If you do not have them, and want to build a 64-bit-only compiler, rerun configure with --disable-multilib.
 sudo apt-get install gcc-multilib
 ```
-
- 
