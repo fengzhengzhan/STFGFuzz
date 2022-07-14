@@ -104,6 +104,9 @@ apt install build-essential
 # install libacl
 apt-get install libacl1-dev
 
+# zlib is not available
+apt install zlib*
+
 # xlocale.h file not found
 ln -s /usr/include/locale.h /usr/include/xlocale.h
 

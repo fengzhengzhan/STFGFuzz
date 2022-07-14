@@ -1,17 +1,19 @@
+#!/bin/bash
 # Compile and install LLVM
 
 # install environment
 apt update
-apt-get install xz-utils 
-apt-get install gcc automake autoconf libtool make
-apt-get install build-essential
-apt-get install python3  # ubuntu20.04 python3.8
-apt-get install wget vim
+apt-get install -y xz-utils 
+apt-get install -y gcc g++ automake autoconf libtool make
+apt-get install -y build-essential
+apt-get install -y python3  # ubuntu20.04 python3.8
+apt-get install -y wget vim
 
-if [ ! -d "/LLVM" ]; then
-  mkdir /LLVM
+cd ..
+
+if [ ! -d "LLVM" ]; then
+  mkdir LLVM
 fi
-CUR_DIR = $(pwd)
 cd LLVM
 
 # link install cmake 3.21.1
@@ -50,8 +52,9 @@ mv compiler-rt-12.0.1.src compiler-rt
 mkdir build
 echo "cd build
 cmake -G \"Unix Makefiles\" -DLLVM_ENABLE_PROJECTS=\"clang\" -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD=\"X86\" -DBUILD_SHARED_LIBS=On ../llvm
-make -j
+make -j6
 make install" > build.sh
+chmod +x build.sh
 # vim build.sh
 # Build it.
 ./build.sh
@@ -60,8 +63,8 @@ clang -v
 # Build compiler-rt.
 mv compiler-rt llvm/projects/
 cd llvm/projects/compiler-rt
-cmake ../compiler-rt -DLLVM_CONFIG_PATH=${CUR_DIR}/LLVM/build/bin/llvm-config
+cmake ../compiler-rt -DLLVM_CONFIG_PATH=../../../build/bin/llvm-config
 # vim CMakeCache.txt  # COMPILER_RT_INSTALL_PATH:PATH=/usr/local/lib/clang/12.0.1  # Replace path string.
 find -name 'CMakeCache.txt' | xargs perl -pi -e 's|COMPILER_RT_INSTALL_PATH:PATH=/usr/local|COMPILER_RT_INSTALL_PATH:PATH=/usr/local/lib/clang/12.0.1|g'
-make -j
+make -j6
 make install

@@ -8,20 +8,20 @@ faulthandler.enable()
 from fuzzer_module import *
 from fuzzer_module.Fuzzconfig import *
 
-
-# python3.7 STFGFuzzer.py -n demo  -- ./Programs/demo/code_Bin/demo -f @seed@
-# python3.7 STFGFuzzer.py -n demo -t sanitizer -- ./Programs/demo/code_Bin/demo -f @seed@
-# python3.7 STFGFuzzer.py -n demo -t sanitizer,manual,patch -- ./Programs/demo/code_Bin/demo -f @seed@
-# python3.7 STFGFuzzer.py -n base64 -- ./Programs/base64/code_Bin/base64 -d @seed@
-# python3.7 STFGFuzzer.py -n md5sum -- ./Programs/md5sum/code_Bin/md5sum -c @seed@
-# python3.7 STFGFuzzer.py -n uniq -- ./Programs/uniq/code_Bin/uniq @seed@
-# python3.7 STFGFuzzer.py -n who -- ./Programs/who/code_Bin/who @seed@
-# python3.7 STFGFuzzer.py -n lava660 -t sanitizer -- Programs/lava660/code_Bin/lava660 @seed@
-# python3.7 STFGFuzzer.py -n lava2285 -t sanitizer -- Programs/lava2285/code_Bin/lava2285 @seed@
-# python3.7 STFGFuzzer.py -n lava13796 -t sanitizer -- Programs/lava13796/code_Bin/lava13796 @seed@
-# python3.7 STFGFuzzer.py -n CVE-2016-4487 -t manual -- Programs/CVE-2016-4487/code_Bin/CVE-2016-4487 @@seed@
-# python3.7 STFGFuzzer.py -n binutils-c++filt -- Programs/binutils-c++filt/code_Bin/binutils-c++filt @@seed@
-# python3.7 STFGFuzzer.py -n CVE-2016-4493 -t manual -- Programs/CVE-2016-4493/code_Bin/CVE-2016-4493 @@seed@
+# source env_python/bin/activate
+# python3 STFGFuzzer.py -n demo  -- ./Programs/demo/code_Bin/demo -f @seed@
+# python3 STFGFuzzer.py -n demo -t sanitizer -- ./Programs/demo/code_Bin/demo -f @seed@
+# python3 STFGFuzzer.py -n demo -t sanitizer,manual,patch -- ./Programs/demo/code_Bin/demo -f @seed@
+# python3 STFGFuzzer.py -n base64 -- ./Programs/base64/code_Bin/base64 -d @seed@
+# python3 STFGFuzzer.py -n md5sum -- ./Programs/md5sum/code_Bin/md5sum -c @seed@
+# python3 STFGFuzzer.py -n uniq -- ./Programs/uniq/code_Bin/uniq @seed@
+# python3 STFGFuzzer.py -n who -- ./Programs/who/code_Bin/who @seed@
+# python3 STFGFuzzer.py -n lava660 -t sanitizer -- Programs/lava660/code_Bin/lava660 @seed@
+# python3 STFGFuzzer.py -n lava2285 -t sanitizer -- Programs/lava2285/code_Bin/lava2285 @seed@
+# python3 STFGFuzzer.py -n lava13796 -t sanitizer -- Programs/lava13796/code_Bin/lava13796 @seed@
+# python3 STFGFuzzer.py -n CVE-2016-4487 -t manual -- Programs/CVE-2016-4487/code_Bin/CVE-2016-4487 @@seed@
+# python3 STFGFuzzer.py -n binutils-c++filt -- Programs/binutils-c++filt/code_Bin/binutils-c++filt @@seed@
+# python3 STFGFuzzer.py -n CVE-2016-4493 -t manual -- Programs/CVE-2016-4493/code_Bin/CVE-2016-4493 @@seed@
 
 def mainFuzzer():
     """
@@ -69,6 +69,7 @@ def mainFuzzer():
         print("{} Build Graph Information...".format(getTime()))
         # Load the .dot file into networkx.
         cglist, cfglist = Generator.createDotJsonFile(program_name, path.code_IR + program_name + GEN_TRACEBC_SUFFIX)
+        LOG(LOG_DEBUG, LOG_FUNCINFO(), cglist, cfglist, showlog=True)
         cggraph, map_functo_cgnode = Builder.getCG(cglist)
         cfggraph_dict, map_guard_gvid, map_target = Builder.getCFG(cfglist, map_numto_funcasm, target_dict)
         # map_target {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}
@@ -671,8 +672,8 @@ def mainFuzzer():
 
 if __name__ == "__main__":
     mainFuzzer()
-    # python3.7 STFGFuzzer.py -n demo -- ./Programs/demo/code_Bin/demo -f @@
-    # python3.7 STFGFuzzer.py -n base64 -- ./Programs/base64/code_Bin/base64 -d @@
+    # python3 STFGFuzzer.py -n demo -- ./Programs/demo/code_Bin/demo -f @@
+    # python3 STFGFuzzer.py -n base64 -- ./Programs/base64/code_Bin/base64 -d @@
 
     # dot -Tpng CG.gv -o output.png
 

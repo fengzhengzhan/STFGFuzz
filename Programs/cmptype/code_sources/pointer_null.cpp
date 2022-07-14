@@ -21,5 +21,13 @@ int main(int argc, char **argv){
     if (pt->next == NULL){
     	cout << "Test" << endl;
     }
+
+    Test tt = {2,"test",NULL};
+    Test* ttp = &tt;
     
+    pt->next = ttp;
+    if (pt->next != NULL){
+    	cout << pt-> num << endl;
+    }
+    return 0;
 }

@@ -51,6 +51,7 @@ def getCG(cglist):
     @param cglist:
     @return:
     """
+    cggraph, map_func_cgnode = None, None
     for jsonfile in cglist:
         LOG(LOG_DEBUG, LOG_FUNCINFO(), jsonfile)
         with open(jsonfile, 'r') as f:
