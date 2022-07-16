@@ -33,13 +33,13 @@ def createDir():
         # if not os.path.exists(patchname):
         #     os.makedirs(patchname)
 
-        crashname = "lava" + str(one) + "/seeds_crash/"
-        if not os.path.exists(crashname):
-            os.makedirs(crashname)
-
-        initname = "lava" + str(one) + "/seeds_init/"
-        if not os.path.exists(initname):
-            os.makedirs(initname)
+        # crashname = "lava" + str(one) + "/seeds_crash/"
+        # if not os.path.exists(crashname):
+        #     os.makedirs(crashname)
+        #
+        # initname = "lava" + str(one) + "/seeds_init/"
+        # if not os.path.exists(initname):
+        #     os.makedirs(initname)
 
         # patchfile = "lava" + str(one) + "/data_patchloc/" + "crash0.sanitizer"
         # with open(patchfile, "a+") as f:

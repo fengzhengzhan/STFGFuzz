@@ -51,7 +51,6 @@ class Scheduler:
     '''
     Seed Operation
     '''
-
     def selectOneSeed(self, mode: int, mutseed=None) -> StructSeed:
         temp_one = None
         if mode == SCH_LOOP_SEED:
@@ -166,13 +165,20 @@ class Scheduler:
     '''
     Cmp Operation
     '''
-    def extensionLocation(self, location):
+    def extensionLocation(self, location, cmp_len):
         exloc_list = []
         exloc_list.append(location)
         for outside in range(1, SCH_EXLOC+1):
-            exloc_list.append(location+outside)
-            exloc_list.append(location-outside)
-        exloc_list.sort()
+
+            left_side = location - outside
+            if 0 <= left_side < cmp_len:
+                exloc_list.append(left_side)
+
+            right_side = location+outside
+            if 0 <= right_side < cmp_len:
+                exloc_list.append(right_side)
+
+        # exloc_list.sort()
         return exloc_list
 
     def updateGuardSymbol(self, guardcov_list):
@@ -324,5 +330,16 @@ class Scheduler:
                         near_dis = min(near_dis, distance)
 
         return near_dis
+
+
+    '''
+    Scheduler constraint.
+    '''
+    def skipInvalidCmp(self):
+        pass
+
+
+    def updateInvalidCmp(self):
+        pass
 
 

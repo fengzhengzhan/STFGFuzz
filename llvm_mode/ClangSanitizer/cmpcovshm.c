@@ -201,13 +201,13 @@ void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int len1, 
         // The length of each string.
         int n1;
         int n2;
-        if (n1 != 0) {
+        if (len1 != 0) {
             n1 = len1;
         } else {
             n1 = strlen(s1);
         }
 
-        if (n2 != 0) {
+        if (len2 != 0) {
             n2 = len2;
         } else {
             n2 = strlen(s2);
@@ -520,6 +520,18 @@ void __sanitizer_weak_hook_strcasestr(void *called_pc, const char *s1, const cha
 void __sanitizer_weak_hook_memmem(void *called_pc, const void *s1, size_t len1, const void *s2, size_t len2, void *result){
     handleStrMemCmp(called_pc, (char *)s1, (char *)s2, len1, len2, (char *)result, WEAK_HOOK_MEMMEM); 
 }
+
+// void __sanitizer_ptr_cmp(void *a, void *b) {
+//     printf("test");
+// }
+
+// void __sanitizer_malloc_hook(const volatile void *ptr, size_t size){
+//     printf("test");
+// }
+
+// void __sanitizer_free_hook(const volatile void *ptr){
+//     printf("test");
+// }
 
 void __sanitizer_cov_trace_div4(uint32_t Val) { 
 }

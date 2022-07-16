@@ -134,6 +134,7 @@ LDFLAGS=-no-pie ./configure
 # -fsanitize-recover=address
 
 # fatal error: 'zlib.h' file not found
+apt-get install zlib*
 apt-get install zlib1g-dev
 
 # ImportError: No module named 'typing'

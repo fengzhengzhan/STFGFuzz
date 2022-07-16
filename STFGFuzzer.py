@@ -310,7 +310,6 @@ def mainFuzzer():
                 continue
 
             ana.sendCmpid(stcmpid_ki)
-
             # Debug
             # fixme switch instructions have trip in loop.
             # if stcmpid_ki[0] == 'i':
@@ -333,13 +332,11 @@ def mainFuzzer():
 
             # Only the corresponding list data is retained, no parsing is required
             cmp_len = len(init_cmpcov_list)
-            exloc_list = sch.extensionLocation(stcmpid_loci)
+            exloc_list = sch.extensionLocation(stcmpid_loci, cmp_len)
             # LOG(LOG_DEBUG, LOG_FUNCINFO(), exloc_list, showlog=True)
             # Separate comparisons for each comparison instruction.
             # for cmporder_j in range(0, cmp_len):
             for cmporder_j in exloc_list:
-                if cmporder_j < 0 or cmporder_j >= cmp_len:
-                    continue
 
                 vis.cmporder += 1
                 if eaexit:
@@ -347,10 +344,11 @@ def mainFuzzer():
 
                 if getCmpidOrder(stcmpid_ki, cmporder_j) in sch.pass_cmp_dict:
                     Mutator.mutLocFromMap(
-                        init_seed, init_seed.content, path.seeds_mutate,
+                        init_seed, init_seed, init_seed.content, path.seeds_mutate,
                         ST_STR + str(vis.loop), sch.pass_cmp_dict[getCmpidOrder(stcmpid_ki, cmporder_j)].inputmap
                     )
                     break
+
                 '''sd -> Sliding Window Detection O(n/step)'''
                 # Get a report on changes to comparison instructions.
                 slid_list = sch.loc_coarse_list
@@ -406,7 +404,7 @@ def mainFuzzer():
                     slid_window = max(len(slid_list) // SCH_SLID_SLICE, SCH_SLID_MIN)
 
                     # before_sdloc_list = sdloc_list
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict, showlog=True)
 
                 # raise Exception()
                 '''sd <-'''
@@ -438,7 +436,7 @@ def mainFuzzer():
                 # if len(cmpmaploc_dict[stcmpid_ki]) > 16:
                 #     continue
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki, stcmpid_loci)
+                LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki, stcmpid_loci, showlog=True)
 
                 stlocset_vi = cmpmaploc_dict[stcmpid_ki]
                 stloclist_v = list(stlocset_vi)
@@ -541,11 +539,81 @@ def mainFuzzer():
                     strategy = sch.strategyq.get()
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy)
                     # Type Detection and Breaking the Constraint Cycle (At lease 1 loops)
-                    while not eaexit and strategy.curloop < strategy.endloop:
-                        strategy.curloop += 1
-                        strategy.curnum = 0
-                        LOG(LOG_DEBUG, LOG_FUNCINFO(), eaexit)
-                        if strategy.strategytype == STAT_FIN:
+                    if strategy.curloop >= strategy.endloop:
+                        continue
+
+                    strategy.curloop += 1
+                    strategy.curnum = 0
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), eaexit)
+                    if strategy.strategytype == STAT_FIN:
+                        cmpidorder = getCmpidOrder(stcmpid_ki, cmporder_j)
+                        if cmpidorder not in sch.pass_cmp_dict:
+                            sch.pass_cmp_dict[cmpidorder] = \
+                                Structures.StructCmpInfo(stcmpid_ki, cmporder_j,
+                                                         getLocInputValue(opt_seed.content, st_cmploc))
+                        # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
+                        vis.total += 1
+                        opt_stdout, opt_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, opt_seed.filename))
+                        if len(opt_stderr) == 0:
+                            sch.addq(SCH_LOOP_SEED, [opt_seed, ])
+                        break
+
+                    while not eaexit and strategy.curnum < strategy.endnum:
+                        vis.total += 1
+
+                        # Change the first mutate seed.
+                        if strategy.curnum == 0:
+                            locmapdet_dict = Parser.solveChangeMap(
+                                strategy, st_cmploc, st_seed, st_cmpcov_list, cmporder_j)
+                        else:
+                            locmapdet_dict = Parser.solveChangeMap(
+                                strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_j)
+                        LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, locmapdet_dict,
+                            opt_seed.content, st_seed.content)
+                        # The next mutate seed
+                        # Passing the constraint based on the number of cycles and the distance between comparisons.
+                        if len(locmapdet_dict) == 0:
+                            st_seed = st_seed
+                        elif strategy.curnum == 0:
+                            st_seed = Mutator.mutLocFromMap(
+                                init_seed, st_seed, st_seed.content,
+                                path.seeds_mutate, ST_STR + str(vis.loop), locmapdet_dict
+                            )
+                            st_seed = sch.selectOneSeed(SCH_THISMUT_SEED, st_seed)
+                        else:
+                            st_seed = Mutator.mutLocFromMap(
+                                init_seed, opt_seed, opt_seed.content,
+                                path.seeds_mutate, ST_STR + str(vis.loop), locmapdet_dict
+                            )
+                            st_seed = sch.selectOneSeed(SCH_THISMUT_SEED, st_seed)
+                        vis.total += 1
+                        st_stdout, st_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, st_seed.filename))
+                        # 5 visualize
+                        res = vis.display(
+                            opt_seed, set(st_cmploc), st_stdout, st_stderr, STG_ST, stcmpid_weight, sch)
+                        # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
+                        if res == VIS_Q:
+                            sch.quitFuzz()
+                        eaexit = sch.saveCrash(st_seed, st_stdout, st_stderr, vis)
+
+                        # 2 cmp instruction
+                        # Generate analysis reports.
+                        st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
+                        st_cmpcov_list = ana.getRpt(st_interlen)
+
+                        LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, strategy.curloop,
+                            strategy.endloop, st_cmploc, locmapdet_dict, opt_seed.content, st_seed.content)
+                        # Returns the status and the character to be mutated
+                        # Comparison of global optimal values to achieve updated parameters
+                        opt_seed, opt_cmpcov_list, exe_status = Parser.solveDistence(
+                            strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmporder_j)
+                        LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, strategy.bytestype, strategy.curloop,
+                            strategy.endloop, opt_seed.content, opt_cmpcov_list, exe_status, locmapdet_dict)
+
+                        LOG(LOG_DEBUG, LOG_FUNCINFO(), st_seed.content)
+
+                        strategy.curnum += 1
+                        if exe_status == DIST_FINISH:
                             cmpidorder = getCmpidOrder(stcmpid_ki, cmporder_j)
                             if cmpidorder not in sch.pass_cmp_dict:
                                 sch.pass_cmp_dict[cmpidorder] = \
@@ -553,95 +621,27 @@ def mainFuzzer():
                                                              getLocInputValue(opt_seed.content, st_cmploc))
                             # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
                             vis.total += 1
-                            opt_stdout, opt_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, opt_seed.filename))
+                            ana.sendCmpid(TRACE_GUARDFAST)
+                            trace_stdout, trace_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, opt_seed.filename))
+                            LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_stdout, trace_stderr, showlog=True)
+                            eaexit = sch.saveCrash(opt_seed, trace_stdout, trace_stderr, vis)
+
+                            LOG(LOG_DEBUG, LOG_FUNCINFO(), eaexit, sch.cur_tgtnum, showlog=True)
                             if len(opt_stderr) == 0:
+                                trace_interlen, trace_covernum = ana.getShm(trace_stdout[0:16])
+                                trace_guard_list = ana.getRpt(trace_interlen)
+                                near_dis = sch.findNearDistance(
+                                    trace_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
+                                LOG(LOG_DEBUG, LOG_FUNCINFO(), near_dis, sch.cur_nearlydis, showlog=True)
+                                if near_dis < sch.cur_nearlydis:
+                                    eaexit = True
                                 sch.addq(SCH_LOOP_SEED, [opt_seed, ])
+
+                            ana.sendCmpid(stcmpid_ki)
                             break
 
-                        while not eaexit and strategy.curnum < strategy.endnum:
-                            vis.total += 1
-
-                            # Change the first mutate seed.
-                            if strategy.curnum == 0:
-                                locmapdet_dict = Parser.solveChangeMap(
-                                    strategy, st_cmploc, st_seed, st_cmpcov_list, cmporder_j)
-                            else:
-                                locmapdet_dict = Parser.solveChangeMap(
-                                    strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_j)
-                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, locmapdet_dict,
-                                opt_seed.content, st_seed.content)
-                            # The next mutate seed
-                            # Passing the constraint based on the number of cycles and the distance between comparisons.
-                            if len(locmapdet_dict) == 0:
-                                st_seed = st_seed
-                            elif strategy.curnum == 0:
-                                st_seed = Mutator.mutLocFromMap(
-                                    init_seed, st_seed, st_seed.content,
-                                    path.seeds_mutate, ST_STR + str(vis.loop), locmapdet_dict
-                                )
-                                st_seed = sch.selectOneSeed(SCH_THISMUT_SEED, st_seed)
-                            else:
-                                st_seed = Mutator.mutLocFromMap(
-                                    init_seed, opt_seed, opt_seed.content,
-                                    path.seeds_mutate, ST_STR + str(vis.loop), locmapdet_dict
-                                )
-                                st_seed = sch.selectOneSeed(SCH_THISMUT_SEED, st_seed)
-                            vis.total += 1
-                            st_stdout, st_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, st_seed.filename))
-                            # 5 visualize
-                            res = vis.display(
-                                opt_seed, set(st_cmploc), st_stdout, st_stderr, STG_ST, stcmpid_weight, sch)
-                            # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
-                            if res == VIS_Q:
-                                sch.quitFuzz()
-                            eaexit = sch.saveCrash(st_seed, st_stdout, st_stderr, vis)
-
-                            # 2 cmp instruction
-                            # Generate analysis reports.
-                            st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
-                            st_cmpcov_list = ana.getRpt(st_interlen)
-
-                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, strategy.curloop,
-                                strategy.endloop, st_cmploc, locmapdet_dict, opt_seed.content, st_seed.content)
-                            # Returns the status and the character to be mutated
-                            # Comparison of global optimal values to achieve updated parameters
-                            opt_seed, opt_cmpcov_list, exe_status = Parser.solveDistence(
-                                strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmporder_j)
-                            LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, strategy.bytestype, strategy.curloop,
-                                strategy.endloop, opt_seed.content, opt_cmpcov_list, exe_status, locmapdet_dict)
-
-
-                            LOG(LOG_DEBUG, LOG_FUNCINFO(), st_seed.content)
-
-                            strategy.curnum += 1
-                            if exe_status == DIST_FINISH:
-                                cmpidorder = getCmpidOrder(stcmpid_ki, cmporder_j)
-                                if cmpidorder not in sch.pass_cmp_dict:
-                                    sch.pass_cmp_dict[cmpidorder] = \
-                                        Structures.StructCmpInfo(stcmpid_ki, cmporder_j,
-                                                                 getLocInputValue(opt_seed.content, st_cmploc))
-                                # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
-                                vis.total += 1
-                                ana.sendCmpid(TRACE_GUARDFAST)
-                                trace_stdout, trace_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, opt_seed.filename))
-                                LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_stdout, trace_stderr, showlog=True)
-                                eaexit = sch.saveCrash(opt_seed, trace_stdout, trace_stderr, vis)
-
-                                LOG(LOG_DEBUG, LOG_FUNCINFO(), eaexit, sch.cur_tgtnum, showlog=True)
-                                if len(opt_stderr) == 0:
-                                    trace_interlen, trace_covernum = ana.getShm(trace_stdout[0:16])
-                                    trace_guard_list = ana.getRpt(trace_interlen)
-                                    near_dis = sch.findNearDistance(
-                                        trace_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
-                                    LOG(LOG_DEBUG, LOG_FUNCINFO(), near_dis, sch.cur_nearlydis, showlog=True)
-                                    if near_dis < sch.cur_nearlydis:
-                                        eaexit = True
-                                    sch.addq(SCH_LOOP_SEED, [opt_seed, ])
-
-                                ana.sendCmpid(stcmpid_ki)
-                                break
-                            elif len(locmapdet_dict) == 0 or exe_status == DIST_FAIL:
-                                pass
+                        elif len(locmapdet_dict) == 0 or exe_status == DIST_FAIL:
+                            pass
                     sch.deleteSeeds(SCH_THISMUT_SEED)
 
         # raise Exception()

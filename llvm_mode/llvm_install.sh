@@ -3,11 +3,13 @@
 
 # install environment
 apt update
-apt-get install -y xz-utils 
-apt-get install -y gcc g++ automake autoconf libtool make
-apt-get install -y build-essential
-apt-get install -y python3  # ubuntu20.04 python3.8
-apt-get install -y wget vim
+apt -y install xz-utils 
+apt -y install zlib*
+apt -y install graphviz
+apt -y install gcc g++ automake autoconf libtool make
+apt -y install build-essential
+apt -y install python3  # ubuntu20.04 python3.8
+apt -y install wget vim
 
 cd ..
 

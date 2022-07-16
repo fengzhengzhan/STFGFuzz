@@ -152,4 +152,4 @@ if __name__ == "__main__":
     # mutate_seed_list = mutOneChar("1245678123456789", "", "", set([1]))
     # print(mutate_seed_list.content)
     # print(getFillStr(118280))
-    print(getExpandFillStr(1024))
+    print(getExpandFillStr(128))
