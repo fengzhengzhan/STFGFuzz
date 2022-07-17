@@ -185,7 +185,7 @@ def hexToNum(num):
 # i = hexToNum('464c457f')
 # i = hexToNum('464c45')
 # i = hexToNum('454c46')
-i = hexToNum('6FFFFFFE')
+i = hexToNum('ebabefac')
 numToHexChar(i)
 
 # numToHexChar(3883718427)
@@ -193,7 +193,10 @@ numToHexChar(i)
 # numToHexChar(573855352)
 # numToHexChar(305420024)
 # numToHexChar(305419640)
-numToHexChar(1879048191)
+numToHexChar(3405691582)
+numToHexChar(3199925962)
+numToHexChar(3953913772)
+numToHexChar(4294967295)
 
 
 # for i, one in enumerate(BYTES_ASCII):

@@ -93,6 +93,7 @@ clang -fsanitize=address -Wl,--whole-archive -L./ClangSanitizer -lcmpcov -Wl,--n
 ```bash
 clang++ -g -emit-llvm -c code_sources/demo.cc -o code_sources/demo.bc
 ./build.sh -n demo clang++
+# clang -fsanitize=address demo.bc -o demo
 ```
 
 ## Problems
@@ -102,25 +103,23 @@ clang++ -g -emit-llvm -c code_sources/demo.cc -o code_sources/demo.bc
 apt install build-essential
 
 # install libacl
-apt-get install libacl1-dev
+apt install libacl1-dev
 
-# zlib is not available
+# fatal error: 'zlib.h' file not found
 apt install zlib*
+apt install zlib1g-dev
 
 # xlocale.h file not found
 ln -s /usr/include/locale.h /usr/include/xlocale.h
 
 # selinux/context.h file not found
-apt-get install libselinux-dev
+apt install libselinux-dev
 apt install selinux selinux-utils selinux-basics auditd audispd-plugins
-apt-get install libcap-dev
-apt-get install libgmp3-dev
+apt install libcap-dev
+apt install libgmp3-dev
 
 # configure: error: C compiler cannot create executables
-apt-get install gcc libc6-dev
-
-# fatal error: zlib.h: No such file or directory
-apt-get install zlib1g-dev
+apt install gcc libc6-dev
 
 # install check
 ./configure
@@ -133,23 +132,19 @@ LDFLAGS=-no-pie ./configure
 
 # -fsanitize-recover=address
 
-# fatal error: 'zlib.h' file not found
-apt-get install zlib*
-apt-get install zlib1g-dev
-
 # ImportError: No module named 'typing'
 wget https://bootstrap.pypa.io/pip/3.7/get-pip.py
 python3 get-pip.py
 
 # makeinfo: not found
-sudo apt-get install texinfo
+apt install texinfo
 
 # bison: not found
-sudo apt-get install flex bison
-
-# Building GCC requires GMP 4.2+, MPFR 2.4.0+ and MPC 0.8.0+.
-Install requires package.
+apt install flex bison
 
 # configure: error: I suspect your system does not have 32-bit developement libraries (libc and headers). If you have them, rerun configure with --enable-multilib. If you do not have them, and want to build a 64-bit-only compiler, rerun configure with --disable-multilib.
-sudo apt-get install gcc-multilib
+apt install gcc-multilib
+
+# (dangerous) Building GCC requires GMP 4.2+, MPFR 2.4.0+ and MPC 0.8.0+.
+Install requires package.
 ```

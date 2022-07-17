@@ -238,7 +238,7 @@ if __name__ == "__main__":
     # ana.sendCmpid(TRACE_CMPGUARD)
     # ana.sendCmpid(TRACE_CMPGUARDSYMBOL)
     # ana.sendCmpid("m0x49e319")
-    ana.sendCmpid("xxxxx")
+    ana.sendCmpid("xx")
     # while True:
     #     addr = ana.getAddr("D124816Z\n")
     #     interlen = ana.getInterlen(addr)
