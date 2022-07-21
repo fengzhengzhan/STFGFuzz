@@ -25,8 +25,8 @@ REPLACE_COMMAND = '@seed@'
 
 EXP_MODE = False
 # EXP_MODE = True
-VIS_TERM = True
-# VIS_TERM = False
+# VIS_TERM = True
+VIS_TERM = False
 # VIS_SHOWGRAPH = True
 VIS_SHOWGRAPH = False
 
@@ -242,7 +242,7 @@ BUI_ORDER_MULTI = 10
 
 '''Comparator'''
 COM_PATCH = 'patch'
-COM_SANITIZER = 'sanitizer'
+COM_SANITIZER = 'sanitize'
 COM_MANUAL = 'manual'
 COM_GREYBOX = 'greybox'
 COM_PATCHSET = {USE_INITNUM, COM_PATCH, COM_SANITIZER, COM_MANUAL}
@@ -337,6 +337,8 @@ SCH_EXLOC = 0
 # Determine the similarity to the target-triggered Sanitizer
 # high:0   low:infinite
 SCH_CRASH_SIMI = 2
+
+SCH_SKIP_LEN = 16
 
 '''Visualizer'''
 # Red for frozen bytes.

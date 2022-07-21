@@ -53,7 +53,7 @@ def genTerminal():
             print()
             print("Options:")
             print(" -n <program_name>   Specify the name of the program item to be mutated.")
-            print(" -t sanitizer,patch,manual   Specify the target location file type.")
+            print(" -t sanitize,patch,manual   Specify the target location file type.")
             print()
             sys.exit()
         elif opt == "-n":

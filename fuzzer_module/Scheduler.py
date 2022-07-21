@@ -8,6 +8,7 @@ from queue import PriorityQueue
 from fuzzer_module.Fuzzconfig import *
 from .Structures import *
 
+
 class Scheduler:
     def __init__(self):
         self.seedq: Queue[StructSeed] = Queue()
@@ -19,7 +20,7 @@ class Scheduler:
 
         self.loc_coarse_list: 'list[int]' = []
         self.freeze_bytes = set()
-        self.pass_cmp_dict:dict = {}  # Though cmpid, record information with dict
+        self.pass_cmp_dict: dict = {}  # Though cmpid, record information with dict
 
         self.coverage_set = set()
 
@@ -41,7 +42,7 @@ class Scheduler:
         self.trans_symbol_initguard = {}
         self.trans_func_symbol = {}
 
-        self.target_dict:'{tgtnum:{funcline,funcline}}' = {}
+        self.target_dict: '{tgtnum:{funcline,funcline}}' = {}
         self.target_crashinfo = []
 
     def initEachloop(self, vis):
@@ -51,6 +52,7 @@ class Scheduler:
     '''
     Seed Operation
     '''
+
     def selectOneSeed(self, mode: int, mutseed=None) -> StructSeed:
         temp_one = None
         if mode == SCH_LOOP_SEED:
@@ -123,14 +125,15 @@ class Scheduler:
                     cinfo_num = 0
                     crash_infostr = ""
                     for c in re_cont:
-                        LOG(LOG_DEBUG, LOG_FUNCINFO(), delBrackets(c[1])+c[2], self.target_dict[self.cur_tgtnum])
-                        if delBrackets(c[1])+c[2] in self.target_dict[self.cur_tgtnum]:
-                            crash_infostr += delBrackets(c[1])+":"+c[2] + " >> "
+                        LOG(LOG_DEBUG, LOG_FUNCINFO(), delBrackets(c[1]) + c[2], self.target_dict[self.cur_tgtnum])
+                        if delBrackets(c[1]) + c[2] in self.target_dict[self.cur_tgtnum]:
+                            crash_infostr += delBrackets(c[1]) + ":" + c[2] + " >> "
                             cinfo_num += 1
 
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), len(self.target_dict[self.cur_tgtnum]))
                     # fixme set value can not fixed.
-                    if 'greybox0' not in self.target_dict[self.cur_tgtnum] and len(self.target_dict[self.cur_tgtnum]) - cinfo_num <= SCH_CRASH_SIMI:
+                    if 'greybox0' not in self.target_dict[self.cur_tgtnum] and len(
+                            self.target_dict[self.cur_tgtnum]) - cinfo_num <= SCH_CRASH_SIMI:
                         tgtsan = True
                         # self.cur_tgtnum += 1
                         self.target_crashinfo.append(crash_infostr)
@@ -145,7 +148,8 @@ class Scheduler:
                     # write csv
                     with open(self.file_crash_csv, "a+", encoding="utf-8") as cf:
                         # GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
-                        linestr = str(name) + "," + datetime.datetime.strftime(vis.start_time, "%Y-%m-%d_%H:%M:%S") + "," \
+                        linestr = str(name) + "," + datetime.datetime.strftime(vis.start_time,
+                                                                               "%Y-%m-%d_%H:%M:%S") + "," \
                                   + vis.last_time + "," + str(seed.content).replace(',', 'comma') + "," \
                                   + str(stdout).replace(',', 'comma') + "," + str(stderr).replace(',',
                                                                                                   'comma') + ",,,\n"
@@ -165,16 +169,17 @@ class Scheduler:
     '''
     Cmp Operation
     '''
+
     def extensionLocation(self, location, cmp_len):
         exloc_list = []
         exloc_list.append(location)
-        for outside in range(1, SCH_EXLOC+1):
+        for outside in range(1, SCH_EXLOC + 1):
 
             left_side = location - outside
             if 0 <= left_side < cmp_len:
                 exloc_list.append(left_side)
 
-            right_side = location+outside
+            right_side = location + outside
             if 0 <= right_side < cmp_len:
                 exloc_list.append(right_side)
 
@@ -261,7 +266,8 @@ class Scheduler:
 
                     # Transform the pc_guard to sub the value.
                     transguard = int(realguard) - self.trans_symbol_initguard[symbol]
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, trans_guard_gvid[symbol], self.trans_symbol_initguard[symbol])
+                    LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, trans_guard_gvid[symbol],
+                        self.trans_symbol_initguard[symbol])
                     if transguard not in trans_guard_gvid[symbol]:
                         continue
                     # Get the networkx node gvid to get it.
@@ -273,7 +279,8 @@ class Scheduler:
                         # print(vis.trace_orderdict[self.cur_tgtnum])
                         if symbol in vis.trace_orderdict[self.cur_tgtnum]:
                             vis.trace_orderdict[self.cur_tgtnum][symbol][2] = \
-                                min(vis.trace_orderdict[self.cur_tgtnum][symbol][2], map_curtgtpredgvid_dis[symbol][gvid])
+                                min(vis.trace_orderdict[self.cur_tgtnum][symbol][2],
+                                    map_curtgtpredgvid_dis[symbol][gvid])
                     elif symbol in map_curtgtpredgvid_dis and gvid not in map_curtgtpredgvid_dis[symbol]:
                         distance = USE_INITMAXNUM
                     LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, gvid, distance)
@@ -293,11 +300,10 @@ class Scheduler:
                         vis.cur_min_dis = min(vis.cur_min_dis, distance)
                         if distance <= LIMITER:
                             self.targetcmp_pq.put((distance, cmpid, disdup_cmpiddict[cmpid]))
-                        LOG(LOG_DEBUG, LOG_FUNCINFO(), distance-vis.loop, cmpid, trace_i)
+                        LOG(LOG_DEBUG, LOG_FUNCINFO(), distance - vis.loop, cmpid, trace_i)
             LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, self.trans_symbol_initguard)
             LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, trans_guard_gvid)
             del disdup_cmpiddict
-
 
     def selectBranch(self):
         pass
@@ -331,15 +337,32 @@ class Scheduler:
 
         return near_dis
 
-
     '''
     Scheduler constraint.
     '''
-    def skipInvalidCmp(self):
-        pass
 
+    def skipInvalidState(self, stcmpid, cmpmaploc_dict):
+        ret_flag = False
+        # Cyclic independent comparison
+        # Invalid compare instruction.
+        if stcmpid in self.skipcmp_dict and self.skipcmp_dict[stcmpid] >= SCH_SKIP_COUNT:
+            ret_flag = True
 
-    def updateInvalidCmp(self):
-        pass
+        # Length of location
+        # len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content)
+        if stcmpid not in cmpmaploc_dict:
+            ret_flag = True
+        elif len(cmpmaploc_dict[stcmpid]) > SCH_SKIP_LEN:
+            ret_flag = True
 
+        return ret_flag
 
+    def updateInvalidCmp(self, stcmpid):
+        if stcmpid not in self.skipcmp_dict:
+            self.skipcmp_dict[stcmpid] = 1
+        else:
+            self.skipcmp_dict[stcmpid] += 1
+
+    def clearInvalidCmp(self, stcmpid):
+        if stcmpid in self.skipcmp_dict:
+            self.skipcmp_dict[stcmpid] = 0

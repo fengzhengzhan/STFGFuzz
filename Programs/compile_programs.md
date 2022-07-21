@@ -28,7 +28,7 @@ extract-bc file
 sudo clang -lz -fsanitize=address -Wl,--whole-archive -L../../llvm_mode/ClangSanitizer -lcmpcov -Wl,--no-whole-archive code_IR/lava13796.o -o code_Bin/lava13796
 ```
 
-## CVE-2016-4487
+## CVE-2016-4487 (binutils-gdb)
 
 ```
 git clone git://sourceware.org/git/binutils-gdb.git cxxfilt-CVE-2016-4487
@@ -51,6 +51,20 @@ mv c++filt.bc PATH/Programs/CVE-2016-4487/code_sources/CVE-2016-4487.bc
 sudo ./build.sh -n binutils-c++filt clang
 
 sudo clang -lz -fsanitize=address -Wl,--whole-archive -L../../llvm_mode/ClangSanitizer -lcmpcov -Wl,--no-whole-archive code_IR/lava13796.o -o code_Bin/lava13796
+```
+
+## coreutils
+
+```bash
+git clone git@github.com:coreutils/coreutils.git
+export FORCE_UNSAFE_CONFIGURE=1
+export LLVM_COMPILER=clang
+./bootstrap
+CC=wllvm CFLAGS="-g -O0" LIBS="-lacl" ./configure --prefix=`pwd`/obj-bc --disable-shared 
+make -j$(nproc)  # -j Depends on the number of computer processes.
+make install
+cd obj-bc/bin/
+extract-bc xxx
 ```
 
 ## base64(LAVA-M)
@@ -139,12 +153,13 @@ python3 get-pip.py
 # makeinfo: not found
 apt install texinfo
 
-# bison: not found
-apt install flex bison
-
 # configure: error: I suspect your system does not have 32-bit developement libraries (libc and headers). If you have them, rerun configure with --enable-multilib. If you do not have them, and want to build a 64-bit-only compiler, rerun configure with --disable-multilib.
 apt install gcc-multilib
 
 # (dangerous) Building GCC requires GMP 4.2+, MPFR 2.4.0+ and MPC 0.8.0+.
 Install requires package.
+
+# autoreconf: autopoint is needed because this package uses Gettext
+apt install autopoint
+
 ```

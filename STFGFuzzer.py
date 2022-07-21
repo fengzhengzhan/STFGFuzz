@@ -10,15 +10,15 @@ from fuzzer_module.Fuzzconfig import *
 
 # source env_python/bin/activate
 # python3 STFGFuzzer.py -n demo  -- ./Programs/demo/code_Bin/demo -f @seed@
-# python3 STFGFuzzer.py -n demo -t sanitizer -- ./Programs/demo/code_Bin/demo -f @seed@
-# python3 STFGFuzzer.py -n demo -t sanitizer,manual,patch -- ./Programs/demo/code_Bin/demo -f @seed@
+# python3 STFGFuzzer.py -n demo -t sanitize -- ./Programs/demo/code_Bin/demo -f @seed@
+# python3 STFGFuzzer.py -n demo -t sanitize,manual,patch -- ./Programs/demo/code_Bin/demo -f @seed@
 # python3 STFGFuzzer.py -n base64 -- ./Programs/base64/code_Bin/base64 -d @seed@
 # python3 STFGFuzzer.py -n md5sum -- ./Programs/md5sum/code_Bin/md5sum -c @seed@
 # python3 STFGFuzzer.py -n uniq -- ./Programs/uniq/code_Bin/uniq @seed@
 # python3 STFGFuzzer.py -n who -- ./Programs/who/code_Bin/who @seed@
-# python3 STFGFuzzer.py -n lava660 -t sanitizer -- Programs/lava660/code_Bin/lava660 @seed@
-# python3 STFGFuzzer.py -n lava2285 -t sanitizer -- Programs/lava2285/code_Bin/lava2285 @seed@
-# python3 STFGFuzzer.py -n lava13796 -t sanitizer -- Programs/lava13796/code_Bin/lava13796 @seed@
+# python3 STFGFuzzer.py -n lava660 -t sanitize -- Programs/lava660/code_Bin/lava660 @seed@
+# python3 STFGFuzzer.py -n lava2285 -t sanitize -- Programs/lava2285/code_Bin/lava2285 @seed@
+# python3 STFGFuzzer.py -n lava13796 -t sanitize -- Programs/lava13796/code_Bin/lava13796 @seed@
 # python3 STFGFuzzer.py -n CVE-2016-4487 -t manual -- Programs/CVE-2016-4487/code_Bin/CVE-2016-4487 @@seed@
 # python3 STFGFuzzer.py -n binutils-c++filt -- Programs/binutils-c++filt/code_Bin/binutils-c++filt @@seed@
 # python3 STFGFuzzer.py -n CVE-2016-4493 -t manual -- Programs/CVE-2016-4493/code_Bin/CVE-2016-4493 @@seed@
@@ -305,8 +305,7 @@ def mainFuzzer():
             # if stcmpid_weight - sch.cur_nearlydis >= LIMITER:
             #     break
 
-            # Cyclic independent comparison
-            if stcmpid_ki in sch.skipcmp_dict and sch.skipcmp_dict[stcmpid_ki] >= SCH_SKIP_COUNT:
+            if sch.skipInvalidState(stcmpid_ki, []):
                 continue
 
             ana.sendCmpid(stcmpid_ki)
@@ -413,29 +412,11 @@ def mainFuzzer():
                 #     continue
 
                 # Skip fix cmp
-                if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content):
-                    if stcmpid_ki not in sch.skipcmp_dict:
-                        sch.skipcmp_dict[stcmpid_ki] = 1
-                    else:
-                        sch.skipcmp_dict[stcmpid_ki] += 1
+                sch.updateInvalidCmp(stcmpid_ki)
+                if sch.skipInvalidState(stcmpid_ki, cmpmaploc_dict):
                     continue
 
-                if stcmpid_ki in sch.skipcmp_dict:
-                    sch.skipcmp_dict[stcmpid_ki] = 0
-
-                # if stcmpid_ki not in sch.skipcmp_dict:
-                #     sch.skipcmp_dict[stcmpid_ki] = 1
-                # else:
-                #     sch.skipcmp_dict[stcmpid_ki] += 1
-
-                # LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_ki, cmpmaploc_dict[stcmpid_ki])
-                # if stcmpid_ki not in cmpmaploc_dict or len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content):
-                #     continue
-
-                # fixme
-                # if len(cmpmaploc_dict[stcmpid_ki]) > 16:
-                #     continue
-
+                sch.clearInvalidCmp(stcmpid_ki)
                 LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki, stcmpid_loci, showlog=True)
 
                 stlocset_vi = cmpmaploc_dict[stcmpid_ki]
