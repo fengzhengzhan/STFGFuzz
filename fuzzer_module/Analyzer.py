@@ -55,7 +55,7 @@ class Analyzer:
             # if self.shm_key == USE_INITNUM:
             #     raise Exception("Error shm_key {}".format(e))
 
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), shm_key, self.shm_key)
+        LOG(DEBUG, LOC(), shm_key, self.shm_key)
         if shm_key != self.shm_key:
             self.shm_key = shm_key
 
@@ -66,7 +66,7 @@ class Analyzer:
             self.addr = self.shmat(shmid, None, 0)
 
         # Get the length of cmpcovshm contents.
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), out_info, self.addr)
+        LOG(DEBUG, LOC(), out_info, self.addr)
         interlen_str = string_at(self.addr + ANA_FILTER_SIZE, ANA_INTERLEN_SIZE).decode("utf-8")
         re_str = INTERLEN_FLAG + "(.*?)" + END_EACH_FLAG
         interlen = int(re.search(re_str, interlen_str).group(1))
@@ -157,14 +157,14 @@ class Analyzer:
     Tracking Comparison Module.
     '''
     def compareOneRptToLoc(self, b4cmp_dict, cmp_dict):
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), b4cmp_dict, cmp_dict)
+        LOG(DEBUG, LOC(), b4cmp_dict, cmp_dict)
         b4cmpset = set(b4cmp_dict)
         cmpset = set(cmp_dict)
         interset = b4cmpset & cmpset  # Intersection set
         # symdiffset = b4cmpset ^ cmpset  # Symmetric Difference set
         symdiffset = cmpset - b4cmpset  # Symmetric Difference set
         diffcmp_set = set()
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), interset, symdiffset)
+        LOG(DEBUG, LOC(), interset, symdiffset)
 
         # Intersection set
         # compare whether the parameters of the same constraint are different.
@@ -190,7 +190,7 @@ class Analyzer:
         # symdiffset = b4cmpset ^ cmpset  # Symmetric Difference set
         symdiffset = cmpset - b4cmpset  # Symmetric Difference set
         diffcmp_set = set()
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), interset, symdiffset)
+        LOG(DEBUG, LOC(), interset, symdiffset)
 
         # Intersection set
         # compare whether the parameters of the same constraint are different.
@@ -235,10 +235,10 @@ if __name__ == "__main__":
     # ana.sendCmpid(TRACE_GUARDSYMBOL)
     # ana.sendCmpid(TRACE_CMPFILTER)
     # ana.sendCmpid(TRACE_CMP)
-    # ana.sendCmpid(TRACE_CMPGUARD)
+    ana.sendCmpid(TRACE_CMPGUARD)
     # ana.sendCmpid(TRACE_CMPGUARDSYMBOL)
     # ana.sendCmpid("m0x49e319")
-    ana.sendCmpid("xx")
+    # ana.sendCmpid("xx")
     # while True:
     #     addr = ana.getAddr("D124816Z\n")
     #     interlen = ana.getInterlen(addr)

@@ -48,7 +48,7 @@ def mainFuzzer():
     # Directed Location
     print("{} Build Directional Position...".format(getTime()))
     target_dict = Comparator.getTarget(path.data_patchloc, patchtype)
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), target_dict, showlog=True)
+    LOG(DEBUG, LOC(), target_dict, show=True)
 
     sch = Scheduler.Scheduler()
     for tgt_ki, stu_vi in target_dict.items():
@@ -56,24 +56,24 @@ def mainFuzzer():
         for info_j in stu_vi:
             sch.target_dict[tgt_ki].add(str(info_j[1]) + str(info_j[2]))
 
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.target_dict)
+    LOG(DEBUG, LOC(), sch.target_dict)
     # If it is repeated, it is not loaded.
     cmptgt = Comparator.compareTargetDiff(path.data_patchloc, target_dict)
     if cmptgt:
         print("{} Build binary target information...".format(getTime()))
         binline_dict = Builder.getBinaryInfo(path.data_graph)
         map_numto_funcasm = Comparator.getDirectedNodeLoc(binline_dict, target_dict)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), binline_dict, target_dict, map_numto_funcasm, sch.target_dict)
+        LOG(DEBUG, LOC(), binline_dict, target_dict, map_numto_funcasm, sch.target_dict)
 
         # Graph Information
         print("{} Build Graph Information...".format(getTime()))
         # Load the .dot file into networkx.
         cglist, cfglist = Generator.createDotJsonFile(program_name, path.code_IR + program_name + GEN_TRACEBC_SUFFIX)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), cglist, cfglist, showlog=True)
+        LOG(DEBUG, LOC(), cglist, cfglist, show=True)
         cggraph, map_functo_cgnode = Builder.getCG(cglist)
         cfggraph_dict, map_guard_gvid, map_target = Builder.getCFG(cfglist, map_numto_funcasm, target_dict)
         # map_target {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, map_numto_funcasm, target_dict, map_functo_cgnode)
+        LOG(DEBUG, LOC(), map_guard_gvid, map_target, map_numto_funcasm, target_dict, map_functo_cgnode)
         '''All node transfrom to the gvid to convenient calculation and expression.'''
         '''All the function name transfrom to the static symbol function name.'''
         '''Dynamic:guard  Static:gvid'''
@@ -84,7 +84,7 @@ def mainFuzzer():
         map_tgtpredgvid_dis, map_callfuncs = Builder.getTargetPredecessorsGuard(
             cggraph, cfggraph_dict, map_guard_gvid, map_target, target_dict)
         tgtpred_offset = Builder.getFuncOffset(map_tgtpredgvid_dis, map_target, map_callfuncs)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, target_dict, map_tgtpredgvid_dis, tgtpred_offset, map_callfuncs)
+        LOG(DEBUG, LOC(), map_guard_gvid, map_target, target_dict, map_tgtpredgvid_dis, tgtpred_offset, map_callfuncs)
 
         print("{} Save as pkl files...".format(getTime()))
         saveAsPkl(path.data_graph+".map_functo_cgnode.pkl", map_functo_cgnode)
@@ -101,7 +101,7 @@ def mainFuzzer():
         map_target = loadFromPkl(path.data_graph+".map_target.pkl")
         map_tgtpredgvid_dis = loadFromPkl(path.data_graph+".map_tgtpredgvid_dis.pkl")
         tgtpred_offset = loadFromPkl(path.data_graph+".tgtpred_offset.pkl")
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_functo_cgnode, map_guard_gvid, map_target, map_tgtpredgvid_dis, tgtpred_offset)
+    LOG(DEBUG, LOC(), map_functo_cgnode, map_guard_gvid, map_target, map_tgtpredgvid_dis, tgtpred_offset)
 
     if len(map_target) != 0:
         sch.all_tgtnum = len(map_target)
@@ -111,7 +111,7 @@ def mainFuzzer():
     print("{} Directed Target Sequence...".format(getTime()))
     trace_orderdict = Builder.printTargetSeq(map_target)
 
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_guard_gvid, map_target, map_tgtpredgvid_dis)
+    LOG(DEBUG, LOC(), map_guard_gvid, map_target, map_tgtpredgvid_dis)
 
     sch.file_crash_csv = file_crash_csv
     sch.path_crashseeds = path.seeds_crash
@@ -120,7 +120,7 @@ def mainFuzzer():
     # Init seed lists
     print("{} Init Seed lists...".format(getTime()))
     init_seeds_list = Generator.prepareEnv(program_name)
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seeds_list, len(init_seeds_list,), showlog=True)
+    LOG(DEBUG, LOC(), init_seeds_list, len(init_seeds_list, ), show=True)
     if len(init_seeds_list) > 0:
         temp_listq = []
         for each in init_seeds_list:
@@ -139,7 +139,7 @@ def mainFuzzer():
         Structures.StructSeed(path.seeds_mutate + AUTO_SEED, Mutator.getExpandFillStr(SCH_EXPAND_SIZE), SEED_INIT, set()))
     create_stdout, create_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, create_seed.filename))
     ana.getShm(create_stdout[0:16])
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), create_seed.content)
+    LOG(DEBUG, LOC(), create_seed.content)
 
     '''Fuzzing Cycle'''
     print("{} Fuzzing Loop...".format(getTime()))
@@ -169,7 +169,7 @@ def mainFuzzer():
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         # cmpcov_list = ana.getRpt(init_interlen)
         # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content, init_stdout, init_interlen, init_covernum)
+        LOG(DEBUG, LOC(), init_seed.content, init_stdout, init_interlen, init_covernum)
 
 
         # Select the location to be mutated and add it to the location queue.
@@ -183,7 +183,7 @@ def mainFuzzer():
         # If there is a change in the increase length then increase the length.
         b4ld_seed = init_seed
         b4ld_interlen = init_interlen
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content, ana.getRpt(init_interlen))
+        LOG(DEBUG, LOC(), init_seed.content, ana.getRpt(init_interlen))
         while len(b4ld_seed.content) < sch.expand_size:
             vis.total += 1
             sch.expandnums += 1
@@ -196,7 +196,7 @@ def mainFuzzer():
 
             # 1 seed inputs
             ld_interlen, ld_covernum = ana.getShm(ld_stdout[0:16])
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), len(ld_seed.content), b4ld_interlen, ld_interlen, ana.getRpt(ld_interlen))
+            LOG(DEBUG, LOC(), len(ld_seed.content), b4ld_interlen, ld_interlen, ana.getRpt(ld_interlen))
             if b4ld_interlen != ld_interlen:
                 b4ld_seed = ld_seed
                 b4ld_interlen = ld_interlen
@@ -208,7 +208,7 @@ def mainFuzzer():
                 b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, b4ld_seed.filename))
                 b4ld_interlen, b4ld_covernum = ana.getShm(b4ld_stdout[0:16])
                 b4ld_cmpcov_list = ana.getRpt(b4ld_interlen)
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), b4ld_cmpcov_list)
+                LOG(DEBUG, LOC(), b4ld_cmpcov_list)
                 if ld_cmpcov_list != b4ld_cmpcov_list:
                     b4ld_seed = ld_seed
                     b4ld_interlen = ld_interlen
@@ -223,7 +223,7 @@ def mainFuzzer():
 
         # print("{} cf...".format(getTime()))
         '''2 cmp filter -> Select compare instructions which close the target block. '''
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.cur_tgtnum, showlog=True)
+        LOG(DEBUG, LOC(), sch.cur_tgtnum, show=True)
         if len(map_tgtpredgvid_dis[sch.cur_tgtnum]) == 0:
             ana.sendCmpid(TRACE_CMP)
         else:
@@ -241,13 +241,13 @@ def mainFuzzer():
         # Get the offset of the address block.
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         init_guardcov_list = ana.getRpt(init_interlen)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_guardcov_list, sch.trans_symbol_initguard)
+        LOG(DEBUG, LOC(), init_guardcov_list, sch.trans_symbol_initguard)
         guard_set, guard_total = ana.getGuardNum(init_guardcov_list)
         sch.coverage_set = sch.coverage_set | guard_set
         vis.num_pcguard = guard_total
 
         # Update sch priority queue. Save cmpid for the next explore
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
+        LOG(DEBUG, LOC(), map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
         # print("{} b4select...".format(getTime()))
         sch.selectConstraint(init_guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid, vis)
         # print("{} select...".format(getTime()))
@@ -257,7 +257,7 @@ def mainFuzzer():
         # init_cmpset = set(init_cmp_dict)
         # Compare instruction type speculation based on input mapping,
         # then try to pass the corresponding constraint (1-2 rounds).
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.targetcmp_pq)
+        LOG(DEBUG, LOC(), sch.targetcmp_pq)
         # while not sch.targetcmp_pq.empty():
         #     LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.targetcmp_pq.get(), showlog=True)
         # raise Exception()
@@ -297,15 +297,15 @@ def mainFuzzer():
 
             stcmpid_tuples = sch.targetcmp_pq.get()
             stcmpid_weight, stcmpid_ki, stcmpid_loci = stcmpid_tuples[0], stcmpid_tuples[1], stcmpid_tuples[2]
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki, stcmpid_loci, showlog=True)
+            LOG(DEBUG, LOC(), stcmpid_weight, stcmpid_ki, stcmpid_loci, show=True)
             vis.cmpnum += 1
             vis.cmporder = 0
 
             # limiter Use it from select constraint.
             # if stcmpid_weight - sch.cur_nearlydis >= LIMITER:
             #     break
-
-            if sch.skipInvalidState(stcmpid_ki, []):
+            LOG(DEBUG, LOC(), sch.skipInvalidState(stcmpid_ki, {stcmpid_ki: {0}}), show=True)
+            if sch.skipInvalidState(stcmpid_ki, {stcmpid_ki: {0}}):
                 continue
 
             ana.sendCmpid(stcmpid_ki)
@@ -326,7 +326,7 @@ def mainFuzzer():
             init_stdout, init_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, init_seed.filename))
             init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
             init_cmpcov_list = ana.getRpt(init_interlen)
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), init_cmpcov_list)
+            LOG(DEBUG, LOC(), init_cmpcov_list, show=True)
             # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
 
             # Only the corresponding list data is retained, no parsing is required
@@ -360,7 +360,7 @@ def mainFuzzer():
                     coarse_head = 0
                     cmpmaploc_dict = {}
                     b4_slid_window = slid_window
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), b4_slid_window, slid_window, cmpmaploc_dict, slid_list)
+                    LOG(DEBUG, LOC(), b4_slid_window, slid_window, cmpmaploc_dict, slid_list)
                     while coarse_head < len(slid_list):
                         vis.total += 1
                         # 1 seed inputs
@@ -392,7 +392,7 @@ def mainFuzzer():
                             else:
                                 cmpmaploc_dict[stcmpid_ki] |= set(sdloc_list)
 
-                        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_cmpcov_list, sd_cmpcov_list, cmporder_j, slid_window, len(cmpmaploc_dict), len(sdloc_list))
+                        LOG(DEBUG, LOC(), init_cmpcov_list, sd_cmpcov_list, cmporder_j, slid_window, len(cmpmaploc_dict), len(sdloc_list))
                     if stcmpid_ki in cmpmaploc_dict:
                         slid_list = list(cmpmaploc_dict[stcmpid_ki])
                         slid_list.sort()
@@ -403,7 +403,7 @@ def mainFuzzer():
                     slid_window = max(len(slid_list) // SCH_SLID_SLICE, SCH_SLID_MIN)
 
                     # before_sdloc_list = sdloc_list
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpmaploc_dict, showlog=True)
+                LOG(DEBUG, LOC(), cmpmaploc_dict, show=True)
 
                 # raise Exception()
                 '''sd <-'''
@@ -412,12 +412,13 @@ def mainFuzzer():
                 #     continue
 
                 # Skip fix cmp
+                LOG(DEBUG, LOC(), stcmpid_weight, stcmpid_ki, stcmpid_loci, cmpmaploc_dict, show=True)
                 sch.updateInvalidCmp(stcmpid_ki)
                 if sch.skipInvalidState(stcmpid_ki, cmpmaploc_dict):
                     continue
 
                 sch.clearInvalidCmp(stcmpid_ki)
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), stcmpid_weight, stcmpid_ki, stcmpid_loci, showlog=True)
+
 
                 stlocset_vi = cmpmaploc_dict[stcmpid_ki]
                 stloclist_v = list(stlocset_vi)
@@ -465,11 +466,11 @@ def mainFuzzer():
                     bd_interlen, bd_covernum = ana.getShm(bd_stdout[0:16])
                     bd_cmpcov_list = ana.getRpt(bd_interlen)
 
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), ststart_cmpcov_list, bd_cmpcov_list, cmporder_j)
+                    LOG(DEBUG, LOC(), ststart_cmpcov_list, bd_cmpcov_list, cmporder_j)
                     if len(bd_cmpcov_list) != 0 and ana.compareRptDiff(ststart_cmpcov_list, bd_cmpcov_list, cmporder_j):
                         st_cmploc.append(one_loc)
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), ststart_cmpcov_list[cmporder_j], st_cmploc, cmp_len, cmporder_j, showlog=True)
+                LOG(DEBUG, LOC(), ststart_cmpcov_list[cmporder_j], st_cmploc, cmp_len, cmporder_j, show=True)
                 '''bd <-'''
 
                 ana.sendCmpid(stcmpid_ki)
@@ -499,11 +500,11 @@ def mainFuzzer():
                     opt_cmpcov_list, cmporder_j, strategy_flag, cmp_flag, bytes_flag, st_cmploc)
                 sch.strategyq.put(infer_strategy)
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), bytes_flag, PAR_FIXAFIX, eaexit, stcmpid_weight, sch.cur_nearlydis)
+                LOG(DEBUG, LOC(), bytes_flag, PAR_FIXAFIX, eaexit, stcmpid_weight, sch.cur_nearlydis)
                 if bytes_flag == PAR_FIXAFIX:
                     continue
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy_flag, bytes_flag, opt_cmpcov_list, ststart_cmpcov_list)
+                LOG(DEBUG, LOC(), strategy_flag, bytes_flag, opt_cmpcov_list, ststart_cmpcov_list)
 
                 # fixme
                 # opt_seed = Mutator.mutLocFromMap(opt_seed, opt_seed.content, path.seeds_mutate, ST_STR + str(vis.loop),
@@ -518,14 +519,14 @@ def mainFuzzer():
                 '''Mutation strategy and Compare distance'''
                 while not eaexit and not sch.strategyq.empty():
                     strategy = sch.strategyq.get()
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy)
+                    LOG(DEBUG, LOC(), strategy)
                     # Type Detection and Breaking the Constraint Cycle (At lease 1 loops)
                     if strategy.curloop >= strategy.endloop:
                         continue
 
                     strategy.curloop += 1
                     strategy.curnum = 0
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), eaexit)
+                    LOG(DEBUG, LOC(), eaexit)
                     if strategy.strategytype == STAT_FIN:
                         cmpidorder = getCmpidOrder(stcmpid_ki, cmporder_j)
                         if cmpidorder not in sch.pass_cmp_dict:
@@ -549,7 +550,7 @@ def mainFuzzer():
                         else:
                             locmapdet_dict = Parser.solveChangeMap(
                                 strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_j)
-                        LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, locmapdet_dict,
+                        LOG(DEBUG, LOC(), strategy.curnum, strategy.endnum, locmapdet_dict,
                             opt_seed.content, st_seed.content)
                         # The next mutate seed
                         # Passing the constraint based on the number of cycles and the distance between comparisons.
@@ -582,16 +583,16 @@ def mainFuzzer():
                         st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
                         st_cmpcov_list = ana.getRpt(st_interlen)
 
-                        LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, strategy.endnum, strategy.curloop,
+                        LOG(DEBUG, LOC(), strategy.curnum, strategy.endnum, strategy.curloop,
                             strategy.endloop, st_cmploc, locmapdet_dict, opt_seed.content, st_seed.content)
                         # Returns the status and the character to be mutated
                         # Comparison of global optimal values to achieve updated parameters
                         opt_seed, opt_cmpcov_list, exe_status = Parser.solveDistence(
                             strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmporder_j)
-                        LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.strategytype, strategy.bytestype, strategy.curloop,
+                        LOG(DEBUG, LOC(), strategy.strategytype, strategy.bytestype, strategy.curloop,
                             strategy.endloop, opt_seed.content, opt_cmpcov_list, exe_status, locmapdet_dict)
 
-                        LOG(LOG_DEBUG, LOG_FUNCINFO(), st_seed.content)
+                        LOG(DEBUG, LOC(), st_seed.content)
 
                         strategy.curnum += 1
                         if exe_status == DIST_FINISH:
@@ -604,16 +605,16 @@ def mainFuzzer():
                             vis.total += 1
                             ana.sendCmpid(TRACE_GUARDFAST)
                             trace_stdout, trace_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, opt_seed.filename))
-                            LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_stdout, trace_stderr, showlog=True)
+                            LOG(DEBUG, LOC(), trace_stdout, trace_stderr, show=True)
                             eaexit = sch.saveCrash(opt_seed, trace_stdout, trace_stderr, vis)
 
-                            LOG(LOG_DEBUG, LOG_FUNCINFO(), eaexit, sch.cur_tgtnum, showlog=True)
+                            LOG(DEBUG, LOC(), eaexit, sch.cur_tgtnum, show=True)
                             if len(opt_stderr) == 0:
                                 trace_interlen, trace_covernum = ana.getShm(trace_stdout[0:16])
                                 trace_guard_list = ana.getRpt(trace_interlen)
                                 near_dis = sch.findNearDistance(
                                     trace_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
-                                LOG(LOG_DEBUG, LOG_FUNCINFO(), near_dis, sch.cur_nearlydis, showlog=True)
+                                LOG(DEBUG, LOC(), near_dis, sch.cur_nearlydis, show=True)
                                 if near_dis < sch.cur_nearlydis:
                                     eaexit = True
                                 sch.addq(SCH_LOOP_SEED, [opt_seed, ])
@@ -627,7 +628,7 @@ def mainFuzzer():
 
         # raise Exception()
         # Endless fuzzing, add the length seed.
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), init_seed.content)
+        LOG(DEBUG, LOC(), init_seed.content)
         sch.targetcmp_pq.queue.clear()
         sch.deleteSeeds(SCH_THIS_SEED)
         if sch.seedq.empty():

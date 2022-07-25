@@ -230,7 +230,7 @@ class Visualizer:
             # Show the program output
             stdout = str(stdout)[2:-1]
             stderr = str(stderr)[2:-1]
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), stdout, len(stdout))
+            LOG(DEBUG, LOC(), stdout, len(stdout))
             out_high = min(len(stdout) // (curse_len - 2) + 1, VIS_MAX_OUT)
             err_high = min(len(stderr) // (curse_len - 2) + 1, VIS_MAX_ERR)
             output_high = out_high + err_high + 2

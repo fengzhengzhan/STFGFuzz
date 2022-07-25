@@ -30,7 +30,7 @@ def genTerminal():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hn:t:")
         # print(opts, args)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), opts, args)
+        LOG(DEBUG, LOC(), opts, args)
     except getopt.GetoptError:
         print("python {}.py -h".format(FUZZNAME))
         raise Exception("Error options.")
@@ -39,7 +39,7 @@ def genTerminal():
     patchtype = []
     fuzz_command = " ".join(args)
 
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), fuzz_command)
+    LOG(DEBUG, LOC(), fuzz_command)
 
     for opt, arg in opts:
         if opt == "-h":
@@ -62,7 +62,7 @@ def genTerminal():
             patcharg = arg.split(",")
             for one in patcharg:
                 patchtype.append(one)
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), patchtype)
+    LOG(DEBUG, LOC(), patchtype)
     return program_name, patchtype, fuzz_command
 
 

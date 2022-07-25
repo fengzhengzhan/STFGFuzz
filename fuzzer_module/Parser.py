@@ -80,7 +80,7 @@ def getDistance(cont_list):
         distance = -1
     elif abs(opt0 - opt1) == abs(mut0 - mut1):
         distance = 0
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt0, opt1, mut0, mut1, abs(opt0 - opt1), abs(mut0 - mut1))
+    LOG(DEBUG, LOC(), opt0, opt1, mut0, mut1, abs(opt0 - opt1), abs(mut0 - mut1))
     return distance
 
 
@@ -121,7 +121,7 @@ def handleMagicNum(st_cmploc, cont_list, strategy):
             change_inputmap[loc] = fixed_cont[idx:idx + 1]
     elif strategy.curnum == 2:
         fixed_cont = numToBytes(fixed_cont, len(st_cmploc), PAR_CONVDOUBLE)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), fixed_cont)
+        LOG(DEBUG, LOC(), fixed_cont)
         for idx, loc in enumerate(st_cmploc[::1]):
             change_inputmap[loc] = fixed_cont[idx:idx + 1]
     elif strategy.curnum == 3:
@@ -133,7 +133,7 @@ def handleMagicNum(st_cmploc, cont_list, strategy):
         strategy.curnum = 0
         strategy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
 
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), strategy.curnum, change_inputmap, showlog=True)
+    LOG(DEBUG, LOC(), strategy.curnum, change_inputmap, show=True)
 
     return change_inputmap
 
@@ -167,7 +167,7 @@ def handleChecksums(ret_seed, st_loc, strategy):
         while ci >= 0:
             if ci < len(st_loc) and st_loc[ci] < len(ret_seed.content):
                 n = ret_seed.content[st_loc[ci]] + pre
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), ret_seed.content[st_loc[ci]], pre, n)
+                LOG(DEBUG, LOC(), ret_seed.content[st_loc[ci]], pre, n)
                 stloc = st_loc[ci]
             else:
                 n = pre
@@ -216,7 +216,7 @@ def solveChangeMap(strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_num)
     Get the strategy change map
     @return:
     """
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), st_cmploc, opt_seed.content, opt_cmpcov_list, cmporder_num)
+    LOG(DEBUG, LOC(), st_cmploc, opt_seed.content, opt_cmpcov_list, cmporder_num)
 
     locmapdet_dict = {}
     change_inputmap = {}
@@ -263,11 +263,11 @@ def solveDistence(strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, 
     ret_cmpcov_list = opt_cmpcov_list
     exe_status = DIST_CONTINUE
 
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), cmporder_num, len(opt_cmpcov_list), len(st_cmpcov_list))
+    LOG(DEBUG, LOC(), cmporder_num, len(opt_cmpcov_list), len(st_cmpcov_list))
     if cmporder_num < len(opt_cmpcov_list) and cmporder_num < len(st_cmpcov_list):
         opt_one = opt_cmpcov_list[cmporder_num][1:]
         st_one = st_cmpcov_list[cmporder_num][1:]
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_one, st_one, showlog=True)
+        LOG(DEBUG, LOC(), opt_one, st_one, show=True)
         if opt_one[IDX_CMPTYPE] == COV_SWITCH:
             cont_list = [opt_one[4], opt_one[4 + strategy.curloop],
                          st_one[4], st_one[4 + strategy.curloop]]
@@ -305,7 +305,7 @@ Type Inference Module.
 # Infer bytes status according bytes change.
 def inferFixedOrChanged(ori_one, st_one) -> int:
     ori0, ori1, st0, st1 = ori_one[IDX_ARG], ori_one[IDX_ARG + 1], st_one[IDX_ARG], st_one[IDX_ARG + 1]
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), ori0, ori1, st0, st1)
+    LOG(DEBUG, LOC(), ori0, ori1, st0, st1)
     # Original group <-> Control group
     bytesflag = PAR_CHGACHG
     if st0 == st1:
@@ -333,7 +333,7 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_num):
     Type identification and speculation.
     @return:
     """
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), opt_cmpcov_list, ststart_cmpcov_list, cmporder_num)
+    LOG(DEBUG, LOC(), opt_cmpcov_list, ststart_cmpcov_list, cmporder_num)
     strategy_flag = STAT_SUC
     cmp_flag = UNDEFINE
     bytes_flag = PAR_UNDEFINED

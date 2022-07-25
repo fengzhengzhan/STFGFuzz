@@ -41,7 +41,7 @@ def getBinaryInfo(path_graph: str) -> 'dict[str:dict[int:dict[str:str]]]':
     # print(patchline_info)
     binline_dict = ast.literal_eval(patchline_info)
     # print(binline_dict['main'])
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), patchline_info, binline_dict)
+    LOG(DEBUG, LOC(), patchline_info, binline_dict)
     return binline_dict
 
 
@@ -53,7 +53,7 @@ def getCG(cglist):
     """
     cggraph, map_func_cgnode = None, None
     for jsonfile in cglist:
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), jsonfile)
+        LOG(DEBUG, LOC(), jsonfile)
         with open(jsonfile, 'r') as f:
             data = json.load(f)
         # for k, v in data.items():
@@ -68,7 +68,7 @@ def getCG(cglist):
                                 BUI_NODE_NAME: node[BUI_NODE_NAME],
                                 BUI_NODE_DISTANCE: USE_INITNUM,
                                 BUI_NODE_FUNCS: set([node[BUI_NODE_LABEL][1:-1]])}))
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), node[BUI_NODE_NUM], node[BUI_NODE_NAME], node[BUI_NODE_LABEL])
+            LOG(DEBUG, LOC(), node[BUI_NODE_NUM], node[BUI_NODE_NAME], node[BUI_NODE_LABEL])
             map_func_cgnode[node[BUI_NODE_LABEL][1:-1]] = node[BUI_NODE_NAME]
         # Edges
         edges_list = []
@@ -77,7 +77,7 @@ def getCG(cglist):
                                edge[BUI_EDGE_END],
                                BUI_INIT_WEIGHT))
         # print(nodes_list, edges_list)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), nodes_list, edges_list)
+        LOG(DEBUG, LOC(), nodes_list, edges_list)
         cggraph = Graph(data[BUI_NAME].split(" ")[-1], nodes_list, edges_list)
 
     return cggraph, map_func_cgnode
@@ -115,13 +115,13 @@ def getCFG(cfglist, map_num_asm, target_dict):
             nodes_list = []
             for node_j in data[BUI_NODES]:
                 node_asm = re.sub(r"\s|\\l|\\", '', node_j[BUI_NODE_LABEL])
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_NAME], node_asm)
+                LOG(DEBUG, LOC(), node_j[BUI_NODE_NAME], node_asm)
 
                 # Find function callgraph.
                 pattern = re.compile(BUI_FUNCS)
                 callfuncs = set(pattern.findall(node_asm))
                 callfuncs = callfuncs - BUI_FILTER_FUNCS
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), callfuncs)
+                LOG(DEBUG, LOC(), callfuncs)
 
                 # Find Guard num node_j
                 pattern = re.compile(BUI_GUARD_RE)
@@ -134,7 +134,7 @@ def getCFG(cfglist, map_num_asm, target_dict):
                     # if len(guard_res) == 0:
                     #     LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_LABEL], showlog=True)
 
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), guard_res)
+                LOG(DEBUG, LOC(), guard_res)
                 temp_guardlist = []
                 for one in guard_res:
                     temp_guardnum = int(int(one, 10) / BUI_LOC_INTERVAL)
@@ -148,7 +148,7 @@ def getCFG(cfglist, map_num_asm, target_dict):
                                     BUI_NODE_DISTANCE: USE_INITNUM,
                                     BUI_NODE_FUNCS: callfuncs,
                                     BUI_NODE_ST: []}))
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_NUM], node_j[BUI_NODE_NAME], temp_guardlist)
+                LOG(DEBUG, LOC(), node_j[BUI_NODE_NUM], node_j[BUI_NODE_NAME], temp_guardlist)
 
                 # Find target
                 for tarnum_k in map_num_asm:  # target nums
@@ -165,7 +165,7 @@ def getCFG(cfglist, map_num_asm, target_dict):
                         if graphname in map_num_asm[tarnum_k]:
                             for target_l in map_num_asm[tarnum_k].get(graphname):  # [tgtnumid, asm]
                                 tgtid = target_l[0]
-                                LOG(LOG_DEBUG, LOG_FUNCINFO(), node_asm, target_l[1])
+                                LOG(DEBUG, LOC(), node_asm, target_l[1])
                                 # res = node_j[BUI_NODE_LABEL].replace(' ', '').replace('\\l', '') \
                                 #     .find(target_l[1].replace(' ', ''))
                                 res = node_asm.find(target_l[1])
@@ -190,7 +190,7 @@ def getCFG(cfglist, map_num_asm, target_dict):
                                    edge_j[BUI_EDGE_END],
                                    BUI_INIT_WEIGHT))
             # print(nodes_list, edges_list)
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), nodes_list, edges_list)
+            LOG(DEBUG, LOC(), nodes_list, edges_list)
 
             cfggraph = Graph(graphname, nodes_list, edges_list)
             cfggraph_dict[graphname] = cfggraph
@@ -230,15 +230,15 @@ def searchCGFuncNode(graph, funcname):
     # According funcname find which function call target.
     cgnode_list = []
     for node in graph.dg.nodes(data=True):
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), node[0], node[1])
+        LOG(DEBUG, LOC(), node[0], node[1])
         if funcname in node[1][BUI_NODE_FUNCS]:
             cgnode_list.append(node[0])
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), cgnode_list, showlog=True)
+    LOG(DEBUG, LOC(), cgnode_list, show=True)
 
     # Find call functions.
     for one in cgnode_list:
         predis_dict = getPredecessorsGvid(graph.dg, one)
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), predis_dict)
+        LOG(DEBUG, LOC(), predis_dict)
         for pregvid_j, predis_j in predis_dict.items():
             for callfunc_k in graph.dg.nodes[pregvid_j][BUI_NODE_FUNCS]:
                 if callfunc_k not in ref_dict:
@@ -246,7 +246,7 @@ def searchCGFuncNode(graph, funcname):
                 elif callfunc_k > predis_j:
                     ref_dict[callfunc_k] = predis_j
 
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), ref_dict, showlog=True)
+    LOG(DEBUG, LOC(), ref_dict, show=True)
     return ref_dict
 
 
@@ -255,8 +255,8 @@ def searchCFGFuncNode(graph, callfuncs_dict):
 
     call_nodes = set()
     for node in graph.dg.nodes.data():
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), node[0], node[1], callfuncs_dict,
-            callfuncs_dict.keys() & node[1][BUI_NODE_FUNCS], showlog=True)
+        LOG(DEBUG, LOC(), node[0], node[1], callfuncs_dict,
+            callfuncs_dict.keys() & node[1][BUI_NODE_FUNCS], show=True)
         if len(callfuncs_dict.keys() & node[1][BUI_NODE_FUNCS]) != 0:
             call_nodes.add(node[0])
 
@@ -267,14 +267,14 @@ def searchCFGFuncNode(graph, callfuncs_dict):
 
 
 def getTargetPredecessorsGuard(cggraph, cfggraph_dict, map_guard_gvid, map_target, target_dict):
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), cfggraph_dict, map_target)
+    LOG(DEBUG, LOC(), cfggraph_dict, map_target)
     map_callfuncs = {}
     map_tgtpredgvid = {}
 
     for tgtnum_i in map_target:  # Select target numbers.
         patchflag = target_dict[tgtnum_i][0][0]
         if patchflag == COM_SANITIZER:
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), patchflag, map_target[tgtnum_i])
+            LOG(DEBUG, LOC(), patchflag, map_target[tgtnum_i])
             map_callfuncs[tgtnum_i] = {}
             map_tgtpredgvid[tgtnum_i] = {}
             for tgtfunc_j in map_target[tgtnum_i]:
@@ -287,7 +287,7 @@ def getTargetPredecessorsGuard(cggraph, cfggraph_dict, map_guard_gvid, map_targe
                         tgtnodegvid = tgtlist_k[2]
                         predis_dict = getPredecessorsGvid(
                             cfggraph_dict[tgtfunc_j].dg, tgtnodegvid)
-                        LOG(LOG_DEBUG, LOG_FUNCINFO(),
+                        LOG(DEBUG, LOC(),
                             tgtfunc_j, tgtidx, tgtloc_list, tgtnodegvid, predis_dict, map_guard_gvid)
                         # for k, v in predis_dict.items():
                         #     print(k, cfggraph_dict[tgtfunc_j].dg.nodes(data=True)[k], v)
@@ -296,7 +296,7 @@ def getTargetPredecessorsGuard(cggraph, cfggraph_dict, map_guard_gvid, map_targe
                         map_tgtpredgvid[tgtnum_i][tgtfunc_j].update(predis_dict)
                         # print(predis_dict)
         elif patchflag == COM_MANUAL or patchflag == COM_PATCH:
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), patchflag, map_target[tgtnum_i])
+            LOG(DEBUG, LOC(), patchflag, map_target[tgtnum_i])
 
             # Find which function call target function and get the distance for target.
             callfuncs_dict = {}
@@ -309,7 +309,7 @@ def getTargetPredecessorsGuard(cggraph, cfggraph_dict, map_guard_gvid, map_targe
                         callfuncs_dict[ref_k] = dis_v
                     elif callfuncs_dict[ref_k] > dis_v:
                         callfuncs_dict[ref_k] = dis_v
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), callfuncs_dict, showlog=True)
+            LOG(DEBUG, LOC(), callfuncs_dict, show=True)
 
             # Reverse traversal to build map_tgtpredgvid.
             # Find which gvid(node) include callfuncs.
@@ -349,7 +349,7 @@ def getFuncOffset(map_tgtpredgvid_dis, map_target, map_callfuncs):
     Calculating migration.
     @return:
     """
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, map_target)
+    LOG(DEBUG, LOC(), map_tgtpredgvid_dis, map_target)
 
     # Calculating the length of each function.
     tgtpred_offset = {}
@@ -359,7 +359,7 @@ def getFuncOffset(map_tgtpredgvid_dis, map_target, map_callfuncs):
         for func_kj, preddict_vj in func_vi.items():
             if func_kj not in tgtpred_offset[tgtnum_ki]:
                 tgtpred_offset[tgtnum_ki][func_kj] = len(preddict_vj)
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, showlog=True)
+    LOG(DEBUG, LOC(), tgtpred_offset, show=True)
 
     # Calculating the offset of function.
     for tgtnum_ki, func_ki in tgtpred_offset.items():
@@ -393,7 +393,7 @@ def getFuncOffset(map_tgtpredgvid_dis, map_target, map_callfuncs):
 
         ordernode = list(tgtnode.keys())
         ordernode.sort()
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtnode, ordernode)
+        LOG(DEBUG, LOC(), tgtnode, ordernode)
         offset = 0
         for order in ordernode:
             func = tgtnode[order]
@@ -401,7 +401,7 @@ def getFuncOffset(map_tgtpredgvid_dis, map_target, map_callfuncs):
                 temp = tgtpred_offset[tgtnum_ki][func]
                 tgtpred_offset[tgtnum_ki][func] = offset
                 offset += temp
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset)
+    LOG(DEBUG, LOC(), tgtpred_offset)
     return tgtpred_offset
 
 
@@ -465,7 +465,7 @@ def addDistanceGraph(G, root):
     # G.nodes[0][BUI_NODE_DISTANCE] = 10
     # print(G.nodes[0][BUI_NODE_DISTANCE])
     # print(G.nodes[1][BUI_NODE_DISTANCE])
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), root, G.nodes(data=True))
+    LOG(DEBUG, LOC(), root, G.nodes(data=True))
     nodeidq = Queue(maxsize=0)
     layerq = Queue(maxsize=0)
     for r_i in root:
@@ -485,7 +485,7 @@ def addDistanceGraph(G, root):
                 else:
                     G.nodes[node_j][BUI_NODE_DISTANCE] = min(tdis, curlayer)
 
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), root, G.nodes(data=True))
+    LOG(DEBUG, LOC(), root, G.nodes(data=True))
 
 
 def buildBFSdistance(cggraph, cfggraph_dict) -> dict:
@@ -493,7 +493,7 @@ def buildBFSdistance(cggraph, cfggraph_dict) -> dict:
     An incoming graph is traversed breadth-first to determine the mutual position of nodes.
     @return:
     """
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), cggraph, cfggraph_dict)
+    LOG(DEBUG, LOC(), cggraph, cfggraph_dict)
     # CG BFS
     # print(cggraph.dgname, cggraph.dg)
     cgroot = searchRoot(cggraph.dg)

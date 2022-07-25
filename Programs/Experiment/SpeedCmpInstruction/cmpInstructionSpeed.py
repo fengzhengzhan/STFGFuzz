@@ -159,31 +159,31 @@ def saveToexcel(path, value):
     new_workbook.save(path)  # 保存工作簿
 
 
-
 def execProgram(program, count, excel):
     data = []
     data.append(program)
-    data.append(expSpeed("elf/" + program + "_gcc @rand.seed", count))
-    data.append(expSpeed("elf/" + program + "_clang @rand.seed", count))
-    data.append(expSpeed("elf/" + program + "_aflgo @rand.seed", count))
-    data.append(expSpeed("elf/" + program + "_sanitize @rand.seed", count))
+    data.append(expSpeed("dataset/" + program + "_gcc @rand.seed", count))
+    data.append(expSpeed("dataset/" + program + "_clang @rand.seed", count))
+    data.append(expSpeed("dataset/" + program + "_aflgo @rand.seed", count))
+    data.append(expSpeed("dataset/" + program + "_sanitize @rand.seed", count))
     ana = Analyzer()
     ana.getShm("D124816Z\n")
 
     ana.sendCmpid(TRACE_GUARDFAST)
     print("TRACE_GUARDFAST")
-    data.append(expSpeed("elf/" + program + "_CFDGF @rand.seed", count))
+    data.append(expSpeed("dataset/" + program + "_CFDGF @rand.seed", count))
 
     ana.sendCmpid("xx")
     print("TRACE_CMPFILTER")
-    data.append(expSpeed("elf/" + program + "_CFDGF @rand.seed", count))
+    data.append(expSpeed("dataset/" + program + "_CFDGF @rand.seed", count))
 
     ana.sendCmpid(TRACE_CMPGUARDSYMBOL)
     print("TRACE_CMPGUARDSYMBOL")
-    data.append(expSpeed("elf/" + program + "_CFDGF @rand.seed", count))
+    data.append(expSpeed("dataset/" + program + "_CFDGF @rand.seed", count))
     print()
 
     saveToexcel(excel, [data])
+
 
 def experiment():
     execProgram("cxxfilt", 100, "SpeedCmpInstruction.xlsx")
@@ -233,20 +233,27 @@ def genPicture(filename, ):
     print(gcc_list, clang_list, aflgo_list, sanitize_list, CFDGF_guard_list, CFDGF_filter_list, CFDGF_symbol_list)
 
     x = np.arange(len(labels))  # the label locations
-    width = 0.35 / 7  # the width of the bars
+    width = 0.2  # the width of the bars
 
     fig, ax = plt.subplots()
-    rects1 = ax.bar(x - 3 * width, gcc_list, width, label='gcc')
-    rects2 = ax.bar(x - 2 * width, clang_list, width, label='clang')
-    rects3 = ax.bar(x - 1 * width, aflgo_list, width, label='aflgo')
-    rects4 = ax.bar(x, sanitize_list, width, label='sanitize')
-    rects5 = ax.bar(x + 1 * width, CFDGF_guard_list, width, label='CFDGF_guard')
-    rects6 = ax.bar(x + 2 * width, CFDGF_filter_list, width, label='CFDGF_filter')
-    rects7 = ax.bar(x + 3 * width, CFDGF_symbol_list, width, label='CFDGF_symbol')
+    # rects1 = ax.bar(x - 3 * width, gcc_list, width, label='gcc')
+    # rects2 = ax.bar(x - 2 * width, clang_list, width, label='clang')
+    # rects3 = ax.bar(x - 1 * width, aflgo_list, width, label='aflgo')
+    # rects4 = ax.bar(x, sanitize_list, width, label='sanitize')
+    # rects5 = ax.bar(x + 1 * width, CFDGF_guard_list, width, label='CFDGF_guard')
+    # rects6 = ax.bar(x + 2 * width, CFDGF_filter_list, width, label='CFDGF_filter')
+    # rects7 = ax.bar(x + 3 * width, CFDGF_symbol_list, width, label='CFDGF_symbol')
+
+    rects1 = ax.bar(x - 2.5*width, gcc_list, width, label='gcc')
+    rects2 = ax.bar(x - 1.5*width, clang_list, width, label='clang')
+    rects3 = ax.bar(x - 0.5*width, aflgo_list, width, label='aflgo')
+    rects4 = ax.bar(x + 0.5*width, sanitize_list, width, label='sanitize')
+    rects5 = ax.bar(x + 1.5*width, CFDGF_guard_list, width, label='CFDGF_guard')
+    rects6 = ax.bar(x + 2.5*width, CFDGF_filter_list, width, label='CFDGF_filter')
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Scores')
-    ax.set_title('Scores by group and gender')
+    ax.set_ylabel('Time')
+    ax.set_title('Speed of compare instruction')
     ax.set_xticks(x, labels)
     ax.legend()
 
@@ -256,10 +263,11 @@ def genPicture(filename, ):
     ax.bar_label(rects4, padding=0, fmt="", fontsize=0)
     ax.bar_label(rects5, padding=0, fmt="", fontsize=0)
     ax.bar_label(rects6, padding=0, fmt="", fontsize=0)
-    ax.bar_label(rects7, padding=0, fmt="", fontsize=0)
+    # ax.bar_label(rects7, padding=0, fmt="", fontsize=0)
 
     fig.tight_layout()
 
+    plt.savefig('./cmpInstructionSpeed.jpg')
     plt.show()
 
 

@@ -338,7 +338,9 @@ SCH_EXLOC = 0
 # high:0   low:infinite
 SCH_CRASH_SIMI = 2
 
-SCH_SKIP_LEN = 16
+SCH_SKIP_LEN = 32
+
+SCH_SKIPCRASH_SET = {'LeakSanitizer', }
 
 '''Visualizer'''
 # Red for frozen bytes.
@@ -383,13 +385,13 @@ VIS_STDLEN = VIS_LEN * 3
 # LOG(LOG_DEBUG, LOG_FUNCINFO(), arg1, arg2, arg3)
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 
-LOG_DEBUG = logging.DEBUG
-LOG_INFO = logging.INFO
-LOG_WARNING = logging.WARNING
-LOG_ERROR = logging.ERROR
-LOG_CRITICAL = logging.CRITICAL
+DEBUG = logging.DEBUG
+INFO = logging.INFO
+WARNING = logging.WARNING
+ERROR = logging.ERROR
+CRITICAL = logging.CRITICAL
 
-LOG_LEVEL = LOG_WARNING
+LOG_LEVEL = WARNING
 
 try:
     print(getTime() + ' ' + getProjectPath() + '/Programs/{}.log'.format(FUZZNAME))
@@ -400,7 +402,7 @@ except:
     logging.basicConfig(filename='{}.log'.format(FUZZNAME), level=LOG_LEVEL, format=LOG_FORMAT)
 logging.debug("{} -------------------------".format(FUZZNAME))
 
-LOG_FUNCINFO = lambda: str(sys._getframe(1).f_code.co_name) + ":" + str(sys._getframe(1).f_lineno)
+LOC = lambda: str(sys._getframe(1).f_code.co_name) + ":" + str(sys._getframe(1).f_lineno)
 
 
 def retLogStr(funcinfo, *args):
@@ -411,8 +413,8 @@ def retLogStr(funcinfo, *args):
     return logstr
 
 
-def LOG(loggingtype, funcinfo, *args, showlog=False) -> None:
-    if not EXP_MODE and showlog:
+def LOG(loggingtype, funcinfo, *args, show=False) -> None:
+    if not EXP_MODE and show:
         logstr = retLogStr(funcinfo, *args)
         with open(PROGRAMS + os.sep + FUZZPRINTLOG, "a+") as f:
             f.write("\n" + logstr + "\n")
@@ -420,18 +422,18 @@ def LOG(loggingtype, funcinfo, *args, showlog=False) -> None:
             print("\n" + logstr + "\n", end="")
 
     # logging
-    if LOG_LEVEL == LOG_DEBUG and loggingtype == LOG_DEBUG:
+    if LOG_LEVEL == DEBUG and loggingtype == DEBUG:
         logstr = retLogStr(funcinfo, *args)
         logging.debug(logstr)
-    elif loggingtype == LOG_INFO:
+    elif loggingtype == INFO:
         logstr = retLogStr(funcinfo, *args)
         logging.info(logstr)
-    elif loggingtype == LOG_WARNING:
+    elif loggingtype == WARNING:
         logstr = retLogStr(funcinfo, *args)
         logging.warning(logstr)
-    elif loggingtype == LOG_ERROR:
+    elif loggingtype == ERROR:
         logstr = retLogStr(funcinfo, *args)
         logging.error(logstr)
-    elif loggingtype == LOG_CRITICAL:
+    elif loggingtype == CRITICAL:
         logstr = retLogStr(funcinfo, *args)
         logging.critical(logstr)

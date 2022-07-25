@@ -128,7 +128,7 @@ def mutLocFromMap(init_seed, seed, seedcont: bytes, filepath: str, label: str, l
                 locmapdet_dict[key] = init_seed.content[key:key+1]
         for lockey, chgval in sorted(locmapdet_dict.items()):
             seedcont = seedcont[0:lockey] + chgval + seedcont[lockey + 1:]
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), seedcont, locmapdet_dict)
+        LOG(DEBUG, LOC(), seedcont, locmapdet_dict)
         temp_one = StructSeed(filepath + getMutfilename(label), seedcont, MUT_SEED_SUB, set(locmapdet_dict))
     else:
         temp_one = seed

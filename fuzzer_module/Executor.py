@@ -12,16 +12,16 @@ def run(cmd: str) -> (str, str):
     @param cmd:
     @return:
     """
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), cmd)
+    LOG(DEBUG, LOC(), cmd)
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     # timeout kill child process
     try:
         stdout, stderr = process.communicate()
     except Exception as e:
         process.kill()
-        LOG(LOG_ERROR, LOG_FUNCINFO(), e)
+        LOG(ERROR, LOC(), e)
         raise Exception("Error cmd ")
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), stdout, stderr)
+    LOG(DEBUG, LOC(), stdout, stderr)
     retcode = 128 - process.returncode
     # print(retcode, stdout, stderr)
     return stdout, stderr

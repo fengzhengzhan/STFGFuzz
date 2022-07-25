@@ -18,7 +18,7 @@ def getTarget(path_patchloc, patchtype: list):
     for file_i in os.listdir(path_patchloc):
         file_split = file_i.split(".")
         fname, ext = file_split[0], file_split[-1]
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), fname, ext)
+        LOG(DEBUG, LOC(), fname, ext)
 
         # patch, manual each line as a target.
         # sanitizer has trace information.
@@ -66,7 +66,7 @@ def getTarget(path_patchloc, patchtype: list):
                         idx += 1
                         patch_list.append([idx, re_funcname[0], funcline])
 
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), patch_list, showlog=True)
+            LOG(DEBUG, LOC(), patch_list, show=True)
             for patch_i in patch_list:
                 target_num += 1
                 target_dict[target_num] = []
@@ -88,8 +88,8 @@ def getTarget(path_patchloc, patchtype: list):
                         target_dict[target_num] = []
                         target_dict[target_num].append([COM_SANITIZER, file_i, target_num])
                     # print(cont_groups)
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), line, int(cont_groups[0]), cont_groups[1],
-                                                    cont_groups[2])
+                    LOG(DEBUG, LOC(), line, int(cont_groups[0]), cont_groups[1],
+                        cont_groups[2])
                     target_dict[target_num].append([int(cont_groups[0]), cont_groups[1],
                                                     int(cont_groups[2])])
             # print(target_dict[0])
@@ -155,11 +155,11 @@ def getDirectedNodeLoc(binline_dict: dict, target_dict: 'dict[target_num:StructT
             for each in tgt_v[1:]:
                 ttrace, tfile, tline = each[0], each[1], each[2]
                 for binfunc_ki, binlineasm_vi in binline_dict.items():
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), binfunc_ki, binlineasm_vi)
+                    LOG(DEBUG, LOC(), binfunc_ki, binlineasm_vi)
                     if len(binlineasm_vi) == 0:
                         continue
                     bininfo_dict = binlineasm_vi[random.sample(binlineasm_vi.keys(), 1)[0]]
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), bininfo_dict[COM_BINFUNC], bininfo_dict[COM_BINFILE], showlog=True)
+                    LOG(DEBUG, LOC(), bininfo_dict[COM_BINFUNC], bininfo_dict[COM_BINFILE], show=True)
                     if tfile == bininfo_dict[COM_BINFILE]:
                         if tline in binlineasm_vi:
                             # {'I': '', 'F': '_Z3bugv', 'C': '7', 'N': '', 'D': ''}
@@ -171,7 +171,7 @@ def getDirectedNodeLoc(binline_dict: dict, target_dict: 'dict[target_num:StructT
                                 func_asm[tempfunc].append([ttrace, tempins])
 
         map_numTofuncasm[tgt_k] = func_asm
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), map_numTofuncasm, showlog=True)
+    LOG(DEBUG, LOC(), map_numTofuncasm, show=True)
     return map_numTofuncasm
 
 
@@ -180,7 +180,7 @@ def compareTargetDiff(before_path, target_dict):
     If the targets are different that return True.
     @return:
     """
-    LOG(LOG_DEBUG, LOG_FUNCINFO(), before_path, showlog=True)
+    LOG(DEBUG, LOC(), before_path, show=True)
     cmptgt = True
     before_target_file = before_path + B4TGT_FILE
     if os.path.exists(before_target_file):

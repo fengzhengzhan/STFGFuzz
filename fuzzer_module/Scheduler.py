@@ -116,28 +116,32 @@ class Scheduler:
             path, name = os.path.split(seed.filename)
             if not os.path.exists(self.path_crashseeds + name) and len(stderr) != 0:
                 try:
+                    re_str = "==ERROR: (.*?): "
+                    crashtype = re.search(re_str, str(stderr)).group(1)
+                    if crashtype in SCH_SKIPCRASH_SET:
+                        return tgtsan
                     re_str = "#0 (.*?) in"
                     crashid = re.search(re_str, str(stderr)).group(1)
                     # Compare sanitizer similarity
                     re_str = "#(.*?) 0x.*? in (.*?) .*?:(.*?):"
                     re_cont = re.findall(re_str, str(stderr))
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), re_cont)
+                    LOG(DEBUG, LOC(), crashtype, crashid, re_cont, show=True)
                     cinfo_num = 0
                     crash_infostr = ""
                     for c in re_cont:
-                        LOG(LOG_DEBUG, LOG_FUNCINFO(), delBrackets(c[1]) + c[2], self.target_dict[self.cur_tgtnum])
+                        LOG(DEBUG, LOC(), delBrackets(c[1]) + c[2], self.target_dict[self.cur_tgtnum])
                         if delBrackets(c[1]) + c[2] in self.target_dict[self.cur_tgtnum]:
                             crash_infostr += delBrackets(c[1]) + ":" + c[2] + " >> "
                             cinfo_num += 1
 
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), len(self.target_dict[self.cur_tgtnum]))
+                    LOG(DEBUG, LOC(), len(self.target_dict[self.cur_tgtnum]))
                     # fixme set value can not fixed.
                     if 'greybox0' not in self.target_dict[self.cur_tgtnum] and len(
                             self.target_dict[self.cur_tgtnum]) - cinfo_num <= SCH_CRASH_SIMI:
                         tgtsan = True
                         # self.cur_tgtnum += 1
                         self.target_crashinfo.append(crash_infostr)
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtsan, self.cur_tgtnum)
+                    LOG(DEBUG, LOC(), tgtsan, self.cur_tgtnum)
                 except Exception as e:
                     crashid = str(stderr)[-16:-3]  #
 
@@ -148,16 +152,16 @@ class Scheduler:
                     # write csv
                     with open(self.file_crash_csv, "a+", encoding="utf-8") as cf:
                         # GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
-                        linestr = str(name) + "," + datetime.datetime.strftime(vis.start_time,
-                                                                               "%Y-%m-%d_%H:%M:%S") + "," \
+                        linestr = str(name) + "," \
+                                  + datetime.datetime.strftime(vis.start_time, "%Y-%m-%d_%H:%M:%S") + "," \
                                   + vis.last_time + "," + str(seed.content).replace(',', 'comma') + "," \
-                                  + str(stdout).replace(',', 'comma') + "," + str(stderr).replace(',',
-                                                                                                  'comma') + ",,,\n"
+                                  + str(stdout).replace(',', 'comma') + "," \
+                                  + str(stderr).replace(',', 'comma') + ",,,\n"
                         cf.write(linestr)
                     # write seed
                     saveAsFile(seed.content, self.path_crashseeds + name)
         else:
-            raise Exception(LOG_FUNCINFO() + "Error Path")
+            raise Exception(LOC() + "Error Path")
 
         return tgtsan
 
@@ -213,7 +217,7 @@ class Scheduler:
         """
         Perform a trace of the compare instruction execution path if necessary.
         """
-        LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, trans_guard_gvid)
+        LOG(DEBUG, LOC(), map_tgtpredgvid_dis, trans_guard_gvid)
 
         # If map location is empty, then first to run it to collect information.
         # If map is not empty, then run it when can not find in map.
@@ -240,11 +244,11 @@ class Scheduler:
 
         else:  # Directed
             curtgtpred_offset = tgtpred_offset[self.cur_tgtnum]
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), map_curtgtpredgvid_dis)
+            LOG(DEBUG, LOC(), map_curtgtpredgvid_dis)
             distance = USE_INITMAXNUM
 
             for trace_i in guardcov_list:
-                LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i)
+                LOG(DEBUG, LOC(), trace_i)
                 cmpid = trace_i[0]
                 cmptype = trace_i[1]
                 if cmptype == EACH_PC_GUARD:
@@ -260,13 +264,13 @@ class Scheduler:
                     # Get the static symbol function name.
                     # todo Symbol inconsistency  file_strncmp<->file_strncmp16
                     symbol = self.trans_func_symbol[func]
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), func, symbol, self.trans_func_symbol)
+                    LOG(DEBUG, LOC(), func, symbol, self.trans_func_symbol)
                     if symbol not in trans_guard_gvid:
                         continue
 
                     # Transform the pc_guard to sub the value.
                     transguard = int(realguard) - self.trans_symbol_initguard[symbol]
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, trans_guard_gvid[symbol],
+                    LOG(DEBUG, LOC(), trace_i, symbol, transguard, trans_guard_gvid[symbol],
                         self.trans_symbol_initguard[symbol])
                     if transguard not in trans_guard_gvid[symbol]:
                         continue
@@ -283,7 +287,7 @@ class Scheduler:
                                     map_curtgtpredgvid_dis[symbol][gvid])
                     elif symbol in map_curtgtpredgvid_dis and gvid not in map_curtgtpredgvid_dis[symbol]:
                         distance = USE_INITMAXNUM
-                    LOG(LOG_DEBUG, LOG_FUNCINFO(), trace_i, symbol, transguard, gvid, distance)
+                    LOG(DEBUG, LOC(), trace_i, symbol, transguard, gvid, distance)
                 else:
                     # func, realguard, cmpnum = trace_i[2].split("+")
                     # if func == '':
@@ -300,9 +304,9 @@ class Scheduler:
                         vis.cur_min_dis = min(vis.cur_min_dis, distance)
                         if distance <= LIMITER:
                             self.targetcmp_pq.put((distance, cmpid, disdup_cmpiddict[cmpid]))
-                        LOG(LOG_DEBUG, LOG_FUNCINFO(), distance - vis.loop, cmpid, trace_i)
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), map_tgtpredgvid_dis, self.trans_symbol_initguard)
-            LOG(LOG_DEBUG, LOG_FUNCINFO(), tgtpred_offset, trans_guard_gvid)
+                        LOG(DEBUG, LOC(), distance - vis.loop, cmpid, trace_i)
+            LOG(DEBUG, LOC(), map_tgtpredgvid_dis, self.trans_symbol_initguard)
+            LOG(DEBUG, LOC(), tgtpred_offset, trans_guard_gvid)
             del disdup_cmpiddict
 
     def selectBranch(self):
