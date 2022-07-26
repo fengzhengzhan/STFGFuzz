@@ -235,9 +235,10 @@ if __name__ == "__main__":
     # ana.sendCmpid(TRACE_GUARDSYMBOL)
     # ana.sendCmpid(TRACE_CMPFILTER)
     # ana.sendCmpid(TRACE_CMP)
-    ana.sendCmpid(TRACE_CMPGUARD)
+    # ana.sendCmpid(TRACE_CMPGUARD)
     # ana.sendCmpid(TRACE_CMPGUARDSYMBOL)
-    # ana.sendCmpid("m0x49e319")
+    # ana.sendCmpid("m0x49e379")
+    ana.sendCmpid("g0x4fca860x7ffff7a42083")
     # ana.sendCmpid("xx")
     # while True:
     #     addr = ana.getAddr("D124816Z\n")
@@ -247,7 +248,7 @@ if __name__ == "__main__":
     interlen, covernum = ana.getShm("D124816Z\n")
     print(interlen, covernum)
     cmpcovshm_list = ana.getRpt(interlen)
-    # print(cmpcovshm_list)
+    print(cmpcovshm_list)
     print(len(cmpcovshm_list))
     with open("../Programs/TrackCrash/crashinfo/info", "w") as f:
         f.write(str(cmpcovshm_list))

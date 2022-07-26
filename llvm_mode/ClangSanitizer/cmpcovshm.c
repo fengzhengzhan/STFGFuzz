@@ -108,6 +108,7 @@ int blocknum = -1;
 int blockcmpcount = 0;
 char *cover;
 int covernum = 0;
+int cmpfilterguard = 0;
 char PcDescr[1024];
 
 
@@ -127,7 +128,7 @@ int retSame(char* each){
         else if (sendcmpid[0] == TRACE_GUARDFAST) { same = LEVEL_GUARDFAST; } 
         else if (sendcmpid[0] == TRACE_GUARD) { same = LEVEL_GUARD; } 
         else if (sendcmpid[0] == TRACE_GUARDSYMBOL) { same = LEVEL_GUARDSYMBOL; } 
-        else if (sendcmpid[0] == TRACE_CMPFILTER) { same = LEVEL_CMPFILTER; } 
+        // else if (sendcmpid[0] == TRACE_CMPFILTER) { same = LEVEL_CMPFILTER; } 
         else if (sendcmpid[0] == TRACE_CMP) { same = LEVEL_CMP; } 
         else if (sendcmpid[0] == TRACE_CMPGUARD) { same = LEVEL_CMPGUARD; } 
         else if (sendcmpid[0] == TRACE_CMPGUARDSYMBOL) { same = LEVEL_CMPGUARDSYMBOL; } 
@@ -178,7 +179,12 @@ void saveCovOnEnd() {
 void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
     sprintf(eachcmpid, "%c%p%p", funcinfo, GET_FUNC_PC, GET_CALLER_PC);
     // printf("%s %s\n", sendcmpid, eachcmpid);
-    if(retSame(eachcmpid) > LEVEL_GUARDSYMBOL) {
+    int flag;
+    flag = retSame(eachcmpid);
+    if(flag > LEVEL_GUARDSYMBOL) {
+        if (flag == LEVEL_CMPFILTER && cmpfilterguard == 0) {
+            cmpfilterguard += 1;
+        }
         // uintptr_t PC = reinterpret_cast<uintptr_t>(GET_FUNC_PC);
 
         // printf("\n%c %p %lu %lu %d Z\n", funcinfo, GET_FUNC_PC, arg1, arg2, arg_len);
@@ -197,7 +203,12 @@ void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
 void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int len1, int len2, char *result, char funcinfo) {
     // printf("%p", called_pc);  called_pc stored PC (program counter) address of the original call.
     sprintf(eachcmpid, "%c%p", funcinfo, called_pc);
-    if (retSame(eachcmpid) > LEVEL_GUARDSYMBOL) {
+    int flag;
+    flag = retSame(eachcmpid);
+    if (flag > LEVEL_GUARDSYMBOL) {
+        if (flag == LEVEL_CMPFILTER && cmpfilterguard == 0) {
+            cmpfilterguard += 1;
+        }
         // The length of each string.
         int n1;
         int n2;
@@ -276,8 +287,12 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
     }
 
     sprintf(eachcmpid, "%c%p%p", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC);
-    if(retSame(eachcmpid) > LEVEL_GUARDSYMBOL) {
-
+    int flag;
+    flag = retSame(eachcmpid);
+    if(flag > LEVEL_GUARDSYMBOL) {
+        if (flag == LEVEL_CMPFILTER && cmpfilterguard == 0) {
+            cmpfilterguard += 1;
+        }
         // printf("\n%c %p %lu %lu", COV_TRACE_SWITCH, GET_FUNC_PC, Cases[0], Cases[1]);
         sprintf(buf, "['%c%p%p','%c','%s+%d+%d',%lu,%lu,%lu", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, COV_TRACE_SWITCH, PcDescr, blocknum, blockcmpcount, Cases[0], Cases[1], Val);
         blockcmpcount++;
@@ -404,7 +419,17 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
     int flag;
     flag = retSame(eachcmpid);
     // printf("%d", flag);
-    if (flag == LEVEL_GUARDFAST) {
+    if (cmpfilterguard > 0) {
+        sprintf(buf, "['G%p','G',%d,'%s'],", GET_FUNC_PC, *guard, PcDescr);
+        // printf("['G%p','G','%s',%d],", GET_FUNC_PC, PcDescr, *guard);
+        strcpy(data + interlen, buf);
+        interlen += strlen(buf);
+        // Update interlen
+        sprintf(buf, "L%dZ", interlen);
+        strcpy(data + filterlen, buf);
+        cmpfilterguard -= 1;
+    }
+    else if (flag == LEVEL_GUARDFAST) {
         sprintf(buf, "%d,", *guard);
         strcpy(data + interlen, buf);
         interlen += strlen(buf);
