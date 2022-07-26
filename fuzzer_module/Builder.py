@@ -429,11 +429,11 @@ def printTargetSeq(map_target):
         ordernode = list(tgtnode.keys())
         ordernode.sort(reverse=True)
         for order_j in ordernode:
-            # 8 main guard:[91]  gvid:94
+            # 8 main func_guard:[91]  gvid:94
             print("# {} {} {} {}".format(tgtnode[order_j][0], tgtnode[order_j][1],
                                          tgtnode[order_j][2], tgtnode[order_j][3]))
             trace_orderdict[tgtnum_i][tgtnode[order_j][1]] = [tgtnode[order_j][0], tgtnode[order_j][2],
-                                                              USE_INITMAXNUM, ]
+                                                              USE_INITNUM, USE_INITMAXNUM]
 
         print()
         # print(tgtnode)

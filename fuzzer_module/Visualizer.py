@@ -142,8 +142,8 @@ class Visualizer:
             self.terminal_status.addstr(13, 1, "  Last Crash Time: {}".format(self.last_crash_time), curses.color_pair(VIS_RED))
 
             #
-            self.terminal_status.addstr(4, 41, "Trace", curses.color_pair(VIS_CYAN))
-            self.terminal_status.vline(5, 38, curses.ACS_VLINE, 9)
+            self.terminal_status.addstr(4, 37, "Trace", curses.color_pair(VIS_CYAN))
+            self.terminal_status.vline(5, 34, curses.ACS_VLINE, 9)
 
             trace_len = len(self.trace_orderdict[sch.cur_tgtnum])
             traceloc = 0
@@ -151,16 +151,16 @@ class Visualizer:
             for func_k, trace_v in self.trace_orderdict[sch.cur_tgtnum].items():
                 if self.traceline <= idx < trace_len:
                     traceloc += 1
-                    self.terminal_status.addstr(4 + traceloc, 40, "{} {} {} {}".format(
-                        trace_v[0], func_k[0:15], trace_v[1], trace_v[2]))
+                    self.terminal_status.addstr(4 + traceloc, 36, "{} {} {} {} {}".format(
+                        trace_v[0], func_k[0:12], trace_v[1], trace_v[2], trace_v[3]))
                 idx += 1
 
-            self.terminal_status.addstr(ter_high - 1, 40, "D", curses.color_pair(VIS_YELLOW))
-            self.terminal_status.addstr(ter_high - 1, 41, "up")
-            self.terminal_status.addstr(ter_high - 1, 45, "F", curses.color_pair(VIS_YELLOW))
-            self.terminal_status.addstr(ter_high - 1, 46, "down")
+            self.terminal_status.addstr(ter_high - 1, 37, "D", curses.color_pair(VIS_YELLOW))
+            self.terminal_status.addstr(ter_high - 1, 38, "up")
+            self.terminal_status.addstr(ter_high - 1, 42, "F", curses.color_pair(VIS_YELLOW))
+            self.terminal_status.addstr(ter_high - 1, 43, "down")
 
-            self.terminal_status.addstr(ter_high - 1, 54, "id:name:guard:distance", curses.color_pair(VIS_GREEN))
+            self.terminal_status.addstr(ter_high - 1, 51, "id:name:fnguard:guard:dis", curses.color_pair(VIS_GREEN))
 
             #
             self.terminal_status.addstr(ter_high - 1, 2, "Q", curses.color_pair(VIS_YELLOW))
