@@ -281,13 +281,12 @@ class Scheduler:
                         distance = curtgtpred_offset[symbol] + map_curtgtpredgvid_dis[symbol][gvid]
                         # Update visualizer's trace_orderdict
                         # print(vis.trace_orderdict[self.cur_tgtnum])
-                        if symbol in vis.trace_orderdict[self.cur_tgtnum]:
+                        if symbol in vis.trace_orderdict[self.cur_tgtnum] and \
+                                vis.trace_orderdict[self.cur_tgtnum][symbol][3] >= map_curtgtpredgvid_dis[symbol][gvid]:
                             # update dynamic guard
                             vis.trace_orderdict[self.cur_tgtnum][symbol][2] = realguard
                             # update distance
-                            vis.trace_orderdict[self.cur_tgtnum][symbol][3] = \
-                                min(vis.trace_orderdict[self.cur_tgtnum][symbol][3],
-                                    map_curtgtpredgvid_dis[symbol][gvid])
+                            vis.trace_orderdict[self.cur_tgtnum][symbol][3] = map_curtgtpredgvid_dis[symbol][gvid]
                     elif symbol in map_curtgtpredgvid_dis and gvid not in map_curtgtpredgvid_dis[symbol]:
                         distance = USE_INITMAXNUM
                     LOG(DEBUG, LOC(), trace_i, symbol, transguard, gvid, distance)
