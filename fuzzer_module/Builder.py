@@ -94,7 +94,7 @@ def getCFG(cfglist, map_num_asm, target_dict):
     # for dot in dot_list:
     #     G.update(nx.DiGraph(nx.drawing.nx_pydot.read_dot(dot)))
 
-    map_guard_gvid: '{funcname:{guardnum:node_j}}' = {}
+    map_guard_gvid: '{funcname:{guard:gvid}}' = {}
     map_target: '{funcname:[id,nodeid,node_j]}' = {}
     cfggraph_dict = {}
     for jsonfile_i in cfglist:
@@ -103,7 +103,9 @@ def getCFG(cfglist, map_num_asm, target_dict):
             data = json.load(f)
             # print(data)
             # LOG(LOG_DEBUG, LOG_FUNCINFO(), data[BUI_NAME], showlog=True)
+
             graphname = data[BUI_NAME].split(" ")[-2][1:-1]  # That also is the function name.
+            LOG(DEBUG, LOC(), data[BUI_NAME], graphname)
             if graphname not in map_guard_gvid:
                 map_guard_gvid[graphname] = {}
 
@@ -114,7 +116,7 @@ def getCFG(cfglist, map_num_asm, target_dict):
             # Nodes
             nodes_list = []
             for node_j in data[BUI_NODES]:
-                node_asm = re.sub(r"\s|\\l|\\", '', node_j[BUI_NODE_LABEL])
+                node_asm = re.sub(r"\s|\\l\.\.\.|\\l|\\", '', node_j[BUI_NODE_LABEL])
                 LOG(DEBUG, LOC(), node_j[BUI_NODE_NAME], node_asm)
 
                 # Find function callgraph.
@@ -126,10 +128,11 @@ def getCFG(cfglist, map_num_asm, target_dict):
                 # Find Guard num node_j
                 pattern = re.compile(BUI_GUARD_RE)
                 guard_res = pattern.findall(node_asm)
-                # if graphname == "_Z3bugv":
-                #     print("_Z3bugv", node_j[BUI_NODE_LABEL])
+                # if graphname == "main":
+                #     LOG(DEBUG, LOC(), graphname, guard_res, node_asm, BUI_GUARD_RE, show=True)
+                LOG(DEBUG, LOC(), graphname, guard_res, node_asm, BUI_GUARD_RE)
                 if len(guard_res) == 0:
-                    pattern = re.compile(BUI_GUARD2_RE)
+                    pattern = re.compile(BUI_GUARDZERO_RE)
                     guard_res = pattern.findall(node_asm)
                     # if len(guard_res) == 0:
                     #     LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_LABEL], showlog=True)
@@ -165,7 +168,7 @@ def getCFG(cfglist, map_num_asm, target_dict):
                         if graphname in map_num_asm[tarnum_k]:
                             for target_l in map_num_asm[tarnum_k].get(graphname):  # [tgtnumid, asm]
                                 tgtid = target_l[0]
-                                LOG(DEBUG, LOC(), node_asm, target_l[1])
+                                LOG(DEBUG, LOC(), graphname, node_asm.find(target_l[1]), node_asm, target_l[1], show=True)
                                 # res = node_j[BUI_NODE_LABEL].replace(' ', '').replace('\\l', '') \
                                 #     .find(target_l[1].replace(' ', ''))
                                 res = node_asm.find(target_l[1])

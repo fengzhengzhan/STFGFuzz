@@ -101,7 +101,7 @@ def mainFuzzer():
         map_target = loadFromPkl(path.data_graph+".map_target.pkl")
         map_tgtpredgvid_dis = loadFromPkl(path.data_graph+".map_tgtpredgvid_dis.pkl")
         tgtpred_offset = loadFromPkl(path.data_graph+".tgtpred_offset.pkl")
-    LOG(DEBUG, LOC(), map_functo_cgnode, map_guard_gvid, map_target, map_tgtpredgvid_dis, tgtpred_offset)
+    LOG(DEBUG, LOC(), map_functo_cgnode, map_guard_gvid, map_target, map_tgtpredgvid_dis, tgtpred_offset, show=True)
 
     if len(map_target) != 0:
         sch.all_tgtnum = len(map_target)

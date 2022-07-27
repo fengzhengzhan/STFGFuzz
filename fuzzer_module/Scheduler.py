@@ -264,7 +264,7 @@ class Scheduler:
                     # Get the static symbol function name.
                     # todo Symbol inconsistency  file_strncmp<->file_strncmp16
                     symbol = self.trans_func_symbol[func]
-                    LOG(DEBUG, LOC(), func, symbol, self.trans_func_symbol)
+
                     if symbol not in trans_guard_gvid:
                         continue
 
@@ -272,10 +272,12 @@ class Scheduler:
                     transguard = int(realguard) - self.trans_symbol_initguard[symbol]
                     LOG(DEBUG, LOC(), trace_i, symbol, transguard, trans_guard_gvid[symbol],
                         self.trans_symbol_initguard[symbol])
+                    LOG(DEBUG, LOC(), func, symbol, self.trans_func_symbol, trans_guard_gvid)
                     if transguard not in trans_guard_gvid[symbol]:
                         continue
                     # Get the networkx node gvid to get it.
                     gvid = trans_guard_gvid[symbol][transguard]
+
                     if symbol in map_curtgtpredgvid_dis and gvid in map_curtgtpredgvid_dis[symbol]:
                         # Set distance for priority queue.
                         distance = curtgtpred_offset[symbol] + map_curtgtpredgvid_dis[symbol][gvid]

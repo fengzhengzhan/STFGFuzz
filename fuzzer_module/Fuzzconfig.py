@@ -25,8 +25,8 @@ REPLACE_COMMAND = '@seed@'
 
 EXP_MODE = False
 # EXP_MODE = True
-VIS_TERM = True
-# VIS_TERM = False
+# VIS_TERM = True
+VIS_TERM = False
 # VIS_SHOWGRAPH = True
 VIS_SHOWGRAPH = False
 
@@ -228,13 +228,13 @@ BUI_FILTER_FUNCS = {'__sanitizer_cov_trace_pc_guard', '__sanitizer_cov_trace_swi
 # BUI_GUARD_RE = "@__sanitizer_cov_trace_pc_guard\(i32\* inttoptr \(i64 add \(i64\\\\l\.\.\. " \
 #                "ptrtoint \(\[\d*? x i32\]\* @__sancov_gen_.\d*? to i64\), i64 (\d*?)\) to i32\*\)\)"
 # "@__sanitizer_cov_trace_pc_guard(i32*inttoptr(i64add(i64...ptrtoint([36xi32]*@__sancov_gen_.4toi64),i64140)toi32*))"
-BUI_GUARD_RE = r"@__sanitizer_cov_trace_pc_guard\(i32\*inttoptr\(i64add\(i64\.\.\.ptrtoint\(\[\d*?xi32\]\*@__sancov_gen_\.\d*?toi64\),i64(\d*?)\)toi32\*\)\)"
+BUI_GUARD_RE = r"@__sanitizer_cov_trace_pc_guard\(i32\*inttoptr\(i64add\(i64\.\.\.ptrtoint\(\[\d*?xi32\]\*@__sancov_gen_.*?toi64\),i64(\d*?)\)toi32\*\)\)"
 
 # @__sanitizer_cov_trace_pc_guard(i32* getelementptr inbounds ([20 x\l... i32], [20 x i32]* @__sancov_gen_.127, i32 0, i32 0))
 # BUI_GUARD2_RE = "@__sanitizer_cov_trace_pc_guard\(i32\* getelementptr inbounds \(\[.*?\\\\l\.\.\. .*?i32\], " \
 #                 "\[\d*? x i32\]\* @__sancov_gen_\.\d*?, i32 (\d*?), i32 \d*?\)\)"
 # "@__sanitizer_cov_trace_pc_guard(i32*getelementptrinbounds([36x...i32],[36xi32]*@__sancov_gen_.4,i320,i320))"
-BUI_GUARD2_RE = r"@__sanitizer_cov_trace_pc_guard\(i32\*getelementptrinbounds\(\[.*?\.\.\..*?i32\],\[\d*?xi32\]\*@__sancov_gen_\.\d*?,i32(\d*?),i32\d*?\)\)"
+BUI_GUARDZERO_RE = r"@__sanitizer_cov_trace_pc_guard\(i32\*getelementptrinbounds\(\[.*?\.\.\..*?i32\],\[\d*?xi32\]\*@__sancov_gen_\.\d*?,i32(\d*?),i32\d*?\)\)"
 
 BUI_LOC_INTERVAL = 4
 
