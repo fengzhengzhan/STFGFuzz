@@ -136,13 +136,14 @@ def getCFG(cfglist, map_num_asm, target_dict):
                     guard_res = pattern.findall(node_asm)
                     # if len(guard_res) == 0:
                     #     LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_LABEL], showlog=True)
-
-                LOG(DEBUG, LOC(), guard_res)
+                LOG(DEBUG, LOC(), node_asm, BUI_GUARD_RE, BUI_GUARDZERO_RE, pattern.findall(node_asm), pattern.findall(node_asm), show=True)
+                LOG(DEBUG, LOC(), guard_res, show=True)
                 temp_guardlist = []
                 for one in guard_res:
                     temp_guardnum = int(int(one, 10) / BUI_LOC_INTERVAL)
                     temp_guardlist.append(temp_guardnum)
                     map_guard_gvid[graphname][temp_guardnum] = node_j[BUI_NODE_NUM]
+                    LOG(DEBUG, LOC(), graphname, map_guard_gvid[graphname][temp_guardnum], node_j[BUI_NODE_NUM], show=True)
 
                 nodes_list.append((node_j[BUI_NODE_NUM],
                                    {BUI_NODE_NUM: node_j[BUI_NODE_NUM],

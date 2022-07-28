@@ -178,9 +178,11 @@ def mainFuzzer():
         '''Find correspondence: seed inputs -> cmp instruction -> cmp type (access method) -> braches'''
 
         # print("{} ld...".format(getTime()))
-        '''ld -> Length Detection, Increase seed length'''
+        '''ld -> Length Detection, Increase seed length, Subtract seed length. '''
         # Increase the input length when the number of constraints does not change in the program.
         # If there is a change in the increase length then increase the length.
+        b4len = len(init_seed.content)
+
         b4ld_seed = init_seed
         b4ld_interlen = init_interlen
         LOG(DEBUG, LOC(), init_seed.content, ana.getRpt(init_interlen))
@@ -189,7 +191,7 @@ def mainFuzzer():
             sch.expandnums += 1
             # if before_coverage == sch.coveragepath and len(init_seed.content) < SCH_EXPAND_MAXSIZE:
             # According fixed length to expand the content length of seed.
-            ld_seed = Mutator.mutAddLength(b4ld_seed.content, path.seeds_mutate, LENGTH_STR, LD_EXPAND)
+            ld_seed = Mutator.mutAddLength(b4ld_seed.content, path.seeds_mutate, LD_EXPAND)
             ld_seed = sch.selectOneSeed(SCH_THISMUT_SEED, ld_seed)
             ld_stdout, ld_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, ld_seed.filename))
             eaexit = sch.saveCrash(ld_seed, ld_stdout, ld_stderr, vis)
@@ -219,6 +221,42 @@ def mainFuzzer():
             # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
             if res == VIS_Q:
                 sch.quitFuzz()
+
+        # Subtract seed length.
+        if len(b4ld_seed.content) == b4len:
+            while len(b4ld_seed.content) > b4len // 2:
+                vis.total += 1
+                # According fixed length to expand the content length of seed.
+                ld_seed = Mutator.mutSubLength(b4ld_seed.content, path.seeds_mutate, len(b4ld_seed.content)//LD_SUB)
+                ld_seed = sch.selectOneSeed(SCH_THISMUT_SEED, ld_seed)
+                ld_stdout, ld_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, ld_seed.filename))
+                eaexit = sch.saveCrash(ld_seed, ld_stdout, ld_stderr, vis)
+
+                # 1 seed inputs
+                ld_interlen, ld_covernum = ana.getShm(ld_stdout[0:16])
+                LOG(DEBUG, LOC(), len(ld_seed.content), b4ld_interlen, ld_interlen, ana.getRpt(ld_interlen))
+                if b4ld_interlen != ld_interlen:
+                    break
+                elif b4ld_interlen == ld_interlen:
+                    # Current seed.
+                    ld_cmpcov_list = ana.getRpt(ld_interlen)  # report
+                    # Before seed.
+                    vis.total += 1
+                    b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, b4ld_seed.filename))
+                    b4ld_interlen, b4ld_covernum = ana.getShm(b4ld_stdout[0:16])
+                    b4ld_cmpcov_list = ana.getRpt(b4ld_interlen)
+                    LOG(DEBUG, LOC(), b4ld_cmpcov_list)
+                    if ld_cmpcov_list != b4ld_cmpcov_list:
+                        break
+                    else:
+                        b4ld_seed = ld_seed
+                        b4ld_interlen = ld_interlen
+
+                res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, STG_LD, -1, sch)
+                # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
+                if res == VIS_Q:
+                    sch.quitFuzz()
+
         '''ld <-'''
 
         # print("{} cf...".format(getTime()))
@@ -247,7 +285,7 @@ def mainFuzzer():
         vis.num_pcguard = guard_total
 
         # Update sch priority queue. Save cmpid for the next explore
-        LOG(DEBUG, LOC(), map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
+        # LOG(DEBUG, LOC(), init_guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid, show=True)
         # print("{} b4select...".format(getTime()))
         sch.selectConstraint(init_guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid, vis)
         # print("{} select...".format(getTime()))
@@ -257,9 +295,9 @@ def mainFuzzer():
         # init_cmpset = set(init_cmp_dict)
         # Compare instruction type speculation based on input mapping,
         # then try to pass the corresponding constraint (1-2 rounds).
-        LOG(DEBUG, LOC(), sch.targetcmp_pq)
+        # LOG(DEBUG, LOC(), sch.targetcmp_pq, show=True)
         # while not sch.targetcmp_pq.empty():
-        #     LOG(LOG_DEBUG, LOG_FUNCINFO(), sch.targetcmp_pq.get(), showlog=True)
+        #     LOG(DEBUG, LOC(), sch.targetcmp_pq.get(), show=True)
         # raise Exception()
         '''cf'''
 
