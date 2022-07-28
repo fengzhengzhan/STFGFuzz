@@ -138,12 +138,12 @@ def mutLocFromMap(init_seed, seed, seedcont: bytes, filepath: str, label: str, l
 def mutAddLength(seedcont: bytes, filepath: str, expand_len):
     multicont = seedcont + getExpandFillStr(expand_len)
     loc_set = set([i for i in range(len(seedcont), len(multicont))])
-    temp_one = StructSeed(filepath + getTimeStr() + EXPAND_SEED, multicont, MUT_SEED_INSERT, loc_set)
+    temp_one = StructSeed(filepath + getMutfilename(EXPAND_SEED), multicont, MUT_SEED_INSERT, loc_set)
     return temp_one
 
 def mutSubLength(seedcont: bytes, filepath: str, sub_len):
     multicont = seedcont[0:len(seedcont) - sub_len]
-    temp_one = StructSeed(filepath + getTimeStr() + EXPAND_SEED, multicont, MUT_SEED_SUB, set())
+    temp_one = StructSeed(filepath + getMutfilename(SUB_SEED), multicont, MUT_SEED_SUB, set())
     return temp_one
 
 if __name__ == "__main__":

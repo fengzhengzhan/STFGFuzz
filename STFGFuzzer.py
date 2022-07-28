@@ -225,6 +225,7 @@ def mainFuzzer():
         # Subtract seed length.
         if len(b4ld_seed.content) == b4len:
             while len(b4ld_seed.content) > b4len // 2:
+            # while True:
                 vis.total += 1
                 # According fixed length to expand the content length of seed.
                 ld_seed = Mutator.mutSubLength(b4ld_seed.content, path.seeds_mutate, len(b4ld_seed.content)//LD_SUB)
@@ -245,7 +246,7 @@ def mainFuzzer():
                     b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, b4ld_seed.filename))
                     b4ld_interlen, b4ld_covernum = ana.getShm(b4ld_stdout[0:16])
                     b4ld_cmpcov_list = ana.getRpt(b4ld_interlen)
-                    LOG(DEBUG, LOC(), b4ld_cmpcov_list)
+                    LOG(DEBUG, LOC(), ld_seed.filename, b4ld_seed.filename, ld_cmpcov_list, b4ld_cmpcov_list, show=True)
                     if ld_cmpcov_list != b4ld_cmpcov_list:
                         break
                     else:
@@ -256,7 +257,7 @@ def mainFuzzer():
                 # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                 if res == VIS_Q:
                     sch.quitFuzz()
-
+        LOG(DEBUG, LOC(), b4ld_seed.content)
         '''ld <-'''
 
         # print("{} cf...".format(getTime()))
@@ -334,7 +335,7 @@ def mainFuzzer():
         while not eaexit and not sch.targetcmp_pq.empty():
 
             stcmpid_tuples = sch.targetcmp_pq.get()
-            stcmpid_weight, stcmpid_ki, stcmpid_loci = stcmpid_tuples[0], stcmpid_tuples[1], stcmpid_tuples[2]
+            stcmpid_weight, stcmpid_ki, stcmpid_loci = stcmpid_tuples[0], stcmpid_tuples[1], stcmpid_tuples[2]*2
             LOG(DEBUG, LOC(), stcmpid_weight, stcmpid_ki, stcmpid_loci, show=True)
             vis.cmpnum += 1
             vis.cmporder = 0
@@ -364,7 +365,7 @@ def mainFuzzer():
             init_stdout, init_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, init_seed.filename))
             init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
             init_cmpcov_list = ana.getRpt(init_interlen)
-            LOG(DEBUG, LOC(), init_cmpcov_list, show=True)
+            LOG(DEBUG, LOC(), stcmpid_ki, init_cmpcov_list, show=True)
             # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
 
             # Only the corresponding list data is retained, no parsing is required
@@ -621,6 +622,7 @@ def mainFuzzer():
                         st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
                         st_cmpcov_list = ana.getRpt(st_interlen)
 
+                        LOG(DEBUG, LOC(), st_cmpcov_list, show=True)
                         LOG(DEBUG, LOC(), strategy.curnum, strategy.endnum, strategy.curloop,
                             strategy.endloop, st_cmploc, locmapdet_dict, opt_seed.content, st_seed.content)
                         # Returns the status and the character to be mutated
