@@ -418,6 +418,7 @@ def retLogStr(funcinfo, *args):
 
 
 def LOG(loggingtype, funcinfo, *args, show=False) -> None:
+    # loc = locals()
     if not EXP_MODE and show:
         logstr = retLogStr(funcinfo, *args)
         with open(PROGRAMS + os.sep + FUZZPRINTLOG, "a+") as f:

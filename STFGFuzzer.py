@@ -365,7 +365,7 @@ def mainFuzzer():
             init_stdout, init_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, init_seed.filename))
             init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
             init_cmpcov_list = ana.getRpt(init_interlen)
-            LOG(DEBUG, LOC(), stcmpid_ki, init_cmpcov_list, show=True)
+            LOG(DEBUG, LOC(), stcmpid_ki, init_seed.content, init_stdout, init_stderr, init_interlen, init_covernum, init_cmpcov_list)
             # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
 
             # Only the corresponding list data is retained, no parsing is required
@@ -422,8 +422,9 @@ def mainFuzzer():
                         sd_interlen, sd_covernum = ana.getShm(sd_stdout[0:16])
                         sd_cmpcov_list = ana.getRpt(sd_interlen)  # report
 
+                        LOG(DEBUG, LOC(), sd_seed.content, init_cmpcov_list, sd_cmpcov_list, show=True)
                         # Add number of bytes.
-                        if len(sd_cmpcov_list) == 0 or ana.compareRptDiff(init_cmpcov_list, sd_cmpcov_list, cmporder_j):
+                        if ana.compareRptDiff(init_cmpcov_list, sd_cmpcov_list, cmporder_j):
                             # Determine if the dictionary is empty.
                             if stcmpid_ki not in cmpmaploc_dict:
                                 # cmpmaploc_dict[stcmpid_ki] = set(before_sdloc_list) | set(sdloc_list)
@@ -431,7 +432,7 @@ def mainFuzzer():
                             else:
                                 cmpmaploc_dict[stcmpid_ki] |= set(sdloc_list)
 
-                        LOG(DEBUG, LOC(), init_cmpcov_list, sd_cmpcov_list, cmporder_j, slid_window, len(cmpmaploc_dict), len(sdloc_list))
+                        # LOG(DEBUG, LOC(), init_cmpcov_list, sd_cmpcov_list, cmporder_j, slid_window, len(cmpmaploc_dict), len(sdloc_list), show=True)
                     if stcmpid_ki in cmpmaploc_dict:
                         slid_list = list(cmpmaploc_dict[stcmpid_ki])
                         slid_list.sort()
@@ -442,7 +443,7 @@ def mainFuzzer():
                     slid_window = max(len(slid_list) // SCH_SLID_SLICE, SCH_SLID_MIN)
 
                     # before_sdloc_list = sdloc_list
-                LOG(DEBUG, LOC(), cmpmaploc_dict, show=True)
+                LOG(DEBUG, LOC(), init_seed.content, cmpmaploc_dict, show=True)
 
                 # raise Exception()
                 '''sd <-'''
@@ -543,7 +544,7 @@ def mainFuzzer():
                 if bytes_flag == PAR_FIXAFIX:
                     continue
 
-                LOG(DEBUG, LOC(), strategy_flag, bytes_flag, opt_cmpcov_list, ststart_cmpcov_list)
+                LOG(DEBUG, LOC(), strategy_flag, bytes_flag, opt_cmpcov_list, ststart_cmpcov_list, show=True)
 
                 # fixme
                 # opt_seed = Mutator.mutLocFromMap(opt_seed, opt_seed.content, path.seeds_mutate, ST_STR + str(vis.loop),
@@ -677,6 +678,7 @@ def mainFuzzer():
         # Mutual mapping relationship
         # Key: cmpid  Value: branch_order cmp_type input_bytes branches
         # 4 branches
+        # raise Exception()
 
     sch.deleteSeeds(SCH_THIS_SEED)
     sch.deleteSeeds(SCH_THISMUT_SEED)

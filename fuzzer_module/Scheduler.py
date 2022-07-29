@@ -361,8 +361,8 @@ class Scheduler:
         # len(cmpmaploc_dict[stcmpid_ki]) == len(init_seed.content)
         if stcmpid not in cmpmaploc_dict:
             ret_flag = True
-        elif len(cmpmaploc_dict[stcmpid]) > SCH_SKIP_LEN:
-            ret_flag = True
+        # elif len(cmpmaploc_dict[stcmpid]) > SCH_SKIP_LEN:
+        #     ret_flag = True
 
         return ret_flag
 

@@ -116,7 +116,7 @@ class Analyzer:
         # self.rt.shmctl(shmid, 0, 0)
 
         # Content to json
-        # LOG(LOG_DEBUG, LOG_FUNCINFO(), cmpcovshm_str, showlog=True)
+        LOG(DEBUG, LOC(), cmpcovshm_str, show=True)
         cmpcov_list = ast.literal_eval(cmpcovshm_str)
         del cmpcovshm_str
         return cmpcov_list
@@ -220,6 +220,8 @@ class Analyzer:
         else:
             if pos < len(b4_cmpcov_list) and pos < len(cmpcov_list) \
                     and b4_cmpcov_list[pos] != cmpcov_list[pos]:
+                return True
+            elif pos >= len(cmpcov_list) or pos >= len(b4_cmpcov_list):
                 return True
         return False
 
