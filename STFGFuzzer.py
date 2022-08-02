@@ -557,11 +557,15 @@ def mainFuzzer():
                 # opt_cmpcov_list = ana.getRpt(opt_interlen)
 
                 '''Mutation strategy and Compare distance'''
-                while not eaexit and not sch.strategyq.empty():
-                    strategy = sch.strategyq.get()
-                    LOG(DEBUG, LOC(), strategy)
+                strategy = None
+                while not eaexit and (not sch.strategyq.empty() or strategy != None):
+                    if strategy == None:
+                        strategy = sch.strategyq.get()
+
+                    LOG(DEBUG, LOC(), strategy.curloop, strategy.endloop, show=True)
                     # Type Detection and Breaking the Constraint Cycle (At lease 1 loops)
                     if strategy.curloop >= strategy.endloop:
+                        strategy = None
                         continue
 
                     strategy.curloop += 1
@@ -645,7 +649,7 @@ def mainFuzzer():
                             LOG(DEBUG, LOC(), trace_stdout, trace_stderr)
                             eaexit = sch.saveCrash(opt_seed, trace_stdout, trace_stderr, vis)
 
-                            LOG(DEBUG, LOC(), eaexit, sch.cur_tgtnum)
+
                             if len(opt_stderr) == 0:
                                 trace_interlen, trace_covernum = ana.getShm(trace_stdout[0:16])
                                 trace_guard_list = ana.getRpt(trace_interlen)
@@ -655,7 +659,7 @@ def mainFuzzer():
                                 if near_dis < sch.cur_nearlydis:
                                     eaexit = True
                                 sch.addq(SCH_LOOP_SEED, [opt_seed, ])
-
+                            LOG(DEBUG, LOC(), eaexit, strategy.curloop, strategy.endloop, show=True)
                             ana.sendCmpid(stcmpid_ki)
                             break
 
