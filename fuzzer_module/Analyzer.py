@@ -116,7 +116,7 @@ class Analyzer:
         # self.rt.shmctl(shmid, 0, 0)
 
         # Content to json
-        LOG(DEBUG, LOC(), cmpcovshm_str, show=True)
+        # LOG(DEBUG, LOC(), cmpcovshm_str, show=True)
         cmpcov_list = ast.literal_eval(cmpcovshm_str)
         del cmpcovshm_str
         return cmpcov_list
@@ -238,8 +238,8 @@ if __name__ == "__main__":
     # ana.sendCmpid(TRACE_CMPFILTER)
     # ana.sendCmpid(TRACE_CMP)
     # ana.sendCmpid(TRACE_CMPGUARD)
-    ana.sendCmpid(TRACE_CMPGUARDSYMBOL)
-    # ana.sendCmpid("m0x49e379")
+    # ana.sendCmpid(TRACE_CMPGUARDSYMBOL)
+    ana.sendCmpid("m0x49e379")
     # ana.sendCmpid("g0x4fca860x7ffff7a42083")
     # ana.sendCmpid("xx")
     # while True:

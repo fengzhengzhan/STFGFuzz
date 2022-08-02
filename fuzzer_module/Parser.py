@@ -227,6 +227,7 @@ def solveChangeMap(strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_num)
         else:
             cont_list = [opt_one[IDX_ARG], opt_one[IDX_ARG + 1]]
 
+        LOG(DEBUG, LOC(), cont_list, show=True)
         if strategy.strategytype == TYPE_DEFAULT:
             change_inputmap = handleRandom(st_cmploc)
         elif strategy.strategytype == TYPE_UNDEFINED:
@@ -286,10 +287,11 @@ def solveDistence(strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, 
         if ret_seed == st_seed:
             ret_cmpcov_list = st_cmpcov_list
 
-        if st_one[IDX_ARG] == st_one[IDX_ARG + strategy.curloop]:
+        LOG(DEBUG, LOC(), cont_list, show=True)
+        if cont_list[2] == cont_list[3]:
             exe_status = DIST_FINISH
             ret_seed = st_seed
-        if opt_one[IDX_ARG] == opt_one[IDX_ARG + strategy.curloop]:
+        if cont_list[0] == cont_list[1]:
             exe_status = DIST_FINISH
             ret_seed = opt_seed
         # LOG(LOG_DEBUG, LOG_FUNCINFO(), exe_status, st_one[IDX_ARG], st_one[IDX_ARG + strategy.curloop], showlog=True)
@@ -377,10 +379,13 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_num):
                 strategy_flag = TYPE_CHECKBYTES
 
         elif cmp_flag == COV_SWITCH:
+            bytes_flag = PAR_CHGAFIX
             if listIsdigit(opt_one[4: 5 + int(opt_one[2])]):
-                strategy_flag = TYPE_CHECKNUM
+                # strategy_flag = TYPE_CHECKNUM
+                strategy_flag = TYPE_MAGICNUM
             else:
-                strategy_flag = TYPE_CHECKBYTES
+                # strategy_flag = TYPE_CHECKBYTES
+                strategy_flag = TYPE_MAGICBYTES
 
     return strategy_flag, cmp_flag, bytes_flag
 

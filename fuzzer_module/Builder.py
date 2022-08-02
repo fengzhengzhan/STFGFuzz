@@ -129,21 +129,21 @@ def getCFG(cfglist, map_num_asm, target_dict):
                 pattern = re.compile(BUI_GUARD_RE)
                 guard_res = pattern.findall(node_asm)
                 # if graphname == "main":
-                #     LOG(DEBUG, LOC(), graphname, guard_res, node_asm, BUI_GUARD_RE, show=True)
+                #     LOG(DEBUG, LOC(), graphname, guard_res, node_asm, BUI_GUARD_RE)
                 LOG(DEBUG, LOC(), graphname, guard_res, node_asm, BUI_GUARD_RE)
                 if len(guard_res) == 0:
                     pattern = re.compile(BUI_GUARDZERO_RE)
                     guard_res = pattern.findall(node_asm)
                     # if len(guard_res) == 0:
                     #     LOG(LOG_DEBUG, LOG_FUNCINFO(), node_j[BUI_NODE_LABEL], showlog=True)
-                LOG(DEBUG, LOC(), node_asm, BUI_GUARD_RE, BUI_GUARDZERO_RE, pattern.findall(node_asm), pattern.findall(node_asm), show=True)
-                LOG(DEBUG, LOC(), guard_res, show=True)
+                LOG(DEBUG, LOC(), node_asm, BUI_GUARD_RE, BUI_GUARDZERO_RE, pattern.findall(node_asm), pattern.findall(node_asm))
+                LOG(DEBUG, LOC(), guard_res)
                 temp_guardlist = []
                 for one in guard_res:
                     temp_guardnum = int(int(one, 10) / BUI_LOC_INTERVAL)
                     temp_guardlist.append(temp_guardnum)
                     map_guard_gvid[graphname][temp_guardnum] = node_j[BUI_NODE_NUM]
-                    LOG(DEBUG, LOC(), graphname, map_guard_gvid[graphname][temp_guardnum], node_j[BUI_NODE_NUM], show=True)
+                    LOG(DEBUG, LOC(), graphname, map_guard_gvid[graphname][temp_guardnum], node_j[BUI_NODE_NUM])
 
                 nodes_list.append((node_j[BUI_NODE_NUM],
                                    {BUI_NODE_NUM: node_j[BUI_NODE_NUM],
@@ -169,7 +169,7 @@ def getCFG(cfglist, map_num_asm, target_dict):
                         if graphname in map_num_asm[tarnum_k]:
                             for target_l in map_num_asm[tarnum_k].get(graphname):  # [tgtnumid, asm]
                                 tgtid = target_l[0]
-                                LOG(DEBUG, LOC(), graphname, node_asm.find(target_l[1]), node_asm, target_l[1], show=True)
+                                LOG(DEBUG, LOC(), graphname, node_asm.find(target_l[1]), node_asm, target_l[1])
                                 # res = node_j[BUI_NODE_LABEL].replace(' ', '').replace('\\l', '') \
                                 #     .find(target_l[1].replace(' ', ''))
                                 res = node_asm.find(target_l[1])
@@ -237,7 +237,7 @@ def searchCGFuncNode(graph, funcname):
         LOG(DEBUG, LOC(), node[0], node[1])
         if funcname in node[1][BUI_NODE_FUNCS]:
             cgnode_list.append(node[0])
-    LOG(DEBUG, LOC(), cgnode_list, show=True)
+    LOG(DEBUG, LOC(), cgnode_list)
 
     # Find call functions.
     for one in cgnode_list:
@@ -250,7 +250,7 @@ def searchCGFuncNode(graph, funcname):
                 elif callfunc_k > predis_j:
                     ref_dict[callfunc_k] = predis_j
 
-    LOG(DEBUG, LOC(), ref_dict, show=True)
+    LOG(DEBUG, LOC(), ref_dict)
     return ref_dict
 
 
@@ -260,7 +260,7 @@ def searchCFGFuncNode(graph, callfuncs_dict):
     call_nodes = set()
     for node in graph.dg.nodes.data():
         LOG(DEBUG, LOC(), node[0], node[1], callfuncs_dict,
-            callfuncs_dict.keys() & node[1][BUI_NODE_FUNCS], show=True)
+            callfuncs_dict.keys() & node[1][BUI_NODE_FUNCS])
         if len(callfuncs_dict.keys() & node[1][BUI_NODE_FUNCS]) != 0:
             call_nodes.add(node[0])
 
@@ -313,7 +313,7 @@ def getTargetPredecessorsGuard(cggraph, cfggraph_dict, map_guard_gvid, map_targe
                         callfuncs_dict[ref_k] = dis_v
                     elif callfuncs_dict[ref_k] > dis_v:
                         callfuncs_dict[ref_k] = dis_v
-            LOG(DEBUG, LOC(), callfuncs_dict, show=True)
+            LOG(DEBUG, LOC(), callfuncs_dict)
 
             # Reverse traversal to build map_tgtpredgvid.
             # Find which gvid(node) include callfuncs.
@@ -363,7 +363,7 @@ def getFuncOffset(map_tgtpredgvid_dis, map_target, map_callfuncs):
         for func_kj, preddict_vj in func_vi.items():
             if func_kj not in tgtpred_offset[tgtnum_ki]:
                 tgtpred_offset[tgtnum_ki][func_kj] = len(preddict_vj)
-    LOG(DEBUG, LOC(), tgtpred_offset, show=True)
+    LOG(DEBUG, LOC(), tgtpred_offset)
 
     # Calculating the offset of function.
     for tgtnum_ki, func_ki in tgtpred_offset.items():

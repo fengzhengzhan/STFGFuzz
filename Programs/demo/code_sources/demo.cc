@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
     uint16_t z = strtouq(s3, NULL, 16);
     // printf("%d %d\n", z, 0xBEEF);
     switch (z) {
-    case 0xFEEB:
+    case 0xABCD:
         return 1;
     
     case 0xEFBE:

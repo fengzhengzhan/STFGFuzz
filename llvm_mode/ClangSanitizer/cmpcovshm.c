@@ -558,14 +558,14 @@ void __sanitizer_weak_hook_memmem(void *called_pc, const void *s1, size_t len1, 
 //     printf("test");
 // }
 
-void __sanitizer_cov_trace_div4(uint32_t Val) { 
-}
-void __sanitizer_cov_trace_div8(uint64_t Val) { 
-}
-void __sanitizer_cov_trace_gep(uintptr_t Idx) { 
-}
+// void __sanitizer_cov_trace_div4(uint32_t Val) {
+// }
+// void __sanitizer_cov_trace_div8(uint64_t Val) {
+// }
+// void __sanitizer_cov_trace_gep(uintptr_t Idx) {
+// }
 
-void __dfsan_load_callback(dfsan_label Label, void* Addr);
-void __dfsan_store_callback(dfsan_label Label, void* Addr);
-void __dfsan_mem_transfer_callback(dfsan_label *Start, size_t Len);
-void __dfsan_cmp_callback(dfsan_label CombinedLabel);
+// void __dfsan_load_callback(dfsan_label Label, void* Addr);
+// void __dfsan_store_callback(dfsan_label Label, void* Addr);
+// void __dfsan_mem_transfer_callback(dfsan_label *Start, size_t Len);
+// void __dfsan_cmp_callback(dfsan_label CombinedLabel);

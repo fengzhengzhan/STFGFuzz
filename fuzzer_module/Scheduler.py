@@ -125,7 +125,7 @@ class Scheduler:
                     # Compare sanitizer similarity
                     re_str = "#(.*?) 0x.*? in (.*?) .*?:(.*?):"
                     re_cont = re.findall(re_str, str(stderr))
-                    LOG(DEBUG, LOC(), crashtype, crashid, re_cont, show=True)
+                    LOG(DEBUG, LOC(), crashtype, crashid, re_cont)
                     cinfo_num = 0
                     crash_infostr = ""
                     for c in re_cont:
@@ -272,7 +272,7 @@ class Scheduler:
                     transguard = int(realguard) - self.trans_symbol_initguard[symbol]
                     LOG(DEBUG, LOC(), trace_i, symbol, transguard, trans_guard_gvid[symbol],
                         self.trans_symbol_initguard[symbol])
-                    LOG(DEBUG, LOC(), func, symbol, self.trans_func_symbol, trans_guard_gvid, show=True)
+                    LOG(DEBUG, LOC(), func, symbol, self.trans_func_symbol, trans_guard_gvid)
                     if transguard not in trans_guard_gvid[symbol]:
                         continue
                     # Get the networkx node gvid to get it.
@@ -291,7 +291,7 @@ class Scheduler:
                             vis.trace_orderdict[self.cur_tgtnum][symbol][3] = map_curtgtpredgvid_dis[symbol][gvid]
                     elif symbol in map_curtgtpredgvid_dis and gvid not in map_curtgtpredgvid_dis[symbol]:
                         distance = USE_INITMAXNUM
-                    LOG(DEBUG, LOC(), trace_i, symbol, transguard, gvid, distance, show=True)
+                    LOG(DEBUG, LOC(), trace_i, symbol, transguard, gvid, distance)
                 else:
                     # func, realguard, cmpnum = trace_i[2].split("+")
                     # if func == '':
@@ -301,7 +301,7 @@ class Scheduler:
                         disdup_cmpiddict[cmpid] = 0
                     else:
                         disdup_cmpiddict[cmpid] += 1
-                    # LOG(DEBUG, LOC(), (distance, cmpid, disdup_cmpiddict[cmpid]), show=True)
+                    # LOG(DEBUG, LOC(), (distance, cmpid, disdup_cmpiddict[cmpid]))
                     # if distance != USE_INITMAXNUM and cmpid not in disdup_cmpiddict:
                     if distance != USE_INITMAXNUM:
                         # The smaller the distance, the higher the priority.
