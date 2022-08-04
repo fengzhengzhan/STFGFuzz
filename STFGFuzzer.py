@@ -324,7 +324,7 @@ def mainFuzzer():
 
         # Debug:
         # while not sch.targetcmp_pq.empty():
-        #     LOG(LOG_DEBUG,LOG_FUNCINFO(), sch.targetcmp_pq.get(), showlog=True)
+        #     LOG(DEBUG,LOC(), sch.targetcmp_pq.get(), show=True)
         # raise Exception
 
         # print("{} st...".format(getTime()))
@@ -422,7 +422,7 @@ def mainFuzzer():
                         sd_interlen, sd_covernum = ana.getShm(sd_stdout[0:16])
                         sd_cmpcov_list = ana.getRpt(sd_interlen)  # report
 
-                        LOG(DEBUG, LOC(), sd_seed.content, init_cmpcov_list, sd_cmpcov_list)
+                        LOG(DEBUG, LOC(), sd_seed.content, init_cmpcov_list, sd_cmpcov_list, cmporder_j)
                         # Add number of bytes.
                         if ana.compareRptDiff(init_cmpcov_list, sd_cmpcov_list, cmporder_j):
                             # Determine if the dictionary is empty.
@@ -611,8 +611,10 @@ def mainFuzzer():
                             )
                             st_seed = sch.selectOneSeed(SCH_THISMUT_SEED, st_seed)
                         LOG(DEBUG, LOC(), st_seed.content, opt_seed.content, locmapdet_dict, show=True)
+                        LOG(DEBUG, LOC(), fuzz_command.replace(REPLACE_COMMAND, st_seed.filename), show=True)
                         vis.total += 1
                         st_stdout, st_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, st_seed.filename))
+                        LOG(DEBUG, LOC(), "after run", show=True)
                         # 5 visualize
                         res = vis.display(
                             opt_seed, set(st_cmploc), st_stdout, st_stderr, STG_ST, stcmpid_weight, sch)
@@ -626,7 +628,7 @@ def mainFuzzer():
                         st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
                         st_cmpcov_list = ana.getRpt(st_interlen)
 
-                        LOG(DEBUG, LOC(), st_cmpcov_list)
+                        LOG(DEBUG, LOC(), st_cmpcov_list, show=True)
                         LOG(DEBUG, LOC(), strategy.curnum, strategy.endnum, strategy.curloop,
                             strategy.endloop, st_cmploc, locmapdet_dict, opt_seed.content, st_seed.content)
                         # Returns the status and the character to be mutated
@@ -646,7 +648,7 @@ def mainFuzzer():
                             vis.total += 1
                             ana.sendCmpid(TRACE_GUARDFAST)
                             trace_stdout, trace_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, opt_seed.filename))
-                            LOG(DEBUG, LOC(), trace_stdout, trace_stderr)
+                            LOG(DEBUG, LOC(), trace_stdout, trace_stderr, show=True)
                             eaexit = sch.saveCrash(opt_seed, trace_stdout, trace_stderr, vis)
 
 
@@ -659,7 +661,7 @@ def mainFuzzer():
                                 if near_dis < sch.cur_nearlydis:
                                     eaexit = True
                                 sch.addq(SCH_LOOP_SEED, [opt_seed, ])
-                            LOG(DEBUG, LOC(), eaexit, strategy.curloop, strategy.endloop, show=True)
+                                LOG(DEBUG, LOC(), eaexit, strategy.curloop, strategy.endloop, near_dis, sch.cur_nearlydis, show=True)
                             ana.sendCmpid(stcmpid_ki)
                             break
 
@@ -667,7 +669,7 @@ def mainFuzzer():
                             pass
                     sch.deleteSeeds(SCH_THISMUT_SEED)
 
-        # raise Exception()
+        raise Exception()
         # Endless fuzzing, add the length seed.
         LOG(DEBUG, LOC(), init_seed.content)
         sch.targetcmp_pq.queue.clear()

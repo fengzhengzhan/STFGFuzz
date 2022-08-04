@@ -258,6 +258,9 @@ COM_BINLINE = 'L'
 COM_BINCOL = 'C'
 COM_BININS = 'I'
 
+'''Executor'''
+EXE_TIMEOUT = 20
+
 '''Generator'''
 PROGRAMS = "Programs"
 CODEBIN = "code_Bin"

@@ -238,8 +238,8 @@ if __name__ == "__main__":
     # ana.sendCmpid(TRACE_CMPFILTER)
     # ana.sendCmpid(TRACE_CMP)
     # ana.sendCmpid(TRACE_CMPGUARD)
-    # ana.sendCmpid(TRACE_CMPGUARDSYMBOL)
-    ana.sendCmpid("m0x49e379")
+    ana.sendCmpid(TRACE_CMPGUARDSYMBOL)
+    # ana.sendCmpid("g0x6c326f0x6c19ca")
     # ana.sendCmpid("g0x4fca860x7ffff7a42083")
     # ana.sendCmpid("xx")
     # while True:

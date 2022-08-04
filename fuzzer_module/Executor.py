@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 import subprocess
 import sys
+import os
+import signal
 
 from fuzzer_module.Fuzzconfig import *
-
 
 def run(cmd: str) -> (str, str):
     """
@@ -13,15 +14,24 @@ def run(cmd: str) -> (str, str):
     @return:
     """
     LOG(DEBUG, LOC(), cmd)
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                         shell=True, close_fds=True, start_new_session=True)
+
     # timeout kill child process
     try:
-        stdout, stderr = process.communicate()
+        stdout, stderr = p.communicate(timeout=EXE_TIMEOUT)
+        # ret_code = p.poll()
+    except subprocess.TimeoutExpired:
+        p.kill()
+        p.terminate()
+        os.killpg(p.pid, signal.SIGTERM)
+        stdout, stderr = b'', b'Error Timeout'
     except Exception as e:
-        process.kill()
-        LOG(ERROR, LOC(), e)
         raise Exception("Error cmd ")
-    LOG(DEBUG, LOC(), stdout, stderr)
-    retcode = 128 - process.returncode
+    # retcode = 128 - p.returncode
     # print(retcode, stdout, stderr)
+    if stdout == None:
+        stdout = b''
+    if stderr == None:
+        stderr = b''
     return stdout, stderr
