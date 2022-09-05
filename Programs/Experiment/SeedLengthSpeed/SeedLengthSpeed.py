@@ -36,12 +36,11 @@ cd ../..
 
 def compilerCmd(dir, file):
     # pass
-    clang_cmd = "clang -fsanitize=address -fsanitize-coverage=bb,no-prune,trace-pc-guard,trace-cmp -emit-llvm -c " + dir + "/" + file + " -o " + dir + "/" + file[
-                                                                                                                                                             :-3] + "_trace.bc"
+    clang_cmd = "clang -fsanitize=address -fsanitize-coverage=bb,no-prune,trace-pc-guard,trace-cmp -emit-llvm -c " \
+                + dir + "/" + file + " -o " + dir + "/" + file[:-3] + "_trace.bc"
     llc_cmd = "llc -filetype=obj " + dir + "/" + file[:-3] + "_trace.bc" + " -o " + dir + "/" + file[:-3] + ".o"
-    clangsan_cmd = "clang -lz -fsanitize=address -Wl,--whole-archive -L/home/fzz/Desktop/STFGFuzz/llvm_mode/ClangSanitizer -lcmpcov -Wl,--no-whole-archive " + dir + "/" + file[
-                                                                                                                                                                           :-3] + ".o" + " -o experiment_dataset/" + file[
-                                                                                                                                                                                                                     :-3]
+    clangsan_cmd = "clang -lz -fsanitize=address -Wl,--whole-archive -L/home/fzz/Desktop/STFGFuzz/llvm_mode/ClangSanitizer -lcmpcov -Wl,--no-whole-archive " \
+                   + dir + "/" + file[:-3] + ".o" + " -o experiment_dataset/" + file[:-3]
 
     os.system(clang_cmd)
     os.system(llc_cmd)
@@ -98,6 +97,7 @@ def expSpeed(cmd, count):
     # print()
     return et
 
+
 def saveToexcel(path, value):
     print(path, value)
     index = len(value)  # 获取需要写入数据的行数
@@ -114,11 +114,16 @@ def saveToexcel(path, value):
     new_workbook.save(path)  # 保存工作簿
 
 
-program = ['base64', ]
-args = ['-d ']
+# program = ['base64', 'md5sum', 'uniq', 'who', 'addr2line', 'ar', 'as', 'c++filt', 'gprof', 'nm',
+#            'objcopy', 'objdump', 'ranlib', 'readelf', 'size', 'strings', 'strip']
+# args = ['-d ', '', '', '', '', '', '', ' @', '', '', '', '', '', '', '', '', '']
+program = ['as', 'base64', 'c++filt', 'md5sum', 'readelf', 'strings', 'uniq']
+args = ['', '-d ', ' @', '', '', '', '']
 dir_prog = "experiment_dataset/"
 dir_seed = "seeds/"
 seeds_list = ['1KB', '2KB', '4KB', '8KB', '16KB', '32KB', '64KB', '128KB', '256KB', '512KB', '1MB']
+
+
 # seeds_list = ['1KB', '2KB']
 
 
@@ -128,10 +133,11 @@ def testSpeed():
         data.append(program[idx])
         for each in seeds_list:
             cmd = dir_prog + program[idx] + " " + args[idx] + dir_seed + each
-            et = expSpeed(cmd, 10)
+            et = expSpeed(cmd, 3)
             print(cmd, et)
             data.append(et)
         saveToexcel("SeedLengthSpeed.xlsx", [data])
+
 
 def readExcel(filename) -> list:
     xlsx = xlrd.open_workbook(filename)
@@ -145,17 +151,51 @@ def readExcel(filename) -> list:
     # print(excel_data)
     return excel_data
 
+
 def genPicture(filename, ):
     excel_data = readExcel(filename)
     print(excel_data)
 
     x = ['1', '2', '4', '8', '16', '32', '64', '128', '256', '512', '1024']  # 点的横坐标
-    k1 = excel_data[1][1:]  # 线1的纵坐标
-    plt.plot(x, k1, 's-', color='r', label="base64")  # s-:方形
-    # plt.plot(x, k2, 'o-', color='g', label="CNN-RLSTM")  # o-:圆形
-    plt.xlabel("input size (KB)")  # 横坐标名字
+    k1 = excel_data[1][1:]  # 线的纵坐标
+    k2 = excel_data[2][1:]  # 线的纵坐标
+    k3 = excel_data[3][1:]  # 线的纵坐标
+    k4 = excel_data[4][1:]  # 线的纵坐标
+    k5 = excel_data[5][1:]  # 线的纵坐标
+    k6 = excel_data[6][1:]  # 线的纵坐标
+    k7 = excel_data[7][1:]  # 线的纵坐标
+    # k8 = excel_data[8][1:]  # 线的纵坐标
+    # k9 = excel_data[9][1:]  # 线的纵坐标
+    # k10 = excel_data[10][1:]  # 线的纵坐标
+    # k11 = excel_data[11][1:]  # 线的纵坐标
+    # k12 = excel_data[12][1:]  # 线的纵坐标
+    # k13 = excel_data[13][1:]  # 线的纵坐标
+    # k14 = excel_data[14][1:]  # 线的纵坐标
+    # k15 = excel_data[15][1:]  # 线的纵坐标
+    # k16 = excel_data[16][1:]  # 线的纵坐标
+    # k17 = excel_data[17][1:]  # 线的纵坐标
+    # plt.plot(x, k1, 's-', color='r', label="base64")  # s-:方形
+    # plt.plot(x, k2, 'o-', color='g', label="md5sum")  # o-:圆形
+    plt.plot(x, k1, 'o-', label=program[0])
+    plt.plot(x, k2, 'o-', label=program[1])
+    plt.plot(x, k3, 'o-', label=program[2])
+    plt.plot(x, k4, 'o-', label=program[3])
+    plt.plot(x, k5, 'o-', label=program[4])
+    plt.plot(x, k6, 'o-', label=program[5])
+    plt.plot(x, k7, 'o-', label=program[6])
+    # plt.plot(x, k8, 'o-', label=program[7])
+    # plt.plot(x, k9, 'o-', label=program[8])
+    # plt.plot(x, k10, 'o-', label=program[9])
+    # plt.plot(x, k11, 'o-', label=program[10])
+    # plt.plot(x, k12, 'o-', label=program[11])
+    # plt.plot(x, k13, 'o-', label=program[12])
+    # plt.plot(x, k14, 'o-', label=program[13])
+    # plt.plot(x, k15, 'o-', label=program[14])
+    # plt.plot(x, k16, 'o-', label=program[15])
+    # plt.plot(x, k17, 'o-', label=program[16])
+    plt.xlabel("input size (kb)")  # 横坐标名字
     plt.ylabel("execution speed (s)")  # 纵坐标名字
-    plt.title("Speed related input size")
+    # plt.title("Relationship between input size and execution speed")
     plt.legend(loc="best")  # 图例
     plt.savefig('./SeedLengthSpeed.jpg')
     plt.show()

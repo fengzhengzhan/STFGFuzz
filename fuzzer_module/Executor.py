@@ -14,7 +14,7 @@ def run(cmd: str) -> (str, str):
     @return:
     """
     LOG(DEBUG, LOC(), cmd)
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                          shell=True, close_fds=True, start_new_session=True)
 
     # timeout kill child process
@@ -30,8 +30,4 @@ def run(cmd: str) -> (str, str):
         raise Exception("Error cmd ")
     # retcode = 128 - p.returncode
     # print(retcode, stdout, stderr)
-    if stdout == None:
-        stdout = b''
-    if stderr == None:
-        stderr = b''
     return stdout, stderr

@@ -669,7 +669,7 @@ def mainFuzzer():
                             pass
                     sch.deleteSeeds(SCH_THISMUT_SEED)
 
-        raise Exception()
+        # raise Exception()
         # Endless fuzzing, add the length seed.
         LOG(DEBUG, LOC(), init_seed.content)
         sch.targetcmp_pq.queue.clear()

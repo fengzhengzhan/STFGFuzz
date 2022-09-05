@@ -19,6 +19,28 @@ from ctypes import *
 Experiment of SpeedCmpInstruction.
 '''
 
+# Compilation Method
+# program = ['as', 'base64', 'c++filt', 'md5sum', 'readelf', 'strings', 'uniq']
+# args = ['', '-d ', ' @', '', '', '', '']
+
+# gcc
+# CC="gcc" CXX="g++" CFLAGS="-g -O0 -Wno-error" LIBS="-lacl" ./configure --prefix=`pwd`/obj-bc --disable-shared
+# CC="gcc" CXX="g++" CFLAGS="-DFORTIFY_SOURCE=2 -fno-omit-frame-pointer -g -O0 -Wno-error" LDFLAGS="-ldl -lutil" ./configure --prefix=`pwd`/obj-bc --enable-static --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld
+
+
+# clang
+# CC="clang" CFLAGS="-g -O0" LIBS="-lacl" ./configure --prefix=`pwd`/obj-bc --disable-shared
+# CC="clang" CXX="clang++" CFLAGS="-DFORTIFY_SOURCE=2 -fno-omit-frame-pointer -g -O0 -Wno-error" LDFLAGS="-ldl -lutil" ./configure --prefix=`pwd`/obj-bc --enable-static --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld
+
+# sanitizer
+# clang -fsanitize=address -fsanitize-coverage=bb,no-prune,trace-pc-guard,trace-cmp as.bc
+# mv a.out as_sanitizer
+
+
+# CFDGF_guard  Use build shell script.
+# CFDGF_filter  Use build shell script.
+
+
 USE_INITNUM = -1
 SHMID_FLAG = 'D'  # Content show from stdout, that represent the memory share id.
 INTERLEN_FLAG = 'L'  # The length of array.
@@ -159,34 +181,41 @@ def saveToexcel(path, value):
     new_workbook.save(path)  # 保存工作簿
 
 
-def execProgram(program, count, excel):
+def execProgram(program, args, count, excel):
     data = []
     data.append(program)
-    data.append(expSpeed("dataset/" + program + "_gcc @rand.seed", count))
-    data.append(expSpeed("dataset/" + program + "_clang @rand.seed", count))
-    data.append(expSpeed("dataset/" + program + "_aflgo @rand.seed", count))
-    data.append(expSpeed("dataset/" + program + "_sanitize @rand.seed", count))
+    data.append(expSpeed("dataset/" + program + "_gcc "+args, count))
+    data.append(expSpeed("dataset/" + program + "_clang "+args, count))
+    # data.append(expSpeed("dataset/" + program + "_aflgo "+args, count))
+    data.append(expSpeed("dataset/" + program + "_sanitizer "+args, count))
     ana = Analyzer()
     ana.getShm("D124816Z\n")
 
-    ana.sendCmpid(TRACE_GUARDFAST)
-    print("TRACE_GUARDFAST")
-    data.append(expSpeed("dataset/" + program + "_CFDGF @rand.seed", count))
+    # ana.sendCmpid(TRACE_GUARDFAST)
+    # print("TRACE_GUARDFAST")
+    # data.append(expSpeed("dataset/" + program + "_CFDGF "+args, count))
 
     ana.sendCmpid("xx")
     print("TRACE_CMPFILTER")
-    data.append(expSpeed("dataset/" + program + "_CFDGF @rand.seed", count))
+    data.append(expSpeed("dataset/" + program + "_CFDGF "+args, count))
 
-    ana.sendCmpid(TRACE_CMPGUARDSYMBOL)
-    print("TRACE_CMPGUARDSYMBOL")
-    data.append(expSpeed("dataset/" + program + "_CFDGF @rand.seed", count))
-    print()
+    # ana.sendCmpid(TRACE_CMPGUARDSYMBOL)
+    # print("TRACE_CMPGUARDSYMBOL")
+    # data.append(expSpeed("dataset/" + program + "_CFDGF "+args, count))
+    # print()
 
     saveToexcel(excel, [data])
 
 
 def experiment():
-    execProgram("cxxfilt", 100, "SpeedCmpInstruction.xlsx")
+    seed = "dataset/rand.seed"
+    execProgram("as", seed, 10, "SpeedCmpInstruction.xlsx")
+    execProgram("base64", " -d "+seed, 10, "SpeedCmpInstruction.xlsx")
+    execProgram("c++filt", "@"+seed, 10, "SpeedCmpInstruction.xlsx")
+    execProgram("md5sum", seed, 10, "SpeedCmpInstruction.xlsx")
+    execProgram("readelf", seed, 10, "SpeedCmpInstruction.xlsx")
+    execProgram("strings", seed, 10, "SpeedCmpInstruction.xlsx")
+    execProgram("uniq", seed, 10, "SpeedCmpInstruction.xlsx")
 
 
 '''
@@ -225,12 +254,13 @@ def genPicture(filename, ):
     labels = splitValue(excel_data[1:], 0)
     gcc_list = splitValue(excel_data[1:], 1)
     clang_list = splitValue(excel_data[1:], 2)
-    aflgo_list = splitValue(excel_data[1:], 3)
-    sanitize_list = splitValue(excel_data[1:], 4)
-    CFDGF_guard_list = splitValue(excel_data[1:], 5)
-    CFDGF_filter_list = splitValue(excel_data[1:], 6)
-    CFDGF_symbol_list = splitValue(excel_data[1:], 7)
-    print(gcc_list, clang_list, aflgo_list, sanitize_list, CFDGF_guard_list, CFDGF_filter_list, CFDGF_symbol_list)
+    # aflgo_list = splitValue(excel_data[1:], 3)
+    sanitizer_list = splitValue(excel_data[1:], 3)
+    # CFDGF_guard_list = splitValue(excel_data[1:], 4)
+    CFDGF_filter_list = splitValue(excel_data[1:], 4)
+    # CFDGF_symbol_list = splitValue(excel_data[1:], 7)
+    # print(gcc_list, clang_list, aflgo_list, sanitizer_list, CFDGF_guard_list, CFDGF_filter_list, CFDGF_symbol_list)
+    print(gcc_list, clang_list, sanitizer_list, CFDGF_filter_list)
 
     x = np.arange(len(labels))  # the label locations
     width = 0.2  # the width of the bars
@@ -239,21 +269,26 @@ def genPicture(filename, ):
     # rects1 = ax.bar(x - 3 * width, gcc_list, width, label='gcc')
     # rects2 = ax.bar(x - 2 * width, clang_list, width, label='clang')
     # rects3 = ax.bar(x - 1 * width, aflgo_list, width, label='aflgo')
-    # rects4 = ax.bar(x, sanitize_list, width, label='sanitize')
+    # rects4 = ax.bar(x, sanitizer_list, width, label='sanitizer')
     # rects5 = ax.bar(x + 1 * width, CFDGF_guard_list, width, label='CFDGF_guard')
     # rects6 = ax.bar(x + 2 * width, CFDGF_filter_list, width, label='CFDGF_filter')
     # rects7 = ax.bar(x + 3 * width, CFDGF_symbol_list, width, label='CFDGF_symbol')
 
-    rects1 = ax.bar(x - 2.5*width, gcc_list, width, label='gcc')
-    rects2 = ax.bar(x - 1.5*width, clang_list, width, label='clang')
-    rects3 = ax.bar(x - 0.5*width, aflgo_list, width, label='aflgo')
-    rects4 = ax.bar(x + 0.5*width, sanitize_list, width, label='sanitize')
-    rects5 = ax.bar(x + 1.5*width, CFDGF_guard_list, width, label='CFDGF_guard')
-    rects6 = ax.bar(x + 2.5*width, CFDGF_filter_list, width, label='CFDGF_filter')
+    # rects1 = ax.bar(x - 2.5*width, gcc_list, width, label='gcc')
+    # rects2 = ax.bar(x - 1.5*width, clang_list, width, label='clang')
+    # rects3 = ax.bar(x - 0.5*width, aflgo_list, width, label='aflgo')
+    # rects4 = ax.bar(x + 0.5*width, sanitizer_list, width, label='sanitizer')
+    # rects5 = ax.bar(x + 1.5*width, CFDGF_guard_list, width, label='CFDGF_guard')
+    # rects6 = ax.bar(x + 2.5*width, CFDGF_filter_list, width, label='CFDGF_filter')
+
+    rects1 = ax.bar(x - 1.5 * width, gcc_list, width, label='gcc')
+    rects2 = ax.bar(x - 0.5 * width, clang_list, width, label='clang')
+    rects3 = ax.bar(x + 0.5 * width, sanitizer_list, width, label='sanitizer')
+    rects4 = ax.bar(x + 1.5 * width, CFDGF_filter_list, width, label='CFDGF')
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
     ax.set_ylabel('Time')
-    ax.set_title('Speed of compare instruction')
+    # ax.set_title('Speed of compare instruction')
     ax.set_xticks(x, labels)
     ax.legend()
 
@@ -261,8 +296,8 @@ def genPicture(filename, ):
     ax.bar_label(rects2, padding=0, fmt="", fontsize=0)
     ax.bar_label(rects3, padding=0, fmt="", fontsize=0)
     ax.bar_label(rects4, padding=0, fmt="", fontsize=0)
-    ax.bar_label(rects5, padding=0, fmt="", fontsize=0)
-    ax.bar_label(rects6, padding=0, fmt="", fontsize=0)
+    # ax.bar_label(rects5, padding=0, fmt="", fontsize=0)
+    # ax.bar_label(rects6, padding=0, fmt="", fontsize=0)
     # ax.bar_label(rects7, padding=0, fmt="", fontsize=0)
 
     fig.tight_layout()
@@ -271,6 +306,11 @@ def genPicture(filename, ):
     plt.show()
 
 
+
+
 if __name__ == '__main__':
     # experiment()
     genPicture("SpeedCmpInstruction.xlsx")
+
+
+
