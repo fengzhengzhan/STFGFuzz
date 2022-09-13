@@ -3,7 +3,7 @@ import os
 
 filename = "crashinfo/" + "info"
 # outfilename = "crashinfo/" + "info" + "_format"
-outfilename = "crashinfo/" + "4487guard_"
+outfilename = "crashinfo/" + "tiffcp_"
 
 with open(filename, "r") as f:
     cont = f.read()

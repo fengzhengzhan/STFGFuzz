@@ -47,7 +47,7 @@ class Scheduler:
 
     def initEachloop(self, vis):
         vis.cmpnum, vis.cmptotal = 0, 0
-        self.expand_size *= SCH_EXPAND_MULTI
+        # self.expand_size *= SCH_EXPAND_MULTI  # #fixed the length of size
 
     '''
     Seed Operation
@@ -251,6 +251,7 @@ class Scheduler:
                 LOG(DEBUG, LOC(), trace_i)
                 cmpid = trace_i[0]
                 cmptype = trace_i[1]
+                symbol_debug = trace_i[2]
                 if cmptype == EACH_PC_GUARD:
                     # pc_guard to update the Calibration Distance.
                     realguard = trace_i[2]
@@ -308,7 +309,8 @@ class Scheduler:
                         # self.target_cmp.put((distance - vis.loop, cmpid))
                         vis.cur_min_dis = min(vis.cur_min_dis, distance)
                         if distance <= LIMITER:
-                            self.targetcmp_pq.put((distance, cmpid, disdup_cmpiddict[cmpid]))
+                            # self.targetcmp_pq.put((distance, cmpid, disdup_cmpiddict[cmpid]))
+                            self.targetcmp_pq.put((distance, cmpid, disdup_cmpiddict[cmpid], symbol_debug))
                         LOG(DEBUG, LOC(), distance - vis.loop, cmpid, trace_i)
             LOG(DEBUG, LOC(), map_tgtpredgvid_dis, self.trans_symbol_initguard)
             LOG(DEBUG, LOC(), tgtpred_offset, trans_guard_gvid)

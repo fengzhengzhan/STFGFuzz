@@ -169,7 +169,7 @@ def mainFuzzer():
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         # cmpcov_list = ana.getRpt(init_interlen)
         # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch)
-        LOG(DEBUG, LOC(), init_seed.content, init_stdout, init_interlen, init_covernum)
+        LOG(DEBUG, LOC(), init_seed.content, init_stdout, init_interlen, init_covernum, show=True)
 
 
         # Select the location to be mutated and add it to the location queue.
@@ -223,41 +223,41 @@ def mainFuzzer():
                 sch.quitFuzz()
 
         # Subtract seed length.
-        if len(b4ld_seed.content) == b4len:
-            while len(b4ld_seed.content) > b4len // 2:
-            # while True:
-                vis.total += 1
-                # According fixed length to expand the content length of seed.
-                ld_seed = Mutator.mutSubLength(b4ld_seed.content, path.seeds_mutate, len(b4ld_seed.content)//LD_SUB)
-                ld_seed = sch.selectOneSeed(SCH_THISMUT_SEED, ld_seed)
-                ld_stdout, ld_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, ld_seed.filename))
-                eaexit = sch.saveCrash(ld_seed, ld_stdout, ld_stderr, vis)
-
-                # 1 seed inputs
-                ld_interlen, ld_covernum = ana.getShm(ld_stdout[0:16])
-                LOG(DEBUG, LOC(), len(ld_seed.content), b4ld_interlen, ld_interlen, ana.getRpt(ld_interlen))
-                if b4ld_interlen != ld_interlen:
-                    break
-                elif b4ld_interlen == ld_interlen:
-                    # Current seed.
-                    ld_cmpcov_list = ana.getRpt(ld_interlen)  # report
-                    # Before seed.
-                    vis.total += 1
-                    b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, b4ld_seed.filename))
-                    b4ld_interlen, b4ld_covernum = ana.getShm(b4ld_stdout[0:16])
-                    b4ld_cmpcov_list = ana.getRpt(b4ld_interlen)
-                    LOG(DEBUG, LOC(), ld_seed.filename, b4ld_seed.filename, ld_cmpcov_list, b4ld_cmpcov_list)
-                    if ld_cmpcov_list != b4ld_cmpcov_list:
-                        break
-                    else:
-                        b4ld_seed = ld_seed
-                        b4ld_interlen = ld_interlen
-
-                res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, STG_LD, -1, sch)
-                # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
-                if res == VIS_Q:
-                    sch.quitFuzz()
-        LOG(DEBUG, LOC(), b4ld_seed.content)
+        # if len(b4ld_seed.content) == b4len:
+        #     while len(b4ld_seed.content) > b4len // 2:
+        #     # while True:
+        #         vis.total += 1
+        #         # According fixed length to expand the content length of seed.
+        #         ld_seed = Mutator.mutSubLength(b4ld_seed.content, path.seeds_mutate, len(b4ld_seed.content)//LD_SUB)
+        #         ld_seed = sch.selectOneSeed(SCH_THISMUT_SEED, ld_seed)
+        #         ld_stdout, ld_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, ld_seed.filename))
+        #         eaexit = sch.saveCrash(ld_seed, ld_stdout, ld_stderr, vis)
+        #
+        #         # 1 seed inputs
+        #         ld_interlen, ld_covernum = ana.getShm(ld_stdout[0:16])
+        #         LOG(DEBUG, LOC(), len(ld_seed.content), b4ld_interlen, ld_interlen, ana.getRpt(ld_interlen))
+        #         if b4ld_interlen != ld_interlen:
+        #             break
+        #         elif b4ld_interlen == ld_interlen:
+        #             # Current seed.
+        #             ld_cmpcov_list = ana.getRpt(ld_interlen)  # report
+        #             # Before seed.
+        #             vis.total += 1
+        #             b4ld_stdout, b4ld_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, b4ld_seed.filename))
+        #             b4ld_interlen, b4ld_covernum = ana.getShm(b4ld_stdout[0:16])
+        #             b4ld_cmpcov_list = ana.getRpt(b4ld_interlen)
+        #             LOG(DEBUG, LOC(), ld_seed.filename, b4ld_seed.filename, ld_cmpcov_list, b4ld_cmpcov_list)
+        #             if ld_cmpcov_list != b4ld_cmpcov_list:
+        #                 break
+        #             else:
+        #                 b4ld_seed = ld_seed
+        #                 b4ld_interlen = ld_interlen
+        #
+        #         res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, STG_LD, -1, sch)
+        #         # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
+        #         if res == VIS_Q:
+        #             sch.quitFuzz()
+        LOG(DEBUG, LOC(), b4ld_seed.content, show=True)
         '''ld <-'''
 
         # print("{} cf...".format(getTime()))
@@ -335,14 +335,15 @@ def mainFuzzer():
         while not eaexit and not sch.targetcmp_pq.empty():
 
             stcmpid_tuples = sch.targetcmp_pq.get()
-            stcmpid_weight, stcmpid_ki, stcmpid_loci = stcmpid_tuples[0], stcmpid_tuples[1], stcmpid_tuples[2]*2
-            LOG(DEBUG, LOC(), stcmpid_weight, stcmpid_ki, stcmpid_loci, show=True)
+            stcmpid_weight, stcmpid_ki, stcmpid_loci, stcmpid_symboldebug = \
+                stcmpid_tuples[0], stcmpid_tuples[1], stcmpid_tuples[2]*2, stcmpid_tuples[3]
+            LOG(DEBUG, LOC(), stcmpid_weight, stcmpid_ki, stcmpid_loci, stcmpid_symboldebug, show=True)
             vis.cmpnum += 1
             vis.cmporder = 0
 
             # limiter Use it from select constraint.
-            # if stcmpid_weight - sch.cur_nearlydis >= LIMITER:
-            #     break
+            if stcmpid_weight - sch.cur_nearlydis >= LIMITER:
+                break
             LOG(DEBUG, LOC(), sch.skipInvalidState(stcmpid_ki, {stcmpid_ki: {0}}))
             if sch.skipInvalidState(stcmpid_ki, {stcmpid_ki: {0}}):
                 continue
@@ -510,7 +511,7 @@ def mainFuzzer():
                     if len(bd_cmpcov_list) != 0 and ana.compareRptDiff(ststart_cmpcov_list, bd_cmpcov_list, cmporder_j):
                         st_cmploc.append(one_loc)
 
-                LOG(DEBUG, LOC(), st_cmploc, show=True)
+                LOG(DEBUG, LOC(), st_cmploc)
                 '''bd <-'''
 
                 ana.sendCmpid(stcmpid_ki)
@@ -540,7 +541,7 @@ def mainFuzzer():
                     opt_cmpcov_list, cmporder_j, strategy_flag, cmp_flag, bytes_flag, st_cmploc)
                 sch.strategyq.put(infer_strategy)
 
-                LOG(DEBUG, LOC(), infer_strategy.curloop, infer_strategy.endloop, infer_strategy.strategytype, show=True)
+                LOG(DEBUG, LOC(), infer_strategy.curloop, infer_strategy.endloop, infer_strategy.strategytype)
                 if bytes_flag == PAR_FIXAFIX:
                     continue
 
@@ -562,7 +563,7 @@ def mainFuzzer():
                     if strategy == None:
                         strategy = sch.strategyq.get()
 
-                    LOG(DEBUG, LOC(), strategy.curloop, strategy.endloop, show=True)
+                    LOG(DEBUG, LOC(), strategy.curloop, strategy.endloop)
                     # Type Detection and Breaking the Constraint Cycle (At lease 1 loops)
                     if strategy.curloop >= strategy.endloop:
                         strategy = None
@@ -610,11 +611,11 @@ def mainFuzzer():
                                 path.seeds_mutate, ST_STR + str(vis.loop), locmapdet_dict
                             )
                             st_seed = sch.selectOneSeed(SCH_THISMUT_SEED, st_seed)
-                        LOG(DEBUG, LOC(), st_seed.content, opt_seed.content, locmapdet_dict, show=True)
-                        LOG(DEBUG, LOC(), fuzz_command.replace(REPLACE_COMMAND, st_seed.filename), show=True)
+                        LOG(DEBUG, LOC(), st_seed.content, opt_seed.content, locmapdet_dict)
+                        LOG(DEBUG, LOC(), fuzz_command.replace(REPLACE_COMMAND, st_seed.filename))
                         vis.total += 1
                         st_stdout, st_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, st_seed.filename))
-                        LOG(DEBUG, LOC(), "after run", show=True)
+                        LOG(DEBUG, LOC(), "after run")
                         # 5 visualize
                         res = vis.display(
                             opt_seed, set(st_cmploc), st_stdout, st_stderr, STG_ST, stcmpid_weight, sch)
@@ -628,14 +629,14 @@ def mainFuzzer():
                         st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
                         st_cmpcov_list = ana.getRpt(st_interlen)
 
-                        LOG(DEBUG, LOC(), st_cmpcov_list, show=True)
+                        LOG(DEBUG, LOC(), st_cmpcov_list)
                         LOG(DEBUG, LOC(), strategy.curnum, strategy.endnum, strategy.curloop,
                             strategy.endloop, st_cmploc, locmapdet_dict, opt_seed.content, st_seed.content)
                         # Returns the status and the character to be mutated
                         # Comparison of global optimal values to achieve updated parameters
                         opt_seed, opt_cmpcov_list, exe_status = Parser.solveDistence(
                             strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmporder_j)
-                        LOG(DEBUG, LOC(), exe_status, show=True)
+                        LOG(DEBUG, LOC(), exe_status)
 
                         strategy.curnum += 1
                         if exe_status == DIST_FINISH:
@@ -648,7 +649,7 @@ def mainFuzzer():
                             vis.total += 1
                             ana.sendCmpid(TRACE_GUARDFAST)
                             trace_stdout, trace_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, opt_seed.filename))
-                            LOG(DEBUG, LOC(), trace_stdout, trace_stderr, show=True)
+                            LOG(DEBUG, LOC(), trace_stdout, trace_stderr)
                             eaexit = sch.saveCrash(opt_seed, trace_stdout, trace_stderr, vis)
 
 
@@ -661,7 +662,7 @@ def mainFuzzer():
                                 if near_dis < sch.cur_nearlydis:
                                     eaexit = True
                                 sch.addq(SCH_LOOP_SEED, [opt_seed, ])
-                                LOG(DEBUG, LOC(), eaexit, strategy.curloop, strategy.endloop, near_dis, sch.cur_nearlydis, show=True)
+                                LOG(DEBUG, LOC(), eaexit, strategy.curloop, strategy.endloop, near_dis, sch.cur_nearlydis)
                             ana.sendCmpid(stcmpid_ki)
                             break
 

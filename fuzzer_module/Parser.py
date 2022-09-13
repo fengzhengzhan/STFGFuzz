@@ -227,7 +227,7 @@ def solveChangeMap(strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_num)
         else:
             cont_list = [opt_one[IDX_ARG], opt_one[IDX_ARG + 1]]
 
-        LOG(DEBUG, LOC(), cont_list, show=True)
+        LOG(DEBUG, LOC(), cont_list)
         if strategy.strategytype == TYPE_DEFAULT:
             change_inputmap = handleRandom(st_cmploc)
         elif strategy.strategytype == TYPE_UNDEFINED:
