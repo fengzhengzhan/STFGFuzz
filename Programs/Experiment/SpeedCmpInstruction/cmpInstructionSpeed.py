@@ -302,7 +302,7 @@ def genPicture(filename, ):
 
     fig.tight_layout()
 
-    plt.savefig('./cmpInstructionSpeed.jpg')
+    plt.savefig('./cmpInstructionSpeed.png', dpi=300)
     plt.show()
 
 

@@ -107,6 +107,15 @@ def getLocInputValue(content, location):
         loc_input[one_loc] = content[one_loc:one_loc + 1]
     return loc_input
 
+def calPriotiryValue(distance, coverage, length) -> int:
+    bit_dis = 100000000
+    bit_cover = 1000
+    cover_multiple = 100000
+    bit_length = 1
+
+    priority_value = distance*bit_dis + (1/(coverage+1))*cover_multiple*bit_cover + length*bit_length
+    return priority_value
+
 
 if __name__ == "__main__":
     # print(delBrackets("bug"))

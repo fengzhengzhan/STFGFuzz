@@ -11,7 +11,7 @@ from .Structures import *
 
 class Scheduler:
     def __init__(self):
-        self.seedq: Queue[StructSeed] = Queue()
+        self.seedq = PriorityQueue()  # priority value depend on distance, coverage and length.
         self.mutateq: Queue[StructSeed] = Queue()
         self.importantq: Queue[StructSeed] = Queue()
         self.delq: Queue[StructSeed] = Queue()
@@ -57,7 +57,7 @@ class Scheduler:
         temp_one = None
         if mode == SCH_LOOP_SEED:
             if not self.seedq.empty():
-                temp_one = self.seedq.get()
+                priority_value, temp_one = self.seedq.get()
             self.delq.put(temp_one)
         elif mode == SCH_MUT_SEED:
             if not self.mutateq.empty():
@@ -73,14 +73,15 @@ class Scheduler:
         if temp_one == None:
             raise Exception("Error: seed None.")
         if SCH_SAVEASFILE:
+            # print(temp_one)
             saveAsFile(temp_one.content, temp_one.filename)
 
         return temp_one
 
-    def addq(self, mode: int, struct_list: 'list[StructSeed]'):
+    def addq(self, mode: int, struct_list: 'list[StructSeed]', seed_priority=USE_INITMAXNUM):
         for each in struct_list:
             if mode == SCH_LOOP_SEED:
-                self.seedq.put(each)
+                self.seedq.put((seed_priority, each))
             elif mode == SCH_MUT_SEED:
                 self.mutateq.put(each)
 

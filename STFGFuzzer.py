@@ -115,7 +115,9 @@ def mainFuzzer():
 
     sch.file_crash_csv = file_crash_csv
     sch.path_crashseeds = path.seeds_crash
+
     # Init Loop Variables
+    loop_weight, loop_covernum = USE_INITMAXNUM, 1
 
     # Init seed lists
     print("{} Init Seed lists...".format(getTime()))
@@ -127,10 +129,11 @@ def mainFuzzer():
             temp_listq.append(
                 Structures.StructSeed(path.seeds_mutate + each, readContent(path.seeds_mutate + each), SEED_INIT,
                                       set()))
-        sch.addq(SCH_LOOP_SEED, temp_listq)
+        sch.addq(SCH_LOOP_SEED, temp_listq, calPriotiryValue(loop_weight, 0, 0))
     else:
         sch.addq(SCH_LOOP_SEED,
-                 [Structures.StructSeed(path.seeds_mutate + AUTO_SEED, Mutator.getExpandFillStr(SCH_EXPAND_SIZE), SEED_INIT, set()), ])
+                 [Structures.StructSeed(path.seeds_mutate + AUTO_SEED, Mutator.getExpandFillStr(SCH_EXPAND_SIZE), SEED_INIT, set()), ],
+                 calPriotiryValue(loop_weight, 0, 0))
 
     # Create Memory Share.
     ana = Analyzer.Analyzer()
@@ -169,6 +172,7 @@ def mainFuzzer():
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         # cmpcov_list = ana.getRpt(init_interlen)
         # initrpt_dict, initrpt_set = ana.traceAyalysis(cmpcovcont_list, sch.freezeid_rpt, sch)
+        loop_covernum = init_covernum
         LOG(DEBUG, LOC(), init_seed.content, init_stdout, init_interlen, init_covernum, show=True)
 
 
@@ -573,16 +577,17 @@ def mainFuzzer():
                     strategy.curnum = 0
                     LOG(DEBUG, LOC(), eaexit)
                     if strategy.strategytype == STAT_FIN:
-                        cmpidorder = getCmpidOrder(stcmpid_ki, cmporder_j)
-                        if cmpidorder not in sch.pass_cmp_dict:
-                            sch.pass_cmp_dict[cmpidorder] = \
+                        cmpid_order = getCmpidOrder(stcmpid_ki, cmporder_j)
+                        if cmpid_order not in sch.pass_cmp_dict:
+                            sch.pass_cmp_dict[cmpid_order] = \
                                 Structures.StructCmpInfo(stcmpid_ki, cmporder_j,
                                                          getLocInputValue(opt_seed.content, st_cmploc))
                         # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
                         vis.total += 1
                         opt_stdout, opt_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, opt_seed.filename))
                         if len(opt_stderr) == 0:
-                            sch.addq(SCH_LOOP_SEED, [opt_seed, ])
+                            sch.addq(SCH_LOOP_SEED, [opt_seed, ],
+                                     calPriotiryValue(stcmpid_weight, st_covernum, len(opt_seed.content)))
                         break
 
                     while not eaexit and strategy.curnum < strategy.endnum:
@@ -640,9 +645,9 @@ def mainFuzzer():
 
                         strategy.curnum += 1
                         if exe_status == DIST_FINISH:
-                            cmpidorder = getCmpidOrder(stcmpid_ki, cmporder_j)
-                            if cmpidorder not in sch.pass_cmp_dict:
-                                sch.pass_cmp_dict[cmpidorder] = \
+                            cmpid_order = getCmpidOrder(stcmpid_ki, cmporder_j)
+                            if cmpid_order not in sch.pass_cmp_dict:
+                                sch.pass_cmp_dict[cmpid_order] = \
                                     Structures.StructCmpInfo(stcmpid_ki, cmporder_j,
                                                              getLocInputValue(opt_seed.content, st_cmploc))
                             # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
@@ -661,7 +666,8 @@ def mainFuzzer():
                                 LOG(DEBUG, LOC(), near_dis, sch.cur_nearlydis)
                                 if near_dis < sch.cur_nearlydis:
                                     eaexit = True
-                                sch.addq(SCH_LOOP_SEED, [opt_seed, ])
+                                sch.addq(SCH_LOOP_SEED, [opt_seed, ],
+                                         calPriotiryValue(near_dis, st_covernum, len(opt_seed.content)))
                                 LOG(DEBUG, LOC(), eaexit, strategy.curloop, strategy.endloop, near_dis, sch.cur_nearlydis)
                             ana.sendCmpid(stcmpid_ki)
                             break
@@ -676,7 +682,16 @@ def mainFuzzer():
         sch.targetcmp_pq.queue.clear()
         sch.deleteSeeds(SCH_THIS_SEED)
         if sch.seedq.empty():
-            sch.addq(SCH_LOOP_SEED, [init_seed, ])
+            sch.addq(SCH_LOOP_SEED, [init_seed, ], calPriotiryValue(loop_weight, init_covernum, len(init_seed.content)))
+
+        # xxx = 0
+        # if xxx < 1:
+        #     xxx += 1
+        # else:
+        #     while not sch.seedq.empty():
+        #         tmp_seed = sch.seedq.get()
+        #         LOG(DEBUG, LOC(), tmp_seed[0], tmp_seed[1].content,show=True)
+        #     raise Exception
 
         # Mutual mapping relationship
         # Key: cmpid  Value: branch_order cmp_type input_bytes branches

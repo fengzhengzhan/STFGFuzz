@@ -197,7 +197,7 @@ def genPicture(filename, ):
     plt.ylabel("execution speed (s)")  # 纵坐标名字
     # plt.title("Relationship between input size and execution speed")
     plt.legend(loc="best")  # 图例
-    plt.savefig('./SeedLengthSpeed.jpg')
+    plt.savefig('./SeedLengthSpeed.png', dpi=300)
     plt.show()
 
 
