@@ -81,6 +81,7 @@ class Scheduler:
     def addq(self, mode: int, struct_list: 'list[StructSeed]', seed_priority=USE_INITMAXNUM):
         for each in struct_list:
             if mode == SCH_LOOP_SEED:
+                LOG(DEBUG, LOC(), (seed_priority, each), show=True)
                 self.seedq.put((seed_priority, each))
             elif mode == SCH_MUT_SEED:
                 self.mutateq.put(each)
@@ -113,14 +114,25 @@ class Scheduler:
         @return:
         """
         tgtsan = False
+        crashid = str(stderr)[-16:-3]
         if self.file_crash_csv != None and self.path_crashseeds != None:
             path, name = os.path.split(seed.filename)
-            if not os.path.exists(self.path_crashseeds + name) and len(stderr) != 0:
+            # if not os.path.exists(self.path_crashseeds + name) and len(stderr) != 0:
+
+            if len(stderr) != 0:
                 try:
+                    # Skip Sanitizer
+                    re_str = "Sanitizer"
+                    crashtype = re.search(re_str, str(stderr))
+                    if crashtype == None:
+                        return tgtsan
+
+                    # Skip LeakSanitizer
                     re_str = "==ERROR: (.*?): "
                     crashtype = re.search(re_str, str(stderr)).group(1)
                     if crashtype in SCH_SKIPCRASH_SET:
                         return tgtsan
+
                     re_str = "#0 (.*?) in"
                     crashid = re.search(re_str, str(stderr)).group(1)
                     # Compare sanitizer similarity
@@ -144,8 +156,9 @@ class Scheduler:
                         self.target_crashinfo.append(crash_infostr)
                     LOG(DEBUG, LOC(), tgtsan, self.cur_tgtnum)
                 except Exception as e:
-                    crashid = str(stderr)[-16:-3]  #
+                    LOG(DEBUG, LOC(), e) #
 
+            if not os.path.exists(self.path_crashseeds + name) and len(stderr) != 0:
                 if crashid not in self.recunique_crash:
                     vis.crash_num += 1
                     vis.last_crash_time = vis.last_time

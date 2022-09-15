@@ -42,6 +42,9 @@ class StructSeed:
         self.location = location  # -1 as the init seed
         self.priority = priority
 
+    def __lt__(self, other):
+        return len(self.content) > len(other.content)
+
 
 # class StructCmpIns:
 #     def __init__(self, stcmpid, startguard, endguard, stvalue:list, stargs):

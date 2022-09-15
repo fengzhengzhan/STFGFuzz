@@ -117,7 +117,7 @@ def mainFuzzer():
     sch.path_crashseeds = path.seeds_crash
 
     # Init Loop Variables
-    loop_weight, loop_covernum = USE_INITMAXNUM, 1
+    loop_weight, loop_covernum, loop_mutloc = USE_INITMAXNUM, 1, set()
 
     # Init seed lists
     print("{} Init Seed lists...".format(getTime()))
@@ -151,6 +151,7 @@ def mainFuzzer():
     vis.show_pname = program_name
     # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
     while sch.cur_tgtnum < sch.all_tgtnum and not sch.seedq.empty():
+        loop_mutloc = set()
         eaexit = False
         vis.loop += 1
         # print("{} loop...".format(getTime()))
@@ -376,10 +377,11 @@ def mainFuzzer():
             # Only the corresponding list data is retained, no parsing is required
             cmp_len = len(init_cmpcov_list)
             exloc_list = sch.extensionLocation(stcmpid_loci, cmp_len)
-            # LOG(LOG_DEBUG, LOG_FUNCINFO(), exloc_list, showlog=True)
+            # LOG(DEBUG, LOC(), exloc_list, show=True)
             # Separate comparisons for each comparison instruction.
             # for cmporder_j in range(0, cmp_len):
             for cmporder_j in exloc_list:
+                # LOG(DEBUG, LOC(), cmporder_j, show=True)
 
                 vis.cmporder += 1
                 if eaexit:
@@ -448,7 +450,7 @@ def mainFuzzer():
                     slid_window = max(len(slid_list) // SCH_SLID_SLICE, SCH_SLID_MIN)
 
                     # before_sdloc_list = sdloc_list
-                LOG(DEBUG, LOC(), init_seed.content, cmpmaploc_dict)
+                LOG(DEBUG, LOC(), init_seed.content, cmpmaploc_dict, show=True)
 
                 # raise Exception()
                 '''sd <-'''
@@ -516,6 +518,9 @@ def mainFuzzer():
                         st_cmploc.append(one_loc)
 
                 LOG(DEBUG, LOC(), st_cmploc)
+                if len(set(st_cmploc) - loop_mutloc) <= 0:
+                    break
+                loop_mutloc = set(st_cmploc) | loop_mutloc
                 '''bd <-'''
 
                 ana.sendCmpid(stcmpid_ki)
@@ -549,7 +554,7 @@ def mainFuzzer():
                 if bytes_flag == PAR_FIXAFIX:
                     continue
 
-                LOG(DEBUG, LOC(), strategy_flag, bytes_flag, opt_cmpcov_list, ststart_cmpcov_list)
+                LOG(DEBUG, LOC(), strategy_flag, bytes_flag, opt_cmpcov_list, ststart_cmpcov_list, show=True)
 
                 # fixme
                 # opt_seed = Mutator.mutLocFromMap(opt_seed, opt_seed.content, path.seeds_mutate, ST_STR + str(vis.loop),
@@ -632,6 +637,9 @@ def mainFuzzer():
                         # 2 cmp instruction
                         # Generate analysis reports.
                         st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
+                        if st_covernum > loop_covernum:
+                            sch.addq(SCH_LOOP_SEED, [st_seed, ], calPriotiryValue(stcmpid_weight, st_covernum, len(st_seed.content)))
+                            loop_covernum = st_covernum
                         st_cmpcov_list = ana.getRpt(st_interlen)
 
                         LOG(DEBUG, LOC(), st_cmpcov_list)
@@ -692,6 +700,10 @@ def mainFuzzer():
         #         tmp_seed = sch.seedq.get()
         #         LOG(DEBUG, LOC(), tmp_seed[0], tmp_seed[1].content,show=True)
         #     raise Exception
+        # while not sch.seedq.empty():
+        #     tmp_seed = sch.seedq.get()
+        #     LOG(DEBUG, LOC(), tmp_seed[0], tmp_seed[1].content,show=True)
+        # raise Exception
 
         # Mutual mapping relationship
         # Key: cmpid  Value: branch_order cmp_type input_bytes branches

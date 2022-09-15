@@ -131,7 +131,8 @@ def handleMagicNum(st_cmploc, cont_list, strategy):
     else:
         strategy.strategytype = TYPE_CHECKNUM
         strategy.curnum = 0
-        strategy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
+        # strategy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
+        strategy.endnum = len(st_cmploc) * 256
 
     LOG(DEBUG, LOC(), strategy.curnum, change_inputmap, show=True)
 
@@ -153,40 +154,72 @@ def handleMagicBytes(st_cmploc, cont_list, strategy):
     else:
         strategy.strategytype = TYPE_CHECKBYTES
         strategy.curnum = 0
-        strategy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
+        # strategy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
+        strategy.endnum = len(st_cmploc) * 256
 
     return change_inputmap
 
 
+# def handleChecksums(ret_seed, st_loc, strategy):
+#     change_inputmap = {}
+#     if strategy.curnum < strategy.endnum:
+#         ci = strategy.curnum // 16
+#         cb = strategy.curnum % 16
+#         pre = MUT_BIT_LIST[cb]
+#         while ci >= 0:
+#             if ci < len(st_loc) and st_loc[ci] < len(ret_seed.content):
+#                 n = ret_seed.content[st_loc[ci]] + pre
+#                 LOG(DEBUG, LOC(), ret_seed.content[st_loc[ci]], pre, n)
+#                 stloc = st_loc[ci]
+#             else:
+#                 n = pre
+#                 stloc = st_loc[-1] + ci - len(st_loc) + 1
+#             # Add
+#             if n >= PAR_BIT_BASE:
+#                 now = n % PAR_BIT_BASE
+#                 pre = n // PAR_BIT_BASE
+#                 change_inputmap[stloc] = BYTES_ASCII[now]
+#             # Sub
+#             elif n < 0:
+#                 now = (n + PAR_BIT_BASE) % PAR_BIT_BASE
+#                 pre = n // PAR_BIT_BASE
+#                 change_inputmap[stloc] = BYTES_ASCII[now]
+#             # Exit
+#             elif 0 <= n < PAR_BIT_BASE:
+#                 change_inputmap[stloc] = BYTES_ASCII[n]
+#                 break
+#             ci -= 1
+#     return change_inputmap
+
 def handleChecksums(ret_seed, st_loc, strategy):
     change_inputmap = {}
     if strategy.curnum < strategy.endnum:
-        ci = strategy.curnum // 16
-        cb = strategy.curnum % 16
-        pre = MUT_BIT_LIST[cb]
-        while ci >= 0:
-            if ci < len(st_loc) and st_loc[ci] < len(ret_seed.content):
-                n = ret_seed.content[st_loc[ci]] + pre
-                LOG(DEBUG, LOC(), ret_seed.content[st_loc[ci]], pre, n)
-                stloc = st_loc[ci]
-            else:
-                n = pre
-                stloc = st_loc[-1] + ci - len(st_loc) + 1
-            # Add
-            if n >= PAR_BIT_BASE:
-                now = n % PAR_BIT_BASE
-                pre = n // PAR_BIT_BASE
-                change_inputmap[stloc] = BYTES_ASCII[now]
-            # Sub
-            elif n < 0:
-                now = (n + PAR_BIT_BASE) % PAR_BIT_BASE
-                pre = n // PAR_BIT_BASE
-                change_inputmap[stloc] = BYTES_ASCII[now]
-            # Exit
-            elif 0 <= n < PAR_BIT_BASE:
-                change_inputmap[stloc] = BYTES_ASCII[n]
-                break
-            ci -= 1
+        ci = strategy.curnum // 256
+        cb = strategy.curnum % 256
+        change_inputmap[st_loc[ci]] = BYTES_ASCII[cb]
+        # while ci >= 0:
+        #     if ci < len(st_loc) and st_loc[ci] < len(ret_seed.content):
+        #         n = ret_seed.content[st_loc[ci]] + pre
+        #         LOG(DEBUG, LOC(), ret_seed.content[st_loc[ci]], pre, n)
+        #         stloc = st_loc[ci]
+        #     else:
+        #         n = pre
+        #         stloc = st_loc[-1] + ci - len(st_loc) + 1
+        #     # Add
+        #     if n >= PAR_BIT_BASE:
+        #         now = n % PAR_BIT_BASE
+        #         pre = n // PAR_BIT_BASE
+        #         change_inputmap[stloc] = BYTES_ASCII[now]
+        #     # Sub
+        #     elif n < 0:
+        #         now = (n + PAR_BIT_BASE) % PAR_BIT_BASE
+        #         pre = n // PAR_BIT_BASE
+        #         change_inputmap[stloc] = BYTES_ASCII[now]
+        #     # Exit
+        #     elif 0 <= n < PAR_BIT_BASE:
+        #         change_inputmap[stloc] = BYTES_ASCII[n]
+        #         break
+        #     ci -= 1
     return change_inputmap
 
 
@@ -403,7 +436,8 @@ def devStrategy(opt_cmpcov_list, cmporder_i, strategy_flag, cmp_flag, bytes_flag
     elif strategy_flag == TYPE_MAGICBYTES:
         temp_stgy.endnum = 3
     else:
-        temp_stgy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)  # Can't reach.
+        # temp_stgy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)  # Can't reach.
+        temp_stgy.endnum = len(st_cmploc) * 256  # Can't reach.
 
     temp_stgy.curloop = 0
     temp_stgy.endloop = 1
