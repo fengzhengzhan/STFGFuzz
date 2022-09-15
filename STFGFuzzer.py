@@ -517,10 +517,11 @@ def mainFuzzer():
                     if len(bd_cmpcov_list) != 0 and ana.compareRptDiff(ststart_cmpcov_list, bd_cmpcov_list, cmporder_j):
                         st_cmploc.append(one_loc)
 
-                LOG(DEBUG, LOC(), st_cmploc)
+                LOG(DEBUG, LOC(), st_cmploc, loop_mutloc, len(set(st_cmploc) - loop_mutloc), show=True)
                 if len(set(st_cmploc) - loop_mutloc) <= 0:
                     break
                 loop_mutloc = set(st_cmploc) | loop_mutloc
+
                 '''bd <-'''
 
                 ana.sendCmpid(stcmpid_ki)
@@ -540,6 +541,9 @@ def mainFuzzer():
                 eaexit = sch.saveCrash(st_seed, st_stdout, st_stderr, vis)
                 st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
                 st_cmpcov_list = ana.getRpt(st_interlen)
+
+                if len(loop_mutloc) == len(st_seed.content):
+                    eaexit = True
 
                 # 3 cmp type
                 # Return cmp type and mutate strategy according to typeDetect

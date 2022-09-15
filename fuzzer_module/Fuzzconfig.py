@@ -335,7 +335,7 @@ SCH_EXPAND_SIZE = 20 // SCH_EXPAND_MULTI
 # The count of sliding windows is multiple of SCH_SLID_COUNT.
 # Recommond 1024/16 = 64
 SCH_SLID_MIN = 8  # 8 bit
-SCH_SLID_SLICE = 4  # 16 slices.
+SCH_SLID_SLICE = 3  # 16 slices.
 
 # Determine the number of the same comparison instructions skipped.
 SCH_SKIP_COUNT = 3
