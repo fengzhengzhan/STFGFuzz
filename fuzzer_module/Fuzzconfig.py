@@ -8,6 +8,13 @@ from fuzzer_module.Tools import *
 
 # Program information.
 '''Main Fuzzer'''
+EXP_MODE = False
+# EXP_MODE = True
+# VIS_TERM = True
+VIS_TERM = False
+# VIS_SHOWGRAPH = True
+VIS_SHOWGRAPH = False
+
 FUZZNAME = "STFGFuzzer"
 FUZZPRINTLOG = FUZZNAME + "_show.log"
 FILEREPLACE = "@@"
@@ -23,12 +30,7 @@ FUZZ_GERYBOX = 61
 
 REPLACE_COMMAND = '@seed@'
 
-EXP_MODE = False
-# EXP_MODE = True
-# VIS_TERM = True
-VIS_TERM = False
-# VIS_SHOWGRAPH = True
-VIS_SHOWGRAPH = False
+
 
 AUTO_SEED = "auto.seed"
 EXPAND_SEED = "expand.seed"
@@ -295,6 +297,7 @@ SEED_INIT = 100
 MUT_SEED_SUB = 101
 MUT_SEED_INSERT = 102
 
+MUT_BIT_LEN = 128
 MUT_BIT_LIST = [128, -128, 64, -64, 32, -32, 16, -16, 8, -8, 4, -4, 2, -2, 1, -1]
 
 '''Parser'''

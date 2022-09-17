@@ -601,7 +601,7 @@ def mainFuzzer():
 
                     while not eaexit and strategy.curnum < strategy.endnum:
                         vis.total += 1
-                        # Change the first mutate seed.
+                        # Change the first mutate seed. Other status will use opt_seed.
                         if strategy.curnum == 0:
                             locmapdet_dict = Parser.solveChangeMap(
                                 strategy, st_cmploc, st_seed, st_cmpcov_list, cmporder_j)
@@ -641,11 +641,8 @@ def mainFuzzer():
                         # 2 cmp instruction
                         # Generate analysis reports.
                         st_interlen, st_covernum = ana.getShm(st_stdout[0:16])
-                        if st_covernum > loop_covernum:
-                            sch.addq(SCH_LOOP_SEED, [st_seed, ], calPriotiryValue(stcmpid_weight, st_covernum, len(st_seed.content)))
-                            loop_covernum = st_covernum
-                        st_cmpcov_list = ana.getRpt(st_interlen)
 
+                        st_cmpcov_list = ana.getRpt(st_interlen)
                         LOG(DEBUG, LOC(), st_cmpcov_list)
                         LOG(DEBUG, LOC(), strategy.curnum, strategy.endnum, strategy.curloop,
                             strategy.endloop, st_cmploc, locmapdet_dict, opt_seed.content, st_seed.content)
@@ -683,9 +680,24 @@ def mainFuzzer():
                                 LOG(DEBUG, LOC(), eaexit, strategy.curloop, strategy.endloop, near_dis, sch.cur_nearlydis)
                             ana.sendCmpid(stcmpid_ki)
                             break
-
                         elif len(locmapdet_dict) == 0 or exe_status == DIST_FAIL:
                             pass
+
+                        # According covernum and distance directly change the seed which is execution.
+                        if st_covernum > loop_covernum:
+                            ana.sendCmpid(TRACE_GUARDFAST)
+                            cur_stdout, cur_stderr = Executor.run(fuzz_command.replace(REPLACE_COMMAND, st_seed.filename))
+                            cur_interlen, cur_covernum = ana.getShm(cur_stdout[0:16])
+                            cur_guard_list = ana.getRpt(cur_interlen)
+                            cur_dis = sch.findNearDistance(
+                                cur_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
+                            if cur_dis <= sch.cur_nearlydis:
+                                sch.cur_nearlydis = cur_dis
+                                opt_seed = st_seed
+                                sch.addq(SCH_LOOP_SEED, [st_seed, ],
+                                         calPriotiryValue(cur_dis, cur_covernum, len(st_seed.content)))
+                                loop_covernum = cur_covernum
+
                     sch.deleteSeeds(SCH_THISMUT_SEED)
 
         # raise Exception()

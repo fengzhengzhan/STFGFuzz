@@ -47,19 +47,24 @@ def converNumList(cont_list):
 
 def numToBytes(num, nlen, mode):
     b = b''
-    h = str(hex(num)[2:])
-    if mode == PAR_CONVSINGLE:
-        if len(h) < nlen:
-            h = "0"*(nlen-len(h)) + h
-        for i in range(0, len(h)):
-            b += BYTES_ASCII[ord(h[i:i+1])]
-    elif mode == PAR_CONVDOUBLE:
-        # if len(h) < nlen * 2:
-        #     h = "0" * (nlen * 2 - len(h)) + h
-        if len(h) % 2 == 1:
-            h = "0" + h
-        for i in range(0, len(h), 2):
-            b += BYTES_ASCII[int(h[i:i + 2], 16)]
+    if type(num) == int:
+        h = str(hex(int(num))[2:])
+        if mode == PAR_CONVSINGLE:
+            if len(h) < nlen:
+                h = "0"*(nlen-len(h)) + h
+            for i in range(0, len(h)):
+                b += BYTES_ASCII[ord(h[i:i+1])]
+        elif mode == PAR_CONVDOUBLE:
+            # if len(h) < nlen * 2:
+            #     h = "0" * (nlen * 2 - len(h)) + h
+            if len(h) % 2 == 1:
+                h = "0" + h
+            for i in range(0, len(h), 2):
+                b += BYTES_ASCII[int(h[i:i + 2], 16)]
+    elif type(num) == bytes:
+        b = num
+    else:
+        raise Exception(num)
     return b
 
 
@@ -132,7 +137,7 @@ def handleMagicNum(st_cmploc, cont_list, strategy):
         strategy.strategytype = TYPE_CHECKNUM
         strategy.curnum = 0
         # strategy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
-        strategy.endnum = len(st_cmploc) * 256
+        strategy.endnum = len(st_cmploc) * MUT_BIT_LEN
 
     LOG(DEBUG, LOC(), strategy.curnum, change_inputmap, show=True)
 
@@ -144,10 +149,17 @@ def handleMagicBytes(st_cmploc, cont_list, strategy):
     fixed_cont = cont_list[0]
     if strategy.bytestype == PAR_CHGAFIX:
         fixed_cont = cont_list[1]
+    LOG(DEBUG, LOC(), st_cmploc, cont_list, fixed_cont, show=True)
+    if type(fixed_cont) == int:
+        fixed_cont = fixed_cont % MUT_BIT_LEN
+        fixed_cont = fixed_cont.to_bytes(1, byteorder='little')
 
     if strategy.curnum == 0:
         for idx, loc in enumerate(st_cmploc[::1]):
+            # LOG(DEBUG, LOC(), change_inputmap, idx, loc, show=True)
             change_inputmap[loc] = fixed_cont[idx:idx + 1]
+            # LOG(DEBUG, LOC(), change_inputmap[loc], show=True)
+            # LOG(DEBUG, LOC(), fixed_cont[idx:idx + 1], show=True)
     elif strategy.curnum == 1:
         for idx, loc in enumerate(st_cmploc[::-1]):
             change_inputmap[loc] = fixed_cont[idx:idx + 1]
@@ -155,7 +167,7 @@ def handleMagicBytes(st_cmploc, cont_list, strategy):
         strategy.strategytype = TYPE_CHECKBYTES
         strategy.curnum = 0
         # strategy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)
-        strategy.endnum = len(st_cmploc) * 256
+        strategy.endnum = len(st_cmploc) * MUT_BIT_LEN
 
     return change_inputmap
 
@@ -194,32 +206,9 @@ def handleMagicBytes(st_cmploc, cont_list, strategy):
 def handleChecksums(ret_seed, st_loc, strategy):
     change_inputmap = {}
     if strategy.curnum < strategy.endnum:
-        ci = strategy.curnum // 256
-        cb = strategy.curnum % 256
+        ci = strategy.curnum // MUT_BIT_LEN
+        cb = strategy.curnum % MUT_BIT_LEN
         change_inputmap[st_loc[ci]] = BYTES_ASCII[cb]
-        # while ci >= 0:
-        #     if ci < len(st_loc) and st_loc[ci] < len(ret_seed.content):
-        #         n = ret_seed.content[st_loc[ci]] + pre
-        #         LOG(DEBUG, LOC(), ret_seed.content[st_loc[ci]], pre, n)
-        #         stloc = st_loc[ci]
-        #     else:
-        #         n = pre
-        #         stloc = st_loc[-1] + ci - len(st_loc) + 1
-        #     # Add
-        #     if n >= PAR_BIT_BASE:
-        #         now = n % PAR_BIT_BASE
-        #         pre = n // PAR_BIT_BASE
-        #         change_inputmap[stloc] = BYTES_ASCII[now]
-        #     # Sub
-        #     elif n < 0:
-        #         now = (n + PAR_BIT_BASE) % PAR_BIT_BASE
-        #         pre = n // PAR_BIT_BASE
-        #         change_inputmap[stloc] = BYTES_ASCII[now]
-        #     # Exit
-        #     elif 0 <= n < PAR_BIT_BASE:
-        #         change_inputmap[stloc] = BYTES_ASCII[n]
-        #         break
-        #     ci -= 1
     return change_inputmap
 
 
@@ -413,6 +402,7 @@ def typeDetect(opt_cmpcov_list, ststart_cmpcov_list, cmporder_num):
 
         elif cmp_flag == COV_SWITCH:
             bytes_flag = PAR_CHGAFIX
+            # LOG(DEBUG, LOC(), listIsdigit(opt_one[4: 5 + int(opt_one[2])]), opt_one[4: 5 + int(opt_one[2])], show=True)
             if listIsdigit(opt_one[4: 5 + int(opt_one[2])]):
                 # strategy_flag = TYPE_CHECKNUM
                 strategy_flag = TYPE_MAGICNUM
@@ -437,7 +427,7 @@ def devStrategy(opt_cmpcov_list, cmporder_i, strategy_flag, cmp_flag, bytes_flag
         temp_stgy.endnum = 3
     else:
         # temp_stgy.endnum = len(st_cmploc) * len(MUT_BIT_LIST)  # Can't reach.
-        temp_stgy.endnum = len(st_cmploc) * 256  # Can't reach.
+        temp_stgy.endnum = len(st_cmploc) * MUT_BIT_LEN  # Can't reach.
 
     temp_stgy.curloop = 0
     temp_stgy.endloop = 1

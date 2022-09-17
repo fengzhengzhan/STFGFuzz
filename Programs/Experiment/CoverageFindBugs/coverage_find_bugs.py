@@ -66,7 +66,7 @@ def show_guard():
     p1 = ax.plot(x, y, 'ro-', label='coverage')
     plt.plot(x, y, 'ro-')
     ax2 = ax.twinx()
-    p2 = ax2.plot(x, seeds_dis, 'bo-', label='test')
+    p2 = ax2.plot(x, seeds_dis, 'bo-', label='distance')
     plt.plot(x, seeds_dis, 'bo-')
 
     p = p1 + p2
