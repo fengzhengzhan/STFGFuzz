@@ -227,6 +227,9 @@ class Scheduler:
                     if guard_num < self.trans_symbol_initguard[self.trans_func_symbol[guard_funcname]]:
                         self.trans_symbol_initguard[self.trans_func_symbol[guard_funcname]] = guard_num
 
+        # LOG(DEBUG, LOC(), self.trans_func_symbol, self.trans_symbol_initguard, show=True)
+        # raise Exception()
+
     def selectConstraint(self, guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, trans_guard_gvid, vis):
         """
         Perform a trace of the compare instruction execution path if necessary.
@@ -344,21 +347,29 @@ class Scheduler:
             near_dis = USE_INITNUM
         else:
             # pc_guard numbers.
+            # LOG(DEBUG, LOC(), trace_guard_list, map_tgtpredgvid_dis, show=True)
             map_curtgtpredgvid_dis = map_tgtpredgvid_dis[self.cur_tgtnum]
+            # LOG(DEBUG, LOC(), map_curtgtpredgvid_dis, show=True)
             trace_guard_set = set(trace_guard_list)
             self.coverage_set = self.coverage_set | trace_guard_set
             curtgtpred_offset = tgtpred_offset[self.cur_tgtnum]
+            # LOG(DEBUG, LOC(), curtgtpred_offset, show=True)
             reverseto_gvid_guard = {}
             for func_ki, map_kj in map_guard_gvid.items():
                 reverseto_gvid_guard[func_ki] = {v: k for k, v in map_kj.items()}
+            # LOG(DEBUG, LOC(), reverseto_gvid_guard, show=True)
 
             # Traverse to find the shortest distance.
             for func_ki, disdict_vi in map_curtgtpredgvid_dis.items():
                 for gvid_kj, dis_vj in disdict_vi.items():
                     # If pc_guard in trace_guard dynamic, then update it to near_dis.
-                    if reverseto_gvid_guard[func_ki][gvid_kj] in trace_guard_set:
+                    # LOG(DEBUG, LOC(), reverseto_gvid_guard[func_ki][gvid_kj], trace_guard_set, show=True)
+
+                    if func_ki in self.trans_func_symbol and \
+                            (reverseto_gvid_guard[func_ki][gvid_kj]+self.trans_symbol_initguard[self.trans_func_symbol[func_ki]]) in trace_guard_set:
                         distance = curtgtpred_offset[func_ki] + dis_vj
                         near_dis = min(near_dis, distance)
+                        # LOG(DEBUG, LOC(), distance, func_ki, curtgtpred_offset, dis_vj, show=True)
 
         return near_dis
 

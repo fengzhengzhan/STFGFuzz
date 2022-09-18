@@ -288,9 +288,9 @@ def solveDistence(strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, 
 
     LOG(DEBUG, LOC(), cmporder_num, len(opt_cmpcov_list), len(st_cmpcov_list))
     if cmporder_num < len(opt_cmpcov_list) and cmporder_num < len(st_cmpcov_list):
+        LOG(DEBUG, LOC(), opt_cmpcov_list[cmporder_num], st_cmpcov_list, show=True)
         opt_one = opt_cmpcov_list[cmporder_num][1:]
         st_one = st_cmpcov_list[cmporder_num][1:]
-        LOG(DEBUG, LOC(), opt_one, st_one, show=True)
         if opt_one[IDX_CMPTYPE] == COV_SWITCH:
             cont_list = [opt_one[4], opt_one[4 + strategy.curloop],
                          st_one[4], st_one[4 + strategy.curloop]]

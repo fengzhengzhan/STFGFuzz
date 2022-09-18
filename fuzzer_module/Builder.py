@@ -53,7 +53,7 @@ def getCG(cglist):
     """
     cggraph, map_func_cgnode = None, None
     for jsonfile in cglist:
-        LOG(DEBUG, LOC(), jsonfile)
+        LOG(DEBUG, LOC(), jsonfile, show=True)
         with open(jsonfile, 'r') as f:
             data = json.load(f)
         # for k, v in data.items():
@@ -79,7 +79,7 @@ def getCG(cglist):
         # print(nodes_list, edges_list)
         LOG(DEBUG, LOC(), nodes_list, edges_list)
         cggraph = Graph(data[BUI_NAME].split(" ")[-1], nodes_list, edges_list)
-
+    LOG(DEBUG, LOC(), cggraph)
     return cggraph, map_func_cgnode
 
 
@@ -100,6 +100,7 @@ def getCFG(cfglist, map_num_asm, target_dict):
     for jsonfile_i in cfglist:
         # funcname = jsonfile_i.split(os.sep)[-1][1:-9]
         with open(jsonfile_i, 'r') as f:
+            # LOG(DEBUG, LOC(), jsonfile_i, f, show=True)
             data = json.load(f)
             # print(data)
             # LOG(LOG_DEBUG, LOG_FUNCINFO(), data[BUI_NAME], showlog=True)
@@ -497,7 +498,7 @@ def buildBFSdistance(cggraph, cfggraph_dict) -> dict:
     An incoming graph is traversed breadth-first to determine the mutual position of nodes.
     @return:
     """
-    LOG(DEBUG, LOC(), cggraph, cfggraph_dict)
+    LOG(DEBUG, LOC(), cggraph, cfggraph_dict, show=True)
     # CG BFS
     # print(cggraph.dgname, cggraph.dg)
     cgroot = searchRoot(cggraph.dg)

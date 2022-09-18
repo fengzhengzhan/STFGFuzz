@@ -7,7 +7,7 @@ import signal
 
 from fuzzer_module.Fuzzconfig import *
 
-def run(cmd: str) -> (str, str):
+def runTimeLimit(cmd: str) -> (str, str):
     """
     run cmd to get information from executable files or other tools
     @param cmd:
@@ -29,5 +29,25 @@ def run(cmd: str) -> (str, str):
     except Exception as e:
         raise Exception("Error cmd ")
     # retcode = 128 - p.returncode
+    # print(retcode, stdout, stderr)
+    return stdout, stderr
+
+def runNoLimit(cmd: str) -> (int, str, str):
+    """
+    run cmd to get information from executable files or other tools
+    @param cmd:
+    @return:
+    """
+    LOG(DEBUG, LOC(), cmd)
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    # timeout kill child process
+    try:
+        stdout, stderr = process.communicate()
+    except Exception as e:
+        process.kill()
+        LOG(ERROR, LOC(), e)
+        raise Exception("Error cmd ")
+    LOG(DEBUG, LOC(), stdout, stderr)
+    retcode = 128 - process.returncode
     # print(retcode, stdout, stderr)
     return stdout, stderr
