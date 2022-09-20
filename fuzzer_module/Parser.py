@@ -149,7 +149,7 @@ def handleMagicBytes(st_cmploc, cont_list, strategy):
     fixed_cont = cont_list[0]
     if strategy.bytestype == PAR_CHGAFIX:
         fixed_cont = cont_list[1]
-    LOG(DEBUG, LOC(), st_cmploc, cont_list, fixed_cont, show=True)
+    # LOG(DEBUG, LOC(), st_cmploc, cont_list, fixed_cont, show=True)
     if type(fixed_cont) == int:
         fixed_cont = fixed_cont % MUT_BIT_LEN
         fixed_cont = fixed_cont.to_bytes(1, byteorder='little')
@@ -275,7 +275,7 @@ def solveChangeMap(strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_num)
     return locmapdet_dict
 
 
-def solveDistence(strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmporder_num):
+def solveDistance(strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmporder_num):
     """
     Resolving the distance between constraints
     strategy: StructMutStrategy
@@ -288,7 +288,7 @@ def solveDistence(strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, 
 
     LOG(DEBUG, LOC(), cmporder_num, len(opt_cmpcov_list), len(st_cmpcov_list))
     if cmporder_num < len(opt_cmpcov_list) and cmporder_num < len(st_cmpcov_list):
-        LOG(DEBUG, LOC(), opt_cmpcov_list[cmporder_num], st_cmpcov_list, show=True)
+        LOG(DEBUG, LOC(), opt_cmpcov_list[cmporder_num], st_cmpcov_list)
         opt_one = opt_cmpcov_list[cmporder_num][1:]
         st_one = st_cmpcov_list[cmporder_num][1:]
         if opt_one[IDX_CMPTYPE] == COV_SWITCH:
@@ -309,7 +309,7 @@ def solveDistence(strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, 
         if ret_seed == st_seed:
             ret_cmpcov_list = st_cmpcov_list
 
-        LOG(DEBUG, LOC(), cont_list, show=True)
+        # LOG(DEBUG, LOC(), cont_list, show=True)
         if cont_list[2] == cont_list[3]:
             exe_status = DIST_FINISH
             ret_seed = st_seed

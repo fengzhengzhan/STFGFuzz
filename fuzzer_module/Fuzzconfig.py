@@ -287,7 +287,7 @@ GEN_DOTJSON = "dot -Tdot_json "
 GEN_OVERLAY = " > "
 GEN_APPEND = " >> "
 GEN_TRACEBC_SUFFIX = "_trace.bc"
-GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
+GEN_CSV_HEADERS = "filename,time,targettime,duration,execution,content,stdout,stderr\n"
 
 '''Mutator'''
 MUT_STR = b'AAABAAAC'
@@ -389,6 +389,8 @@ VIS_DPI = 300
 
 VIS_LEN = 76
 VIS_STDLEN = VIS_LEN * 3
+
+VIS_TGTTIME = "0"
 
 '''Logging'''
 # Logging the information during the fuzzing.

@@ -7,13 +7,14 @@ import signal
 
 from fuzzer_module.Fuzzconfig import *
 
-def runTimeLimit(cmd: str) -> (str, str):
+def runTimeLimit(cmd: str, vis) -> (str, str):
     """
     run cmd to get information from executable files or other tools
     @param cmd:
     @return:
     """
     LOG(DEBUG, LOC(), cmd)
+    vis.total += 1
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                          shell=True, close_fds=True, start_new_session=True)
 

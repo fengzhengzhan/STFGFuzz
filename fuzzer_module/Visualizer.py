@@ -39,6 +39,8 @@ class Visualizer:
         self.coverage_num = 0
         self.change_map = {}
 
+        self.tgttime = VIS_TGTTIME  # target first time
+
         if self.terminal_switch:
             self.stdscr = curses.initscr()
             curses.start_color()
@@ -97,6 +99,12 @@ class Visualizer:
         if run_second == 0:
             run_second = 1
         self.last_time = getTimestampStr(run_time.days, run_time.seconds)
+
+        if self.cur_min_dis == 0 and self.tgttime == VIS_TGTTIME:
+            self.tgttime = self.last_time
+        elif self.cur_min_dis != 0 and self.tgttime != VIS_TGTTIME:
+            self.tgttime = VIS_TGTTIME
+
 
         if self.terminal_switch:
             xnum = ">" * (int(time.time()) % 5)
@@ -249,7 +257,7 @@ class Visualizer:
 
             self.terminal_outs.addstr(2, 0, "O", curses.color_pair(VIS_GREEN))
             for x_i in range(0, out_high):
-                self.terminal_outs.addstr(x_i + 1, 2,
+                self.terminal_outs.addstr(x_i + 2, 2,
                                           "{}".format(stdout[(curse_len - 2) * x_i: (curse_len - 2) * (x_i + 1)]))
 
             self.terminal_outs.addstr(out_high + 1, 0, "E", curses.color_pair(VIS_GREEN))

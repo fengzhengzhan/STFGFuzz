@@ -150,7 +150,7 @@ def createDotJsonFile(program_name: str, bc_file: str) -> (list, list):
     for each in cgdotlist:
         temp_path = each + ".json"
         std_out, std_err = runNoLimit(GEN_DOTJSON + each + GEN_OVERLAY + temp_path)
-        LOG(DEBUG, LOC(), std_out, std_err, show=True)
+        # LOG(DEBUG, LOC(), std_out, std_err, show=True)
         if not std_err:
             cglist.append(temp_path)
 

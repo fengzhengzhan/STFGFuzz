@@ -123,8 +123,11 @@ class Scheduler:
                 try:
                     # Skip Sanitizer
                     re_str = "Sanitizer"
-                    crashtype = re.search(re_str, str(stderr))
-                    if crashtype == None:
+                    san_flag = re.search(re_str, str(stderr))
+
+                    re_str = "Error Timeout"
+                    time_flag = re.search(re_str, str(stderr))
+                    if san_flag == None and time_flag == None:
                         return tgtsan
 
                     # Skip LeakSanitizer
@@ -168,7 +171,10 @@ class Scheduler:
                         # GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
                         linestr = str(name) + "," \
                                   + datetime.datetime.strftime(vis.start_time, "%Y-%m-%d_%H:%M:%S") + "," \
-                                  + vis.last_time + "," + str(seed.content).replace(',', 'comma') + "," \
+                                  + vis.tgttime + "," \
+                                  + vis.last_time + "," \
+                                  + str(vis.total) + "," \
+                                  + str(seed.content).replace(',', 'comma') + "," \
                                   + str(stdout).replace(',', 'comma') + "," \
                                   + str(stderr).replace(',', 'comma') + ",,,\n"
                         cf.write(linestr)

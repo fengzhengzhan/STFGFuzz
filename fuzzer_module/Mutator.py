@@ -82,6 +82,9 @@ def mutOneChar(seedcont: bytes, filepath: str, label: str, loc_list) -> StructSe
     """
     for i, loci in enumerate(loc_list):
         while True:
+            # rand_list = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
+            #              65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
+            #              97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122]
             randi = random.randint(33, 126)
             tempc = BYTES_ASCII[randi]
             if seedcont[loci: loci + 1] != tempc:
@@ -120,12 +123,13 @@ def mutSelectCharRand(seedcont: bytes, filepath: str, label: str, loc_list) -> S
     return temp_one
 
 
-def mutLocFromMap(init_seed, seed, seedcont: bytes, filepath: str, label: str, locmapdet_dict: 'dict[int:bytes]') -> StructSeed:
+def mutLocFromMap(init_seed, seed, filepath: str, label: str, locmapdet_dict: 'dict[int:bytes]') -> StructSeed:
     if locmapdet_dict:
         # Remove the key which value equals b''
         for key in list(locmapdet_dict.keys()):
             if locmapdet_dict[key] == b'':
                 locmapdet_dict[key] = init_seed.content[key:key+1]
+        seedcont = seed.content
         for lockey, chgval in sorted(locmapdet_dict.items()):
             seedcont = seedcont[0:lockey] + chgval + seedcont[lockey + 1:]
         LOG(DEBUG, LOC(), seedcont, locmapdet_dict)
