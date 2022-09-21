@@ -87,20 +87,20 @@ def mainFuzzer():
         LOG(DEBUG, LOC(), map_guard_gvid, map_target, target_dict, map_tgtpredgvid_dis, tgtpred_offset, map_callfuncs)
 
         print("{} Save as pkl files...".format(getTime()))
-        saveAsPkl(path.data_graph+".map_functo_cgnode.pkl", map_functo_cgnode)
-        saveAsPkl(path.data_graph+".map_guard_gvid.pkl", map_guard_gvid)
-        saveAsPkl(path.data_graph+".map_target.pkl", map_target)
-        saveAsPkl(path.data_graph+".map_tgtpredgvid_dis.pkl", map_tgtpredgvid_dis)
-        saveAsPkl(path.data_graph+".tgtpred_offset.pkl", tgtpred_offset)
+        saveAsPkl(path.data_patchloc+".map_functo_cgnode.pkl", map_functo_cgnode)
+        saveAsPkl(path.data_patchloc+".map_guard_gvid.pkl", map_guard_gvid)
+        saveAsPkl(path.data_patchloc+".map_target.pkl", map_target)
+        saveAsPkl(path.data_patchloc+".map_tgtpredgvid_dis.pkl", map_tgtpredgvid_dis)
+        saveAsPkl(path.data_patchloc+".tgtpred_offset.pkl", tgtpred_offset)
         saveAsPkl(path.data_patchloc + B4TGT_FILE, target_dict)  # Compare target.
     else:
         # Load variables from PKL files Load variables.
         print("{} Target unchanged, load From pkl files...".format(getTime()))
-        map_functo_cgnode = loadFromPkl(path.data_graph+".map_functo_cgnode.pkl")
-        map_guard_gvid = loadFromPkl(path.data_graph+".map_guard_gvid.pkl")
-        map_target = loadFromPkl(path.data_graph+".map_target.pkl")
-        map_tgtpredgvid_dis = loadFromPkl(path.data_graph+".map_tgtpredgvid_dis.pkl")
-        tgtpred_offset = loadFromPkl(path.data_graph+".tgtpred_offset.pkl")
+        map_functo_cgnode = loadFromPkl(path.data_patchloc+".map_functo_cgnode.pkl")
+        map_guard_gvid = loadFromPkl(path.data_patchloc+".map_guard_gvid.pkl")
+        map_target = loadFromPkl(path.data_patchloc+".map_target.pkl")
+        map_tgtpredgvid_dis = loadFromPkl(path.data_patchloc+".map_tgtpredgvid_dis.pkl")
+        tgtpred_offset = loadFromPkl(path.data_patchloc+".tgtpred_offset.pkl")
     LOG(DEBUG, LOC(), map_functo_cgnode, map_guard_gvid, map_target, map_tgtpredgvid_dis, tgtpred_offset)
 
     if len(map_target) != 0:
@@ -170,6 +170,7 @@ def mainFuzzer():
         ana.sendCmpid(TRACE_CMP)
         # First run to collect information.
         init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
+        opt_seed = init_seed
         init_stdout, init_stderr = Executor.runTimeLimit(fuzz_command.replace(REPLACE_COMMAND, init_seed.filename), vis)
         init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
         # cmpcov_list = ana.getRpt(init_interlen)
@@ -299,9 +300,9 @@ def mainFuzzer():
         # init_cmpset = set(init_cmp_dict)
         # Compare instruction type speculation based on input mapping,
         # then try to pass the corresponding constraint (1-2 rounds).
-        # LOG(DEBUG, LOC(), sch.targetcmp_pq)
+        # LOG(DEBUG, LOC(), sch.targetcmp_pq, show=True)
         # while not sch.targetcmp_pq.empty():
-        #     LOG(DEBUG, LOC(), sch.targetcmp_pq.get())
+        #     LOG(DEBUG, LOC(), sch.targetcmp_pq.get(), show=True)
         # raise Exception()
         '''cf'''
 
@@ -335,11 +336,14 @@ def mainFuzzer():
         '''st -> Constraints Analysis'''
         # Select one stcmpid_tuples.
         # for stcmpid_ki, stlocset_vi in cmpmaploc_dict.items():
+        nearest_set = set()
         while not eaexit and not sch.targetcmp_pq.empty():
 
             stcmpid_tuples = sch.targetcmp_pq.get()
             stcmpid_weight, stcmpid_ki, stcmpid_loci, stcmpid_symboldebug = \
                 stcmpid_tuples[0], stcmpid_tuples[1], stcmpid_tuples[2]*2, stcmpid_tuples[3]
+
+
 
             # debug
             # ana.sendCmpid(TRACE_GUARDFAST)
@@ -357,6 +361,11 @@ def mainFuzzer():
             vis.cmpnum += 1
             vis.cmporder = 0
 
+            # Only mutate nearest constraint.
+            LOG(DEBUG, LOC(), nearest_set, show=True)
+            if len(nearest_set) == NEAREST_NUMBER and stcmpid_weight not in nearest_set:
+                break
+            nearest_set.add(stcmpid_weight)
             # limiter Use it from select constraint.
             if stcmpid_weight - sch.cur_nearlydis >= LIMITER:
                 break
@@ -381,7 +390,7 @@ def mainFuzzer():
             init_stdout, init_stderr = Executor.runTimeLimit(fuzz_command.replace(REPLACE_COMMAND, init_seed.filename), vis)
             init_interlen, init_covernum = ana.getShm(init_stdout[0:16])
             init_cmpcov_list = ana.getRpt(init_interlen)
-            LOG(DEBUG, LOC(), init_cmpcov_list)
+            LOG(DEBUG, LOC(), init_cmpcov_list, show=True)
             # init_cmp_dict = ana.traceAyalysis(init_cmpcov_list, sch.skip_cmpidset)
 
             # Only the corresponding list data is retained, no parsing is required
@@ -693,7 +702,7 @@ def mainFuzzer():
                             ana.sendCmpid(stcmpid_ki)
                             break
                         elif len(locmapdet_dict) == 0 or exe_status == DIST_FAIL:
-                            pass
+                            break
 
                         # According covernum and distance directly change the seed which is execution.
                         LOG(DEBUG, LOC(), st_covernum, loop_covernum, st_seed.content, opt_seed.content,
@@ -705,7 +714,7 @@ def mainFuzzer():
                             cur_guard_list = ana.getRpt(cur_interlen)
                             cur_dis = sch.findNearDistance(
                                 cur_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
-                            LOG(DEBUG, LOC(), cur_dis, sch.cur_nearlydis, show=True)
+                            LOG(DEBUG, LOC(), cur_dis, sch.cur_nearlydis, loop_covernum, st_covernum, show=True)
                             if cur_dis <= sch.cur_nearlydis:
                                 sch.cur_nearlydis = cur_dis
                                 LOG(DEBUG, LOC(), opt_seed.content, st_seed.content, cur_dis, stcmpid_weight, cur_covernum, vis.loop, loop_mutloc, show=True)
@@ -719,9 +728,45 @@ def mainFuzzer():
 
         '''Mutation all location.'''
         # Again sufficient mutation according to the index
+        # Missed byte
         if eaexit == False:
-            pass
+            miss_set = set([i for i in range(0, len(init_seed.content))]) - loop_mutloc
+            # LOG(DEBUG, LOC(), len(init_seed.content), loop_mutloc, miss_set, show=True)
+            # raise Exception()
 
+            # mutated byte*bitlen counts, only monitor coverage and distance.
+            # for bytes_loc in miss_set:
+            for bytes_loc in range(0, len(opt_seed.content)):
+                for change_loc in range(0, MUT_BIT_LEN):
+                    locmapdet_dict = {}
+                    locmapdet_dict[bytes_loc] = BYTES_ASCII[change_loc]
+
+                    miss_seed = Mutator.mutLocFromMap(
+                        init_seed, opt_seed,
+                        path.seeds_mutate, MISS_STR + str(vis.loop), locmapdet_dict
+                    )
+
+                    miss_seed = sch.selectOneSeed(SCH_THISMUT_SEED, miss_seed)
+                    miss_stdout, miss_stderr = Executor.runTimeLimit(
+                        fuzz_command.replace(REPLACE_COMMAND, miss_seed.filename), vis)
+                    miss_interlen, miss_covernum = ana.getShm(miss_stdout[0:16])
+
+                    if miss_covernum > loop_covernum:
+                        ana.sendCmpid(TRACE_GUARDFAST)
+                        cur_stdout, cur_stderr = Executor.runTimeLimit(
+                            fuzz_command.replace(REPLACE_COMMAND, miss_seed.filename), vis)
+                        cur_interlen, cur_covernum = ana.getShm(cur_stdout[0:16])
+                        cur_guard_list = ana.getRpt(cur_interlen)
+                        cur_dis = sch.findNearDistance(
+                            cur_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
+                        LOG(DEBUG, LOC(), cur_dis, sch.cur_nearlydis, loop_covernum, miss_covernum, miss_seed.content, show=True)
+                        if cur_dis <= sch.cur_nearlydis:
+                            sch.cur_nearlydis = cur_dis
+                            opt_seed = miss_seed
+
+                            sch.addq(SCH_LOOP_SEED, [miss_seed, ],
+                                     calPriotiryValue(cur_dis, cur_covernum, len(miss_seed.content)))
+                            loop_covernum = cur_covernum
 
         # raise Exception()
         # Endless fuzzing, add the length seed.

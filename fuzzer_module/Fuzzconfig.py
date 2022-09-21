@@ -24,6 +24,7 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
+NEAREST_NUMBER = 3
 LIMITER = 1000  # 0x7fffffff
 FUZZ_DIRECTED = 60
 FUZZ_GERYBOX = 61
@@ -39,6 +40,7 @@ SUB_SEED = "sub.seed"
 COARSE_STR = "coarse"
 FINE_STR = "fine"
 ST_STR = "st"
+MISS_STR = "miss"
 REPEAT_STR = "repeat"
 LENGTH_STR = "length"
 LD_EXPAND = 128
@@ -48,6 +50,7 @@ STG_LD = "LengthDetect"
 STG_SD = "SlidingDetect"
 STG_BD = "ByteDetect"
 STG_ST = "Strategy"
+STG_MS = "Missed"
 
 SLID_GAP = 2
 
