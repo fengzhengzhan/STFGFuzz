@@ -25,7 +25,8 @@ USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
 NEAREST_NUMBER = 3
-LIMITER = 1000  # 0x7fffffff
+GAP_VALUE = 80
+LIMITER = 0x7fffffff  # 0x7fffffff
 FUZZ_DIRECTED = 60
 FUZZ_GERYBOX = 61
 
@@ -300,6 +301,7 @@ SEED_INIT = 100
 MUT_SEED_SUB = 101
 MUT_SEED_INSERT = 102
 
+MUT_SKIP = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34, 39, 92, 127, 128}  # b'"', b"'", b'\\',
 MUT_BIT_LEN = 128
 MUT_BIT_LIST = [128, -128, 64, -64, 32, -32, 16, -16, 8, -8, 4, -4, 2, -2, 1, -1]
 
@@ -310,7 +312,6 @@ PAR_FIXACHG = 202
 PAR_CHGAFIX = 203
 PAR_CHGACHG = 204
 PAR_UNDEFINED = 205
-
 PAR_FIXED = 205
 PAR_CHANGED = 206
 
@@ -336,7 +337,7 @@ SCH_THISMUT_SEED = 224
 SCH_SAVEASFILE = True
 
 SCH_EXPAND_MULTI = 2  # Seed expansion factor per round
-SCH_EXPAND_SIZE = 20 // SCH_EXPAND_MULTI
+SCH_EXPAND_SIZE = 25 // SCH_EXPAND_MULTI
 
 # The count of sliding windows is multiple of SCH_SLID_COUNT.
 # Recommond 1024/16 = 64
