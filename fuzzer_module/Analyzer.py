@@ -117,7 +117,10 @@ class Analyzer:
 
         # Content to json
         # LOG(DEBUG, LOC(), cmpcovshm_str, show=True)
-        cmpcov_list = ast.literal_eval(cmpcovshm_str)
+        try:
+            cmpcov_list = ast.literal_eval(cmpcovshm_str)
+        except Exception as e:
+            cmpcov_list = []
         del cmpcovshm_str
         return cmpcov_list
 

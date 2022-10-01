@@ -194,7 +194,7 @@ def mainFuzzer():
 
         b4ld_seed = init_seed
         b4ld_interlen = init_interlen
-        LOG(DEBUG, LOC(), init_seed.content, ana.getRpt(init_interlen))
+        # LOG(DEBUG, LOC(), init_seed.content, ana.getRpt(init_interlen))
         while len(b4ld_seed.content) < sch.expand_size:
 
             sch.expandnums += 1
@@ -747,8 +747,8 @@ def mainFuzzer():
             # raise Exception()
 
             # mutated byte*bitlen counts, only monitor coverage and distance.
-            for bytes_loc in miss_set:
-            # for bytes_loc in range(0, len(opt_seed.content)):
+            # for bytes_loc in miss_set:
+            for bytes_loc in range(0, len(opt_seed.content)):
                 for change_loc in range(0, MUT_BIT_LEN):
                     if change_loc in MUT_SKIP:
                         continue
@@ -764,18 +764,27 @@ def mainFuzzer():
                     miss_stdout, miss_stderr = Executor.runTimeLimit(
                         fuzz_command.replace(REPLACE_COMMAND, miss_seed.filename), vis)
                     sch.saveCrash(miss_seed, miss_stdout, miss_stderr, vis)
+                    res = vis.display(miss_seed, set([change_loc]), miss_stdout, miss_stderr, STG_MS, sch.cur_nearlydis, sch)
+                    # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
+                    if res == VIS_Q:
+                        sch.quitFuzz()
                     miss_interlen, miss_covernum = ana.getShm(miss_stdout[0:16])
                     LOG(DEBUG, LOC(), sch.cur_nearlydis, loop_covernum, miss_covernum, miss_seed.content, show=True)
-                    if miss_covernum > loop_covernum or abs(miss_covernum - loop_covernum) >= GAP_VALUE:
-                    # if miss_covernum > loop_covernum:
+                    # if miss_covernum > loop_covernum or abs(miss_covernum - loop_covernum) >= GAP_VALUE:
+                    if miss_covernum > loop_covernum:
                         ana.sendCmpid(TRACE_GUARDFAST)
                         cur_stdout, cur_stderr = Executor.runTimeLimit(
                             fuzz_command.replace(REPLACE_COMMAND, miss_seed.filename), vis)
                         sch.saveCrash(miss_seed, cur_stdout, cur_stderr, vis)
+
                         cur_interlen, cur_covernum = ana.getShm(cur_stdout[0:16])
                         cur_guard_list = ana.getRpt(cur_interlen)
                         cur_dis = sch.findNearDistance(
                             cur_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
+                        res = vis.display(miss_seed, set([change_loc]), cur_stdout, cur_stderr, STG_MS, cur_dis, sch)
+                        # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
+                        if res == VIS_Q:
+                            sch.quitFuzz()
                         LOG(DEBUG, LOC(), cur_dis, sch.cur_nearlydis, loop_covernum, miss_covernum, miss_seed.content, show=True)
                         if cur_dis <= sch.cur_nearlydis:
                             sch.cur_nearlydis = cur_dis
