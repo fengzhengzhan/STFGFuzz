@@ -97,10 +97,13 @@
 #define SHMGET_SIZE 2147483648  // 2*1024*1024*1024  2GB
 
 // Set variable.
-char* data = NULL;
-int filterlen = 128;
-int savelen = 144;
-int interlen = 160;  // 128+16+16
+char* data = NULL;  
+
+int filterlen = 128;  // 128-144 filter length  // 0-128 filter flag
+int coveragelen = 144;  // 144-160 coveragenum
+int guardlen = 160;  // 160-176 trace length
+int guardstart = 176;  // 176-1024*1024  trace guard
+int interstart = 1048752;  // 176+1024*1024
 char buf[1024*1024];
 char sendcmpid[128];
 char eachcmpid[128];
@@ -159,10 +162,10 @@ void saveCovOnEnd() {
 
         sprintf(buf, "['Eend','E','%s+%d+%d'],", PcDescr, blocknum, blockcmpcount);
         blockcmpcount++;
-        strcpy(data + interlen, buf);
-        interlen += strlen(buf);
-        // Update interlen
-        sprintf(buf, "L%dZ", interlen);
+        strcpy(data + interstart, buf);
+        interstart += strlen(buf);
+        // Update interstart
+        sprintf(buf, "L%dZ", interstart);
         strcpy(data + filterlen, buf);
 
     
@@ -192,10 +195,10 @@ void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
 
         sprintf(buf, "['%c%p%p','%c','%s+%d+%d',%lu,%lu,%d],", funcinfo, GET_FUNC_PC, GET_CALLER_PC, funcinfo, PcDescr, blocknum, blockcmpcount, arg1, arg2, arg_len);
         blockcmpcount++;
-        strcpy(data + interlen, buf);
-        interlen += strlen(buf);
-        // Update interlen
-        sprintf(buf, "L%dZ", interlen);
+        strcpy(data + interstart, buf);
+        interstart += strlen(buf);
+        // Update interstart
+        sprintf(buf, "L%dZ", interstart);
         strcpy(data + filterlen, buf);
     }
 } 
@@ -267,10 +270,10 @@ void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int len1, 
         // printf("%d %d Z\n", n, result);
         sprintf(buf+strlen(buf), ",%d,%d,'%s'],", len1, len2, result);
         // printf("%s\n", buf);
-        strcpy(data + interlen, buf);
-        interlen += strlen(buf);
-        // Update interlen
-        sprintf(buf, "L%dZ", interlen);
+        strcpy(data + interstart, buf);
+        interstart += strlen(buf);
+        // Update interstart
+        sprintf(buf, "L%dZ", interstart);
         strcpy(data + filterlen, buf);
     }
 }
@@ -304,10 +307,10 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
         // printf(" Z\n");
         // Add dataflow analysis information.
         sprintf(buf+strlen(buf), "],");
-        strcpy(data + interlen, buf);
-        interlen += strlen(buf);
-        // Update interlen
-        sprintf(buf, "L%dZ", interlen);
+        strcpy(data + interstart, buf);
+        interstart += strlen(buf);
+        // Update interstart
+        sprintf(buf, "L%dZ", interstart);
         strcpy(data + filterlen, buf);
     }
 }
@@ -372,25 +375,25 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
 
         sprintf(buf, "['I%p','I','%s+%d+%d',%lu,'%p','%p'],", GET_FUNC_PC, PcDescr, blocknum, blockcmpcount, N, start, stop);
         blockcmpcount++;
-        strcpy(data + interlen, buf);
-        interlen += strlen(buf);
-        // Update interlen
-        sprintf(buf, "L%dZ", interlen);
+        strcpy(data + interstart, buf);
+        interstart += strlen(buf);
+        // Update interstart
+        sprintf(buf, "L%dZ", interstart);
         strcpy(data + filterlen, buf);
         // printf("\nS %p %lu Z\n", GET_FUNC_PC, N);  // Guards should start from 1.
         // Add dataflow analysis information.
     } else {
         sprintf(buf, " ");
-        strcpy(data + interlen, buf);
-        interlen += strlen(buf);
-        // Update interlen
-        sprintf(buf, "L%dZ", interlen);
+        strcpy(data + interstart, buf);
+        interstart += strlen(buf);
+        // Update interstart
+        sprintf(buf, "L%dZ", interstart);
         strcpy(data + filterlen, buf);
     }
 
     // covernum
     sprintf(buf, "C%dZ", covernum);
-    strcpy(data + savelen, buf);
+    strcpy(data + coveragelen, buf);
     
     atexit(saveCovOnEnd);
 }
@@ -422,19 +425,19 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
     if (cmpfilterguard > 0) {
         sprintf(buf, "['G%p','G',%d,'%s'],", GET_FUNC_PC, *guard, PcDescr);
         // printf("['G%p','G','%s',%d],", GET_FUNC_PC, PcDescr, *guard);
-        strcpy(data + interlen, buf);
-        interlen += strlen(buf);
-        // Update interlen
-        sprintf(buf, "L%dZ", interlen);
+        strcpy(data + interstart, buf);
+        interstart += strlen(buf);
+        // Update interstart
+        sprintf(buf, "L%dZ", interstart);
         strcpy(data + filterlen, buf);
         cmpfilterguard -= 1;
     }
     else if (flag == LEVEL_GUARDFAST) {
         sprintf(buf, "%d,", *guard);
-        strcpy(data + interlen, buf);
-        interlen += strlen(buf);
-        // Update interlen
-        sprintf(buf, "L%dZ", interlen);
+        strcpy(data + interstart, buf);
+        interstart += strlen(buf);
+        // Update interstart
+        sprintf(buf, "L%dZ", interstart);
         strcpy(data + filterlen, buf);
     }
     else if (flag == LEVEL_GUARD || flag == LEVEL_CMPGUARD) {
@@ -445,10 +448,10 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
         // printf("guard:%s\n", PcDescr);
         sprintf(buf, "['G%p','G',%d,'%s'],", GET_FUNC_PC, *guard, PcDescr);
         // printf("['G%p','G','%s',%d],", GET_FUNC_PC, PcDescr, *guard);
-        strcpy(data + interlen, buf);
-        interlen += strlen(buf);
-        // Update interlen
-        sprintf(buf, "L%dZ", interlen);
+        strcpy(data + interstart, buf);
+        interstart += strlen(buf);
+        // Update interstart
+        sprintf(buf, "L%dZ", interstart);
         strcpy(data + filterlen, buf);
     }
     else if (flag == LEVEL_GUARDSYMBOL || flag == LEVEL_CMPGUARDSYMBOL) {
@@ -467,10 +470,10 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
         // printf("guard:%s\n", PcDescr);
         sprintf(buf, "['G%p','G',%d,'%s'],", GET_FUNC_PC, *guard, PcDescr);
         // printf("['G%p','G','%s',%d],", GET_FUNC_PC, PcDescr, *guard);
-        strcpy(data + interlen, buf);
-        interlen += strlen(buf);
-        // Update interlen
-        sprintf(buf, "L%dZ", interlen);
+        strcpy(data + interstart, buf);
+        interstart += strlen(buf);
+        // Update interstart
+        sprintf(buf, "L%dZ", interstart);
         strcpy(data + filterlen, buf);
     }
 
@@ -480,7 +483,7 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
         cover[blocknum] = 'C';
         covernum += 1;
         sprintf(buf, "C%dZ", covernum);
-        strcpy(data + savelen, buf);
+        strcpy(data + coveragelen, buf);
     }
 }
 

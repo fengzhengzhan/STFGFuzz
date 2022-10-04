@@ -74,6 +74,7 @@ class Analyzer:
         covernum_str = string_at(self.addr + ANA_FILTER_SIZE + ANA_INTERLEN_SIZE, ANA_COVERNUM_SIZE).decode("utf-8")
         re_str = COVERAGE_NUM + "(.*?)" + END_EACH_FLAG
         covernum = int(re.search(re_str, covernum_str).group(1))
+
         return interlen, covernum
 
     def sendCmpid(self, cmpid):
@@ -94,22 +95,22 @@ class Analyzer:
         @param interlen:
         @return:
         """
+
         # Read content in pieces
-        pieces = interlen // ANA_SHM_INTERVAL
-        over = interlen % ANA_SHM_INTERVAL
+        interlen = interlen - ANA_INTER_START
+        pieces = interlen // ANA_SHM_INTERVAL  # the count of pieces
+        over = interlen % ANA_SHM_INTERVAL  # the length of remain
 
         # print(string_at(self.addr+128+16, 4096))
         cmpcovshm_str = "["
         if pieces > 0:
-            cmpcovshm_str += string_at(self.addr + ANA_START_SIZE, ANA_SHM_INTERVAL - ANA_START_SIZE) \
-                .decode("utf-8", "ignore")
-            for each in range(1, pieces):
-                cmpcovshm_str += string_at(self.addr + ANA_SHM_INTERVAL * each, ANA_SHM_INTERVAL) \
+            for each in range(0, pieces):
+                cmpcovshm_str += string_at(self.addr + ANA_INTER_START + ANA_SHM_INTERVAL * each, ANA_SHM_INTERVAL)\
                     .decode("utf-8", "ignore")
-            # fixme .decode("utf-8", "ignore")
-            cmpcovshm_str += string_at(self.addr + ANA_SHM_INTERVAL * pieces, over).decode("utf-8", "ignore")
+            cmpcovshm_str += string_at(self.addr + ANA_INTER_START + ANA_SHM_INTERVAL * pieces, over)\
+                .decode("utf-8", "ignore")
         else:
-            cmpcovshm_str += string_at(self.addr + ANA_START_SIZE, over - ANA_START_SIZE).decode("utf-8", "ignore")
+            cmpcovshm_str += string_at(self.addr + ANA_INTER_START, over).decode("utf-8", "ignore")
         cmpcovshm_str += "]"
 
         # Make the fuzz loop block.
@@ -253,7 +254,7 @@ if __name__ == "__main__":
     interlen, covernum = ana.getShm("D124816Z\n")
     print(interlen, covernum)
     cmpcovshm_list = ana.getRpt(interlen)
-    # print(cmpcovshm_list)
+    print(cmpcovshm_list)
     print(len(cmpcovshm_list))
     with open("../Programs/TrackCrash/crashinfo/info", "w") as f:
         f.write(str(cmpcovshm_list))
