@@ -10,8 +10,8 @@ from fuzzer_module.Tools import *
 '''Main Fuzzer'''
 EXP_MODE = False
 # EXP_MODE = True
-# VIS_TERM = True
-VIS_TERM = False
+VIS_TERM = True
+# VIS_TERM = False
 # VIS_SHOWGRAPH = True
 VIS_SHOWGRAPH = False
 
@@ -107,6 +107,7 @@ INTERLEN_VALUE = 16  # The space bytes in the start of content represents interl
 END_EACH_FLAG = 'Z'  # End of each line.
 INIT_PC_GUARD = 'I'  # (info, call_pc, nums, start, end) Numbers of pc guard, from 1 to number.
 COVERAGE_NUM = 'C'  # Get rough code coverage.
+GUARDLEN_FLAG = 'U'
 EACH_PC_GUARD = 'G'  # (info, call_pc, guard_num)  dict.pop(cmpid)
 
 PROGRAM_END = 'E'  # end
@@ -203,10 +204,11 @@ ANA_FILTER_SIZE = 128
 ANA_INTERLEN_SIZE = 16
 ANA_COVERNUM_SIZE = 16
 ANA_GUARD_SIZE = 16
-ANA_GUARD_START = 1024*1024
-ANA_INTER_START = ANA_FILTER_SIZE + ANA_INTERLEN_SIZE + ANA_COVERNUM_SIZE + ANA_GUARD_SIZE + ANA_GUARD_START
+ANA_GUARD_START = ANA_FILTER_SIZE + ANA_INTERLEN_SIZE + ANA_COVERNUM_SIZE + ANA_GUARD_SIZE
+ANA_GUARD_LENGTH = 1024 * 1024
+ANA_INTER_START = ANA_FILTER_SIZE + ANA_INTERLEN_SIZE + ANA_COVERNUM_SIZE + ANA_GUARD_SIZE + ANA_GUARD_LENGTH
 ANA_SHM_INTERVAL = 1024 * 1024
-ANA_SHM_SIZE = 2147483648
+ANA_SHM_LENGTH = 2147483648
 
 '''Builder'''
 BUI_PATCHFILE = "binaryline.json"

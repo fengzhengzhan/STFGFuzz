@@ -59,7 +59,7 @@ class Analyzer:
         if shm_key != self.shm_key:
             self.shm_key = shm_key
 
-            shmid = self.shmget(shm_key, ANA_SHM_SIZE, 0o1000 | 0o666)  # 2*1024*1024*1024 2GB
+            shmid = self.shmget(shm_key, ANA_SHM_LENGTH, 0o1000 | 0o666)  # 2*1024*1024*1024 2GB
             if shmid < 0:
                 raise Exception("Error System not shared.")
 
@@ -75,7 +75,11 @@ class Analyzer:
         re_str = COVERAGE_NUM + "(.*?)" + END_EACH_FLAG
         covernum = int(re.search(re_str, covernum_str).group(1))
 
-        return interlen, covernum
+        guard_str = string_at(self.addr + ANA_FILTER_SIZE + ANA_INTERLEN_SIZE + ANA_COVERNUM_SIZE, ANA_GUARD_SIZE).decode("utf-8")
+        re_str = GUARDLEN_FLAG + "(.*?)" + END_EACH_FLAG
+        guardlen = int(re.search(re_str, guard_str).group(1))
+
+        return interlen, covernum, guardlen
 
     def sendCmpid(self, cmpid):
         """
@@ -124,6 +128,43 @@ class Analyzer:
             cmpcov_list = []
         del cmpcovshm_str
         return cmpcov_list
+
+    def getGuard(self, guardlen):
+        """
+        Get the list of cmp information.
+        @param interlen:
+        @return:
+        """
+
+        # Read content in pieces
+        guardlen = guardlen - ANA_GUARD_START
+        pieces = guardlen // ANA_SHM_INTERVAL  # the count of pieces
+        over = guardlen % ANA_SHM_INTERVAL  # the length of remain
+
+        # print(string_at(self.addr+128+16, 4096))
+        guardshm_str = "["
+        if pieces > 0:
+            for each in range(0, pieces):
+                guardshm_str += string_at(self.addr + ANA_GUARD_START + ANA_SHM_INTERVAL * each, ANA_SHM_INTERVAL)\
+                    .decode("utf-8", "ignore")
+            guardshm_str += string_at(self.addr + ANA_GUARD_START + ANA_SHM_INTERVAL * pieces, over)\
+                .decode("utf-8", "ignore")
+        else:
+            guardshm_str += string_at(self.addr + ANA_GUARD_START, over).decode("utf-8", "ignore")
+        guardshm_str += "]"
+
+        # Make the fuzz loop block.
+        # self.rt.shmctl(shmid, 0, 0)
+
+        # Content to json
+        # LOG(DEBUG, LOC(), guardshm_str, show=True)
+        # print(guardshm_str)
+        try:
+            guard_list = ast.literal_eval(guardshm_str)
+        except Exception as e:
+            guard_list = []
+        del guardshm_str
+        return guard_list
 
     def traceAyalysis(self, cmpcov_list, freezeid_rpt):
         """
@@ -251,11 +292,13 @@ if __name__ == "__main__":
     #     interlen = ana.getInterlen(addr)
     #     print(interlen)
     #     cmpcovshm_list = ana.getRpt(interlen, addr)
-    interlen, covernum = ana.getShm("D124816Z\n")
-    print(interlen, covernum)
+    interlen, covernum, guardlen = ana.getShm("D124816Z\n")
+    print(interlen, covernum, guardlen)
     cmpcovshm_list = ana.getRpt(interlen)
     print(cmpcovshm_list)
     print(len(cmpcovshm_list))
+    guard_list = ana.getGuard(guardlen)
+    print(guard_list)
     with open("../Programs/TrackCrash/crashinfo/info", "w") as f:
         f.write(str(cmpcovshm_list))
     # print(cmpcovshm_list)

@@ -101,8 +101,8 @@ char* data = NULL;
 
 int filterlen = 128;  // 128-144 filter length  // 0-128 filter flag
 int coveragelen = 144;  // 144-160 coveragenum
-int guardlen = 160;  // 160-176 trace length
-int guardstart = 176;  // 176-1024*1024  trace guard
+int guardlen = 160;  // 160-176 guard length
+int guardstart = 176;  // 176-1024*1024  guard content
 int interstart = 1048752;  // 176+1024*1024
 char buf[1024*1024];
 char sendcmpid[128];
@@ -110,7 +110,7 @@ char eachcmpid[128];
 int blocknum = -1;
 int blockcmpcount = 0;
 char *cover;
-int covernum = 0;
+int covernum = 0;  // no repeat
 int cmpfilterguard = 0;
 char PcDescr[1024];
 
@@ -477,6 +477,14 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
         strcpy(data + filterlen, buf);
     }
 
+    // repeat
+    // sprintf(buf, "%d,", *guard);
+    // strcpy(data + guardstart, buf);
+    // guardstart += strlen(buf);
+    // // Update guardstart
+    // sprintf(buf, "U%dZ", guardstart);
+    // strcpy(data + guardlen, buf);
+    
     blocknum = *guard;
     blockcmpcount = 0;
     if (cover[blocknum] != 'C') {
@@ -484,6 +492,14 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
         covernum += 1;
         sprintf(buf, "C%dZ", covernum);
         strcpy(data + coveragelen, buf);
+
+        // no repeat
+        sprintf(buf, "%d,", *guard);
+        strcpy(data + guardstart, buf);
+        guardstart += strlen(buf);
+        // Update guardstart
+        sprintf(buf, "U%dZ", guardstart);
+        strcpy(data + guardlen, buf);
     }
 }
 
