@@ -693,15 +693,16 @@ def mainFuzzer():
                                     Structures.StructCmpInfo(stcmpid_ki, cmporder_j,
                                                              getLocInputValue(opt_seed.content, st_cmploc))
                             # sch.freeze_bytes = sch.freeze_bytes.union(set(st_cmploc))  # don't need it
-                            ana.sendCmpid(TRACE_GUARDFAST)
-                            trace_stdout, trace_stderr = Executor.runTimeLimit(fuzz_command.replace(REPLACE_COMMAND, opt_seed.filename), vis)
-                            LOG(DEBUG, LOC(), trace_stdout, trace_stderr)
-                            eaexit = sch.saveCrash(opt_seed, trace_stdout, trace_stderr, vis)
+                            # ana.sendCmpid(TRACE_GUARDFAST)
+                            # trace_stdout, trace_stderr = Executor.runTimeLimit(fuzz_command.replace(REPLACE_COMMAND, opt_seed.filename), vis)
+                            # LOG(DEBUG, LOC(), trace_stdout, trace_stderr)
+                            # eaexit = sch.saveCrash(opt_seed, trace_stdout, trace_stderr, vis)
 
 
                             # if len(opt_stderr) == 0:
-                            trace_interlen, trace_covernum, trace_guardlen = ana.getShm(trace_stdout[0:16])
-                            trace_guard_list = ana.getRpt(trace_interlen)
+                            # trace_interlen, trace_covernum, trace_guardlen = ana.getShm(trace_stdout[0:16])
+                            # trace_guard_list = ana.getRpt(trace_interlen)
+                            trace_guard_list = ana.getGuard(st_guardlen)
                             near_dis = sch.findNearDistance(
                                 trace_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
                             LOG(DEBUG, LOC(), near_dis, sch.cur_nearlydis)
@@ -719,22 +720,23 @@ def mainFuzzer():
                         LOG(DEBUG, LOC(), st_covernum, loop_covernum, st_seed.content, opt_seed.content,
                             loop_mutloc, show=True)
                         if st_covernum > loop_covernum:
-                            ana.sendCmpid(TRACE_GUARDFAST)
-                            cur_stdout, cur_stderr = Executor.runTimeLimit(fuzz_command.replace(REPLACE_COMMAND, st_seed.filename), vis)
-                            sch.saveCrash(st_seed, cur_stdout, cur_stderr, vis)
-                            cur_interlen, cur_covernum, cur_guardlen = ana.getShm(cur_stdout[0:16])
-                            cur_guard_list = ana.getRpt(cur_interlen)
+                            # ana.sendCmpid(TRACE_GUARDFAST)
+                            # cur_stdout, cur_stderr = Executor.runTimeLimit(fuzz_command.replace(REPLACE_COMMAND, st_seed.filename), vis)
+                            # sch.saveCrash(st_seed, cur_stdout, cur_stderr, vis)
+                            # cur_interlen, cur_covernum, cur_guardlen = ana.getShm(cur_stdout[0:16])
+                            # cur_guard_list = ana.getRpt(cur_interlen)
+                            cur_guard_list = ana.getGuard(st_guardlen)
                             cur_dis = sch.findNearDistance(
                                 cur_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
                             LOG(DEBUG, LOC(), cur_dis, sch.cur_nearlydis, loop_covernum, st_covernum, show=True)
                             if cur_dis <= sch.cur_nearlydis:
                                 sch.cur_nearlydis = cur_dis
-                                LOG(DEBUG, LOC(), opt_seed.content, st_seed.content, cur_dis, stcmpid_weight, cur_covernum, vis.loop, loop_mutloc, show=True)
+                                LOG(DEBUG, LOC(), opt_seed.content, st_seed.content, cur_dis, stcmpid_weight, vis.loop, loop_mutloc, show=True)
                                 opt_seed = st_seed
 
                                 sch.addq(SCH_LOOP_SEED, [st_seed, ],
-                                         calPriotiryValue(cur_dis, cur_covernum, len(st_seed.content)))
-                                loop_covernum = cur_covernum
+                                         calPriotiryValue(cur_dis, len(st_seed.content)))
+                                loop_covernum = st_covernum
 
                     sch.deleteSeeds(SCH_THISMUT_SEED)
 
@@ -772,16 +774,18 @@ def mainFuzzer():
                     LOG(DEBUG, LOC(), sch.cur_nearlydis, loop_covernum, miss_covernum, miss_seed.content, show=True)
                     # if miss_covernum > loop_covernum or abs(miss_covernum - loop_covernum) >= GAP_VALUE:
                     if miss_covernum > loop_covernum:
-                        ana.sendCmpid(TRACE_GUARDFAST)
-                        cur_stdout, cur_stderr = Executor.runTimeLimit(
-                            fuzz_command.replace(REPLACE_COMMAND, miss_seed.filename), vis)
-                        sch.saveCrash(miss_seed, cur_stdout, cur_stderr, vis)
+                        # ana.sendCmpid(TRACE_GUARDFAST)
+                        # cur_stdout, cur_stderr = Executor.runTimeLimit(
+                        #     fuzz_command.replace(REPLACE_COMMAND, miss_seed.filename), vis)
+                        # sch.saveCrash(miss_seed, cur_stdout, cur_stderr, vis)
 
-                        cur_interlen, cur_covernum, cur_guardlen = ana.getShm(cur_stdout[0:16])
-                        cur_guard_list = ana.getRpt(cur_interlen)
+                        # cur_interlen, cur_covernum, cur_guardlen = ana.getShm(cur_stdout[0:16])
+                        # cur_guard_list = ana.getRpt(cur_interlen)
+
+                        cur_guard_list = ana.getGuard(miss_guardlen)
                         cur_dis = sch.findNearDistance(
                             cur_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
-                        res = vis.display(miss_seed, set([change_loc]), cur_stdout, cur_stderr, STG_MS, cur_dis, sch)
+                        res = vis.display(miss_seed, set([change_loc]), miss_stdout, miss_stderr, STG_MS, cur_dis, sch)
                         # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                         if res == VIS_Q:
                             sch.quitFuzz()
@@ -791,8 +795,8 @@ def mainFuzzer():
                             opt_seed = miss_seed
 
                             sch.addq(SCH_LOOP_SEED, [miss_seed, ],
-                                     calPriotiryValue(cur_dis, cur_covernum, len(miss_seed.content)))
-                            loop_covernum = cur_covernum
+                                     calPriotiryValue(cur_dis, miss_covernum, len(miss_seed.content)))
+                            loop_covernum = miss_covernum
 
         # raise Exception()
         # Endless fuzzing, add the length seed.
