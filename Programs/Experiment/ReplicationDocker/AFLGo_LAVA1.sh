@@ -1,7 +1,14 @@
 export AFLGO=$HOME/aflgo
-git clone git://sourceware.org/git/binutils-gdb.git cxxfilt-CVE-2016-4487
-cd cxxfilt-CVE-2016-4487; 
-git checkout 2c49145
+cp /root/aflgov6/LAVA-1.tar /root/aflgo/scripts/fuzz
+tar -xf LAVA-1.tar
+cd LAVA-1
+export LINE=292_R_0x12345678-0x12545678  # change it
+
+cp -r file-5.22/ file-5.22.$LINE ;
+cd file-5.22.$LINE
+git reset --hard
+git checkout $LINE ;
+
 mkdir obj-aflgo; 
 mkdir obj-aflgo/temp
 
@@ -11,7 +18,8 @@ export CC=$AFLGO/afl-clang-fast;
 export CXX=$AFLGO/afl-clang-fast++
 export LDFLAGS=-lpthread
 export ADDITIONAL="-targets=$TMP_DIR/BBtargets.txt -outdir=$TMP_DIR -flto -fuse-ld=gold -Wl,-plugin-opt=save-temps"
-echo $'cxxfilt.c:227\ncxxfilt.c:62\ncplus-dem.c:886\ncplus-dem.c:1203\ncplus-dem.c:1490\ncplus-dem.c:2594\ncplus-dem.c:4319' > $TMP_DIR/BBtargets.txt
+echo $'' > $TMP_DIR/BBtargets.txt  # change it 
+autoreconf -f -i
 cd obj-aflgo; 
 CFLAGS="-DFORTIFY_SOURCE=2 -fstack-protector-all -fno-omit-frame-pointer -g -Wno-error $ADDITIONAL" LDFLAGS="-ldl -lutil" ../configure --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld
 make clean; 
