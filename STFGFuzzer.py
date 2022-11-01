@@ -48,7 +48,7 @@ def mainFuzzer():
     # Directed Location
     print("{} Build Directional Position...".format(getTime()))
     target_dict = Comparator.getTarget(path.data_patchloc, patchtype)
-    LOG(DEBUG, LOC(), target_dict, show=True)
+    # LOG(DEBUG, LOC(), patchtype, target_dict, show=True)
 
     sch = Scheduler.Scheduler()
     for tgt_ki, stu_vi in target_dict.items():
@@ -73,7 +73,9 @@ def mainFuzzer():
         cggraph, map_functo_cgnode = Builder.getCG(cglist)
         cfggraph_dict, map_guard_gvid, map_target = Builder.getCFG(cfglist, map_numto_funcasm, target_dict)
         # map_target {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}
-        LOG(DEBUG, LOC(), map_guard_gvid, map_target, map_numto_funcasm, target_dict, map_functo_cgnode)
+        # LOG(DEBUG, LOC(), map_guard_gvid, map_target, map_numto_funcasm, target_dict, map_functo_cgnode)
+        # LOG(DEBUG, LOC(), map_target, show=True)
+        # raise Exception
         '''All node transfrom to the gvid to convenient calculation and expression.'''
         '''All the function name transfrom to the static symbol function name.'''
         '''Dynamic:guard  Static:gvid'''
@@ -101,7 +103,7 @@ def mainFuzzer():
         map_target = loadFromPkl(path.data_patchloc+".map_target.pkl")
         map_tgtpredgvid_dis = loadFromPkl(path.data_patchloc+".map_tgtpredgvid_dis.pkl")
         tgtpred_offset = loadFromPkl(path.data_patchloc+".tgtpred_offset.pkl")
-    LOG(DEBUG, LOC(), map_functo_cgnode, map_guard_gvid, map_target, map_tgtpredgvid_dis, tgtpred_offset)
+    LOG(DEBUG, LOC(), map_functo_cgnode, map_guard_gvid, map_target, map_tgtpredgvid_dis, tgtpred_offset, show=True)
 
     if len(map_target) != 0:
         sch.all_tgtnum = len(map_target)
@@ -110,6 +112,7 @@ def mainFuzzer():
 
     print("{} Directed Target Sequence...".format(getTime()))
     trace_orderdict = Builder.printTargetSeq(map_target)
+
 
     LOG(DEBUG, LOC(), map_guard_gvid, map_target, map_tgtpredgvid_dis)
 
@@ -139,6 +142,8 @@ def mainFuzzer():
     vis = Visualizer.Visualizer()
     vis.trace_orderdict = trace_orderdict
     vis.show_pname = program_name
+    # LOG(DEBUG, LOC(), map_target, vis.trace_orderdict, show=True)
+    # raise Exception
     # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
 
     # Create Memory Share.
@@ -296,6 +301,9 @@ def mainFuzzer():
         # LOG(DEBUG, LOC(), init_guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
         # print("{} b4select...".format(getTime()))
         sch.selectConstraint(init_guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid, vis)
+        # LOG(DEBUG, LOC(), sch.trans_func_symbol, show=True)
+        # LOG(DEBUG, LOC(), sch.trans_symbol_initguard, show=True)
+        # raise Exception
         # print("{} select...".format(getTime()))
         # raise Exception()
 
@@ -331,7 +339,7 @@ def mainFuzzer():
 
         # Debug:
         # while not sch.targetcmp_pq.empty():
-        #     LOG(DEBUG,LOC(), sch.targetcmp_pq.get(), show=True)
+        #     LOG(DEBUG, LOC(), sch.targetcmp_pq.get(), show=True)
         # raise Exception
 
         # print("{} st...".format(getTime()))
@@ -343,6 +351,7 @@ def mainFuzzer():
         while not eaexit and not sch.targetcmp_pq.empty():
 
             stcmpid_tuples = sch.targetcmp_pq.get()
+            LOG(DEBUG, LOC(), stcmpid_tuples, show=True)
             stcmpid_weight, stcmpid_ki, stcmpid_loci, stcmpid_symboldebug = \
                 stcmpid_tuples[0], stcmpid_tuples[1], stcmpid_tuples[2]*2, stcmpid_tuples[3]
 
@@ -735,7 +744,7 @@ def mainFuzzer():
                                 opt_seed = st_seed
 
                                 sch.addq(SCH_LOOP_SEED, [st_seed, ],
-                                         calPriotiryValue(cur_dis, len(st_seed.content)))
+                                         calPriotiryValue(cur_dis, st_covernum, len(st_seed.content)))
                                 loop_covernum = st_covernum
 
                     sch.deleteSeeds(SCH_THISMUT_SEED)
@@ -743,7 +752,9 @@ def mainFuzzer():
         '''Mutation all location.'''
         # Again sufficient mutation according to the index
         # Missed byte
-        if eaexit == False:
+
+        # if eaexit == False:
+        if eaexit == False or eaexit == True:
             miss_set = set([i for i in range(0, len(init_seed.content))]) - loop_mutloc
             # LOG(DEBUG, LOC(), len(init_seed.content), loop_mutloc, miss_set, show=True)
             # raise Exception()
@@ -751,9 +762,9 @@ def mainFuzzer():
             # mutated byte*bitlen counts, only monitor coverage and distance.
             # for bytes_loc in miss_set:
             for bytes_loc in range(0, len(opt_seed.content)):
-                for change_loc in range(0, MUT_BIT_LEN):
-                    if change_loc in MUT_SKIP:
-                        continue
+                for change_loc in range(0, MISS_LEN):
+                    # if change_loc in MISS_SKIP:
+                    #     continue
                     locmapdet_dict = {}
                     locmapdet_dict[bytes_loc] = BYTES_ASCII[change_loc]
 

@@ -75,6 +75,7 @@ def getTarget(path_patchloc, patchtype: list):
 
         if ext == COM_SANITIZER and ext in patchtype:  # clang sanitizer
             sanitizer_cont = getFileList(path_patchloc + file_i)
+            # LOG(DEBUG, LOC(), sanitizer_cont, show=True)
 
             for cont_i in sanitizer_cont:
                 line = delBrackets(str(cont_i).replace('\n', ''))

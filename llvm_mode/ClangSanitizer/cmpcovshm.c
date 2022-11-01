@@ -160,7 +160,10 @@ void saveCovOnEnd() {
         // printf("\nE %p Z\n", GET_FUNC_PC);
         // Add dataflow analysis information.
 
+        // show printf log
         sprintf(buf, "['Eend','E','%s+%d+%d'],", PcDescr, blocknum, blockcmpcount);
+        // printf(buf, "['Eend','E','%s+%d+%d'],", PcDescr, blocknum, blockcmpcount);
+
         blockcmpcount++;
         strcpy(data + interstart, buf);
         interstart += strlen(buf);
@@ -192,8 +195,10 @@ void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
 
         // printf("\n%c %p %lu %lu %d Z\n", funcinfo, GET_FUNC_PC, arg1, arg2, arg_len);
         // Add dataflow analysis information.
-
+        // show printf log
         sprintf(buf, "['%c%p%p','%c','%s+%d+%d',%lu,%lu,%d],", funcinfo, GET_FUNC_PC, GET_CALLER_PC, funcinfo, PcDescr, blocknum, blockcmpcount, arg1, arg2, arg_len);
+        // printf(buf, "['%c%p%p','%c','%s+%d+%d',%lu,%lu,%d],", funcinfo, GET_FUNC_PC, GET_CALLER_PC, funcinfo, PcDescr, blocknum, blockcmpcount, arg1, arg2, arg_len);
+
         blockcmpcount++;
         strcpy(data + interstart, buf);
         interstart += strlen(buf);
@@ -201,7 +206,7 @@ void handleTraceCmp(uint64_t arg1, uint64_t arg2, int arg_len, char funcinfo) {
         sprintf(buf, "L%dZ", interstart);
         strcpy(data + filterlen, buf);
     }
-} 
+}
 
 void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int len1, int len2, char *result, char funcinfo) {
     // printf("%p", called_pc);  called_pc stored PC (program counter) address of the original call.
@@ -228,7 +233,10 @@ void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int len1, 
         }
         
         // printf("\n%c %x ", funcinfo, *(int *)called_pc);
+        // show printf log
         sprintf(buf, "['%c%p','%c','%s+%d+%d'", funcinfo, called_pc, funcinfo, PcDescr, blocknum, blockcmpcount);
+        // printf(buf, "['%c%p','%c','%s+%d+%d'", funcinfo, called_pc, funcinfo, PcDescr, blocknum, blockcmpcount);
+
         blockcmpcount++;
         // uint64_t traceflag =  reinterpret_cast<uint64_t>(called_pc) |
         //     (reinterpret_cast<uint64_t>(s1) << 48) |
@@ -239,11 +247,16 @@ void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int len1, 
 
         int i = 0;
         // printf("<s1\"");
+        // show printf log
         sprintf(buf+strlen(buf), ",b'");
+        // printf(buf+strlen(buf), ",b'");
 
         for (i = 0; i < n1; i ++) {
             // printf("%c", s1[i]);
+            // show printf log
             sprintf(buf+strlen(buf), "\\x%02x", (unsigned char)s1[i]);
+            // printf(buf+strlen(buf), "\\x%02x", (unsigned char)s1[i]);
+
             // if (s1[i] == '"' || s1[i] == '\\' || s1[i] == '\'') {
             //     sprintf(buf+strlen(buf), "\\%c", s1[i]);
             // } else {
@@ -252,11 +265,16 @@ void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int len1, 
             // printf("\\x%02x,%c ", (unsigned char)s1[i],(unsigned char)s1[i]);
         }
         // printf("\"1s> <s2\"");
+        // show printf log
         sprintf(buf+strlen(buf), "',b'");
+        // printf(buf+strlen(buf), "',b'");
 
         for (i = 0; i < n2; i ++) {
             // printf("%c", s2[i]);
+            // show printf log
             sprintf(buf+strlen(buf), "\\x%02x", (unsigned char)s2[i]);
+            // printf(buf+strlen(buf), "\\x%02x", (unsigned char)s2[i]);
+
             // if (s2[i] == '"' || s2[i] == '\\' || s2[i] == '\'') {
             //     sprintf(buf+strlen(buf), "\\%c", s2[i]);
             // } else {
@@ -265,10 +283,15 @@ void handleStrMemCmp(void *called_pc, const char *s1, const char *s2, int len1, 
             // printf("\\x%02x,%c ", (unsigned char)s2[i],(unsigned char)s2[i]);          
         }
         // printf("\"2s> ");
+        // show printf log
         sprintf(buf+strlen(buf), "'");
+        // printf(buf+strlen(buf), "'");
         
         // printf("%d %d Z\n", n, result);
+        // show printf log
         sprintf(buf+strlen(buf), ",%d,%d,'%s'],", len1, len2, result);
+        // printf(buf+strlen(buf), ",%d,%d,'%s'],", len1, len2, result);
+
         // printf("%s\n", buf);
         strcpy(data + interstart, buf);
         interstart += strlen(buf);
@@ -297,16 +320,24 @@ void sanCovTraceSwitch(uint64_t Val, uint64_t *Cases) {
             cmpfilterguard += 1;
         }
         // printf("\n%c %p %lu %lu", COV_TRACE_SWITCH, GET_FUNC_PC, Cases[0], Cases[1]);
+        // show printf log
         sprintf(buf, "['%c%p%p','%c','%s+%d+%d',%lu,%lu,%lu", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, COV_TRACE_SWITCH, PcDescr, blocknum, blockcmpcount, Cases[0], Cases[1], Val);
+        // printf(buf, "['%c%p%p','%c','%s+%d+%d',%lu,%lu,%lu", COV_TRACE_SWITCH, GET_FUNC_PC, GET_CALLER_PC, COV_TRACE_SWITCH, PcDescr, blocknum, blockcmpcount, Cases[0], Cases[1], Val);
+
         blockcmpcount++;
 
         for (int i = 0; i < Cases[0]; i ++) {
             // printf(" %lu", Cases[2 + i]);
+            // show printf log
             sprintf(buf+strlen(buf), ",%lu", Cases[2 + i]);
+            // printf(buf+strlen(buf), ",%lu", Cases[2 + i]);
         }
         // printf(" Z\n");
         // Add dataflow analysis information.
+        // show printf log
         sprintf(buf+strlen(buf), "],");
+        // printf(buf+strlen(buf), "],");
+
         strcpy(data + interstart, buf);
         interstart += strlen(buf);
         // Update interstart
@@ -373,7 +404,10 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
     sprintf(eachcmpid, "I%p", GET_FUNC_PC);
     if(retSame(eachcmpid) > LEVEL_GUARDSYMBOL) {
 
+        // show printf log
         sprintf(buf, "['I%p','I','%s+%d+%d',%lu,'%p','%p'],", GET_FUNC_PC, PcDescr, blocknum, blockcmpcount, N, start, stop);
+        // printf(buf, "['I%p','I','%s+%d+%d',%lu,'%p','%p'],", GET_FUNC_PC, PcDescr, blocknum, blockcmpcount, N, start, stop);
+
         blockcmpcount++;
         strcpy(data + interstart, buf);
         interstart += strlen(buf);
@@ -423,7 +457,10 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
     flag = retSame(eachcmpid);
     // printf("%d", flag);
     if (cmpfilterguard > 0) {
+        // show printf log
         sprintf(buf, "['G%p','G',%d,'%s'],", GET_FUNC_PC, *guard, PcDescr);
+        // printf(buf, "['G%p','G',%d,'%s'],", GET_FUNC_PC, *guard, PcDescr);
+
         // printf("['G%p','G','%s',%d],", GET_FUNC_PC, PcDescr, *guard);
         strcpy(data + interstart, buf);
         interstart += strlen(buf);
@@ -433,7 +470,10 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
         cmpfilterguard -= 1;
     }
     else if (flag == LEVEL_GUARDFAST) {
+        // show printf log
         sprintf(buf, "%d,", *guard);
+        // printf(buf, "%d,", *guard);
+
         strcpy(data + interstart, buf);
         interstart += strlen(buf);
         // Update interstart
@@ -446,7 +486,10 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
         // __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
 
         // printf("guard:%s\n", PcDescr);
+        // show printf log
         sprintf(buf, "['G%p','G',%d,'%s'],", GET_FUNC_PC, *guard, PcDescr);
+        // printf(buf, "['G%p','G',%d,'%s'],", GET_FUNC_PC, *guard, PcDescr);
+
         // printf("['G%p','G','%s',%d],", GET_FUNC_PC, PcDescr, *guard);
         strcpy(data + interstart, buf);
         interstart += strlen(buf);
@@ -468,7 +511,10 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard) {
         }
 
         // printf("guard:%s\n", PcDescr);
+        // show printf log
         sprintf(buf, "['G%p','G',%d,'%s'],", GET_FUNC_PC, *guard, PcDescr);
+        // printf(buf, "['G%p','G',%d,'%s'],", GET_FUNC_PC, *guard, PcDescr);
+
         // printf("['G%p','G','%s',%d],", GET_FUNC_PC, PcDescr, *guard);
         strcpy(data + interstart, buf);
         interstart += strlen(buf);

@@ -2,8 +2,9 @@
 
 - Download LAVA-M Dataset: [Download](http://panda.moyix.net/~moyix/lava_corpus.tar.xz)
 
-## lava-13796(LAVA-1)
+# Compile the data set
 
+## lava-13796(LAVA-1)
 ```bash
 sudo apt-get install autoconf automake libtool
 # Do not change folder permissions, as CRASH_INPUT may not be generated.
@@ -28,47 +29,7 @@ extract-bc file
 sudo clang -lz -fsanitize=address -Wl,--whole-archive -L../../llvm_mode/ClangSanitizer -lcmpcov -Wl,--no-whole-archive code_IR/lava13796.o -o code_Bin/lava13796
 ```
 
-## CVE-2016-4487 (binutils-gdb)
-
-```
-git clone git://sourceware.org/git/binutils-gdb.git cxxfilt-CVE-2016-4487
-cd cxxfilt-CVE-2016-4487
-git checkout 2c49145
-
-# wllvm-sanity-checker
-export FORCE_UNSAFE_CONFIGURE=1
-export LLVM_COMPILER=clang
-# --disable-multilib 64-bit-only  CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fvisibility=default" LIBS="-lacl" ./configure --enable-static --disable-shared --prefix=`pwd`/lava-install
-# AFLGo: CFLAGS="-DFORTIFY_SOURCE=2 -fstack-protector-all -fno-omit-frame-pointer -g -Wno-error -flto -fuse-ld=gold" LDFLAGS="-ldl -lutil" ../configure --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld
-CC=wllvm CXX=wllvm++ CFLAGS="-DFORTIFY_SOURCE=2 -fno-omit-frame-pointer -g -O0 -Wno-error" LDFLAGS="-ldl -lutil" ./configure --prefix=`pwd`/obj-bc --enable-static --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld
-make clean
-make -j$(nproc)  # -j Depends on the number of computer processes.
-make install
-cd obj-bc/bin/
-extract-bc c++filt
-
-mv c++filt.bc PATH/Programs/CVE-2016-4487/code_sources/CVE-2016-4487.bc
-sudo ./build.sh -n binutils-c++filt clang
-
-sudo clang -lz -fsanitize=address -Wl,--whole-archive -L../../llvm_mode/ClangSanitizer -lcmpcov -Wl,--no-whole-archive code_IR/lava13796.o -o code_Bin/lava13796
-```
-
-## coreutils
-
-```bash
-git clone git@github.com:coreutils/coreutils.git
-export FORCE_UNSAFE_CONFIGURE=1
-export LLVM_COMPILER=clang
-./bootstrap
-CC=wllvm CFLAGS="-g -O0" LIBS="-lacl" ./configure --prefix=`pwd`/obj-bc --disable-shared 
-make -j$(nproc)  # -j Depends on the number of computer processes.
-make install
-cd obj-bc/bin/
-extract-bc xxx
-```
-
 ## base64(LAVA-M)
-
 ```bash
 # docker:ubuntu18.04
 docker pull ubuntu18.04
@@ -102,8 +63,64 @@ llc -filetype=obj base64_pass.bc -o base64.o
 clang -fsanitize=address -Wl,--whole-archive -L./ClangSanitizer -lcmpcov -Wl,--no-whole-archive base64.o -o base64
 ```
 
-## Self
+## CVE-2016-4487 (binutils-gdb)
+```
+git clone git://sourceware.org/git/binutils-gdb.git cxxfilt-CVE-2016-4487
+cd cxxfilt-CVE-2016-4487
+git checkout 2c49145
 
+# wllvm-sanity-checker
+export FORCE_UNSAFE_CONFIGURE=1
+export LLVM_COMPILER=clang
+# --disable-multilib 64-bit-only  CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fvisibility=default" LIBS="-lacl" ./configure --enable-static --disable-shared --prefix=`pwd`/obj-bc
+# AFLGo: CFLAGS="-DFORTIFY_SOURCE=2 -fstack-protector-all -fno-omit-frame-pointer -g -Wno-error -flto -fuse-ld=gold" LDFLAGS="-ldl -lutil" ../configure --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld
+CC=wllvm CXX=wllvm++ CFLAGS="-DFORTIFY_SOURCE=2 -fno-omit-frame-pointer -g -O0 -Wno-error" LDFLAGS="-ldl -lutil" ./configure --prefix=`pwd`/obj-bc --enable-static --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld
+make clean
+make -j$(nproc)  # -j Depends on the number of computer processes.
+make install
+cd obj-bc/bin/
+extract-bc c++filt
+
+mv c++filt.bc PATH/Programs/CVE-2016-4487/code_sources/CVE-2016-4487.bc
+sudo ./build.sh -n binutils-c++filt clang
+
+sudo clang -lz -fsanitize=address -Wl,--whole-archive -L../../llvm_mode/ClangSanitizer -lcmpcov -Wl,--no-whole-archive code_IR/lava13796.o -o code_Bin/lava13796
+```
+
+## coreutils
+```bash
+git clone git@github.com:coreutils/coreutils.git
+export FORCE_UNSAFE_CONFIGURE=1
+export LLVM_COMPILER=clang
+./bootstrap
+CC=wllvm CFLAGS="-g -O0 -Wno-error" LIBS="-lacl" ./configure --prefix=`pwd`/obj-bc --disable-shared 
+make -j$(nproc)  # -j Depends on the number of computer processes.
+make install
+cd obj-bc/bin/
+extract-bc xxx
+```
+
+## libming
+```bash
+apt-get install autoconf automake libtool m4
+sudo apt-get install php-dev
+find / -name 'config.m4'
+phpize
+apt-get install libfreetype6 libfreetype6-dev
+
+git clone git@github.com:libming/libming.git
+export FORCE_UNSAFE_CONFIGURE=1
+export LLVM_COMPILER=clang
+./autogen.sh
+# --enable-php
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fcommon -Wno-error" ./configure --prefix=`pwd`/obj-bc --enable-static --disable-shared --enable-php
+make
+make install
+cd obj-bc/bin/
+extract-bc xxx
+```
+
+## Self
 ```bash
 clang++ -g -emit-llvm -c code_sources/demo.cc -o code_sources/demo.bc
 ./build.sh -n demo clang++
@@ -111,8 +128,10 @@ clang++ -g -emit-llvm -c code_sources/demo.cc -o code_sources/demo.bc
 ```
 
 ## Problems
-
 ```bash
+# extract all program bc file.
+ls | sort | xargs -n1 extract-bc
+
 # install environment
 apt install build-essential
 
@@ -161,5 +180,8 @@ Install requires package.
 
 # autoreconf: autopoint is needed because this package uses Gettext
 apt install autopoint
+
+# install other packages
+apt install bison
 
 ```

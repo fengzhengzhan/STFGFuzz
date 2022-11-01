@@ -136,7 +136,7 @@ def createDotJsonFile(program_name: str, bc_file: str) -> (list, list):
     cgdotlist = []  # Call Graph
     cfgdotlist = []  # Call Flow Graph
     for onefile in temp_filelist:
-        LOG(DEBUG, LOC(), onefile, onefile.endswith(GEN_CG_SUFFIX), show=True)
+        LOG(DEBUG, LOC(), onefile, onefile.endswith(GEN_CG_SUFFIX))
         if onefile.endswith(GEN_CG_SUFFIX):
             cgdotlist.append(PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH + os.sep + onefile)
         elif onefile.endswith(GEN_CFG_SUFFIX):

@@ -10,8 +10,8 @@ from fuzzer_module.Tools import *
 '''Main Fuzzer'''
 EXP_MODE = False
 # EXP_MODE = True
-VIS_TERM = True
-# VIS_TERM = False
+# VIS_TERM = True
+VIS_TERM = False
 # VIS_SHOWGRAPH = True
 VIS_SHOWGRAPH = False
 
@@ -24,9 +24,9 @@ USE_ENDNUM = -2
 USE_EXCEPTION = -3
 USE_INITSTR = ""
 QUIT_FUZZ = 11
-NEAREST_NUMBER = 0x7fffffff
+NEAREST_NUMBER = 0x7fffffff  # 3  0x7fffffff
 GAP_VALUE = 80
-LIMITER = 0x7fffffff  # 0x7fffffff
+LIMITER = 0x7fffffff  # 256  0x7fffffff
 FUZZ_DIRECTED = 60
 FUZZ_GERYBOX = 61
 
@@ -305,7 +305,8 @@ SEED_INIT = 100
 MUT_SEED_SUB = 101
 MUT_SEED_INSERT = 102
 
-MUT_SKIP = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34, 39, 92, 127, 128}  # b'"', b"'", b'\\',
+MISS_LEN = 256
+MISS_SKIP = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34, 39, 92, 127, 128}  # b'"', b"'", b'\\',
 MUT_BIT_LEN = 128
 MUT_BIT_LIST = [128, -128, 64, -64, 32, -32, 16, -16, 8, -8, 4, -4, 2, -2, 1, -1]
 

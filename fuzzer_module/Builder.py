@@ -163,6 +163,7 @@ def getCFG(cfglist, map_num_asm, target_dict):
                         continue
 
                     patchflag = target_dict[tarnum_k][0][0]
+                    # LOG(DEBUG, LOC(), target_dict, show=True)
                     if patchflag == COM_SANITIZER or patchflag == COM_MANUAL or patchflag == COM_PATCH:
                         # print(map_numTofuncasm[0], graphname)
                         # if graphname == "file_magicfind" or graphname == "match":

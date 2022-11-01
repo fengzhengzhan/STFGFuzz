@@ -263,7 +263,7 @@ class Scheduler:
                         disdup_cmpiddict[cmpid] = 0
                     else:
                         disdup_cmpiddict[cmpid] += 1
-                    self.targetcmp_pq.put((random.randint(0, LIMITER), cmpid, disdup_cmpiddict[cmpid]))
+                    self.targetcmp_pq.put((random.randint(0, LIMITER), cmpid, disdup_cmpiddict[cmpid], 'Greybox'))
 
         else:  # Directed
             curtgtpred_offset = tgtpred_offset[self.cur_tgtnum]
@@ -271,7 +271,7 @@ class Scheduler:
             distance = USE_INITMAXNUM
 
             for trace_i in guardcov_list:
-                LOG(DEBUG, LOC(), trace_i)
+                # LOG(DEBUG, LOC(), trace_i, show=True)
                 cmpid = trace_i[0]
                 cmptype = trace_i[1]
                 symbol_debug = trace_i[2]
@@ -316,6 +316,8 @@ class Scheduler:
                     elif symbol in map_curtgtpredgvid_dis and gvid not in map_curtgtpredgvid_dis[symbol]:
                         distance = USE_INITMAXNUM
                     LOG(DEBUG, LOC(), trace_i, symbol, transguard, gvid, distance)
+                elif cmptype == PROGRAM_END:
+                    pass
                 else:
                     # func, realguard, cmpnum = trace_i[2].split("+")
                     # if func == '':
