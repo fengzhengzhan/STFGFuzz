@@ -1,7 +1,0 @@
-# 构建docker
-sudo docker load < lxf_u18_angora_ok.tar
-sudo docker images
-sudo docker run --restart=always --privileged=true --name=angorav5 -v /home/fzz/Desktop/STFGFuzz/dataset/datav5:/root/datav5 -itd run_datav5angora /bin/bash
-sudo docker exec -it 1d9f21 /bin/bash
-
-

@@ -1,0 +1,25 @@
+# 构建docker
+sudo docker load < lxf_u18_angora_ok.tar
+sudo docker images
+sudo docker run --restart=always --privileged=true --name=angorav5 -v /home/fzz/Desktop/STFGFuzz/dataset/datav5:/root/datav5 -itd run_datav5angora /bin/bash
+sudo docker exec -it 1d9f21 /bin/bash
+
+
+
+# LAVA-1 dataset
+docker load < experiment_angora_lava1.tar
+docker run --restart=always --privileged=true --name=angora_lava1 -v /home/fzz/Desktop/STFGFuzz/dataset/angora_lava1:/root/angora_lava1 -itd experiment_angora_lava1 /bin/bash
+docker exec -it f26f1c /bin/bash
+
+cd /root/datav5/Angora-1.2.2/lava1/lava_corpus/LAVA-1/
+tmux new -s lava1
+./angora_lava1compiler.sh 292_R_0x12345678-0x12545678 -rm
+./angora_lava1compiler.sh 
+exit
+
+# tar crashes dataset
+[292, 357, 660, 1199, 2285, 2543, 3089, 3377, 4049, 4383, 4961, 7002, 7700, 9763, 13796, 14324, 16689, 17222]
+docker exec -it angora_lava1_ /bin/bash
+cd /root/datav5/Angora-1.2.2/lava1/lava_corpus/LAVA-1/
+tar -cvf /root/angora_lava1/angora_lava1_.tar seeds/ output/
+tar -xvf 

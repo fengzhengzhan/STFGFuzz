@@ -1,0 +1,27 @@
+
+
+# 查看docker
+docker ps -a
+sudo docker exec -it 1cb1 /bin/bash
+
+cd /root/aflgo
+cd scripts/fuzz
+
+
+# 使用tmux分离shell
+apt install -y tmux
+tmux new -s my_session  # 新建会话
+按下快捷键Ctrl+b d将会话分离
+tmux attach-session -t my_session  # 下次使用时，重新连接到会话
+
+
+# 运行脚本
+echo core >/proc/sys/kernel/core_pattern
+cd /sys/devices/system/cpu
+echo performance | tee cpu*/cpufreq/scaling_governor
+./xxx.sh
+
+
+cd obj-dist/out
+ls -l --full-time in/in  # start time
+ls -l --full-time out/crashes  # crash time

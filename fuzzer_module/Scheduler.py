@@ -12,6 +12,7 @@ from .Structures import *
 class Scheduler:
     def __init__(self):
         self.seedq = PriorityQueue()  # priority value depend on distance, coverage and length.
+        self.seedqlen = 0
         self.mutateq: Queue[StructSeed] = Queue()
         self.importantq: Queue[StructSeed] = Queue()
         self.delq: Queue[StructSeed] = Queue()
@@ -58,6 +59,7 @@ class Scheduler:
         if mode == SCH_LOOP_SEED:
             if not self.seedq.empty():
                 priority_value, temp_one = self.seedq.get()
+                self.seedqlen -= 1
             self.delq.put(temp_one)
         elif mode == SCH_MUT_SEED:
             if not self.mutateq.empty():
@@ -83,6 +85,7 @@ class Scheduler:
             if mode == SCH_LOOP_SEED:
                 LOG(DEBUG, LOC(), (seed_priority, each), show=True)
                 self.seedq.put((seed_priority, each))
+                self.seedqlen += 1
             elif mode == SCH_MUT_SEED:
                 self.mutateq.put(each)
 

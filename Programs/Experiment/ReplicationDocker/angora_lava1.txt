@@ -1,4 +1,0 @@
-sudo docker run --restart=always --privileged=true --name=angora_lava1 -v /home/fzz/Desktop/STFGFuzz/dataset/angora_lava1:/root/angora_lava1 -itd run_datav5angora /bin/bash
-sudo docker exec -it f26f1c /bin/bash
-
-

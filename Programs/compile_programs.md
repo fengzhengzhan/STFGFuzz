@@ -113,11 +113,19 @@ export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
 ./autogen.sh
 # --enable-php
-CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fcommon -Wno-error" ./configure --prefix=`pwd`/obj-bc --enable-static --disable-shared --enable-php
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fcommon -ferror-limit=0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --with-php-config=/usr/bin/php-config7.2 --enable-static --disable-shared --enable-php 
 make
 make install
 cd obj-bc/bin/
 extract-bc xxx
+```
+
+## libtiff
+```
+export FORCE_UNSAFE_CONFIGURE=1
+export LLVM_COMPILER=clang
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --disable-shared
+
 ```
 
 ## Self

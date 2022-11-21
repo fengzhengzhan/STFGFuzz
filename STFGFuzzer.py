@@ -765,6 +765,8 @@ def mainFuzzer():
                 for change_loc in range(0, MISS_LEN):
                     # if change_loc in MISS_SKIP:
                     #     continue
+                    # if change_loc not in AIM_BYTE:
+                    #     continue
                     locmapdet_dict = {}
                     locmapdet_dict[bytes_loc] = BYTES_ASCII[change_loc]
 

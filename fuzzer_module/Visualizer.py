@@ -146,7 +146,7 @@ class Visualizer:
             self.terminal_status.addstr(7, 1,  "      Coverage: {} / {} / {}".format(self.coverage_num, len(sch.coverage_set), self.num_pcguard))
             self.terminal_status.addstr(8, 1,  "         Stage: {}".format(stagestr))
             self.terminal_status.addstr(9, 1,  "      Distance: {} / {}".format(cur_distance, self.cur_min_dis))
-            self.terminal_status.addstr(10, 1, "      Cmp Nums: {}-{} / {}".format(self.cmpnum, self.cmporder, self.cmptotal))
+            self.terminal_status.addstr(10, 1, "      Cmp Nums: {}-{} / {} ({})".format(self.cmpnum, self.cmporder, self.cmptotal, sch.seedqlen%1000000))
             # self.terminal_status.addstr(11, 1, "    Change Map: {}".format(self.change_map))
 
             self.terminal_status.addstr(12, 1, "    Crash Nums: {}".format(self.crash_num), curses.color_pair(VIS_RED))
@@ -160,10 +160,11 @@ class Visualizer:
             traceloc = 0
             idx = 0
             for func_k, trace_v in self.trace_orderdict[sch.cur_tgtnum].items():
-                if self.traceline <= idx < trace_len:
+                if self.traceline <= idx < min(trace_len, self.traceline+9):
                     traceloc += 1
                     self.terminal_status.addstr(4 + traceloc, 40, "{} {} {} {} {}".format(
                         trace_v[0], func_k[0:12], trace_v[1], trace_v[2], trace_v[3]))
+                    # print(4 + traceloc, trace_len)
                 idx += 1
 
             self.terminal_status.addstr(ter_high - 1, 40, "D", curses.color_pair(VIS_YELLOW))
