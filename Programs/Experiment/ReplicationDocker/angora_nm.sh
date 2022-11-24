@@ -1,7 +1,7 @@
-# git clone git://sourceware.org/git/binutils-gdb.git binutils_gdb_cve2016_nocheckout
-# cd binutils_gdb_cve2016_nocheckout
-# git checkout 2c49145
-# cd ..
+git clone git://sourceware.org/git/binutils-gdb.git binutils_gdb_cve2016_nocheckout
+cd binutils_gdb_cve2016_nocheckout
+git checkout 2c49145
+cd ..
 
 # compile dataset
 echo core | sudo tee /proc/sys/kernel/core_pattern
@@ -15,7 +15,7 @@ CC=${ANGORA}/bin/angora-clang CXX=${ANGORA}/bin/angora-clang++ CFLAGS="-Wno-erro
 USE_TRACK=1 make
 
 ${ANGORA}/tools/gen_library_abilist.sh /usr/lib/x86_64-linux-gnu/libz.so  discard > zlib_abilist.txt
-export ANGORA_TAINT_RULE_LIST=/root/datav5/Angora-1.2.2/experiment/size/track/zlib_abilist.txt
+export ANGORA_TAINT_RULE_LIST=/root/datav5/Angora-1.2.2/experiment/nm/track/zlib_abilist.txt
 make clean
 USE_TRACK=1 make
 make install

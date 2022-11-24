@@ -37,6 +37,7 @@ class Visualizer:
         self.cmporder = USE_INITNUM
         self.cmptotal = USE_INITNUM
         self.coverage_num = 0
+        self.all_coverage_set = set()
         self.change_map = {}
 
         self.tgttime = VIS_TGTTIME  # target first time
@@ -143,7 +144,8 @@ class Visualizer:
             self.terminal_status.addstr(4, 3,  "Info", curses.color_pair(VIS_CYAN))
             self.terminal_status.addstr(5, 1,  "  Program name: {}".format(self.show_pname))
             self.terminal_status.addstr(6, 1,  "Current Target: {} / {}".format(sch.cur_tgtnum, sch.all_tgtnum))
-            self.terminal_status.addstr(7, 1,  "      Coverage: {} / {} / {}".format(self.coverage_num, len(sch.coverage_set), self.num_pcguard))
+            # self.terminal_status.addstr(7, 1,  "      Coverage: {} / {} / {}".format(self.coverage_num, len(sch.coverage_set), self.num_pcguard))
+            self.terminal_status.addstr(7, 1,  "      Coverage: {} / {} / {}".format(self.coverage_num, len(self.all_coverage_set), self.num_pcguard))
             self.terminal_status.addstr(8, 1,  "         Stage: {}".format(stagestr))
             self.terminal_status.addstr(9, 1,  "      Distance: {} / {}".format(cur_distance, self.cur_min_dis))
             self.terminal_status.addstr(10, 1, "      Cmp Nums: {}-{} / {} ({})".format(self.cmpnum, self.cmporder, self.cmptotal, sch.seedqlen%1000000))

@@ -295,7 +295,10 @@ def mainFuzzer():
         LOG(DEBUG, LOC(), init_guardcov_list, sch.trans_symbol_initguard)
         guard_set, guard_total = ana.getGuardNum(init_guardcov_list)
         sch.coverage_set = sch.coverage_set | guard_set
+        vis.all_coverage_set = vis.all_coverage_set | guard_set
         vis.num_pcguard = guard_total
+        # LOG(DEBUG, LOC(), sch.coverage_set, guard_set, guard_total, init_guardcov_list, show=True)
+        # raise Exception
 
         # Update sch priority queue. Save cmpid for the next explore
         # LOG(DEBUG, LOC(), init_guardcov_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
@@ -712,6 +715,7 @@ def mainFuzzer():
                             # trace_interlen, trace_covernum, trace_guardlen = ana.getShm(trace_stdout[0:16])
                             # trace_guard_list = ana.getRpt(trace_interlen)
                             trace_guard_list = ana.getGuard(st_guardlen)
+                            vis.all_coverage_set = vis.all_coverage_set | trace_guard_list
                             near_dis = sch.findNearDistance(
                                 trace_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
                             LOG(DEBUG, LOC(), near_dis, sch.cur_nearlydis)
@@ -735,6 +739,7 @@ def mainFuzzer():
                             # cur_interlen, cur_covernum, cur_guardlen = ana.getShm(cur_stdout[0:16])
                             # cur_guard_list = ana.getRpt(cur_interlen)
                             cur_guard_list = ana.getGuard(st_guardlen)
+                            vis.all_coverage_set = vis.all_coverage_set | cur_guard_list
                             cur_dis = sch.findNearDistance(
                                 cur_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
                             LOG(DEBUG, LOC(), cur_dis, sch.cur_nearlydis, loop_covernum, st_covernum, show=True)
@@ -796,6 +801,7 @@ def mainFuzzer():
                         # cur_guard_list = ana.getRpt(cur_interlen)
 
                         cur_guard_list = ana.getGuard(miss_guardlen)
+                        vis.all_coverage_set = vis.all_coverage_set | cur_guard_list
                         cur_dis = sch.findNearDistance(
                             cur_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
                         res = vis.display(miss_seed, set([change_loc]), miss_stdout, miss_stderr, STG_MS, cur_dis, sch)

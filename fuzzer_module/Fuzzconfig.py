@@ -295,7 +295,7 @@ GEN_DOTJSON = "dot -Tdot_json "
 GEN_OVERLAY = " > "
 GEN_APPEND = " >> "
 GEN_TRACEBC_SUFFIX = "_trace.bc"
-GEN_CSV_HEADERS = "filename,time,targettime,duration,execution,content,stdout,stderr\n"
+GEN_CSV_HEADERS = "filename,time,targettime,duration,execution,curcover,maxcover,allcover,content,stdout,stderr\n"
 
 '''Mutator'''
 MUT_STR = b'AAABAAAC'

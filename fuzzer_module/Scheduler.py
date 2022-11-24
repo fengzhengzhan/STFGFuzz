@@ -177,6 +177,9 @@ class Scheduler:
                                   + vis.tgttime + "," \
                                   + vis.last_time + "," \
                                   + str(vis.total) + "," \
+                                  + str(vis.coverage_num) + "," \
+                                  + str(len(vis.all_coverage_set)) + "," \
+                                  + str(vis.num_pcguard) + "," \
                                   + str(seed.content).replace(',', 'comma') + "," \
                                   + str(stdout).replace(',', 'comma') + "," \
                                   + str(stderr).replace(',', 'comma') + ",,,\n"
