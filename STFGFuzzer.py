@@ -715,7 +715,7 @@ def mainFuzzer():
                             # trace_interlen, trace_covernum, trace_guardlen = ana.getShm(trace_stdout[0:16])
                             # trace_guard_list = ana.getRpt(trace_interlen)
                             trace_guard_list = ana.getGuard(st_guardlen)
-                            vis.all_coverage_set = vis.all_coverage_set | trace_guard_list
+                            vis.all_coverage_set = vis.all_coverage_set | set(trace_guard_list)
                             near_dis = sch.findNearDistance(
                                 trace_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
                             LOG(DEBUG, LOC(), near_dis, sch.cur_nearlydis)
@@ -739,7 +739,7 @@ def mainFuzzer():
                             # cur_interlen, cur_covernum, cur_guardlen = ana.getShm(cur_stdout[0:16])
                             # cur_guard_list = ana.getRpt(cur_interlen)
                             cur_guard_list = ana.getGuard(st_guardlen)
-                            vis.all_coverage_set = vis.all_coverage_set | cur_guard_list
+                            vis.all_coverage_set = vis.all_coverage_set | set(cur_guard_list)
                             cur_dis = sch.findNearDistance(
                                 cur_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
                             LOG(DEBUG, LOC(), cur_dis, sch.cur_nearlydis, loop_covernum, st_covernum, show=True)
@@ -801,7 +801,7 @@ def mainFuzzer():
                         # cur_guard_list = ana.getRpt(cur_interlen)
 
                         cur_guard_list = ana.getGuard(miss_guardlen)
-                        vis.all_coverage_set = vis.all_coverage_set | cur_guard_list
+                        vis.all_coverage_set = vis.all_coverage_set | set(cur_guard_list)
                         cur_dis = sch.findNearDistance(
                             cur_guard_list, map_tgtpredgvid_dis, tgtpred_offset, map_guard_gvid)
                         res = vis.display(miss_seed, set([change_loc]), miss_stdout, miss_stderr, STG_MS, cur_dis, sch)
