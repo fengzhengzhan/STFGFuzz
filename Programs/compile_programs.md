@@ -74,6 +74,7 @@ export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
 # --disable-multilib 64-bit-only  CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fvisibility=default" LIBS="-lacl" ./configure --enable-static --disable-shared --prefix=`pwd`/obj-bc
 # AFLGo: CFLAGS="-DFORTIFY_SOURCE=2 -fstack-protector-all -fno-omit-frame-pointer -g -Wno-error -flto -fuse-ld=gold" LDFLAGS="-ldl -lutil" ../configure --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld
+# CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --disable-shared
 CC=wllvm CXX=wllvm++ CFLAGS="-DFORTIFY_SOURCE=2 -fno-omit-frame-pointer -g -O0 -Wno-error" LDFLAGS="-ldl -lutil" ./configure --prefix=`pwd`/obj-bc --enable-static --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld
 make clean
 make -j$(nproc)  # -j Depends on the number of computer processes.
@@ -113,7 +114,7 @@ export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
 ./autogen.sh
 # --enable-php
-CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fcommon -ferror-limit=0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --with-php-config=/usr/bin/php-config7.2 --enable-static --disable-shared --enable-php 
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fcommon -ferror-limit=0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --with-php-config=/usr/bin/php-config7.2 --enable-static --disable-shared
 make
 make install
 cd obj-bc/bin/

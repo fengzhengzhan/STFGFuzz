@@ -78,7 +78,16 @@ def compareCrash(stderr, dir_patchloc):
 
     return ""
 
+def createFolder():
+    lavalist = [292, 357, 660, 1199, 2285, 2543, 3089, 3377, 4049, 4383, 4961, 7002, 7700, 9763, 13796, 14324, 16689, 17222]
+    for lavaid in lavalist:
+        path = "dataset/lava1_dataset/angora_lava1_"+str(lavaid)
+        print(path)
+        folder = os.path.exists(path)
 
+        if not folder:
+            os.makedirs(path)
+            # print(path)
 
 def CVE2016():
     program_name = "CVE2016"
@@ -159,21 +168,49 @@ def LAVA1():
             # print()
 
 
-def createFolder():
-    lavalist = [292, 357, 660, 1199, 2285, 2543, 3089, 3377, 4049, 4383, 4961, 7002, 7700, 9763, 13796, 14324, 16689, 17222]
-    for lavaid in lavalist:
-        path = "dataset/lava1_dataset/angora_lava1_"+str(lavaid)
-        print(path)
-        folder = os.path.exists(path)
+def gainAFLGoCsv(program_name, sanitize_location):
+    dir = "dataset/aflgo/"
+    dir_program = sanitize_location
+    dir_datain = dir + program_name + "/in"
+    dir_dataout = dir + program_name + "/out/crashes"
+    dir_csv = dir + program_name + ".csv"
 
-        if not folder:
-            os.makedirs(path)
-            # print(path)
+    # start_time = getFileCreateTime(dir_datain)
+    start_time = datetime.datetime.strptime("2022-12-04 17:41:27", '%Y-%m-%d %H:%M:%S')
+    print(start_time)
+
+    # Get crash list
+    crashes = os.listdir(dir_dataout)
+    crashes.sort()
+    # print(crashes)
+    for each in crashes:
+        each_crash = dir_dataout + "/" + each
+        print(each_crash)
+        # print(getFileCreateTime(each_crash))
+        create_time = getFileCreateTime(each_crash)
+        duration_time = create_time - start_time
+        # print("./" + dir_program + " @" + each_crash)
+        try:
+            # swftophp
+            command = dir_program + " " + each_crash
+            stdout, stderr = runTimeLimit(command)
+            # re_flag = re.search(r'AddressSanitizer', str(stderr))
+            # if re_flag != None:
+            #     saveToCSV(program_name, each, create_time, duration_time, stderr, stdout)
+            saveToCSV(dir_csv, program_name, each, create_time, duration_time, stderr, stdout, "None Compare")
+        except Exception as e:
+            # raise Exception(e)
+            print("Error " + str(e))
+        #
+        # print()
+
 
 def main():
     # CVE2016()
-    LAVA1()
+    # LAVA1()
     # createFolder()
+    gainAFLGoCsv("swftophp048", "/home/fzz/Desktop/STFGFuzz/Programs/swftophp/code_Bin/swftophp")
+
 
 
 if __name__ == '__main__':

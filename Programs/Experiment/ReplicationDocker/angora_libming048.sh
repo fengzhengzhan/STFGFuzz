@@ -4,17 +4,17 @@ ANGORA=/root/datav5/Angora-1.2.2
 TIME=$(date "+%Y%m%d_%H%M%S")
 PROGRAM=libming-ming-0_4_8
 
-mkdir libming048
-cd libming048
-mv ${PROGRAM} ${PROGRAM}_${TIME}
-tar -zxvf ../libming-ming-0_4_8.tar.gz
+# mkdir libming048
+# cd libming048
+# mv ${PROGRAM} ${PROGRAM}_${TIME}
+tar -zxvf libming-ming-0_4_8.tar.gz
 
 # compile track
 cp -r ${PROGRAM} track
 cd track
 ./autogen.sh
-# CC=/root/datav5/Angora-1.2.2/bin/angora-clang CXX=/root/datav5/Angora-1.2.2/bin/angora-clang++ CFLAGS="-g -O0 -fcommon -ferror-limit=0 -Wno-error" ./configure --prefix=`pwd`/install --with-php-config=/usr/bin/php-config7.2  --enable-static --disable-shared --enable-php 
-CC=${ANGORA}/bin/angora-clang CXX=${ANGORA}/bin/angora-clang++ CFLAGS="-g -O0 -fcommon -ferror-limit=0 -Wno-error" ./configure --prefix=`pwd`/install --with-php-config=/usr/bin/php-config7.2  --enable-static --disable-shared --enable-php 
+# CC=/root/datav5/Angora-1.2.2/bin/angora-clang CXX=/root/datav5/Angora-1.2.2/bin/angora-clang++ CFLAGS="-Wno-error" ./configure --prefix=`pwd`/install --with-php-config=/usr/bin/php-config7.2  --enable-static --disable-shared
+CC=${ANGORA}/bin/angora-clang CXX=${ANGORA}/bin/angora-clang++ CFLAGS="-Wno-error" ./configure --prefix=`pwd`/install --with-php-config=/usr/bin/php-config7.2 --disable-shared
 USE_TRACK=1 make
 
 # /root/datav5/Angora-1.2.2/tools/gen_library_abilist.sh /usr/lib/x86_64-linux-gnu/libz.so  discard > zlib_abilist.txt

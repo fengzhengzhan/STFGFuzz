@@ -10,8 +10,8 @@ from fuzzer_module.Tools import *
 '''Main Fuzzer'''
 EXP_MODE = False
 # EXP_MODE = True
-VIS_TERM = True
-# VIS_TERM = False
+# VIS_TERM = True
+VIS_TERM = False
 # VIS_SHOWGRAPH = True
 VIS_SHOWGRAPH = False
 
