@@ -33,6 +33,31 @@ def runTimeLimit(cmd: str, vis) -> (str, str):
     # print(retcode, stdout, stderr)
     return stdout, stderr
 
+def runLongLimit(cmd: str) -> (int, str, str):
+    """
+    run cmd to get information from executable files or other tools
+    @param cmd:
+    @return:
+    """
+    LOG(DEBUG, LOC(), cmd)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                         shell=True, close_fds=True, start_new_session=True)
+
+    # timeout kill child process
+    try:
+        stdout, stderr = p.communicate(timeout=EXE_LONGTIMEOUT)
+        # ret_code = p.poll()
+    except subprocess.TimeoutExpired:
+        p.kill()
+        p.terminate()
+        os.killpg(p.pid, signal.SIGTERM)
+        stdout, stderr = b'', b'Error Timeout'
+    except Exception as e:
+        raise Exception("Error cmd ")
+    # retcode = 128 - p.returncode
+    # print(retcode, stdout, stderr)
+    return stdout, stderr
+
 def runNoLimit(cmd: str) -> (int, str, str):
     """
     run cmd to get information from executable files or other tools

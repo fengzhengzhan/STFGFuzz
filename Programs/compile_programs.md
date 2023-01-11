@@ -7,21 +7,21 @@
 ## lava-13796(LAVA-1)
 ```bash
 sudo apt-get install autoconf automake libtool
-# Do not change folder permissions, as CRASH_INPUT may not be generated.
+// Do not change folder permissions, as CRASH_INPUT may not be generated.
 su root
 cd lava_corpus/LAVA-1/
-# ./validate.sh
+// ./validate.sh
 cp -r file-5.22/ file13796
 cd file13796
 git checkout 13796_R_0x12345678-0x22345678
 
-# wllvm-sanity-checker
+// wllvm-sanity-checker
 export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
 autoreconf -f -i
-# WLLVM_CONFIGURE_ONLY=1
+// WLLVM_CONFIGURE_ONLY=1
 CC=wllvm CFLAGS="-g -O0 -fvisibility=default" LIBS="-lacl" ./configure --enable-static --disable-shared --prefix=`pwd`/obj-bc
-make -j$(nproc)  # -j Depends on the number of computer processes.
+make -j$(nproc)  // -j Depends on the number of computer processes.
 make install
 cd obj-bc/bin/
 extract-bc file
@@ -31,30 +31,30 @@ sudo clang -lz -fsanitize=address -Wl,--whole-archive -L../../llvm_mode/ClangSan
 
 ## base64(LAVA-M)
 ```bash
-# docker:ubuntu18.04
+// docker:ubuntu18.04
 docker pull ubuntu18.04
 docker images
 sudo docker run --restart=always --name=base64 -v /home/dataset:/root/dataset -itd ubuntu:18.04 /bin/bash
 docker ps -a
 sudo docker exec -it ContainerID /bin/bash
 
-# root
+// root
 apt-get install python3 python3-pip
 pip3 install wllvm
 
 chmod 777 dataset
 cd lava_corpus/LAVA-M/base64/coreutils-8.24-lava-safe
-# wllvm-sanity-checker
+// wllvm-sanity-checker
 export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
 CC=wllvm CFLAGS="-g -O0" LIBS="-lacl" ./configure --disable-shared --prefix=`pwd`/obj-bc
-make -j$(nproc)  # -j Depends on the number of computer processes.
+make -j$(nproc)  // -j Depends on the number of computer processes.
 make install
 cd obj-bc/bin/
 extract-bc base64
 
-# clang -g -emit-llvm -c code.cc -o code.bc
-# -fsanitize-coverage=bb,no-prune,trace-pc-guard  -fsanitize-coverage=edge,trace-pc-guard (default)
+// clang -g -emit-llvm -c code.cc -o code.bc
+// -fsanitize-coverage=bb,no-prune,trace-pc-guard  -fsanitize-coverage=edge,trace-pc-guard (default)
 clang -fsanitize=address -fsanitize-coverage=edge,trace-pc-guard,trace-cmp -emit-llvm -c base64.bc -o base64_trace.bc
 echo "{" >> file
 opt -load ../Build/LLVMObfuscator.so -line -S base64_trace.bc -o base64_pass.bc >> file
@@ -69,15 +69,15 @@ git clone git://sourceware.org/git/binutils-gdb.git cxxfilt-CVE-2016-4487
 cd cxxfilt-CVE-2016-4487
 git checkout 2c49145
 
-# wllvm-sanity-checker
+// wllvm-sanity-checker
 export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
-# --disable-multilib 64-bit-only  CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fvisibility=default" LIBS="-lacl" ./configure --enable-static --disable-shared --prefix=`pwd`/obj-bc
-# AFLGo: CFLAGS="-DFORTIFY_SOURCE=2 -fstack-protector-all -fno-omit-frame-pointer -g -Wno-error -flto -fuse-ld=gold" LDFLAGS="-ldl -lutil" ../configure --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld
-# CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --disable-shared
+// --disable-multilib 64-bit-only  CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fvisibility=default" LIBS="-lacl" ./configure --enable-static --disable-shared --prefix=`pwd`/obj-bc
+// AFLGo: CFLAGS="-DFORTIFY_SOURCE=2 -fstack-protector-all -fno-omit-frame-pointer -g -Wno-error -flto -fuse-ld=gold" LDFLAGS="-ldl -lutil" ../configure --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld
+// CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --disable-shared
 CC=wllvm CXX=wllvm++ CFLAGS="-DFORTIFY_SOURCE=2 -fno-omit-frame-pointer -g -O0 -Wno-error" LDFLAGS="-ldl -lutil" ./configure --prefix=`pwd`/obj-bc --enable-static --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld
 make clean
-make -j$(nproc)  # -j Depends on the number of computer processes.
+make -j$(nproc)  // -j Depends on the number of computer processes.
 make install
 cd obj-bc/bin/
 extract-bc c++filt
@@ -86,6 +86,9 @@ mv c++filt.bc PATH/Programs/CVE-2016-4487/code_sources/CVE-2016-4487.bc
 sudo ./build.sh -n binutils-c++filt clang
 
 sudo clang -lz -fsanitize=address -Wl,--whole-archive -L../../llvm_mode/ClangSanitizer -lcmpcov -Wl,--no-whole-archive code_IR/lava13796.o -o code_Bin/lava13796
+
+// objdump
+CC=wllvm CXX=wllvm++ CFLAGS="-DFORTIFY_SOURCE=2 -fstack-protector-all -fno-omit-frame-pointer -g -O0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim
 ```
 
 ## coreutils
@@ -95,7 +98,7 @@ export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
 ./bootstrap
 CC=wllvm CFLAGS="-g -O0 -Wno-error" LIBS="-lacl" ./configure --prefix=`pwd`/obj-bc --disable-shared 
-make -j$(nproc)  # -j Depends on the number of computer processes.
+make -j$(nproc)  // -j Depends on the number of computer processes.
 make install
 cd obj-bc/bin/
 extract-bc xxx
@@ -113,7 +116,7 @@ git clone git@github.com:libming/libming.git
 export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
 ./autogen.sh
-# --enable-php
+// --enable-php
 CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fcommon -ferror-limit=0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --with-php-config=/usr/bin/php-config7.2 --enable-static --disable-shared
 make
 make install
@@ -121,76 +124,139 @@ cd obj-bc/bin/
 extract-bc xxx
 ```
 
-## libtiff
+## file 
+```
+// Compile on the local computer
+export FORCE_UNSAFE_CONFIGURE=1
+export LLVM_COMPILER=clang
+autoreconf -f -i
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --enable-static --disable-shared --disable-ld
+make && make install
+
+```
+
+## AFLGo
+```
+
+```
+
+## Compile Program
 ```
 export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
+autoreconf -f -i
 CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --disable-shared
+make
+make install
 
 ```
 
 ## Self
 ```bash
+// -I/usr/local/include -L/usr/local/lib
+// clang -g -emit-llvm -c src.c -o src.bc
 clang++ -g -emit-llvm -c code_sources/demo.cc -o code_sources/demo.bc
 ./build.sh -n demo clang++
-# clang -fsanitize=address demo.bc -o demo
+// clang -fsanitize=address demo.bc -o demo
+```
+
+
+## libtiff  GraphicsMagick
+```
+export FORCE_UNSAFE_CONFIGURE=1
+export LLVM_COMPILER=clang
+autoreconf -f -i
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --disable-shared
+make && make install
+
 ```
 
 ## Problems
 ```bash
-# extract all program bc file.
+// extract all program bc file.
 ls | sort | xargs -n1 extract-bc
 
-# install environment
+// install environment
 apt install build-essential
 
-# install libacl
+// install libacl
 apt install libacl1-dev
 
-# fatal error: 'zlib.h' file not found
+// fatal error: 'zlib.h' file not found
 apt install zlib*
 apt install zlib1g-dev
 
-# xlocale.h file not found
+// xlocale.h file not found
 ln -s /usr/include/locale.h /usr/include/xlocale.h
 
-# selinux/context.h file not found
+// selinux/context.h file not found
 apt install libselinux-dev
 apt install selinux selinux-utils selinux-basics auditd audispd-plugins
 apt install libcap-dev
 apt install libgmp3-dev
 
-# configure: error: C compiler cannot create executables
+// configure: error: C compiler cannot create executables
 apt install gcc libc6-dev
 
-# install check
+// install check
 ./configure
 make
 make check
 make install then
 make installcheck
-## /usr/bin/ld: ../boot/a6le/kernel.o: relocation R_X86_64_32S against `.rodata' can not be used when making a PIE object; recompile with -fPIE
+//// /usr/bin/ld: ../boot/a6le/kernel.o: relocation R_X86_64_32S against `.rodata' can not be used when making a PIE object; recompile with -fPIE
 LDFLAGS=-no-pie ./configure
 
-# -fsanitize-recover=address
+// -fsanitize-recover=address
 
-# ImportError: No module named 'typing'
+// ImportError: No module named 'typing'
 wget https://bootstrap.pypa.io/pip/3.7/get-pip.py
 python3 get-pip.py
 
-# makeinfo: not found
+// makeinfo: not found
 apt install texinfo
 
-# configure: error: I suspect your system does not have 32-bit developement libraries (libc and headers). If you have them, rerun configure with --enable-multilib. If you do not have them, and want to build a 64-bit-only compiler, rerun configure with --disable-multilib.
+// configure: error: I suspect your system does not have 32-bit developement libraries (libc and headers). If you have them, rerun configure with --enable-multilib. If you do not have them, and want to build a 64-bit-only compiler, rerun configure with --disable-multilib.
 apt install gcc-multilib
 
-# (dangerous) Building GCC requires GMP 4.2+, MPFR 2.4.0+ and MPC 0.8.0+.
+// (dangerous) Building GCC requires GMP 4.2+, MPFR 2.4.0+ and MPC 0.8.0+.
 Install requires package.
 
-# autoreconf: autopoint is needed because this package uses Gettext
+// autoreconf: autopoint is needed because this package uses Gettext
 apt install autopoint
 
-# install other packages
+// install other packages
 apt install bison
+
+// Building GDB requires GMP 4.2+, and MPFR 3.1.0+.
+wget ftp://ftp.gnu.org/gnu/gmp/gmp-6.2.0.tar.bz2
+tar -xvf gmp-6.2.0.tar.bz2
+cd gmp-6.2.0/
+./configure --prefix=/usr/local/gmp-6.2.0
+make
+make install
+make check
+
+
+wget https://ftp.gnu.org/gnu/mpfr/mpfr-4.1.0.tar.gz
+tar -xvf mpfr-4.1.0.tar.gz
+cd mpfr-4.1.0/
+./configure --prefix=/usr/local/mpfr-4.1.0 --with-gmp=/usr/local/gmp-6.2.0
+make
+make install
+make check
+
+
+// sudo apt-get install libmpfr-dev
+wget https://ftp.gnu.org/gnu/mpc/mpc-1.2.0.tar.gz
+tar -xvf mpc-1.2.0.tar.gz
+cd mpc-1.2.0/
+./configure --prefix=/usr/local/mpc-1.2.0 --with-gmp=/usr/local/gmp-6.2.0 --with-mpfr=/usr/local/mpfr-4.1.0
+make
+make install
+make check
+
+
+./configure --with-gmp=/usr/local/gmp-6.2.0 --with-mpfr=/usr/local/mpfr-4.1.0 --with-mpc=/usr/local/mpc-1.2.0 --enable-linux --enable-multilib
 
 ```

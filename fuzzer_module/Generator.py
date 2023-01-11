@@ -126,8 +126,8 @@ def createDotJsonFile(program_name: str, bc_file: str) -> (list, list):
     # Change path to generator graph in the directed file.
     proj_path = os.getcwd()
     os.chdir(temp_graphpath)
-    runNoLimit(GEN_DOTCALLGRAPH + os.path.basename(bc_file))
-    runNoLimit(GEN_DOTCFG + os.path.basename(bc_file))
+    runLongLimit(GEN_DOTCALLGRAPH + os.path.basename(bc_file))
+    runLongLimit(GEN_DOTCFG + os.path.basename(bc_file))
 
     temp_filelist = os.listdir()
     os.chdir(proj_path)
@@ -136,7 +136,7 @@ def createDotJsonFile(program_name: str, bc_file: str) -> (list, list):
     cgdotlist = []  # Call Graph
     cfgdotlist = []  # Call Flow Graph
     for onefile in temp_filelist:
-        LOG(DEBUG, LOC(), onefile, onefile.endswith(GEN_CG_SUFFIX))
+        LOG(DEBUG, LOC(), onefile, onefile.endswith(GEN_CG_SUFFIX), show=True)
         if onefile.endswith(GEN_CG_SUFFIX):
             cgdotlist.append(PROGRAMS + os.sep + program_name + os.sep + DATAGRAPH + os.sep + onefile)
         elif onefile.endswith(GEN_CFG_SUFFIX):
@@ -149,14 +149,17 @@ def createDotJsonFile(program_name: str, bc_file: str) -> (list, list):
     cfglist = []
     for each in cgdotlist:
         temp_path = each + ".json"
-        std_out, std_err = runNoLimit(GEN_DOTJSON + each + GEN_OVERLAY + temp_path)
-        # LOG(DEBUG, LOC(), std_out, std_err, show=True)
+        LOG(DEBUG, LOC(), GEN_DOTJSON + each + GEN_OVERLAY + temp_path, show=True)
+        std_out, std_err = runLongLimit(GEN_DOTJSON + each + GEN_OVERLAY + temp_path)
+        LOG(DEBUG, LOC(), std_out, std_err, show=True)
         if not std_err:
             cglist.append(temp_path)
 
     for each in cfgdotlist:
         temp_path = each + ".json"
-        std_out, std_err = runNoLimit(GEN_DOTJSON + each + GEN_OVERLAY + temp_path)
+        LOG(DEBUG, LOC(), GEN_DOTJSON + each + GEN_OVERLAY + temp_path, show=True)
+        std_out, std_err = runLongLimit(GEN_DOTJSON + each + GEN_OVERLAY + temp_path)
+        LOG(DEBUG, LOC(), std_out, std_err, show=True)
         if not std_err:
             cfglist.append(temp_path)
     LOG(DEBUG, LOC(), cgdotlist, cglist)

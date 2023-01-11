@@ -30,7 +30,7 @@ def mainFuzzer():
     """
     print("{} Start Directed Fuzzing...".format(getTime()))
     # Close Address Space Layout Randomization.
-    stdout, stderr = Executor.runNoLimit("cat /proc/sys/kernel/randomize_va_space")  # Default 2
+    stdout, stderr = Executor.runLongLimit("cat /proc/sys/kernel/randomize_va_space")  # Default 2
     if stdout != b'0\n':
         raise Exception("Please turn off address randomization -> echo 0 > /proc/sys/kernel/randomize_va_space")
 
@@ -69,7 +69,7 @@ def mainFuzzer():
         print("{} Build Graph Information...".format(getTime()))
         # Load the .dot file into networkx.
         cglist, cfglist = Generator.createDotJsonFile(program_name, path.code_IR + program_name + GEN_TRACEBC_SUFFIX)
-        LOG(DEBUG, LOC(), cglist, cfglist)
+        LOG(DEBUG, LOC(), cglist, cfglist, show=True)
         cggraph, map_functo_cgnode = Builder.getCG(cglist)
         cfggraph_dict, map_guard_gvid, map_target = Builder.getCFG(cfglist, map_numto_funcasm, target_dict)
         # map_target {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}

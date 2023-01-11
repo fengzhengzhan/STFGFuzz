@@ -14,7 +14,7 @@ cp -r ${PROGRAM} track
 cd track
 ./autogen.sh
 # CC=/root/datav5/Angora-1.2.2/bin/angora-clang CXX=/root/datav5/Angora-1.2.2/bin/angora-clang++ CFLAGS="-Wno-error" ./configure --prefix=`pwd`/install --with-php-config=/usr/bin/php-config7.2  --enable-static --disable-shared
-CC=${ANGORA}/bin/angora-clang CXX=${ANGORA}/bin/angora-clang++ CFLAGS="-Wno-error" ./configure --prefix=`pwd`/install --with-php-config=/usr/bin/php-config7.2 --disable-shared
+CC=${ANGORA}/bin/angora-clang CXX=${ANGORA}/bin/angora-clang++ CFLAGS="-Wno-error -fcommon" ./configure --prefix=`pwd`/install --with-php-config=/usr/bin/php-config7.2 --disable-shared
 USE_TRACK=1 make
 
 # /root/datav5/Angora-1.2.2/tools/gen_library_abilist.sh /usr/lib/x86_64-linux-gnu/libz.so  discard > zlib_abilist.txt
@@ -26,20 +26,22 @@ make install
 cd ..
 
 # Compile program for branch counting
-cp -r cxxfilt-CVE-2016-4487 fast
+cp -r ${PROGRAM} fast
 cd fast
 
-CC=${ANGORA}/bin/angora-clang CXX=${ANGORA}/bin/angora-clang++ LD=${ANGORA}/bin/angora-clang CFLAGS="-Wno-error" ./configure --prefix=`pwd`/install --disable-shared
+./autogen.sh
+CC=${ANGORA}/bin/angora-clang CXX=${ANGORA}/bin/angora-clang++ LD=${ANGORA}/bin/angora-clang CFLAGS="-Wno-error -fcommon" ./configure --prefix=`pwd`/install --with-php-config=/usr/bin/php-config7.2 --disable-shared
 make
 make install
 cd ..
 
 # Seeds
 mkdir seeds
-echo "Hello World" > seeds/seed.txt
+wget -P seeds http://condor.depaul.edu/sjost/hci430/flash-examples/swf/bumble-bee1.swf
+cp seeds/bumble-bee1.swf seeds/bumble-bee.swf
+rm -rf seeds/bumble-bee1.swf
 #${ANGORA}/angora_fuzzer -i seeds -o output -j 1 -t ./track/install/bin/c++filt -- cat @@ | xargs fast/install/bin/c++filt
-${ANGORA}/angora_fuzzer -i seeds -o output -j 1 -t ./track/install/bin/c++filt -- ./fast/install/bin/c++filt
-if [ -d @@ ];then cat @@ | xargs fast/install/bin/c++filt; else ./fast/install/bin/c++filt -n ; fi
+${ANGORA}/angora_fuzzer -i seeds -o output -j 1 -t ./track/util/swftophp -- ./fast/util/swftophp @@
 
 
 

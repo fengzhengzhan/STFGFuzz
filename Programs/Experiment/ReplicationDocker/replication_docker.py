@@ -3,7 +3,53 @@ import re
 import time
 import subprocess
 import datetime
+import signal
 
+
+import os
+
+cve_list = ['CVE-2014-0160', 'CVE-2015-8540',
+            'CVE-2016-4487', 'CVE-2016-4488', 'CVE-2016-4489', 'CVE-2016-4490',
+            'CVE-2016-4491', 'CVE-2016-4492', 'CVE-2016-4493', 'CVE-2016-6131', ]
+
+aflgo_dataset_list = ['cxxfilt-CVE-2016-4487', 'giflib-bugs-74', 'jasper-CVE-2015-5221',
+                      'KTY_Pretty_Printer', 'libming-CVE-2018-8807', 'libming-CVE-2018-8962',
+                      'libxml2_ef709ce2', 'LMS', 'lrzip-CVE-2017-8846', 'lrzip-CVE-2018-11496',
+                      'mjs-issues-57', 'mjs-issues-78', 'objdump-CVE-2017-8392',
+                      'Palindrome']
+
+uaf_dataset_list = ['CVE-2018-20623', 'yasm-issue-91', 'CVE-2019-6455', 'CVE-2017-10686', 'gifsicle-issue-122', 'CVE-2016-3189', 'CVE-2019-20633']
+
+def createCVEFolder(cve_list):
+    for cve in cve_list:
+        if not os.path.exists(cve):
+            os.makedirs(cve)
+            print("Create Successful: {}".format(os.getcwd() + "/" + cve))
+
+def createAFLGoFolder(aflgo_dataset_list):
+    for filename in aflgo_dataset_list:
+        pwd = "/home/fzz/Desktop/STFGFuzz/Programs/"
+        filepath = pwd + filename
+        if not os.path.exists(filepath):
+            print(filepath)
+            os.makedirs(filepath)
+            print("Create Successful: {}".format(filepath))
+
+        command = "/home/fzz/Desktop/STFGFuzz/Programs/build.sh -n "+filepath+" clang"
+        runTimeLimit(command)
+        print("Create Successful: {}".format(command))
+
+
+def cpSourceFiles():
+    cve2016 = ['CVE-2016-4487', 'CVE-2016-4488', 'CVE-2016-4489', 'CVE-2016-4490',
+                'CVE-2016-4491', 'CVE-2016-4492', 'CVE-2016-4493', 'CVE-2016-6131', ]
+    for dir in cve2016:
+        #rmcom = "rm -rf "+dir+"/gcc"
+        #os.system(rmcom)
+        #print(rmcom)
+        cpcom = "cp -r binutils-gdb "+dir
+        os.system(cpcom)
+        print(cpcom)
 
 def runTimeLimit(cmd) -> (str, str):
     """
@@ -175,9 +221,47 @@ def gainAFLGoCsv(program_name, sanitize_location):
     dir_dataout = dir + program_name + "/out/crashes"
     dir_csv = dir + program_name + ".csv"
 
-    # start_time = getFileCreateTime(dir_datain)
-    start_time = datetime.datetime.strptime("2022-12-04 17:41:27", '%Y-%m-%d %H:%M:%S')
-    print(start_time)
+    start_time = getFileCreateTime(dir_datain)
+    # start_time = datetime.datetime.strptime("2022-12-04 17:41:27", '%Y-%m-%d %H:%M:%S')
+    # print(start_time)
+
+    # Get crash list
+    crashes = os.listdir(dir_dataout)
+    crashes.sort()
+    # print(crashes)
+    for each in crashes:
+        each_crash = dir_dataout + "/" + each
+        print(each_crash)
+        # print(getFileCreateTime(each_crash))
+        create_time = getFileCreateTime(each_crash)
+        duration_time = create_time - start_time
+        # print("./" + dir_program + " @" + each_crash)
+        try:
+            # swftophp
+            # command = dir_program + " " + each_crash
+            # jasper
+            command = dir_program + " -f "+each_crash +" -t mif -F /tmp/out -T jpg"
+            stdout, stderr = runTimeLimit(command)
+            # re_flag = re.search(r'AddressSanitizer', str(stderr))
+            # if re_flag != None:
+            #     saveToCSV(program_name, each, create_time, duration_time, stderr, stdout)
+            saveToCSV(dir_csv, program_name, each, create_time, duration_time, stderr, stdout, "None Compare")
+        except Exception as e:
+            # raise Exception(e)
+            print("Error " + str(e))
+        #
+        # print()
+
+def gainAngoraCsv(program_name, sanitize_location):
+    dir = "dataset/angora/"
+    dir_program = sanitize_location
+    dir_datain = dir + program_name + "/seeds"
+    dir_dataout = dir + program_name + "/output/crashes"
+    dir_csv = dir + program_name + ".csv"
+
+    start_time = getFileCreateTime(dir_datain)
+    # start_time = datetime.datetime.strptime("2022-12-04 17:41:27", '%Y-%m-%d %H:%M:%S')
+    # print(start_time)
 
     # Get crash list
     crashes = os.listdir(dir_dataout)
@@ -193,6 +277,7 @@ def gainAFLGoCsv(program_name, sanitize_location):
         try:
             # swftophp
             command = dir_program + " " + each_crash
+            print("command:{}".format(command))
             stdout, stderr = runTimeLimit(command)
             # re_flag = re.search(r'AddressSanitizer', str(stderr))
             # if re_flag != None:
@@ -204,12 +289,33 @@ def gainAFLGoCsv(program_name, sanitize_location):
         #
         # print()
 
-
 def main():
     # CVE2016()
     # LAVA1()
     # createFolder()
-    gainAFLGoCsv("swftophp048", "/home/fzz/Desktop/STFGFuzz/Programs/swftophp/code_Bin/swftophp")
+
+
+    # gainAFLGoCsv("swftophp048", "/home/fzz/Desktop/STFGFuzz/Programs/swftophp/code_Bin/swftophp")
+    # gainAFLGoCsv("swftophp2864", "/home/fzz/Desktop/STFGFuzz/Programs/swftophp/code_Bin/swftophp")
+    # gainAFLGoCsv("swftophp1042864", "/home/fzz/Desktop/STFGFuzz/Programs/swftophp/code_Bin/swftophp")
+    # gainAFLGoCsv("swftophpother", "/home/fzz/Desktop/STFGFuzz/Programs/swftophp/code_Bin/swftophp")
+    # gainAFLGoCsv("lava229", "/home/fzz/Desktop/STFGFuzz/Programs/lava292/code_Bin/lava229")
+    # gainAFLGoCsv("listswf", "/home/fzz/Desktop/STFGFuzz/Programs/listswf/code_Bin/listswf")
+    # gainAFLGoCsv("listswf1226", "/home/fzz/Desktop/STFGFuzz/Programs/listswf/code_Bin/listswf")
+    # gainAFLGoCsv("jasper-CVE-2015-5221", "/home/fzz/Desktop/STFGFuzz/Programs/jasper-CVE-2015-5221/code_Bin/jasper-CVE-2015-5221")
+
+
+    # gainAngoraCsv("swftophp048", "/home/fzz/Desktop/STFGFuzz/Programs/swftophp/code_Bin/swftophp")
+    # gainAngoraCsv("listswf048", "/home/fzz/Desktop/STFGFuzz/Programs/listswf/code_Bin/listswf")
+    # gainAngoraCsv("angora_listswf", "/home/fzz/Desktop/STFGFuzz/Programs/listswf/code_Bin/listswf")
+    # gainAngoraCsv("listswf1226", "/home/fzz/Desktop/STFGFuzz/Programs/listswf/code_Bin/listswf")
+
+    # createCVEFolder(cve_list)
+    # cpSourceFiles()
+
+    # createAFLGoFolder(aflgo_dataset_list)
+    createAFLGoFolder(uaf_dataset_list)
+
 
 
 

@@ -1,0 +1,8 @@
+docker run --restart=always --privileged=true --name=lxf_aflgo -v /home/lxf/fuzzdata/data_aflgo:/root/data_aflgo -itd lxf_u18_aflgo_ok /bin/bash
+tmux new -s aflgofuzz
+tmux attach-session -t aflgofuzz
+
+echo core >/proc/sys/kernel/core_pattern
+
+cd /sys/devices/system/cpu
+echo performance | tee cpu*/cpufreq/scaling_governor

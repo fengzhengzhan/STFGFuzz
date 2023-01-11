@@ -104,15 +104,18 @@ then
 		# clang++ -g -emit-llvm -c code_sources/demo.cc -o code_sources/demo.bc
 		# clang -g -emit-llvm -c ${SOURCES}/${PROGRAMNAME}.cc -o ${IR}/${PROGRAMNAME}.${SUFFIX} # IR
 		# -fsanitize-recover=address -fsanitize=address,memory -fsanitize-coverage=bb,no-prune,trace-pc-guard  -fsanitize-coverage=edge,trace-pc-guard (default)
+		# -fsanitize=address,leak,undefined
 		${COMPILER} -fsanitize=address -fsanitize-coverage=bb,no-prune,trace-pc-guard,trace-cmp -emit-llvm -c ${SOURCES}/${PROGRAMNAME}.${SUFFIX} -o ${IR}/${PROGRAMNAME_TRACE}.${SUFFIX} 
 		rm -f ${LINE_SAVE}
 		echo "{" >> ${LINE_SAVE}
 		opt -load ../../${LLVMPASSPATH} -line -S ${IR}/${PROGRAMNAME_TRACE}.${SUFFIX} -o ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} >> ${LINE_SAVE}
 		echo "}" >> ${LINE_SAVE}
 		llc -filetype=obj ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} -o ${IR}/${PROGRAMNAME}.o  # Object file
-		${COMPILER} -lz -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
+		# -lz -lbz2
+		${COMPILER} -lz -lbz2 -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
 		# ${COMPILER} -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
 		# clang -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive -L/usr/local/lib/ -lhiredis ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
+		# -lbz2
 		cd ../..
 		
 		# Run

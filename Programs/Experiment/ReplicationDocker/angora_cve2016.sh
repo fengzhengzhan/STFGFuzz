@@ -1,7 +1,7 @@
-# git clone git://sourceware.org/git/binutils-gdb.git cxxfilt-CVE-2016-4487
-# cd cxxfilt-CVE-2016-4487
-# git checkout 2c49145
-# cd ..
+git clone git://sourceware.org/git/binutils-gdb.git cxxfilt-CVE-2016-4487
+cd cxxfilt-CVE-2016-4487
+git checkout 2c49145
+cd ..
 
 # compile dataset
 echo core | sudo tee /proc/sys/kernel/core_pattern
@@ -34,8 +34,8 @@ cd ..
 mkdir seeds
 echo "Hello World" > seeds/seed.txt
 #${ANGORA}/angora_fuzzer -i seeds -o output -j 1 -t ./track/install/bin/c++filt -- cat @@ | xargs fast/install/bin/c++filt
-${ANGORA}/angora_fuzzer -i seeds -o output -j 1 -t ./track/install/bin/c++filt -- ./fast/install/bin/c++filt
-if [ -d @@ ];then cat @@ | xargs fast/install/bin/c++filt; else ./fast/install/bin/c++filt -n ; fi
+${ANGORA}/angora_fuzzer -i seeds -o output -j 1 -t ./track/install/bin/c++filt -- fast/install/bin/c++filt
+# if [ -d @@ ];then cat @@ | xargs fast/install/bin/c++filt; else ./fast/install/bin/c++filt -n ; fi
 
 
 

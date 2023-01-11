@@ -10,8 +10,8 @@ from fuzzer_module.Tools import *
 '''Main Fuzzer'''
 EXP_MODE = False
 # EXP_MODE = True
-# VIS_TERM = True
-VIS_TERM = False
+VIS_TERM = True
+# VIS_TERM = False
 # VIS_SHOWGRAPH = True
 VIS_SHOWGRAPH = False
 
@@ -270,6 +270,7 @@ COM_BININS = 'I'
 
 '''Executor'''
 EXE_TIMEOUT = 20
+EXE_LONGTIMEOUT = 3600  # s
 
 '''Generator'''
 PROGRAMS = "Programs"
@@ -438,7 +439,7 @@ def retLogStr(funcinfo, *args):
 
 def LOG(loggingtype, funcinfo, *args, show=False) -> None:
     # loc = locals()
-    show = False
+    # show = False
     if not EXP_MODE and show:
         logstr = retLogStr(funcinfo, *args)
         with open(PROGRAMS + os.sep + FUZZPRINTLOG, "a+") as f:

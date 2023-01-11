@@ -30,7 +30,7 @@ export CXX=$AFLGO/afl-clang-fast++
 export LDFLAGS=-lpthread
 # -fcommon
 export ADDITIONAL="-targets=$TMP_DIR/BBtargets.txt -outdir=$TMP_DIR -flto -fuse-ld=gold -Wl,-plugin-opt=save-temps -fcommon"
-echo $'decompile.c:848\ndecompile.c:104\ndecompile.c:2864' > $TMP_DIR/BBtargets.txt  # change it 
+echo $'decompile.c:104\ndecompile.c:2864' > $TMP_DIR/BBtargets.txt  # change it 
 # ./autogen.sh;
 autoreconf -f -i
 cd obj-aflgo; 
@@ -55,12 +55,14 @@ cd obj-dist; # work around because cannot run make distclean
 
 
 # CFLAGS="-DFORTIFY_SOURCE=2 -fstack-protector-all -fno-omit-frame-pointer -g -Wno-error -distance=$TMP_DIR/distance.cfg.txt" LDFLAGS="-ldl -lutil" ../configure --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --disable-ld
-CFLAGS="-distance=$TMP_DIR/distance.cfg.txt" CFLAGS="-distance=$TMP_DIR/distance.cfg.txt" CXXFLAGS="-distance=$TMP_DIR/distance.cfg.txt" ../configure --disable-shared --prefix=`pwd`
+CFLAGS="-distance=$TMP_DIR/distance.cfg.txt -fcommon" CXXFLAGS="-distance=$TMP_DIR/distance.cfg.txt -fcommon" ../configure --disable-shared --prefix=`pwd`
 make
 mkdir in; 
 # echo "" > in/in
 # $AFLGO/afl-fuzz -m none -z exp -c 45m -i in -o out binutils/cxxfilt
 wget -P in http://condor.depaul.edu/sjost/hci430/flash-examples/swf/bumble-bee1.swf
+cp in/bumble-bee1.swf in/bumble-bee.swf
+rm -rf in/bumble-bee1.swf
 $AFLGO/afl-fuzz -m none -z exp -c 45m -i in -o out ./util/swftophp @@
 # mkdir out; for i in {1..10}; do timeout -sHUP 60m $AFLGO/afl-fuzz -m none -z exp -c 45m -i in -o "out/out_$i" binutils/cxxfilt > /dev/null 2>&1 & done
 

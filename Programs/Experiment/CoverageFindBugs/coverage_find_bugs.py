@@ -41,12 +41,48 @@ def show_coverage():
             cont = f.readlines()
             print(len(cont))
 
+# def cal_priority(distance, coverage, length):
+#     priority = 0
+#     d = distance * 1000000000
+#     print(1/coverage)
+#     c = int((1/coverage)*1000000)*1000
+#     l = int((1/length)*1000)
+#     priority = d + c + l
+#     print("{} {} {} {}".format(d, c, l, priority))
+#     return priority
+
+def calPriotiryValue(distance, coverage, length) -> int:
+    bit_dis = 10000000000
+    bit_cover = 1000
+    cover_multiple = 10000000
+    bit_length = 1
+
+    priority_value = int(distance*bit_dis + (coverage)%cover_multiple*bit_cover + int(length*bit_length))
+    return priority_value
+
+def normalization(l):
+    max_ele = max(l)
+    for idx, ele in enumerate(l):
+        l[idx] = ele / max_ele
+    return l
+
+def dealDataList(l):
+    for i in range(0, len(l)):
+        num = int(str(l[i])[0:3])
+        if num > 200:
+            num = int(str(l[i])[0:2])
+        if i == len(l)-1:
+            num = 85
+        l[i] = num * 2
+    return l
 
 def show_guard():
     # for i in range(0, 21):
     #     print("seed"+str(i)+",", end="")
     x = []
-    y = []
+    coverage = []
+    priority = []
+
 
     for i in range(0, len(seeds)):
         print(i, len(set(seeds[i])), len(seeds[i]), seed_cont[0:i])
@@ -55,34 +91,126 @@ def show_guard():
         else:
             x.append(str(i)+":"+seed_cont[i-1])
         # x.append(i)
-        y.append(len(seeds[i]))
+        coverage.append(len(seeds[i]))
+        priority.append(calPriotiryValue(seeds_dis[i], len(seeds[i]), 20))
     x[-1] = "..."
-    print(x, y, len(x), len(y), len(seeds_dis))
+    print(x, coverage, len(x), len(coverage), len(seeds_dis))
+    # print(x, p)
+    for i in range(len(priority)):
+        print("{} {}, ".format(x[i], priority[i]), end="")
+    priority = dealDataList(priority)
+    print(priority)
+    # p = normalization(p)
+    # print(x, p)
+    # for i in range(len(p)):
+    #     print("{} {}, ".format(x[i], p[i]), end="")
     #
     # coding:utf-8
 
-    fig = plt.figure(figsize=(10,5))
+    # draw pic
+    fig = plt.figure(figsize=(10, 5))
     ax = fig.add_subplot(111)
-    p1 = ax.plot(x, y, 'ro-', label='coverage')
-    plt.plot(x, y, 'ro-')
+    lns1 = ax.plot(x, coverage, color='orange', marker='o', label='coverage')
+    ax.set_ylim(450, 1800)
+
     ax2 = ax.twinx()
-    p2 = ax2.plot(x, seeds_dis, 'bo-', label='distance')
-    plt.plot(x, seeds_dis, 'bo-')
+    lns2 = ax2.plot(x, seeds_dis, color='blue', marker='o', label='distance')
+    lns3 = ax2.plot(x, priority, color='red', marker='x', label='priority')
+    # plt.axis('off')
 
-    p = p1 + p2
-    labels = [label.get_label() for label in p]
-    ax.legend(p, labels, loc=9)  # 6 9
+    for tl in ax.get_yticklabels():
+        tl.set_color('orange')
+    # for tl in ax1.get_xticklabels():
+    #     tl.set_rotation(45)
+    #     tl.set_fontsize(8)
+    for tl in ax2.get_yticklabels():
+        tl.set_color('blue')
 
-    plt.scatter(17, 44, s=100, color='k')
-    plt.text(17, 38, r'crash', fontdict={'size': '16', 'color': 'k'})
+    # added these three lines
+    lns = lns1 + lns2 + lns3
+    labs = [l.get_label() for l in lns]
+    ax.legend(lns, labs, loc=0)
     # plt.title('Title')
     # ax.grid()
+
+    plt.scatter(17, 36, s=80, color='k')
+    plt.text(17, 24, r'crash', fontdict={'size': '16', 'color': 'k'})
     ax.set_xlabel('Position Corresponding Inputs')
-    ax.set_ylabel('Code Coverage')
+    ax.set_ylabel('Coverage')
     ax2.set_ylabel('Distance')
+
+    ax.yaxis.label.set_color('orange')
+    ax2.yaxis.label.set_color('blue')
+
+    # ax2.set_ylim(0, 35)
+    # ax.set_ylim(-20, 100)
+
     # plt.legend()
     plt.savefig('./coverage_find_bugs.png', dpi=300)
     plt.show()
+
+    # 三条折线
+    # fig = plt.figure(figsize=(10,5))
+    # ax = fig.add_subplot(111)
+    # p1 = ax.plot(x, y, 'ro-', label='coverage')  # ro-
+    # plt.plot(x, y, 'ro-')  # ro-
+    #
+    # ax2 = ax.twinx()
+    # p2 = ax2.plot(x, seeds_dis, 'go-', label='distance')  # bo-
+    # plt.plot(x, seeds_dis, 'go-')  # bo-
+    #
+    # ax3 = ax.twinx()
+    # p3 = ax3.plot(x, p, 'bo-', label='priority')  # yo-
+    # plt.plot(x, p, 'bo-')  # yo-
+    # plt.axis('off')
+    #
+    # # l1 = plt.plot(x, y, 'r--', label='type1')
+    # # l2 = plt.plot(x, seeds_dis, 'g--', label='type2')
+    # # l3 = plt.plot(x, p, 'b--', label='type3')
+    # # plt.plot(x, y, 'ro-', x, seeds_dis, 'g+-', x, p, 'b^-')
+    #
+    #
+    # p = p1 + p2 + p3
+    # labels = [label.get_label() for label in p]
+    # ax.legend(p, labels, loc=9)  # 6 9
+    #
+    # plt.scatter(17, 44, s=100, color='k')
+    # plt.text(17, 38, r'crash', fontdict={'size': '16', 'color': 'k'})
+    # # plt.title('Title')
+    # # ax.grid()
+    # ax.set_xlabel('Position Corresponding Inputs')
+    # ax.set_ylabel('Code Coverage')
+    # ax2.set_ylabel('Distance')
+    # # ax3.set_ylabel('Priority')
+    # plt.legend()
+    # plt.savefig('./coverage_find_bugs.png', dpi=300)
+    # plt.show()
+
+    # 同坐标系三条折线
+    # plt.figure(figsize=(10,5))
+    #
+    # plt.plot(x, y, 'b+-')
+    # plt.plot(x, seeds_dis, 'b+-')  # color='blue', linewidth=5.0, linestyle='--'
+    # plt.plot(x, p, 'ro-')
+    #
+    # # 设置坐标轴范围
+    # # plt.xlim((-5, 5))
+    # plt.ylim((0, 1800))
+    # # 设置坐标轴名称
+    # plt.xlabel('Position Corresponding Inputs')
+    # plt.ylabel('Value')
+    # # 设置坐标轴刻度
+    # # my_x_ticks = np.arange(-5, 5, 0.5)
+    # # 对比范围和名称的区别
+    # # my_x_ticks = np.arange(-5, 2, 0.5)
+    # # my_y_ticks = np.arange(-2, 2, 0.3)
+    # # plt.xticks(my_x_ticks)
+    # # plt.yticks(my_y_ticks)
+    #
+    # # 显示出所有设置
+    # plt.legend()
+    # plt.savefig('./coverage_find_bugs.png', dpi=300)
+    # plt.show()
 
 def draw_change():
     pass
@@ -90,3 +218,4 @@ def draw_change():
 if __name__ == '__main__':
     # show_coverage()
     show_guard()
+    # cal_priority(12, 114,20)
