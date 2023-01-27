@@ -24,6 +24,8 @@ class Visualizer:
         self.crash_num = 0
         self.last_crash_time = "0:0:0:0"
         self.cur_min_dis = USE_INITMAXNUM
+        self.pre_min_dis = USE_INITMAXNUM - 1
+        self.random_num = 0
         self.trace_orderdict = {}  # order:function:constract:curlocation
 
         self.show_pname = USE_INITSTR

@@ -241,7 +241,7 @@ def mainFuzzer():
                     sch.quitFuzz()
 
         # Subtract seed length.
-        if vis.loop > 10:
+        if vis.loop > 10 and False:
             if len(b4ld_seed.content) == b4len:
                 while len(b4ld_seed.content) > b4len // 2:
                 # while True:
@@ -766,7 +766,6 @@ def mainFuzzer():
         # Missed byte
 
         if eaexit == False and MISSED_BYTES_POWER == True:
-        # if MISSED_BYTES_POWER == True:
             miss_set = set([i for i in range(0, len(init_seed.content))]) - loop_mutloc
             # LOG(DEBUG, LOC(), len(init_seed.content), loop_mutloc, miss_set, show=True)
             # raise Exception()
@@ -823,6 +822,21 @@ def mainFuzzer():
                             sch.addq(SCH_LOOP_SEED, [miss_seed, ],
                                      calPriotiryValue(cur_dis, miss_covernum, len(miss_seed.content)))
                             loop_covernum = miss_covernum
+
+        '''Random Mutation'''
+        if vis.cur_min_dis == vis.pre_min_dis:
+            vis.random_num += 1
+            if vis.random_num > RANDOM_NUMBER:
+                if not sch.seedq.empty():
+                    init_seed = sch.selectOneSeed(SCH_LOOP_SEED)
+                    random_seed = Mutator.randomMutate(init_seed)
+                    sch.addq(SCH_LOOP_SEED, [random_seed, ], calPriotiryValue(0, 0, len(init_seed.content)))
+                else:
+                    random_seed = Mutator.randomMutate(init_seed)
+                    sch.addq(SCH_LOOP_SEED, [random_seed, ], calPriotiryValue(0, 0, len(init_seed.content)))
+        else:
+            vis.pre_min_dis = vis.cur_min_dis
+            vis.random_num = 0
 
         # raise Exception()
         # Endless fuzzing, add the length seed.

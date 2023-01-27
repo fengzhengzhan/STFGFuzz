@@ -6,9 +6,7 @@ import sys
 
 from fuzzer_module.Tools import *
 
-
 # Fuzzing Mode
-
 
 # Program information.
 '''Main Fuzzer'''
@@ -18,6 +16,39 @@ VIS_TERM = True
 # VIS_TERM = False
 # VIS_SHOWGRAPH = True
 VIS_SHOWGRAPH = False
+
+FUZZ_MODE = "normal"  # ["normal","visible_character"]
+
+if FUZZ_MODE == "normal":
+    NEAREST_NUMBER = 16  # [2,0x7fffffff]  level of nearest
+    LIMITER = 0x7fffffff  # [256,0x7fffffff]
+    MISSED_BYTES_POWER = False  # [True,False]
+    BIT_MUTATE = False
+    MISS_LEN = 256  # [128,256]
+    # Specified characters
+    AIM_BYTE = {i for i in range(0, 256)}
+    MUT_BIT_LEN = 256  # [128,256]
+elif FUZZ_MODE == "visible_character":
+    NEAREST_NUMBER = 3
+    LIMITER = 0x7fffffff
+    MISSED_BYTES_POWER = True
+    BIT_MUTATE = True
+    MISS_LEN = 128
+    AIM_BYTE = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
+                81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 95, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108,
+                109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122}
+    MUT_BIT_LEN = 128
+else:
+    # normal
+    NEAREST_NUMBER = 16  # [3,0x7fffffff]
+    LIMITER = 0x7fffffff  # [256,0x7fffffff]
+    MISSED_BYTES_POWER = False  # [True,False]
+    BIT_MUTATE = False
+    MISS_LEN = 256  # [128,256]
+    # Specified characters
+    AIM_BYTE = {i for i in range(0, 256)}
+    MUT_BIT_LEN = 256  # [128,256]
+
 
 FUZZNAME = "STFGFuzzer"
 FUZZPRINTLOG = FUZZNAME + "_show.log"
@@ -32,12 +63,9 @@ GAP_VALUE = 80
 FUZZ_DIRECTED = 60
 FUZZ_GERYBOX = 61
 
-NEAREST_NUMBER = 64  # 3  0x7fffffff
-LIMITER = 0x7fffffff  # 256  0x7fffffff
-MISSED_BYTES_POWER = True  # True False
+RANDOM_NUMBER = 16
 
 REPLACE_COMMAND = '@seed@'
-
 
 
 AUTO_SEED = "auto.seed"
@@ -312,11 +340,8 @@ SEED_INIT = 100
 MUT_SEED_SUB = 101
 MUT_SEED_INSERT = 102
 
-MISS_LEN = 128  # 256
-MISS_SKIP = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34, 39, 92, 127, 128}  # b'"', b"'", b'\\',
-# Specified characters
-AIM_BYTE = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 95, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122}
-MUT_BIT_LEN = 128  # 256
+MISS_SKIP = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+                 28, 29, 30, 31, 32, 34, 39, 92, 127, 128}  # b'"', b"'", b'\\',
 MUT_BIT_LIST = [128, -128, 64, -64, 32, -32, 16, -16, 8, -8, 4, -4, 2, -2, 1, -1]
 
 '''Parser'''
@@ -445,7 +470,7 @@ def retLogStr(funcinfo, *args):
 
 def LOG(loggingtype, funcinfo, *args, show=False) -> None:
     # loc = locals()
-    # show = False
+    show = False
     if not EXP_MODE and show:
         logstr = retLogStr(funcinfo, *args)
         with open(PROGRAMS + os.sep + FUZZPRINTLOG, "a+") as f:

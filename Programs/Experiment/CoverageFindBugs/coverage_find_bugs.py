@@ -57,7 +57,22 @@ def calPriotiryValue(distance, coverage, length) -> int:
     cover_multiple = 10000000
     bit_length = 1
 
+    # priority_value = int(distance*bit_dis + (coverage)%cover_multiple*bit_cover + int(length*bit_length))
     priority_value = int(distance*bit_dis + (coverage)%cover_multiple*bit_cover + int(length*bit_length))
+    # priority_value = int(distance*bit_dis + (1/(coverage+1))*cover_multiple*bit_cover + length*bit_length)
+
+    return priority_value
+
+def calPriotiryValueRe(distance, coverage, length):
+    bit_dis = 10000000000
+    bit_cover = 1000
+    cover_multiple = 10000000
+    bit_length = 1
+
+    # priority_value = int(distance*bit_dis + (coverage)%cover_multiple*bit_cover + int(length*bit_length))
+    # priority_value = int(distance * bit_dis + (coverage) % cover_multiple * bit_cover + int(length * bit_length))
+    priority_value = int(distance*bit_dis + (1/(coverage+1))*cover_multiple*bit_cover + length*bit_length)
+
     return priority_value
 
 def normalization(l):
@@ -82,6 +97,7 @@ def show_guard():
     x = []
     coverage = []
     priority = []
+    priorityre = []
 
 
     for i in range(0, len(seeds)):
@@ -93,6 +109,7 @@ def show_guard():
         # x.append(i)
         coverage.append(len(seeds[i]))
         priority.append(calPriotiryValue(seeds_dis[i], len(seeds[i]), 20))
+        priorityre.append(calPriotiryValueRe(seeds_dis[i], len(seeds[i]), 20))
     x[-1] = "..."
     print(x, coverage, len(x), len(coverage), len(seeds_dis))
     # print(x, p)
@@ -100,13 +117,21 @@ def show_guard():
         print("{} {}, ".format(x[i], priority[i]), end="")
     priority = dealDataList(priority)
     print(priority)
+
+    for i in range(len(priorityre)):
+        print("{} {}, ".format(x[i], priorityre[i]), end="")
+    priorityre = dealDataList(priorityre)
+    print(priorityre)
     # p = normalization(p)
     # print(x, p)
     # for i in range(len(p)):
     #     print("{} {}, ".format(x[i], p[i]), end="")
     #
     # coding:utf-8
+    return x, coverage, priority, priorityre
 
+def draw_onepic():
+    x, coverage, priority, priorityre = show_guard()
     # draw pic
     fig = plt.figure(figsize=(10, 5))
     ax = fig.add_subplot(111)
@@ -212,10 +237,51 @@ def show_guard():
     # plt.savefig('./coverage_find_bugs.png', dpi=300)
     # plt.show()
 
+def draw_fourpic():
+    x, coverage, priority, priorityre = show_guard()
+    xstr = ""
+    for one in x:
+        xstr += one + " "
+    print(x)
+    x = [i for i in range(0, 21)]
+
+
+    plt.figure(figsize=(9, 7))
+
+    # plot 1:
+    plt.subplot(2, 2, 1)
+    plt.plot(x, seeds_dis, color='#1f77b4')
+    plt.title("Distance")
+
+    # plot 2:
+    plt.subplot(2, 2, 2)
+    plt.plot(x, coverage, color='#ff7f0e')
+    plt.title("Coverage")
+
+    # plot 3:
+    plt.subplot(2, 2, 3)
+    plt.plot(x, priorityre, color='#d62728')
+    plt.title("Priority1")
+
+
+    # plot 4:
+    plt.subplot(2, 2, 4)
+    plt.plot(x, priority, color='#d62728')
+    plt.title("Priority2")
+
+    # plt.text(0, 0, "sfsadfsadfsadfaasfdsadf", wrap=True)
+
+    # plt.suptitle("RUNOOB subplot Test")
+    plt.savefig('./coverage_find_bugs.png', dpi=300)
+    plt.show()
+
+
 def draw_change():
     pass
 
 if __name__ == '__main__':
     # show_coverage()
-    show_guard()
+    # show_guard()
     # cal_priority(12, 114,20)
+    # draw_onepic()
+    draw_fourpic()
