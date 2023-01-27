@@ -1,8 +1,19 @@
+# aflgo
 docker run --restart=always --privileged=true --name=lxf_aflgo -v /home/lxf/fuzzdata/data_aflgo:/root/data_aflgo -itd lxf_u18_aflgo_ok /bin/bash
+docker run --restart=always --privileged=true --name=aflgo_mjs73 -v /home/lxf/fuzzdata/dataset:/root/dataset -itd 20221206_aflgo_experiment /bin/bash
+
+docker exec -it aflgo_mjs73 bash
 tmux new -s aflgofuzz
+cd /root/aflgo/scripts/fuzz/
+vim file
+chmod 777 file
+
 tmux attach-session -t aflgofuzz
 
-echo core >/proc/sys/kernel/core_pattern
 
-cd /sys/devices/system/cpu
-echo performance | tee cpu*/cpufreq/scaling_governor
+
+# Angora
+docker run --restart=always --privileged=true --name=angora_tiffcp -v /home/lxf/fuzzdata/dataset:/root/dataset -itd angora_binutils /bin/bash
+
+cd /root/datav5/Angora-1.2.2/experiment/
+

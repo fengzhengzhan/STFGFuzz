@@ -110,21 +110,21 @@ def show_guard():
     # draw pic
     fig = plt.figure(figsize=(10, 5))
     ax = fig.add_subplot(111)
-    lns1 = ax.plot(x, coverage, color='orange', marker='o', label='coverage')
+    lns1 = ax.plot(x, coverage, color='#ff7f0e', marker='o', label='coverage')
     ax.set_ylim(450, 1800)
 
     ax2 = ax.twinx()
-    lns2 = ax2.plot(x, seeds_dis, color='blue', marker='o', label='distance')
-    lns3 = ax2.plot(x, priority, color='red', marker='x', label='priority')
+    lns2 = ax2.plot(x, seeds_dis, color='#1f77b4', marker='o', label='distance')
+    lns3 = ax2.plot(x, priority, color='#d62728', marker='x', label='priority')
     # plt.axis('off')
 
     for tl in ax.get_yticklabels():
-        tl.set_color('orange')
+        tl.set_color('#ff7f0e')
     # for tl in ax1.get_xticklabels():
     #     tl.set_rotation(45)
     #     tl.set_fontsize(8)
     for tl in ax2.get_yticklabels():
-        tl.set_color('blue')
+        tl.set_color('#1f77b4')
 
     # added these three lines
     lns = lns1 + lns2 + lns3
@@ -139,8 +139,8 @@ def show_guard():
     ax.set_ylabel('Coverage')
     ax2.set_ylabel('Distance')
 
-    ax.yaxis.label.set_color('orange')
-    ax2.yaxis.label.set_color('blue')
+    ax.yaxis.label.set_color('#ff7f0e')
+    ax2.yaxis.label.set_color('#1f77b4')
 
     # ax2.set_ylim(0, 35)
     # ax.set_ylim(-20, 100)

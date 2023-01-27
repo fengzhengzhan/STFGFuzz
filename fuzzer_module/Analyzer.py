@@ -77,6 +77,7 @@ class Analyzer:
 
         guard_str = string_at(self.addr + ANA_FILTER_SIZE + ANA_INTERLEN_SIZE + ANA_COVERNUM_SIZE, ANA_GUARD_SIZE).decode("utf-8")
         re_str = GUARDLEN_FLAG + "(.*?)" + END_EACH_FLAG
+        # print("debug:{} {}".format(covernum_str, guard_str))
         guardlen = int(re.search(re_str, guard_str).group(1))
 
         return interlen, covernum, guardlen

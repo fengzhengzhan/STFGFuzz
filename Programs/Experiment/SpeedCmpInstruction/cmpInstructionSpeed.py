@@ -306,11 +306,58 @@ def genPicture(filename, ):
     plt.show()
 
 
+def genPictureBarh(filename):
+    excel_data = readExcel(filename)
+    # print(excel_data)
+
+    labels = splitValue(excel_data[1:], 0)
+    sanitizer_list = splitValue(excel_data[1:], 3)
+    CFDGF_filter_list = splitValue(excel_data[1:], 4)
+    # print(labels, sanitizer_list, CFDGF_filter_list)
+
+    data = []
+    multi = 0
+    for idx in range(0, len(labels)):
+        data.append([sanitizer_list[idx], CFDGF_filter_list[idx]])
+        multi += CFDGF_filter_list[idx]/sanitizer_list[idx]
+        print(CFDGF_filter_list[idx], sanitizer_list[idx], CFDGF_filter_list[idx]/sanitizer_list[idx], multi)
+    print("multi:{}".format(multi/len(labels)))
+    # print(data, len(labels))
+
+    dim = len(data[0])
+    w = 0.4
+    dimw = w / dim
+
+    # draw picture
+    # fig, ax = plt.subplots(figsize=(6, 9))
+    fig, ax = plt.subplots()
+    x = np.arange(len(data))
+    # print(x)
+
+    # for i in range(len(data[0])):
+    y = [d[0] for d in data]
+    b = ax.barh(x + 1 * dimw, y, dimw, left=0.001, label="sanitizer")
+
+    y = [d[1] for d in data]
+    b = ax.barh(x + 0 * dimw, y, dimw, left=0.001, label="CFDGF")
+
+    ax.set_yticks(x + dimw / 2)
+    ax.set_yticklabels(map(str, labels))
+    ax.set_xscale('log')
+
+    ax.set_xlabel('Time(second)')
+    ax.legend()
+
+    # ax.set_title('matplotlib.axes.Axes.barh Example')
+
+    plt.savefig('./cmpInstructionSpeed.png', dpi=300)
+    plt.show()
 
 
 if __name__ == '__main__':
     # experiment()
-    genPicture("SpeedCmpInstruction.xlsx")
+    # genPicture("SpeedCmpInstruction.xlsx")
+    genPictureBarh("SpeedCmpInstruction.xlsx")
 
 
 

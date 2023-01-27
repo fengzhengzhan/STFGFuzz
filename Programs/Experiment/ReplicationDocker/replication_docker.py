@@ -62,7 +62,7 @@ def runTimeLimit(cmd) -> (str, str):
 
     # timeout kill child process
     try:
-        stdout, stderr = p.communicate(timeout=20)
+        stdout, stderr = p.communicate(timeout=120)
         # ret_code = p.poll()
     except subprocess.TimeoutExpired:
         p.kill()
@@ -214,7 +214,7 @@ def LAVA1():
             # print()
 
 
-def gainAFLGoCsv(program_name, sanitize_location):
+def gainAFLGoCsv(program_name, sanitize_location, prev_par, next_par):
     dir = "dataset/aflgo/"
     dir_program = sanitize_location
     dir_datain = dir + program_name + "/in"
@@ -231,7 +231,7 @@ def gainAFLGoCsv(program_name, sanitize_location):
     # print(crashes)
     for each in crashes:
         each_crash = dir_dataout + "/" + each
-        print(each_crash)
+        # print(each_crash)
         # print(getFileCreateTime(each_crash))
         create_time = getFileCreateTime(each_crash)
         duration_time = create_time - start_time
@@ -240,7 +240,9 @@ def gainAFLGoCsv(program_name, sanitize_location):
             # swftophp
             # command = dir_program + " " + each_crash
             # jasper
-            command = dir_program + " -f "+each_crash +" -t mif -F /tmp/out -T jpg"
+            # command = dir_program + " -f "+each_crash +" -t mif -F /tmp/out -T jpg"
+            command = dir_program + " " + prev_par + " " + each_crash + " " + next_par
+            print(command)
             stdout, stderr = runTimeLimit(command)
             # re_flag = re.search(r'AddressSanitizer', str(stderr))
             # if re_flag != None:
@@ -252,7 +254,7 @@ def gainAFLGoCsv(program_name, sanitize_location):
         #
         # print()
 
-def gainAngoraCsv(program_name, sanitize_location):
+def gainAngoraCsv(program_name, sanitize_location, prev_par, next_par):
     dir = "dataset/angora/"
     dir_program = sanitize_location
     dir_datain = dir + program_name + "/seeds"
@@ -261,7 +263,7 @@ def gainAngoraCsv(program_name, sanitize_location):
 
     start_time = getFileCreateTime(dir_datain)
     # start_time = datetime.datetime.strptime("2022-12-04 17:41:27", '%Y-%m-%d %H:%M:%S')
-    # print(start_time)
+    print(start_time)
 
     # Get crash list
     crashes = os.listdir(dir_dataout)
@@ -276,8 +278,10 @@ def gainAngoraCsv(program_name, sanitize_location):
         # print("./" + dir_program + " @" + each_crash)
         try:
             # swftophp
-            command = dir_program + " " + each_crash
-            print("command:{}".format(command))
+            command = dir_program + " " + prev_par + " " + each_crash + " " + next_par
+            print(command)
+            # command = dir_program + " " + each_crash
+            # print("command:{}".format(command))
             stdout, stderr = runTimeLimit(command)
             # re_flag = re.search(r'AddressSanitizer', str(stderr))
             # if re_flag != None:
@@ -303,18 +307,30 @@ def main():
     # gainAFLGoCsv("listswf", "/home/fzz/Desktop/STFGFuzz/Programs/listswf/code_Bin/listswf")
     # gainAFLGoCsv("listswf1226", "/home/fzz/Desktop/STFGFuzz/Programs/listswf/code_Bin/listswf")
     # gainAFLGoCsv("jasper-CVE-2015-5221", "/home/fzz/Desktop/STFGFuzz/Programs/jasper-CVE-2015-5221/code_Bin/jasper-CVE-2015-5221")
+    # gainAFLGoCsv("gifsponge", "/home/fzz/Desktop/STFGFuzz/Programs/giflib-bugs-74/code_Bin/giflib-bugs-74", "-f", "")
+    gainAFLGoCsv("mjs9320", "/home/fzz/Desktop/STFGFuzz/Programs/mjs-issues-57/code_Bin/mjs-issues-57", "-f", "")
+    gainAFLGoCsv("mjs13671", "/home/fzz/Desktop/STFGFuzz/Programs/mjs-issues-78/code_Bin/mjs-issues-78", "-f", "")
+    # gainAFLGoCsv("gifsponge", "/home/fzz/Desktop/STFGFuzz/Programs/giflib-bugs-74/code_Bin/giflib-bugs-74", "-f", "")
+    gainAFLGoCsv("mjs57", "/home/fzz/Desktop/STFGFuzz/Programs/mjs-issues-57/code_Bin/mjs-issues-57", "-f", "")
+    gainAFLGoCsv("mjs78", "/home/fzz/Desktop/STFGFuzz/Programs/mjs-issues-78/code_Bin/mjs-issues-78", "-f", "")
+    # gainAFLGoCsv("rec2csv", "//home/fzz/Desktop/STFGFuzz/Programs/CVE-2019-6455/code_Bin/CVE-2019-6455", "", "")
+    # gainAFLGoCsv("tiffcp", "/home/fzz/Desktop/STFGFuzz/Programs/tiffcp/code_Bin/tiffcp", "-i", "/tmp/tiffcp_tmp")
+
 
 
     # gainAngoraCsv("swftophp048", "/home/fzz/Desktop/STFGFuzz/Programs/swftophp/code_Bin/swftophp")
     # gainAngoraCsv("listswf048", "/home/fzz/Desktop/STFGFuzz/Programs/listswf/code_Bin/listswf")
     # gainAngoraCsv("angora_listswf", "/home/fzz/Desktop/STFGFuzz/Programs/listswf/code_Bin/listswf")
     # gainAngoraCsv("listswf1226", "/home/fzz/Desktop/STFGFuzz/Programs/listswf/code_Bin/listswf")
+    # gainAngoraCsv("rec2csv", "/home/fzz/Desktop/STFGFuzz/Programs/CVE-2019-6455/code_Bin/CVE-2019-6455", "", "")
+    # gainAngoraCsv("jasper", "/home/fzz/Desktop/STFGFuzz/Programs/jasper-CVE-2015-5221/code_Bin/jasper-CVE-2015-5221", "-f", "-t mif -F /tmp/out -T jpg")
+    # gainAngoraCsv("gifsponge", "/home/fzz/Desktop/STFGFuzz/Programs/giflib-bugs-74/code_Bin/giflib-bugs-74", "<", "")
 
     # createCVEFolder(cve_list)
     # cpSourceFiles()
 
     # createAFLGoFolder(aflgo_dataset_list)
-    createAFLGoFolder(uaf_dataset_list)
+    # createAFLGoFolder(uaf_dataset_list)
 
 
 

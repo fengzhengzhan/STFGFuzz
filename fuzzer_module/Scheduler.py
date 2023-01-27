@@ -154,13 +154,24 @@ class Scheduler:
                             cinfo_num += 1
 
                     LOG(DEBUG, LOC(), len(self.target_dict[self.cur_tgtnum]))
-                    # fixme set value can not fixed.
-                    if 'greybox0' not in self.target_dict[self.cur_tgtnum] and len(
-                            self.target_dict[self.cur_tgtnum]) - cinfo_num <= SCH_CRASH_SIMI:
+                    # greybox not early exit
+                    # flag_greybox = False
+                    # for each in self.target_dict[self.cur_tgtnum]:
+                    #     LOG(DEBUG, LOC(), each, 'greybox' in each, show=True)
+                    #     if 'greybox' in each:
+                    #         flag_greybox = True
+                    # if 'greybox0' not in self.target_dict[self.cur_tgtnum] and len(
+                    #         self.target_dict[self.cur_tgtnum]) - cinfo_num <= SCH_CRASH_SIMI:
+                    # if not flag_greybox \
+                    #         and len(self.target_dict[self.cur_tgtnum]) - cinfo_num <= SCH_CRASH_SIMI\
+                    #         and len(self.target_dict[self.cur_tgtnum]) >= SCH_CRASH_SIMI:
+                    if len(self.target_dict[self.cur_tgtnum]) - cinfo_num <= SCH_CRASH_SIMI \
+                            and len(self.target_dict[self.cur_tgtnum]) >= SCH_CRASH_SIMI:
                         tgtsan = True
                         # self.cur_tgtnum += 1
                         self.target_crashinfo.append(crash_infostr)
-                    LOG(DEBUG, LOC(), tgtsan, self.cur_tgtnum)
+                    # tgtsan = False
+                    LOG(DEBUG, LOC(), tgtsan, self.cur_tgtnum, self.target_dict, show=True)
                 except Exception as e:
                     LOG(DEBUG, LOC(), e) #
 

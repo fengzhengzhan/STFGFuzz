@@ -135,21 +135,6 @@ make && make install
 
 ```
 
-## AFLGo
-```
-
-```
-
-## Compile Program
-```
-export FORCE_UNSAFE_CONFIGURE=1
-export LLVM_COMPILER=clang
-autoreconf -f -i
-CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --disable-shared
-make
-make install
-
-```
 
 ## Self
 ```bash
@@ -161,13 +146,14 @@ clang++ -g -emit-llvm -c code_sources/demo.cc -o code_sources/demo.bc
 ```
 
 
-## libtiff  GraphicsMagick
+## Compile Program (libtiff)
 ```
 export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
 autoreconf -f -i
 CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --disable-shared
-make && make install
+make
+make install
 
 ```
 
