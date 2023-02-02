@@ -39,3 +39,4 @@ Programs/TrackCrash/crashinfo/
 Programs/TrackCrash/crashone/
 fuzzer_module/__pycache__/
 env_python/
+compare_fuzzer/

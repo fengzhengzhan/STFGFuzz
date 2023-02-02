@@ -19,16 +19,7 @@ VIS_SHOWGRAPH = False
 
 FUZZ_MODE = "normal"  # ["normal","visible_character"]
 
-if FUZZ_MODE == "normal":
-    NEAREST_NUMBER = 16  # [2,0x7fffffff]  level of nearest
-    LIMITER = 0x7fffffff  # [256,0x7fffffff]
-    MISSED_BYTES_POWER = False  # [True,False]
-    BIT_MUTATE = False
-    MISS_LEN = 256  # [128,256]
-    # Specified characters
-    AIM_BYTE = {i for i in range(0, 256)}
-    MUT_BIT_LEN = 256  # [128,256]
-elif FUZZ_MODE == "visible_character":
+if FUZZ_MODE == "visible_character":
     NEAREST_NUMBER = 3
     LIMITER = 0x7fffffff
     MISSED_BYTES_POWER = True
@@ -40,7 +31,7 @@ elif FUZZ_MODE == "visible_character":
     MUT_BIT_LEN = 128
 else:
     # normal
-    NEAREST_NUMBER = 16  # [3,0x7fffffff]
+    NEAREST_NUMBER = 16  # [2,0x7fffffff]  level of nearest
     LIMITER = 0x7fffffff  # [256,0x7fffffff]
     MISSED_BYTES_POWER = False  # [True,False]
     BIT_MUTATE = False

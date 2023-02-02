@@ -128,6 +128,10 @@ def show_guard():
     #     print("{} {}, ".format(x[i], p[i]), end="")
     #
     # coding:utf-8
+
+    priority = [i / max(priority) for i in priority]
+    priorityre = [i / max(priorityre) for i in priorityre]
+
     return x, coverage, priority, priorityre
 
 def draw_onepic():
@@ -239,37 +243,44 @@ def draw_onepic():
 
 def draw_fourpic():
     x, coverage, priority, priorityre = show_guard()
-    xstr = ""
-    for one in x:
-        xstr += one + " "
-    print(x)
-    x = [i for i in range(0, 21)]
+    # xstr = ""
+    # for one in x:
+    #     xstr += one + " "
+    # print(x)
+    # x = [i for i in range(0, 21)]
 
 
-    plt.figure(figsize=(9, 7))
+    # plt.figure(figsize=(9, 7))
+    f, ax = plt.subplots(3, 1, figsize=(9, 21), dpi=80)
+
+    plt.rcParams['savefig.dpi'] = 300
+
+    # f.suptitle('My Figure')
 
     # plot 1:
-    plt.subplot(2, 2, 1)
-    plt.plot(x, seeds_dis, color='#1f77b4')
-    plt.title("Distance")
+    # ax.subplot(2, 2, 1)
+    ax[0].plot(x, seeds_dis, color='#1f77b4')
+    ax[0].set_title("(a) Distance")
 
     # plot 2:
-    plt.subplot(2, 2, 2)
-    plt.plot(x, coverage, color='#ff7f0e')
-    plt.title("Coverage")
+    # plt.subplot(2, 2, 2)
+    ax[1].plot(x, coverage, color='#ff7f0e')
+    ax[1].set_title("(b) Coverage")
 
     # plot 3:
-    plt.subplot(2, 2, 3)
-    plt.plot(x, priorityre, color='#d62728')
-    plt.title("Priority1")
+    # plt.subplot(2, 2, 3)
+    # ax[1][0].plot(x, priorityre, color='#d62728')
+    # ax[1][0].set_title(r"(c) Priority=$D*10^8 + \lfloor\frac{1}{C}*10^8\rfloor$")
 
 
     # plot 4:
-    plt.subplot(2, 2, 4)
-    plt.plot(x, priority, color='#d62728')
-    plt.title("Priority2")
+    # plt.subplot(2, 2, 4)
+    ax[2].plot(x, priority, color='#d62728')
+    # ax[2].set_title(r"(d) Priority=$D*10^8 + C\%10^8$")
+    ax[2].set_title(r"(c) Priority")
 
     # plt.text(0, 0, "sfsadfsadfsadfaasfdsadf", wrap=True)
+    # f.text(0.13, 0.05, "Abscissa:  " + xstr, fontdict={'size': '10', 'color': 'k'})
 
     # plt.suptitle("RUNOOB subplot Test")
     plt.savefig('./coverage_find_bugs.png', dpi=300)

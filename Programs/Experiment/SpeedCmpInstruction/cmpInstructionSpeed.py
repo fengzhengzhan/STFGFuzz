@@ -336,16 +336,16 @@ def genPictureBarh(filename):
 
     # for i in range(len(data[0])):
     y = [d[0] for d in data]
-    b = ax.barh(x + 1 * dimw, y, dimw, left=0.001, label="sanitizer")
+    b = ax.barh(x + 1 * dimw, y, dimw, left=0.001, label="Sanitizer")
 
     y = [d[1] for d in data]
-    b = ax.barh(x + 0 * dimw, y, dimw, left=0.001, label="CFDGF")
+    b = ax.barh(x + 0 * dimw, y, dimw, left=0.001, label="CONFF")
 
     ax.set_yticks(x + dimw / 2)
     ax.set_yticklabels(map(str, labels))
     ax.set_xscale('log')
 
-    ax.set_xlabel('Time(second)')
+    ax.set_xlabel('time (s)')
     ax.legend()
 
     # ax.set_title('matplotlib.axes.Axes.barh Example')

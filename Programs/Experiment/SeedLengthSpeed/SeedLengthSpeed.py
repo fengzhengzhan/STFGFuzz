@@ -194,7 +194,7 @@ def genPicture(filename, ):
     # plt.plot(x, k16, 'o-', label=program[15])
     # plt.plot(x, k17, 'o-', label=program[16])
     plt.xlabel("input size (kb)")  # 横坐标名字
-    plt.ylabel("execution speed (s)")  # 纵坐标名字
+    plt.ylabel("execution time (s)")  # 纵坐标名字
     # plt.title("Relationship between input size and execution speed")
     plt.legend(loc="best")  # 图例
     plt.savefig('./SeedLengthSpeed.png', dpi=300)
