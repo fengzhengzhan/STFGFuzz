@@ -202,10 +202,11 @@ class Scheduler:
 
         return tgtsan
 
-    def quitFuzz(self):
+    def quitFuzz(self, vis):
         self.deleteSeeds(SCH_THIS_SEED)
         self.deleteSeeds(SCH_THISMUT_SEED)
         sys.exit(0)
+        vis.visquit()
 
     '''
     Cmp Operation

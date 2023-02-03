@@ -11,6 +11,9 @@ apt -y install autopoint
 apt -y install gcc g++ automake autoconf libtool make
 apt -y install build-essential
 apt -y install libacl1-dev
+apt -y install libbz2-dev
+apt -y install tmux
+
 apt -y install python3 python3-pip  # ubuntu20.04 python3.8
 pip3 install wllvm
 

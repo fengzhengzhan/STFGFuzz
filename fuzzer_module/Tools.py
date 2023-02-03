@@ -114,7 +114,17 @@ def calPriotiryValue(distance, coverage, length) -> int:
     bit_length = 1
 
     # priority_value = int(distance*bit_dis + (1/(coverage+1))*cover_multiple*bit_cover + length*bit_length)
-    priority_value = int(distance * bit_dis + (coverage) % cover_multiple * bit_cover + int(length * bit_length))
+    # priority_value = int(distance * bit_dis + (coverage) % cover_multiple * bit_cover + int(length * bit_length))
+
+    # 1. no FIFO
+    # priority_value = 0
+    # 2. distance
+    # priority_value = distance
+    # 3. distance + coverage
+    # priority_value = int(distance * bit_dis + (coverage) % cover_multiple * bit_cover)
+    # 4. distance + 1/coverage
+    priority_value = int(distance * bit_dis + (1 / (coverage + 1)) * cover_multiple * bit_cover)
+
     return priority_value
 
 

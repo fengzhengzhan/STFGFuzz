@@ -17,28 +17,53 @@ VIS_TERM = True
 # VIS_SHOWGRAPH = True
 VIS_SHOWGRAPH = False
 
-FUZZ_MODE = "normal"  # ["normal","visible_character"]
+FUZZ_MODE = "visible_character"  # ["normal","visible_character"]
 
-if FUZZ_MODE == "visible_character":
-    NEAREST_NUMBER = 3
-    LIMITER = 0x7fffffff
-    MISSED_BYTES_POWER = True
-    BIT_MUTATE = True
-    MISS_LEN = 128
-    AIM_BYTE = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
-                81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 95, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108,
-                109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122}
-    MUT_BIT_LEN = 128
-else:
+if FUZZ_MODE == "normal":
     # normal
     NEAREST_NUMBER = 16  # [2,0x7fffffff]  level of nearest
     LIMITER = 0x7fffffff  # [256,0x7fffffff]
-    MISSED_BYTES_POWER = False  # [True,False]
+    MISSED_BYTES_POWER = True  # [True,False]
     BIT_MUTATE = False
     MISS_LEN = 256  # [128,256]
     # Specified characters
     AIM_BYTE = {i for i in range(0, 256)}
     MUT_BIT_LEN = 256  # [128,256]
+    EXPAND_LENGTH = False
+    SUB_LENGTH = False
+elif FUZZ_MODE == "visible_character":
+    NEAREST_NUMBER = 16
+    LIMITER = 0x7fffffff
+    MISSED_BYTES_POWER = True
+    BIT_MUTATE = True
+    MISS_LEN = 128
+    # AIM_BYTE = {i for i in range(1, 128)}
+    AIM_BYTE = {32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126,}
+    MUT_BIT_LEN = 256
+    EXPAND_LENGTH = False
+    SUB_LENGTH = False
+elif FUZZ_MODE == "constraint_only":
+    NEAREST_NUMBER = 0x7fffffff
+    LIMITER = 0x7fffffff
+    MISSED_BYTES_POWER = False
+    BIT_MUTATE = False
+    MISS_LEN = 256
+    AIM_BYTE = {i for i in range(0, 256)}
+    MUT_BIT_LEN = 256
+    EXPAND_LENGTH = False
+    SUB_LENGTH = False
+else:
+    NEAREST_NUMBER = 128  # [2,0x7fffffff]  level of nearest
+    LIMITER = 0x7fffffff  # [256,0x7fffffff]
+    MISSED_BYTES_POWER = True  # [True,False]
+    BIT_MUTATE = False
+    MISS_LEN = 256  # [128,256]
+    # Specified characters
+    AIM_BYTE = {i for i in range(0, 256)}
+    MUT_BIT_LEN = 256  # [128,256]
+    EXPAND_LENGTH = True
+    SUB_LENGTH = True
+
 
 
 FUZZNAME = "STFGFuzzer"

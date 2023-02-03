@@ -203,7 +203,7 @@ def mainFuzzer():
         b4ld_interlen = init_interlen
         # LOG(DEBUG, LOC(), init_seed.content, ana.getRpt(init_interlen))
 
-        if vis.loop > 3:
+        if vis.loop > 3 and EXPAND_LENGTH:
             while len(b4ld_seed.content) < sch.expand_size:
 
                 sch.expandnums += 1
@@ -238,10 +238,10 @@ def mainFuzzer():
                 res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, STG_LD, -1, sch)
                 # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                 if res == VIS_Q:
-                    sch.quitFuzz()
+                    sch.quitFuzz(vis)
 
         # Subtract seed length.
-        if vis.loop > 10 and False:
+        if vis.loop > 10 and SUB_LENGTH:
             if len(b4ld_seed.content) == b4len:
                 while len(b4ld_seed.content) > b4len // 2:
                 # while True:
@@ -273,7 +273,7 @@ def mainFuzzer():
                     res = vis.display(ld_seed, set(), ld_stdout, ld_stderr, STG_LD, -1, sch)
                     # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                     if res == VIS_Q:
-                        sch.quitFuzz()
+                        sch.quitFuzz(vis)
         # LOG(DEBUG, LOC(), b4ld_seed.content, show=True)
         '''ld <-'''
 
@@ -467,7 +467,7 @@ def mainFuzzer():
                         res = vis.display(sd_seed, set(sdloc_list), sd_stdout, sd_stderr, STG_SD, stcmpid_weight, sch)
                         # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                         if res == VIS_Q:
-                            sch.quitFuzz()
+                            sch.quitFuzz(vis)
                         eaexit = sch.saveCrash(sd_seed, sd_stdout, sd_stderr, vis)
 
                         # 1 seed inputs
@@ -553,7 +553,7 @@ def mainFuzzer():
                     res = vis.display(bd_seed, set(st_cmploc), bd_stdout, bd_stderr, STG_BD, stcmpid_weight, sch)
                     # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                     if res == VIS_Q:
-                        sch.quitFuzz()
+                        sch.quitFuzz(vis)
                     eaexit = sch.saveCrash(bd_seed, bd_stdout, bd_stderr, vis)
 
                     bd_interlen, bd_covernum, bd_guardlen = ana.getShm(bd_stdout[0:16])
@@ -688,7 +688,7 @@ def mainFuzzer():
                             st_seed, set(st_cmploc), st_stdout, st_stderr, STG_ST, stcmpid_weight, sch)
                         # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                         if res == VIS_Q:
-                            sch.quitFuzz()
+                            sch.quitFuzz(vis)
                         eaexit = sch.saveCrash(st_seed, st_stdout, st_stderr, vis)
 
                         # 2 cmp instruction
@@ -793,7 +793,7 @@ def mainFuzzer():
                     res = vis.display(miss_seed, set([change_loc]), miss_stdout, miss_stderr, STG_MS, sch.cur_nearlydis, sch)
                     # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                     if res == VIS_Q:
-                        sch.quitFuzz()
+                        sch.quitFuzz(vis)
                     miss_interlen, miss_covernum, miss_guardlen = ana.getShm(miss_stdout[0:16])
                     LOG(DEBUG, LOC(), sch.cur_nearlydis, loop_covernum, miss_covernum, miss_seed.content, show=True)
                     # if miss_covernum > loop_covernum or abs(miss_covernum - loop_covernum) >= GAP_VALUE:
@@ -813,7 +813,7 @@ def mainFuzzer():
                         res = vis.display(miss_seed, set([change_loc]), miss_stdout, miss_stderr, STG_MS, cur_dis, sch)
                         # vis.showGraph(path.data_graph, cggraph, cfggraph_dict['main'])
                         if res == VIS_Q:
-                            sch.quitFuzz()
+                            sch.quitFuzz(vis)
                         LOG(DEBUG, LOC(), cur_dis, sch.cur_nearlydis, loop_covernum, miss_covernum, miss_seed.content, show=True)
                         if cur_dis <= sch.cur_nearlydis:
                             sch.cur_nearlydis = cur_dis
