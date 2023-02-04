@@ -151,10 +151,14 @@ def mutSubLength(seedcont: bytes, filepath: str, sub_len):
     return temp_one
 
 def randomMutate(seed):
-    for index in range(0, len(seed.content)//4):
-        rand_idx = random.randint(0, len(seed.content))
-        rand_ele = random.randint(0, PAR_BIT_BASE)
-        seed.content = seed.content[0:rand_idx] + BYTES_ASCII[rand_ele] + seed.content[rand_idx + 1:]
+    # fixme: list out of range
+    try:
+        for index in range(0, len(seed.content)//4):
+            rand_idx = random.randint(0, len(seed.content))
+            rand_ele = random.randint(0, PAR_BIT_BASE)
+            seed.content = seed.content[0:rand_idx] + BYTES_ASCII[rand_ele] + seed.content[rand_idx + 1:]
+    except Exception as e:
+        pass
     return seed
 
 

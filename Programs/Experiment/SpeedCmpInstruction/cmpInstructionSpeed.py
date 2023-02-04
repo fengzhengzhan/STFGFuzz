@@ -313,7 +313,7 @@ def genPictureBarh(filename):
     labels = splitValue(excel_data[1:], 0)
     sanitizer_list = splitValue(excel_data[1:], 3)
     CFDGF_filter_list = splitValue(excel_data[1:], 4)
-    # print(labels, sanitizer_list, CFDGF_filter_list)
+    print(labels, sanitizer_list, CFDGF_filter_list)
 
     data = []
     multi = 0
@@ -322,7 +322,8 @@ def genPictureBarh(filename):
         multi += CFDGF_filter_list[idx]/sanitizer_list[idx]
         print(CFDGF_filter_list[idx], sanitizer_list[idx], CFDGF_filter_list[idx]/sanitizer_list[idx], multi)
     print("multi:{}".format(multi/len(labels)))
-    # print(data, len(labels))
+    print(data, len(labels))
+
 
     dim = len(data[0])
     w = 0.4
