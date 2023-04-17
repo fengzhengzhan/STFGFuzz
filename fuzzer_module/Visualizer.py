@@ -42,6 +42,9 @@ class Visualizer:
         self.all_coverage_set = set()
         self.change_map = {}
 
+        self.log_time = 60
+        self.log_path = None
+
         self.tgttime = VIS_TGTTIME  # target first time
 
         if self.terminal_switch:
@@ -95,12 +98,42 @@ class Visualizer:
         This function use to show state during fuzzing on the terminal.
         @return:
         """
-        stdout = stdout[0:VIS_STDLEN]
-        stderr = stderr[0:VIS_STDLEN]
         run_time = datetime.datetime.now() - self.start_time
         run_second = run_time.seconds + run_time.days * 86400
         if run_second == 0:
             run_second = 1
+
+        # log the runtime status
+        # print("{}{}".format(run_second, run_second > self.log_time))
+        if run_second > self.log_time:
+            self.log_time += 3600
+            if self.log_path != None:
+                # write csv
+                with open(self.log_path, "a+", encoding="utf-8") as cf:
+                    # GEN_CSV_HEADERS = "filename,time,duration,content,stdout,stderr\n"
+                    linestr = "-> " \
+                              + "Runtime: {}".format(self.last_time) + "," \
+                              + "Crash Nums: {}".format(self.crash_num) + "," \
+                              + "LastCrash Time: {}".format(self.last_crash_time) + "," \
+                              + "CPU: {}%".format(psutil.cpu_percent()) + "," \
+                              + "Mem: {}%".format(psutil.virtual_memory()[2]) + "," \
+                              + "Loop Number: {}".format(self.loop) + "," \
+                              + "Total Number: {}".format(self.total) + "," \
+                              + "Speed: {} e/s".format(int(self.total / run_second)) + "," \
+                              + "Program name: {}".format(self.show_pname) + "," \
+                              + "Current Target: {} / {}".format(sch.cur_tgtnum, sch.all_tgtnum) + "," \
+                              + "Coverage: {} / {} / {}".format(self.coverage_num, len(self.all_coverage_set), self.num_pcguard) + "," \
+                              + "Stage: {}".format(stagestr) + "," \
+                              + "Distance: {} / {}".format(cur_distance, self.cur_min_dis) + "," \
+                              + "Cmp Nums: {}-{} / {} ({})".format(self.cmpnum, self.cmporder, self.cmptotal, sch.seedqlen%1000000) + "," \
+                              + ",,,\n"
+                    cf.write(linestr)
+
+
+        # show the runtime status
+        stdout = stdout[0:VIS_STDLEN]
+        stderr = stderr[0:VIS_STDLEN]
+
         self.last_time = getTimestampStr(run_time.days, run_time.seconds)
 
         if self.cur_min_dis == 0 and self.tgttime == VIS_TGTTIME:
@@ -139,7 +172,7 @@ class Visualizer:
             self.terminal_status.addstr(1, 21, " Loop Number: {}".format(self.loop))
             self.terminal_status.addstr(2, 21, "Total Number: {}".format(self.total))
             self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total / run_second)))
-            self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total / run_second)))
+            # self.terminal_status.addstr(3, 21, "       Speed: {} e/s".format(int(self.total / run_second)))
             self.terminal_status.hline(4, 1, curses.ACS_HLINE, curse_len)
 
             #

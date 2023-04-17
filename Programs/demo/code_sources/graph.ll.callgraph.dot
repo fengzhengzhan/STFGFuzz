@@ -1,0 +1,15 @@
+digraph "Call graph: graph.ll" {
+	label="Call graph: graph.ll";
+
+	Node0x555555629be0 [shape=record,label="{_Z1ai}"];
+	Node0x555555629be0 -> Node0x555555629c90;
+	Node0x555555629c90 [shape=record,label="{printf}"];
+	Node0x55555562a1b0 [shape=record,label="{_Z1bi}"];
+	Node0x55555562a1b0 -> Node0x555555629c90;
+	Node0x55555562a260 [shape=record,label="{_Z1ci}"];
+	Node0x55555562a260 -> Node0x555555629c90;
+	Node0x55555562a310 [shape=record,label="{main}"];
+	Node0x55555562a310 -> Node0x555555629be0;
+	Node0x55555562a310 -> Node0x55555562a1b0;
+	Node0x55555562a310 -> Node0x55555562a260;
+}

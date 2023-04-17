@@ -208,11 +208,7 @@ def handleChecksums(ret_seed, st_loc, strategy):
     if strategy.curnum < strategy.endnum:
         ci = strategy.curnum // MUT_BIT_LEN
         cb = strategy.curnum % MUT_BIT_LEN
-        # fixme: list index out of range
-        try:
-            change_inputmap[st_loc[ci]] = BYTES_ASCII[cb]
-        except Exception as e:
-            pass
+        change_inputmap[st_loc[ci]] = BYTES_ASCII[cb]
     return change_inputmap
 
 

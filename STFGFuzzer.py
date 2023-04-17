@@ -42,6 +42,7 @@ def mainFuzzer():
 
     path = Structures.StructPath(program_name)
     file_crash_csv = path.seeds_crash + CRASH_CSVFILENAME
+    log_vis_path = path.seeds_crash + VIS_CSVFILENAME
 
     '''Fuzzing test procedure'''
 
@@ -69,8 +70,10 @@ def mainFuzzer():
         print("{} Build Graph Information...".format(getTime()))
         # Load the .dot file into networkx.
         cglist, cfglist = Generator.createDotJsonFile(program_name, path.code_IR + program_name + GEN_TRACEBC_SUFFIX)
-        LOG(DEBUG, LOC(), cglist, cfglist, show=True)
+        # LOG(DEBUG, LOC(), cglist, cfglist, show=True)
+        # print(cglist)
         cggraph, map_functo_cgnode = Builder.getCG(cglist)
+        # print(cggraph)
         cfggraph_dict, map_guard_gvid, map_target = Builder.getCFG(cfglist, map_numto_funcasm, target_dict)
         # map_target {0: {'_Z3bugv': [[0, [0], 0]], 'main': [[1, [31], 32]]}}
         # LOG(DEBUG, LOC(), map_guard_gvid, map_target, map_numto_funcasm, target_dict, map_functo_cgnode)
@@ -103,7 +106,7 @@ def mainFuzzer():
         map_target = loadFromPkl(path.data_patchloc+".map_target.pkl")
         map_tgtpredgvid_dis = loadFromPkl(path.data_patchloc+".map_tgtpredgvid_dis.pkl")
         tgtpred_offset = loadFromPkl(path.data_patchloc+".tgtpred_offset.pkl")
-    LOG(DEBUG, LOC(), map_functo_cgnode, map_guard_gvid, map_target, map_tgtpredgvid_dis, tgtpred_offset, show=True)
+    # LOG(DEBUG, LOC(), map_functo_cgnode, map_guard_gvid, map_target, map_tgtpredgvid_dis, tgtpred_offset, show=True)
 
     if len(map_target) != 0:
         sch.all_tgtnum = len(map_target)
@@ -142,6 +145,7 @@ def mainFuzzer():
 
     # Visualizer
     vis = Visualizer.Visualizer()
+    vis.log_path = log_vis_path
     vis.trace_orderdict = trace_orderdict
     vis.show_pname = program_name
     # LOG(DEBUG, LOC(), map_target, vis.trace_orderdict, show=True)
@@ -153,6 +157,7 @@ def mainFuzzer():
     create_seed = sch.selectOneSeed(
         SCH_THISMUT_SEED,
         Structures.StructSeed(path.seeds_mutate + AUTO_SEED, Mutator.getExpandFillStr(SCH_EXPAND_SIZE), SEED_INIT, set()))
+    # Executor.runTimeLimit(fuzz_command.replace(REPLACE_COMMAND, create_seed.filename), vis)
     create_stdout, create_stderr = Executor.runTimeLimit(fuzz_command.replace(REPLACE_COMMAND, create_seed.filename), vis)
     sch.saveCrash(create_seed, create_stdout, create_stderr, vis)
     ana.getShm(create_stdout[0:16])
@@ -351,7 +356,7 @@ def mainFuzzer():
         # raise Exception
 
         # print("{} st...".format(getTime()))
-        LOG(DEBUG, LOC(), not eaexit and not sch.targetcmp_pq.empty(), show=True)
+        # LOG(DEBUG, LOC(), not eaexit and not sch.targetcmp_pq.empty(), show=True)
         '''3 cmp type'''
         '''st -> Constraints Analysis'''
         # Select one stcmpid_tuples.
@@ -384,7 +389,7 @@ def mainFuzzer():
             vis.cmporder = 0
 
             # Only mutate nearest constraint.
-            LOG(DEBUG, LOC(), nearest_set, show=True)
+            # LOG(DEBUG, LOC(), nearest_set, show=True)
             # print(nearest_set)
             if len(nearest_set) == NEAREST_NUMBER and stcmpid_weight not in nearest_set:
                 break
@@ -608,7 +613,7 @@ def mainFuzzer():
                 if bytes_flag == PAR_FIXAFIX:
                     continue
                 # LOG(DEBUG, LOC(), opt_cmpcov_list, ststart_cmpcov_list, cmporder_j, show=True)
-                LOG(DEBUG, LOC(), strategy_flag, bytes_flag, opt_cmpcov_list[cmporder_j], ststart_cmpcov_list[cmporder_j], show=True)
+                # LOG(DEBUG, LOC(), strategy_flag, bytes_flag, opt_cmpcov_list[cmporder_j], ststart_cmpcov_list[cmporder_j], show=True)
 
                 # fixme
                 # opt_seed = Mutator.mutLocFromMap(opt_seed, opt_seed, path.seeds_mutate, ST_STR + str(vis.loop),
@@ -702,7 +707,7 @@ def mainFuzzer():
                         opt_seed, opt_cmpcov_list, exe_status = Parser.solveDistance(
                             strategy, opt_seed, st_seed, opt_cmpcov_list, st_cmpcov_list, cmporder_j)
                         # LOG(DEBUG, LOC(), opt_cmpcov_list, st_cmpcov_list, cmporder_j, show=True)
-                        LOG(DEBUG, LOC(), locmapdet_dict, exe_status, locmapdet_dict, opt_cmpcov_list[cmporder_j], show=True)
+                        # LOG(DEBUG, LOC(), locmapdet_dict, exe_status, locmapdet_dict, opt_cmpcov_list[cmporder_j], show=True)
 
                         strategy.curnum += 1
                         if exe_status == DIST_FINISH:

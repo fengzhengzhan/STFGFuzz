@@ -24,7 +24,12 @@ then
 	echo "[+] ProgramName: <${PROGRAMNAME}>"
 	
 	# Create Files
+	if [ ! -d ${PROGRAMNAME} ];then
+		mkdir -m 775 ${PROGRAMNAME}
+	fi
+		
 	cd ${PROGRAMNAME}
+	
 	if [ ! -d code_Bin ];then
 		mkdir -m 775 code_Bin
 	fi
@@ -111,8 +116,8 @@ then
 		opt -load ../../${LLVMPASSPATH} -line -S ${IR}/${PROGRAMNAME_TRACE}.${SUFFIX} -o ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} >> ${LINE_SAVE}
 		echo "}" >> ${LINE_SAVE}
 		llc -filetype=obj ${IR}/${PROGRAMNAME_PASS}.${SUFFIX} -o ${IR}/${PROGRAMNAME}.o  # Object file
-		# -lz -lbz2
-		${COMPILER} -lz -lbz2 -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
+		# -lz -lbz2 -lm -llzo2 -ljpeg -lstdc++ -L/usr/local/lib -lpoppler
+		${COMPILER} -lz -lbz2 -lm -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
 		# ${COMPILER} -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
 		# clang -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpcov -Wl,--no-whole-archive -L/usr/local/lib/ -lhiredis ${IR}/${PROGRAMNAME}.o -o ${BIN}/${PROGRAMNAME}  # Link
 		# -lbz2

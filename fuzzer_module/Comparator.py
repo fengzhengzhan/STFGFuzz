@@ -91,6 +91,7 @@ def getTarget(path_patchloc, patchtype: list):
                     # print(cont_groups)
                     LOG(DEBUG, LOC(), line, int(cont_groups[0]), cont_groups[1],
                         cont_groups[2])
+                    # print(line, int(cont_groups[0]), cont_groups[1], cont_groups[2])
                     target_dict[target_num].append([int(cont_groups[0]), cont_groups[1],
                                                     int(cont_groups[2])])
             # print(target_dict[0])

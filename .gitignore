@@ -1,4 +1,5 @@
 test.py
+main.py
 
 .git/
 .idea/
@@ -31,6 +32,7 @@ data_patchloc/
 seeds_init/
 seeds_crash/
 seeds_mutate/
+all_crash/
 Programs/base64/crashinfo.txt/
 Programs/STFGFuzzer.log
 Programs/STFGFuzzer_print.log

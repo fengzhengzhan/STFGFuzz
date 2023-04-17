@@ -1,8 +1,6 @@
-# Run BTFuzz on LAVA dataset
+# Run Fuzz on LAVA dataset
 
 - Download LAVA-M Dataset: [Download](http://panda.moyix.net/~moyix/lava_corpus.tar.xz)
-
-# Compile the data set
 
 ## lava-13796(LAVA-1)
 ```bash
@@ -63,6 +61,8 @@ llc -filetype=obj base64_pass.bc -o base64.o
 clang -fsanitize=address -Wl,--whole-archive -L./ClangSanitizer -lcmpcov -Wl,--no-whole-archive base64.o -o base64
 ```
 
+# Compile the data set
+
 ## CVE-2016-4487 (binutils-gdb)
 ```
 git clone git://sourceware.org/git/binutils-gdb.git cxxfilt-CVE-2016-4487
@@ -89,6 +89,7 @@ sudo clang -lz -fsanitize=address -Wl,--whole-archive -L../../llvm_mode/ClangSan
 
 // objdump
 CC=wllvm CXX=wllvm++ CFLAGS="-DFORTIFY_SOURCE=2 -fstack-protector-all -fno-omit-frame-pointer -g -O0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim
+// CC=clang CFLAGS="-DFORTIFY_SOURCE=2 -fstack-protector-all -fsanitize=undefined,address -fno-omit-frame-pointer -g -Wno-error" ../configure --disable-shared --disable-gdb --disable-libdecnumber --disable-readline --disable-sim
 ```
 
 ## coreutils
@@ -117,11 +118,13 @@ export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
 ./autogen.sh
 // --enable-php
-CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fcommon -ferror-limit=0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --with-php-config=/usr/bin/php-config7.2 --enable-static --disable-shared
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fcommon -Wno-error" ./configure --prefix=`pwd`/obj-bc --with-php-config=/usr/bin/php-config7.2 --enable-static --disable-shared
 make
 make install
 cd obj-bc/bin/
 extract-bc xxx
+
+./autogen.sh && CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fcommon -Wno-error" ./configure --prefix=`pwd`/obj-bc --with-php-config=/usr/bin/php-config7.2 --enable-static --disable-shared && make && make install && cd obj-bc/bin/
 ```
 
 ## file 
@@ -130,21 +133,23 @@ extract-bc xxx
 export FORCE_UNSAFE_CONFIGURE=1
 export LLVM_COMPILER=clang
 autoreconf -f -i
-CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --enable-static --disable-shared --disable-ld
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --disable-shared --enable-static --disable-ld
 make && make install
 
 ```
 
-
-## Self
-```bash
-// -I/usr/local/include -L/usr/local/lib
-// clang -g -emit-llvm -c src.c -o src.bc
-clang++ -g -emit-llvm -c code_sources/demo.cc -o code_sources/demo.bc
-./build.sh -n demo clang++
-// clang -fsanitize=address demo.bc -o demo
+## libjpeg  pdftoppm
 ```
+// EXECUTABLE_OUTPUT_PATH="obj-bc"
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" cmake -DCMAKE_C_COMPILER=wllvm -DCMAKE_CXX_COMPILER=wllvm++ -B obj-bc -G"Unix Makefiles" 
 
+apt-get install libfreetype6 libfreetype6-dev
+apt install libfontconfig1-dev
+apt install libjpeg-dev
+apt install libopenjp2-7-dev
+apt install libnss3-dev --fix-missing
+apt-get install libboost-dev
+```
 
 ## Compile Program (libtiff)
 ```
@@ -157,7 +162,51 @@ make install
 
 ```
 
-## Problems
+## lrzip
+```
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --disable-shared
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fcommon -Wno-error -ffunction-sections -fdata-sections" ./configure --prefix=`pwd`/obj-bc
+```
+
+## libpng
+```
+sed -i 's/return ((int)(crc != png_ptr->crc));/return (0);/g' pngrutil.c
+autoreconf -f -i
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" ./configure --prefix=`pwd`/obj-bc --disable-shared
+make
+```
+
+## libav
+```
+//  --disable-x86asm  --disable-yasm  --libdir=/usr/local/lib
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -fcommon -Wno-error" ./configure --cc=wllvm --prefix=`pwd`/obj-bc --disable-shared 
+
+```
+
+
+## Self
+```bash
+// -I/usr/local/include -L/usr/local/lib
+// clang -g -emit-llvm -c src.c -o src.bc
+clang++ -g -emit-llvm -c code_sources/demo.cc -o code_sources/demo.bc	
+./build.sh -n demo clang++
+// clang -fsanitize=address demo.bc -o demo
+```
+
+# Windranger Dataset
+
+FILE  NAME  PROGRAM
+## Bento4-1.5.1-628  bento4  mp42aac
+```
+export FORCE_UNSAFE_CONFIGURE=1
+export LLVM_COMPILER=clang
+CC=wllvm CXX=wllvm++ CFLAGS="-g -O0 -Wno-error" cmake -DCMAKE_C_COMPILER=wllvm -DCMAKE_CXX_COMPILER=wllvm++ -B obj-bc -G"Unix Makefiles" 
+cd obj-bc
+make
+```
+
+
+# Solutions to problems
 ```bash
 // extract all program bc file.
 ls | sort | xargs -n1 extract-bc
@@ -171,6 +220,7 @@ apt install libacl1-dev
 // fatal error: 'zlib.h' file not found
 apt install zlib*
 apt install zlib1g-dev
+apt install pkg-config
 
 // xlocale.h file not found
 ln -s /usr/include/locale.h /usr/include/xlocale.h
@@ -214,6 +264,10 @@ apt install autopoint
 // install other packages
 apt install bison
 
+// llzo not found
+apt install liblzo2-dev
+# http://www.oberhumer.com/opensource/lzo/download/lzo-2.10.tar.gz
+
 // Building GDB requires GMP 4.2+, and MPFR 3.1.0+.
 wget ftp://ftp.gnu.org/gnu/gmp/gmp-6.2.0.tar.bz2
 tar -xvf gmp-6.2.0.tar.bz2
@@ -244,5 +298,8 @@ make check
 
 
 ./configure --with-gmp=/usr/local/gmp-6.2.0 --with-mpfr=/usr/local/mpfr-4.1.0 --with-mpc=/usr/local/mpc-1.2.0 --enable-linux --enable-multilib
+
+// cannot find -ljpeg
+apt install libjpeg-dev
 
 ```

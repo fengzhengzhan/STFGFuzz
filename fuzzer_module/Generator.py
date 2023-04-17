@@ -131,6 +131,7 @@ def createDotJsonFile(program_name: str, bc_file: str) -> (list, list):
 
     temp_filelist = os.listdir()
     os.chdir(proj_path)
+    # print(temp_filelist)
 
     # Get dot filename.
     cgdotlist = []  # Call Graph

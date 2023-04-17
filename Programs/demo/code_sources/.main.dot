@@ -1,0 +1,12 @@
+digraph "CFG for 'main' function" {
+	label="CFG for 'main' function";
+
+	Node0x555555613790 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870",label="{%0:\l  %1 = alloca i32, align 4\l  %2 = alloca i32, align 4\l  store i32 0, i32* %1, align 4\l  call void @llvm.dbg.declare(metadata i32* %2, metadata !11, metadata\l... !DIExpression()), !dbg !12\l  store i32 10, i32* %2, align 4, !dbg !12\l  %3 = load i32, i32* %2, align 4, !dbg !13\l  %4 = icmp sgt i32 %3, 5, !dbg !15\l  br i1 %4, label %5, label %7, !dbg !16\l|{<s0>T|<s1>F}}"];
+	Node0x555555613790:s0 -> Node0x555555614760;
+	Node0x555555613790:s1 -> Node0x5555556147f0;
+	Node0x555555614760 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#f59c7d70",label="{%5:\l5:                                                \l  %6 = load i32, i32* %2, align 4, !dbg !17\l  call void @_Z1ai(i32 %6), !dbg !19\l  br label %9, !dbg !20\l}"];
+	Node0x555555614760 -> Node0x555555614db0;
+	Node0x5555556147f0 [shape=record,color="#3d50c3ff", style=filled, fillcolor="#f59c7d70",label="{%7:\l7:                                                \l  %8 = load i32, i32* %2, align 4, !dbg !21\l  call void @_Z1bi(i32 %8), !dbg !23\l  br label %9\l}"];
+	Node0x5555556147f0 -> Node0x555555614db0;
+	Node0x555555614db0 [shape=record,color="#b70d28ff", style=filled, fillcolor="#b70d2870",label="{%9:\l9:                                                \l  %10 = load i32, i32* %2, align 4, !dbg !24\l  call void @_Z1ci(i32 %10), !dbg !25\l  ret i32 0, !dbg !26\l}"];
+}
