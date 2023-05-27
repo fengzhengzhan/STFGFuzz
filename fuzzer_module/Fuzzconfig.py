@@ -336,6 +336,8 @@ SEEDSMUTATE = "seeds_mutate"
 SEEDSCRASH = "seeds_crash"
 CRASH_CSVFILENAME = "crashes.csv"
 VIS_CSVFILENAME = "vis.csv"
+MODULETIME_FILENAME = "time.csv"
+
 # clang $1.c -emit-llvm -S
 # opt -dot-cfg $1.ll > /dev/null   // get CFG
 # opt -dot-callgraph $1.ll > /dev/null   // get CG

@@ -233,7 +233,7 @@ Try to solve the constraint according to the distance
 '''
 
 
-def solveChangeMap(strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_num):
+def solveChangeMap(strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_num, module_time_path):
     """
     Get the strategy change map
     @return:
@@ -251,24 +251,38 @@ def solveChangeMap(strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_num)
 
         LOG(DEBUG, LOC(), cont_list)
         if strategy.strategytype == TYPE_DEFAULT:
+            writeTime(module_time_path, "typerandom_start_time:{},{}".format(getTimeStr(),time.time()))
             change_inputmap = handleRandom(st_cmploc)
+            writeTime(module_time_path, "typerandom_end_time:{},{}".format(getTimeStr(),time.time()))
         elif strategy.strategytype == TYPE_UNDEFINED:
+            writeTime(module_time_path, "typerandom_start_time:{},{}".format(getTimeStr(),time.time()))
             change_inputmap = handleRandom(st_cmploc)
+            writeTime(module_time_path, "typerandom_end_time:{},{}".format(getTimeStr(),time.time()))
         elif strategy.strategytype == TYPE_SOLVED:
             pass
 
         elif strategy.strategytype == TYPE_MAGICNUM:
+            writeTime(module_time_path, "magic_start_time:{},{}".format(getTimeStr(),time.time()))
             change_inputmap = handleMagicNum(st_cmploc, cont_list, strategy)
+            writeTime(module_time_path, "magic_end_time:{},{}".format(getTimeStr(),time.time()))
         elif strategy.strategytype == TYPE_CHECKNUM:
+            writeTime(module_time_path, "checksum_start_time:{},{}".format(getTimeStr(),time.time()))
             change_inputmap = handleChecksums(opt_seed, st_cmploc, strategy)
+            writeTime(module_time_path, "checksum_end_time:{},{}".format(getTimeStr(),time.time()))
 
         elif strategy.strategytype == TYPE_MAGICBYTES:
+            writeTime(module_time_path, "magic_start_time:{},{}".format(getTimeStr(),time.time()))
             change_inputmap = handleMagicBytes(st_cmploc, cont_list, strategy)
+            writeTime(module_time_path, "magic_end_time:{},{}".format(getTimeStr(),time.time()))
         elif strategy.strategytype == TYPE_CHECKBYTES:
+            writeTime(module_time_path, "checksum_start_time:{},{}".format(getTimeStr(),time.time()))
             change_inputmap = handleChecksums(opt_seed, st_cmploc, strategy)
+            writeTime(module_time_path, "checksum_end_time:{},{}".format(getTimeStr(),time.time()))
 
         elif strategy.strategytype == TYPE_RANDOM:
+            writeTime(module_time_path, "typerandom_start_time:{},{}".format(getTimeStr(),time.time()))
             change_inputmap = handleRandom(st_cmploc)
+            writeTime(module_time_path, "typerandom_end_time:{},{}".format(getTimeStr(),time.time()))
 
         locmapdet_dict.update(change_inputmap)
 

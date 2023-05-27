@@ -107,6 +107,11 @@ def getLocInputValue(content, location):
         loc_input[one_loc] = content[one_loc:one_loc + 1]
     return loc_input
 
+def writeTime(filename, timestr):
+    with open(filename, "a+", encoding="utf-8") as f:
+        f.write(timestr+"\n")
+
+
 def calPriotiryValue(distance, coverage, length) -> int:
     bit_dis = 10000000000
     bit_cover = 1000

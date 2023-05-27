@@ -43,6 +43,7 @@ def mainFuzzer():
     path = Structures.StructPath(program_name)
     file_crash_csv = path.seeds_crash + CRASH_CSVFILENAME
     log_vis_path = path.seeds_crash + VIS_CSVFILENAME
+    module_time_path = path.seeds_crash + MODULETIME_FILENAME
 
     '''Fuzzing test procedure'''
 
@@ -165,6 +166,7 @@ def mainFuzzer():
 
     '''Fuzzing Cycle'''
     print("{} Fuzzing Loop...".format(getTime()))
+    writeTime(module_time_path, "start_time:{},{}".format(getTimeStr(),time.time()))
     while sch.cur_tgtnum < sch.all_tgtnum and not sch.seedq.empty():
         loop_mutloc = set()
         eaexit = False
@@ -444,6 +446,7 @@ def mainFuzzer():
                     break
 
                 '''sd -> Sliding Window Detection O(n/step)'''
+                writeTime(module_time_path, "sd_start_time:{},{}".format(getTimeStr(),time.time()))
                 # Get a report on changes to comparison instructions.
                 slid_list = sch.loc_coarse_list
                 slid_window = max(len(slid_list) // SCH_SLID_SLICE, SCH_SLID_MIN)
@@ -503,6 +506,7 @@ def mainFuzzer():
                 # LOG(DEBUG, LOC(), init_seed.content, cmpmaploc_dict, show=True)
 
                 # raise Exception()
+                writeTime(module_time_path, "sd_end_time:{},{}".format(getTimeStr(),time.time()))
                 '''sd <-'''
                 # False positive comparison if all input bytes are covered
                 # if len(stloclist_v) == len(init_seed.content):
@@ -544,6 +548,7 @@ def mainFuzzer():
                 #     continue
 
                 '''bd -> Byte Detection O(m)'''
+                writeTime(module_time_path, "bd_start_time:{},{}".format(getTimeStr(),time.time()))
                 # Single-byte comparison in order
                 st_cmploc = []
                 for one_loc in stloclist_v:
@@ -575,7 +580,7 @@ def mainFuzzer():
                 if len(loop_mutloc) == len(ststart_seed.content):
                     eaexit = True
                 loop_mutloc = set(st_cmploc) | loop_mutloc
-
+                writeTime(module_time_path, "bd_end_time:{},{}".format(getTimeStr(),time.time()))
                 '''bd <-'''
 
                 ana.sendCmpid(stcmpid_ki)
@@ -660,10 +665,10 @@ def mainFuzzer():
                         # Change the first mutate seed. Other status will use opt_seed.
                         if strategy.curnum == 0:
                             locmapdet_dict = Parser.solveChangeMap(
-                                strategy, st_cmploc, st_seed, st_cmpcov_list, cmporder_j)
+                                strategy, st_cmploc, st_seed, st_cmpcov_list, cmporder_j, module_time_path)
                         else:
                             locmapdet_dict = Parser.solveChangeMap(
-                                strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_j)
+                                strategy, st_cmploc, opt_seed, opt_cmpcov_list, cmporder_j, module_time_path)
 
                         vis.change_map = locmapdet_dict
                         # The next mutate seed
@@ -769,7 +774,7 @@ def mainFuzzer():
         '''Mutation all location.'''
         # Again sufficient mutation according to the index
         # Missed byte
-
+        writeTime(module_time_path, "missed_start_time:{},{}".format(getTimeStr(),time.time()))
         if eaexit == False and MISSED_BYTES_POWER == True:
             miss_set = set([i for i in range(0, len(init_seed.content))]) - loop_mutloc
             # LOG(DEBUG, LOC(), len(init_seed.content), loop_mutloc, miss_set, show=True)
@@ -827,8 +832,10 @@ def mainFuzzer():
                             sch.addq(SCH_LOOP_SEED, [miss_seed, ],
                                      calPriotiryValue(cur_dis, miss_covernum, len(miss_seed.content)))
                             loop_covernum = miss_covernum
+        writeTime(module_time_path, "missed_end_time:{},{}".format(getTimeStr(),time.time()))
 
         '''Random Mutation'''
+        writeTime(module_time_path, "random_start_time:{},{}".format(getTimeStr(),time.time()))
         if vis.cur_min_dis == vis.pre_min_dis:
             vis.random_num += 1
             if vis.random_num > RANDOM_NUMBER:
@@ -842,6 +849,7 @@ def mainFuzzer():
         else:
             vis.pre_min_dis = vis.cur_min_dis
             vis.random_num = 0
+        writeTime(module_time_path, "random_end_time:{},{}".format(getTimeStr(),time.time()))
 
         # raise Exception()
         # Endless fuzzing, add the length seed.
