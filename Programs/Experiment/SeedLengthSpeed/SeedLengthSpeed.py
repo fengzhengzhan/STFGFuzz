@@ -33,6 +33,8 @@ ${COMPILER} -lz -fsanitize=address -Wl,--whole-archive -L../../${SANPATH} -lcmpc
 cd ../..
 '''
 
+colors = ['#63B2EE','#EFA666','#C2E1B9','#FF6A6A','#FFF2CC','#B7DDE8','#AB9AC0','#C05046']
+
 
 def compilerCmd(dir, file):
     # pass
@@ -176,13 +178,13 @@ def genPicture(filename, ):
     # k17 = excel_data[17][1:]  # 线的纵坐标
     # plt.plot(x, k1, 's-', color='r', label="base64")  # s-:方形
     # plt.plot(x, k2, 'o-', color='g', label="md5sum")  # o-:圆形
-    plt.plot(x, k1, 'o-', label=program[0])
-    plt.plot(x, k2, 'o-', label=program[1])
-    plt.plot(x, k3, 'o-', label=program[2])
-    plt.plot(x, k4, 'o-', label=program[3])
-    plt.plot(x, k5, 'o-', label=program[4])
-    plt.plot(x, k6, 'o-', label=program[5])
-    plt.plot(x, k7, 'o-', label=program[6])
+    plt.plot(x, k1, 'o-', label=program[0], color=colors[0])
+    plt.plot(x, k2, 'o-', label=program[1], color=colors[1])
+    plt.plot(x, k3, 'o-', label=program[2], color=colors[2])
+    plt.plot(x, k4, 'o-', label=program[3], color=colors[3])
+    plt.plot(x, k5, 'o-', label=program[4], color=colors[4])
+    plt.plot(x, k6, 'o-', label=program[5], color=colors[5])
+    plt.plot(x, k7, 'o-', label=program[6], color=colors[6])
     # plt.plot(x, k8, 'o-', label=program[7])
     # plt.plot(x, k9, 'o-', label=program[8])
     # plt.plot(x, k10, 'o-', label=program[9])

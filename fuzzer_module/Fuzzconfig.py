@@ -68,7 +68,7 @@ else:
 
 
 
-FUZZNAME = "STFGFuzzer"
+FUZZNAME = "CONFF"
 FUZZPRINTLOG = FUZZNAME + "_show.log"
 FILEREPLACE = "@@"
 USE_INITNUM = -1

@@ -1,6 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+colors = ['#AECBFF','#F9C499','#C2E1B9','#FF6A6A','#FFF2CC','#B7DDE8','#AB9AC0','#C05046']
+# colors = ['#0000FF','#FFA500','#00FF00','#FF0000','#FFFF00','#00FFFF','#800080','#4d3900']
+
+import matplotlib.colors as mcolors
+def changeRGB(hex):
+    rgba = mcolors.hex2color(hex)
+    return (*rgba[:3], 1)
+
+
 class Display():
 
     def drawBarChart(self, data):
@@ -43,26 +52,26 @@ class Display():
         # draw picture
         # fig, ax = plt.subplots(figsize=(6, 9))
         fig, ax = plt.subplots(figsize=(12, 12))
-        plt.xlim((0.001, 3.0))
+        plt.xlim((0.001, 1.15))
         x = np.arange(len(data))
         # print(x)
 
         # for i in range(len(data[0])):
         y = [d[0] for d in data]
-        b = ax.barh(x + 1.5 * dimw, y, dimw, left=0.001, label="FIFO")
+        b = ax.barh(x + 1.5 * dimw, y, dimw, left=0.001, label="FIFO", color=changeRGB(colors[0]))
 
         y = [d[1] for d in data]
-        b = ax.barh(x + 0.5 * dimw, y, dimw, left=0.001, label="D")
+        b = ax.barh(x + 0.5 * dimw, y, dimw, left=0.001, label="D", color=changeRGB(colors[1]))
 
         y = [d[2] for d in data]
-        b = ax.barh(x - 0.5 * dimw, y, dimw, left=0.001, label="D+C")
+        b = ax.barh(x - 0.5 * dimw, y, dimw, left=0.001, label="D+C", color=changeRGB(colors[2]))
 
         y = [d[3] for d in data]
-        b = ax.barh(x - 1.5 * dimw, y, dimw, left=0.001, label=r"$D+\frac{1}{C}$")
+        b = ax.barh(x - 1.5 * dimw, y, dimw, left=0.001, label=r"$D+\frac{1}{C}$", color=changeRGB(colors[3]))
 
         ax.set_yticks(x + dimw / 2)
         ax.set_yticklabels(map(str, labels))
-        ax.set_xscale('log')
+        # ax.set_xscale('log')
 
         ax.set_xlabel('Normalized time')
         ax.legend(loc=1)

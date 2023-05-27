@@ -18,7 +18,8 @@ from ctypes import *
 '''
 Experiment of SpeedCmpInstruction.
 '''
-
+colors = ['#F9C499','#AECBFF','#C2E1B9','#FF6A6A','#FFF2CC','#B7DDE8','#AB9AC0','#C05046']
+colors = ['#63B2EE','#EFA666']
 # Compilation Method
 # program = ['as', 'base64', 'c++filt', 'md5sum', 'readelf', 'strings', 'uniq']
 # args = ['', '-d ', ' @', '', '', '', '']
@@ -337,10 +338,10 @@ def genPictureBarh(filename):
 
     # for i in range(len(data[0])):
     y = [d[0] for d in data]
-    b = ax.barh(x + 1 * dimw, y, dimw, left=0.001, label="Sanitizer")
+    b = ax.barh(x + 1 * dimw, y, dimw, left=0.001, label="Sanitizer", color=colors[0])
 
     y = [d[1] for d in data]
-    b = ax.barh(x + 0 * dimw, y, dimw, left=0.001, label="CONFF")
+    b = ax.barh(x + 0 * dimw, y, dimw, left=0.001, label="CONFF", color=colors[1])
 
     ax.set_yticks(x + dimw / 2)
     ax.set_yticklabels(map(str, labels))

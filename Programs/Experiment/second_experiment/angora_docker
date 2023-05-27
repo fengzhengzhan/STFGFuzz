@@ -1,0 +1,39 @@
+angora_CVE-2017-14938 0
+tmux new -d -s angora_CVE-2017-14938 'cd /root/datav5/Angora-1.2.2/experiment && ./angora.sh -t 0 ; bash'
+ExecResult(exit_code=None, output='')
+angora_CVE-2017-8392 1
+tmux new -d -s angora_CVE-2017-8392 'cd /root/datav5/Angora-1.2.2/experiment && ./angora.sh -t 1 ; bash'
+ExecResult(exit_code=None, output='')
+angora_CVE-2019-9070 2
+tmux new -d -s angora_CVE-2019-9070 'cd /root/datav5/Angora-1.2.2/experiment && ./angora.sh -t 2 ; bash'
+ExecResult(exit_code=None, output='')
+angora_cplusdem1423 3
+tmux new -d -s angora_cplusdem1423 'cd /root/datav5/Angora-1.2.2/experiment && ./angora.sh -t 3 ; bash'
+ExecResult(exit_code=None, output='')
+angora_cplusdem2744 4
+tmux new -d -s angora_cplusdem2744 'cd /root/datav5/Angora-1.2.2/experiment && ./angora.sh -t 4 ; bash'
+ExecResult(exit_code=None, output='')
+angora_cplusdem4263 5
+tmux new -d -s angora_cplusdem4263 'cd /root/datav5/Angora-1.2.2/experiment && ./angora.sh -t 5 ; bash'
+ExecResult(exit_code=None, output='')
+angora_dwarf22860 6
+tmux new -d -s angora_dwarf22860 'cd /root/datav5/Angora-1.2.2/experiment && ./angora.sh -t 6 ; bash'
+ExecResult(exit_code=None, output='')
+angora_objcopy3762 7
+tmux new -d -s angora_objcopy3762 'cd /root/datav5/Angora-1.2.2/experiment && ./angora.sh -t 7 ; bash'
+ExecResult(exit_code=None, output='')
+angora_objdump2112 8
+tmux new -d -s angora_objdump2112 'cd /root/datav5/Angora-1.2.2/experiment && ./angora.sh -t 8 ; bash'
+ExecResult(exit_code=None, output='')
+angora_CVE-2016-9827 9
+tmux new -d -s angora_CVE-2016-9827 'cd /root/datav5/Angora-1.2.2/experiment && ./angora.sh -t 9 ; bash'
+ExecResult(exit_code=None, output='')
+angora_CVE-2016-9828 10
+tmux new -d -s angora_CVE-2016-9828 'cd /root/datav5/Angora-1.2.2/experiment && ./angora.sh -t 10 ; bash'
+ExecResult(exit_code=None, output='')
+angora_decompile2869 11
+tmux new -d -s angora_decompile2869 'cd /root/datav5/Angora-1.2.2/experiment && ./angora.sh -t 11 ; bash'
+ExecResult(exit_code=None, output='')
+angora_read232 12
+tmux new -d -s angora_read232 'cd /root/datav5/Angora-1.2.2/experiment && ./angora.sh -t 12 ; bash'
+ExecResult(exit_code=None, output='')

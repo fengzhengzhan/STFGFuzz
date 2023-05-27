@@ -302,4 +302,8 @@ make check
 // cannot find -ljpeg
 apt install libjpeg-dev
 
+// libpoppler.so.85 not found
+sudo cp -r libpoppler.so.85.0.0 /usr/lib/libpoppler.so.85
+sudo chmod 644 /usr/lib/libpoppler.so.85
+
 ```

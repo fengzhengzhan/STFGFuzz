@@ -95,7 +95,7 @@ list_cve_second = [
 ]
 
 
-class OperateDocker():
+class OperateDocker:
     def __init__(self):
         self.client = docker.from_env()
         self.volumes_path = "/home/fzz/Desktop/STFGFuzz/dataset/CONFF:/root/dataset"
